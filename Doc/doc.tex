@@ -1,0 +1,76 @@
+\documentclass{article}
+\usepackage{graphicx}
+
+
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\begin{document}
+
+\title{Cilialyzer Notes}
+\author{Martin Schneiter}
+
+\maketitle
+
+\section{Running The Cilialyzer-Software From The Python Interpreter}
+\subsection{Install The Latest Python 3 Release}
+If you wish to run the Cilialyzer-software from the python interpreter, 
+you have to install Python 3. 
+The latest release of Python 3 can be downloaded from the 
+official website \url{www.python.org}
+(where you need to choose the right MSI installer for Windows: 
+most probably ``Windows x86-64 MSI installer''). 
+\subsection{Install the Required Packages}
+After having installed the core of Python 3.XX, you are now able to 
+run Python's package manager, which is named ``pip''
+(recursive acronym: ``pip installs packages''). 
+Pip enables you to convienently install (and manage) any Python compliant 
+packages.\par
+In order to being able to run the Cilialyzer software, 
+you will need to install the following list of packages for scientific 
+computing: \textbf{pillow, numpy, matplotlib, scipy}. 
+All these packages can be installed with the same pip-command 
+(replacing the respective package-name): 
+\textit{pip install package-name}~.
+
+
+\section{Planned Next Steps}
+
+\begin{itemize}
+
+\item Process bars $\rightarrow$ evtl. anpassen, da diese durch Rückmeldung ans Frontend 
+	den jeweiligen Prozess verlangsamen 
+	 
+\item 100\% Zoom initial 
+
+\item Powerspec $\rightarrow$ beim neusetzen der Grenzen, CBF nicht überschreiben
+
+\item drehbarer ROI, bzw. drehbare Sequenz 
+	 
+\item \textbf{Extraction of The Ciliary Motion}, 
+Preprocessing (Image Registration / Image Alignment / Image Stabilization) 
+$\rightarrow$ ähnlich zu Puybareau et al. 2016: 
+Wegrechnen der Vibrationen UND Zellbewegung. Nur die Zilien sollen sich bewegen! 
+In E. Puybareau wird SIFT, SURF vorgeschlagen. Diese sind allerdings patentiert. 
+ORB wäre eine freie alternative zu SIFT/SURF. Anschliessend könnte die gesuchte 
+Rotation und Translation mit einem Ausgleichsverfahren (bspw. RANSAC) bestimmt werden. 
+Evtl. einfacher: Via Phase correlation. Dazu ist ein python-Paket vorhanden: "pystackreg". 
+
+\item Vorschlag eines "nächsten Ordners". Entweder ein Vorschlag alphanumerisch. Oder evtl. 
+mit Scroll-Auswahl (Sub-Directories auf derselben Hierarchie-Ebene) 
+
+
+
+
+\end{itemize} 
+
+
+
+
+
+
+
+
+\end{document}
