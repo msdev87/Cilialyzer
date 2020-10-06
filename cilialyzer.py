@@ -1,15 +1,15 @@
 # ==============================================================================
 #
-# This is the mainloop of the "Cilialyzer"-Software 
+# This is the main loop of the "Cilialyzer" software 
 #
 # Purpose: provides a comfortable tool for clinicians to assess 
-# the health status of ciliated cells by examining the ciliary movements 
+# the health status of the mucociliary transport mechanism 
+# by quantitatively characterizing the (muco)ciliary motion  
 #
-# Author: Martin Schneiter, University of Bern, Switzerland 
-#
-# martin.schneiter@gmx.ch
-# 
-# phone: +41 78 896 16 10 
+# Author: 
+# Martin Schneiter, University of Bern, Switzerland  
+# Mail: martin.schneiter@gmx.ch 
+# Cell phone: +41 78 896 16 10 
 # 
 # ==============================================================================
 
@@ -21,43 +21,42 @@
 # Configure which tabs should be made available when launching the application 
 
 # Tab to view the sequence 
-AnimateSequence = 1 
+AnimateSequence = 1
 
 # Tab to select a ROI 
 ROISelection = 1
 
 # Tab to generate the (ROI-based) power spectral density [PSD]  
-CBF = 1 
+CBF = 1
 
 # Tab to generate the activity map (ROI-based, PSD-based)  
-ActivityMap = 1 
+ActivityMap = 1
 
 # Tab to analyze single pixels 
-SinglePixelAnalysis = 0 
+SinglePixelAnalysis = 0
 
-MotionTracking = 0 
+MotionTracking = 0
 
 ParticleTracking = 1
 
-DynamicFiltering = 1
+DynamicFiltering = 0
 
-SpatioTemporalCorrelogram = 1
+SpatioTemporalCorrelogram = 0
 
-kSpectrum = 1
+kSpectrum = 0
 
 # ******************************************************************************
 # ******************************************************************************
-
 
 # ---------------------- import necessary modules ------------------------------
 import FlipbookROI
-import math 
+import math
 import getline
 import io, os
 from PIL import ImageTk
 import PIL.Image
-import webbrowser 
-import warnings 
+import webbrowser
+import warnings
 from tkinter import *
 import numpy
 import matplotlib
@@ -66,34 +65,22 @@ import matplotlib.cm as cm
 import time
 import tkinter.messagebox
 import pylab as pl
-from matplotlib.patches import Rectangle 
-import Flipbook 
+from matplotlib.patches import Rectangle
+import Flipbook
 
-import DynamicFilter 
+import DynamicFilter
 import FlipbookPTrack
-# ------------------------------------------------------------------------------
-
-
-# ----------------------------------- global variables -------------------------
-
-#global peakmin
-#global peakmax 
-#peakmin = 1  
-#peakmax = 1.5  
-#powerspec_photo = None 
-#spatialacorr_photo = None 
-#tempacorr_photo = None 
-
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------ animation -------------------------
 def animate_roi():
-    
-    win = Toplevel() 
+
+    win = Toplevel()
     refresh = 0
-    player = Flipbook.ImgSeqPlayer(win,PIL_ImgSeq.directory,refresh,roiplayer.roiseq,PIL_ImgSeq.seqlength) 
+    player = Flipbook.ImgSeqPlayer(win,PIL_ImgSeq.directory,refresh,
+									roiplayer.roiseq,PIL_ImgSeq.seqlength)
     player.animate() # call method animate 
-	
+
 
 
 def animation():
@@ -114,11 +101,9 @@ def animation():
 #def set_pixsize(event):
 #    global pixsize 
 #    pixsize = eval(enter_pixsize.get()) 
-	
-def helpbutton(): 
-    webbrowser.open_new(r'./Doc/help.pdf') 
-    
 
+def helpbutton():
+    webbrowser.open_new(r'./Doc/help.pdf')
 
 
 def endprogram():
@@ -182,15 +167,15 @@ def tempacorr():
 
 def loadvideo():
 
-    global player,roiplayer 
-    
+    global player,roiplayer
+
     try:
         # avoid crash 
         player.stop = 2
     except NameError:
         pass
 
-    try: 
+    try:
         # avoid crash 
         roiplayer.stop = 2
     except NameError:
@@ -198,51 +183,45 @@ def loadvideo():
 
     PIL_ImgSeq.load_video(dirname,fpscombo.get())
     PIL_ImgSeq.load_imgs()
- 
-    try: 
-        player.frame.destroy()
-    except NameError:
-        pass 
-    
-    try: 
-        roiplayer.frame.destroy()
-    except NameError:
-        pass 
-    
-    # delete 'roiplayer' object
+
     try:
-        del roiplayer 
+        player.frame.destroy()
     except NameError:
         pass
 
+    try:
+        roiplayer.frame.destroy()
+    except NameError:
+        pass
+
+    # delete 'roiplayer' object
+    try:
+        del roiplayer
+    except NameError:
+        pass
 
     # delete content of powerspec tab, before switching to animation 
     powerspectrum.tkframe.destroy()
 
-
     # switch to animation tab
     nbook.select(0)
-    refresh = 0    
+    refresh = 0
     player = Flipbook.ImgSeqPlayer(animationtab, PIL_ImgSeq.directory,\
                                    refresh,PIL_ImgSeq.sequence,\
-                                   PIL_ImgSeq.seqlength) 
+                                   PIL_ImgSeq.seqlength)
     player.animate() # call method animate 
-
-   
-    
-
 
 def selectdirectory():
 
-    global player,roiplayer 
-    
+    global player,roiplayer
+
     try:
         # avoid crash 
         player.stop = 2
     except NameError:
         pass
 
-    try: 
+    try:
         # avoid crash 
         roiplayer.stop = 2
     except NameError:
@@ -251,21 +230,21 @@ def selectdirectory():
     # ask the user to set a new directory 
     PIL_ImgSeq.choose_directory(dirname,fname)
     PIL_ImgSeq.load_imgs()
-    
-    # new director has been set -> destroy frames 
-    try: 
+
+    # new directory is set -> destroy frames 
+    try:
         player.frame.destroy()
     except NameError:
-        pass 
-    
-    try: 
+        pass
+
+    try:
         roiplayer.frame.destroy()
     except NameError:
-        pass 
-    
+        pass
+
     # delete 'roiplayer' object
     try:
-        del roiplayer 
+        del roiplayer
     except NameError:
         pass
 
@@ -274,13 +253,12 @@ def selectdirectory():
 
     # switch to animation tab
     nbook.select(0)
-    refresh = 0    
+    refresh = 0
     player = Flipbook.ImgSeqPlayer(animationtab, PIL_ImgSeq.directory,\
                                    refresh,PIL_ImgSeq.sequence,\
-                                   PIL_ImgSeq.seqlength) 
+                                   PIL_ImgSeq.seqlength)
     player.animate() # call method animate 
 
-   
 
 def corrgram():
 
@@ -560,27 +538,17 @@ def peakselector(self):
 
 
 
-
-
-
-
-
-
-
-
-
-# ==============================================================================
 # ==============================================================================
 # ==============================================================================
 # ------- Below the root window and its buttons get created & arranged ---------
 # ==============================================================================
 # ==============================================================================
-# ==============================================================================
-
 
 # First, we need a Tkinter root window (named as "ctrl_panel"):  
 ctrl_panel = Tk()
 
+# set cilialyzer icon
+ctrl_panel.iconphoto(False, PhotoImage(file='./logo/logo.png'))
 
 
 # TODO : menu (for setting/confiuring notebook tabs) 
@@ -595,25 +563,40 @@ ctrl_panel = Tk()
 
 
 
-
-
-
-
-
-
-
-
-
 # Set the window title, default size, bg color 
-ctrl_panel.title("Cilialyzer - University of Bern")
+ctrl_panel.title("Cilialyzer")
 ctrl_panel.minsize(width=20,height=20)
 
 # the upper left edge of the main window gets created at the coordinates 
 # (offset,offset) [in pixels], where the upper left edge of the screen = (0,0)
 offset=40
 
+print("test")
+print(ctrl_panel.winfo_screenwidth())
+print(ctrl_panel.winfo_screenheight())
+print("---")
+
+ctrl_panel.geometry("%dx%d+%d+%d"%(
+	ctrl_panel.winfo_screenwidth(),ctrl_panel.winfo_screenheight(),0,0))
+ctrl_panel.update()
+# winfo_screenheight and _screenwidth deliver the display's pixel resolution 
+
+
+
+print("ctrl_panel height:")
+print(ctrl_panel.winfo_height())
+print("ctrl_panel width:")
+print(ctrl_panel.winfo_width())
+
+
+
+#sys.exit()
+
+
 ctrl_panel.geometry("%dx%d+%d+%d"%(ctrl_panel.winfo_screenwidth()\
 -2*(offset + 5),ctrl_panel.winfo_screenheight()-2*(offset + 5),offset,offset))
+
+
 
 # 'screenw, screenh' denote the width, height of the main window  
 screenw = ctrl_panel.winfo_screenwidth() - 2*(offset + 5)
@@ -638,15 +621,12 @@ exitphoto = ImageTk.PhotoImage(file=r"./icons/exitalpha.png")
 quitB=Button(ctrl_panel,image=exitphoto,command=endprogram,height=40,width=78)
 quitB.grid(row=1,column=2,columnspan=1,sticky='s',padx=4,pady=4)
 
-
 #******************** Determine the width of the Notebook *********************# 
 ctrl_panel.update() # update to determine the button size in pixels 
 emptyspace = 15
 nbookw = ctrl_panel.winfo_screenwidth() - helpB.winfo_width() -\
-         quitB.winfo_width() - emptyspace - 2*(offset + 5) 
+         quitB.winfo_width() - emptyspace - 2*(offset + 5)
 #******************************************************************************#
-
-
 
 #******************************************************************************#
 # ***************** GeneralF (Current Settings - Frame) ********************** #
@@ -656,19 +636,19 @@ nbookw = ctrl_panel.winfo_screenwidth() - helpB.winfo_width() -\
 
 GeneralF = LabelFrame(text=' Current Settings ',labelanchor='n',borderwidth=2,\
                       padx=5,pady=5,font=("Helvetica",11,"bold"),relief=GROOVE)
-GeneralF.grid(row=0,column=1,columnspan=1,rowspan=1) 
+GeneralF.grid(row=0,column=1,columnspan=1,rowspan=1)
 
 
-import LoadSequence 
+import LoadSequence
+PIL_ImgSeq = LoadSequence.ImageSequence()
 # PIL_ImgSeq.directory -> contains path to choosen image sequence 
-# PIL_ImgSeq.sequence -> holds the PIL img sequence 
-PIL_ImgSeq = LoadSequence.ImageSequence()  
+# PIL_ImgSeq.sequence  -> holds the PIL img sequence 
+
 dirphoto = ImageTk.PhotoImage(file=r"./icons/newdir2.png")
 set_dirB = Button(GeneralF,height=25,width=180,text='Select Directory ',\
 				font=("Helvetica",11),command=selectdirectory,\
 				image=dirphoto,compound=RIGHT)
 set_dirB.grid(row=0,column=0)
-
 
 
 # display the name of an image of the selected sequence 
@@ -937,9 +917,9 @@ nbook.add(activitytab, text='Activity Map')
 mapframe = Frame(activitytab,width=int(round(0.8*nbookh)),height=int(round(0.8*nbookh)))
 mapframe.place(in_=activitytab, anchor='c', relx=0.5,rely=0.55)  
 
-mapframe.update() 
+mapframe.update()
 
-import activitymap 
+import activitymap
 activity_map = activitymap.activitymap(mapframe,int(round(0.8*nbookh)),\
         int(round(0.8*nbookh))) # activity map object  
 

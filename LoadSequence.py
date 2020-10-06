@@ -1,5 +1,5 @@
-import os,io 
-import numpy 
+import os,io
+import numpy
 if os.sys.version_info.major > 2:
     from tkinter import *
     from tkinter.filedialog import askdirectory
@@ -12,25 +12,23 @@ else:
 import tkinter.messagebox
 
 import tkinter.ttk
-import scipy 
+import scipy
 import scipy.misc
 from scipy.ndimage import gaussian_filter
 from PIL import Image, ImageTk, ImageEnhance
 #from Tkinter import ttk
 from PIL import ImageFilter
 
-from bytescl import bytescl 
-
+from bytescl import bytescl
 
 # for video files: 
 #from contextlib import closing
 #from videosequence import VideoSequence
 
-
 # for video files (as 'videosequence' doesnt work on windows) 
-import subprocess 
+import subprocess
 
-import shutil 
+import shutil
 
 VALID_TYPES = (
     "bmp", "dib", "dcx", "gif", "im", "jpg", "jpe", "jpeg", "pcd", "pcx",
@@ -42,7 +40,8 @@ def sort_list(l):
     Mutates l, returns None.
     l: list of filenames.
 
-    Sorts l alphabetically. But fixes the fact that, alphabetically, '20' comes before '9'.
+    Sorts l alphabetically.
+	But fixes the fact that, alphabetically, '20' comes before '9'.
 
     Example:
         if l = ['10.png', '2.jpg']:
@@ -72,40 +71,38 @@ def sort_list(l):
 
 class ImageSequence:
 
-    # this class lets the user set/choose the directory containing the image sequence 
+    # let the user set/choose the directory, 
+	# from which the image sequence will be loaded 
     def __init__(self):
         self.directory = ''
         self.sequence = [] # holds the PIL image sequence  
-        self.files = None  
-        self.width = None 
-        self.height = None 
-        self.seqlength = None  
-    
+        self.files = None
+        self.width = None
+        self.height = None
+        self.seqlength = None
         self.videofile = '' # path to video   
 
-
-
     def choose_directory(self,dirname,fname):
-        
+
         try:
             # read file
             f=open('user_settings.dat','r')
             initdir=f.read()
         except:
-            initdir=os.getcwd() 
+            initdir=os.getcwd()
 
-        self.directory = askdirectory(title="Select Directory",initialdir=initdir)
+        self.directory = askdirectory(
+							title="Select Directory",initialdir=initdir)
         f = open('user_settings.dat','w')
-        f.write(self.directory) # write choosen directory (value of 'directory') into file 'f' 
+        f.write(self.directory) # write choosen directory into file 'f' 
         f.close()
-        
+
         # update the label, which displays the directory name:
         dirname.set(self.directory)
 
         # update the name of the first image:
         f = os.listdir(self.directory)
         fname = fname.set(f[0])
- 
 
     def get_files(self):
         """
@@ -130,10 +127,10 @@ class ImageSequence:
         Sorted generator. Yields resized PIL.Image objects for each
         supported image file in directory.
         """
-        
+
         for filename in self.get_files():
             with open(filename, "rb") as f:
-                print(f) 
+                print(f)
                 fh = io.BytesIO(f.read())
             #Create a PIL image from the data
             img = Image.open(fh, mode="r")
@@ -146,17 +143,17 @@ class ImageSequence:
     def load_imgs(self):
         # if directory not selected yet: 
         if (self.directory==''):
-            tkinter.messagebox.showinfo("Title", "Please select directory first") 
-            self.choose_directory() 
+            tkinter.messagebox.showinfo("Title","Please select directory first")
+            self.choose_directory()
 
         # create a toplevel window to display the progress indicator 
         progresswin = Toplevel()
         progresswin.minsize(width=500,height=30)
-        progresswin.title("Loading Image Sequence, Please Wait...") 
-   
+        progresswin.title("Loading Image Sequence, Please Wait...")
+
         # get the monitor dimensions:
         screenw = progresswin.winfo_screenwidth()
-        screenh = progresswin.winfo_screenheight()  
+        screenh = progresswin.winfo_screenheight()
 
         # place the progress indicator in the center of the screen 
         placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
@@ -165,7 +162,7 @@ class ImageSequence:
         # count the number of images in selected sequence (ni) 
         ni = 0
         for filename in self.get_files():
-            ni = ni+1 
+            ni = ni+1
         self.seqlength = ni
 
 
@@ -173,32 +170,30 @@ class ImageSequence:
         s.theme_use("default")
         s.configure("TProgressbar", thickness=30)
 
-        pbvar = IntVar() # progress bar variable (counting the number of loaded images)   
-        pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",variable=pbvar,\
-                maximum=self.seqlength,length=600,style="TProgressbar")
-        pb.grid(row=1,column=0,pady=5)  
-       
+        pbvar = IntVar() # progress bar variable (counts number of loaded imgs)   
+        pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",
+			variable=pbvar,maximum=self.seqlength,length=600,
+			style="TProgressbar")
+        pb.grid(row=1,column=0,pady=5)
 
         progress = 0
-    
+
         # reset image sequence before loading a newly choosen sequence 
         if (len(self.sequence) != 0):
-            self.sequence = [] 
+            self.sequence = []
 
         for img in self.get_images():
             pbvar.set(progress)
-            if (not(progress % 10)):   
+            if (not(progress % 10)):
                 progresswin.update()
             self.sequence.append(img)
-            progress +=1 
-            
-        progresswin.destroy()    
+            progress +=1
+
+        progresswin.destroy()
         s.configure("TProgressbar", thickness=5)
 
-
-
         # determine width and height of images: 
-        firstimg = self.sequence[0] 
+        firstimg = self.sequence[0]
         self.width, self.height = firstimg.size
 
 
@@ -209,14 +204,16 @@ class ImageSequence:
             f=open('user_settings.dat','r')
             initdir=f.read()
         except:
-            initdir=os.getcwd() 
+            initdir=os.getcwd()
 
-        self.videofile = askopenfilename(title="Select Video",initialdir=initdir)
- 
+        self.videofile = askopenfilename(
+							title="Select Video",initialdir=initdir)
+
         f = open('user_settings.dat','w')
-        f.write(os.path.split(self.videofile)[0]) # write choosen directory (value of 'directory') into file 'f' 
+        f.write(os.path.split(self.videofile)[0])
+		# writes choosen directory (value of 'directory') into file 'f' 
         f.close()
-        
+
         # update the label, which displays the directory name:
         dirname.set(self.directory)
 
@@ -320,11 +317,11 @@ class ImageSequence:
         #    #if (i > 0):
         #    mydict = imreg_dft.imreg.similarity(array[0,:,:],array[i,:,:])
         #    array[i,:,:] = mydict["timg"]
-        
-        
+
+
         #for i in range(nimgs):
         #    self.sequence[i] = Image.fromarray(numpy.uint8(scipy.misc.bytescale(aligned[i,:,:])))
-        
+
 
 
     def extractmotion(self):
@@ -334,7 +331,7 @@ class ImageSequence:
 
         # initialize numpy float array, which will hold the image sequence  
         array = numpy.zeros((int(nimgs),int(height),int(width)),dtype=float)
-        
+
         sumimg = numpy.zeros((int(height),int(width)),dtype=float)
 
         # PIL images -> numpy array 
@@ -349,13 +346,10 @@ class ImageSequence:
         # extract motion  
         for i in range(nimgs):
             array[i,:,:] = numpy.subtract(array[i,:,:], meanimg)
-  
+
         array = numpy.uint8(bytescl(array))
         for i in range(nimgs):
             self.sequence[i] = Image.fromarray(array[i,:,:])
-
-
-
 
 
     def wackeldackel(self):
