@@ -1,5 +1,6 @@
 import os,io
 import numpy
+
 if os.sys.version_info.major > 2:
     from tkinter import *
     from tkinter.filedialog import askdirectory
@@ -22,12 +23,11 @@ from PIL import ImageFilter
 from bytescl import bytescl
 
 # for video files: 
-#from contextlib import closing
-#from videosequence import VideoSequence
+# from contextlib import closing
+# from videosequence import VideoSequence
 
 # for video files (as 'videosequence' doesnt work on windows) 
 import subprocess
-
 import shutil
 
 VALID_TYPES = (
@@ -72,13 +72,14 @@ def sort_list(l):
 class ImageSequence:
 
     # let the user set/choose the directory, 
-	# from which the image sequence will be loaded 
+    # from which the image sequence will be loaded
+
     def __init__(self):
         self.directory = ''
-        self.sequence = [] # holds the PIL image sequence  
-        self.files = None
-        self.width = None
-        self.height = None
+        self.sequence  = [] # holds the PIL image sequence  
+        self.files     = None
+        self.width     = None
+        self.height    = None
         self.seqlength = None
         self.videofile = '' # path to video   
 
@@ -91,8 +92,8 @@ class ImageSequence:
         except:
             initdir=os.getcwd()
 
-        self.directory = askdirectory(
-							title="Select Directory",initialdir=initdir)
+        self.directory = askdirectory(title="Select Directory",
+                                            initialdir=initdir)
         f = open('user_settings.dat','w')
         f.write(self.directory) # write choosen directory into file 'f' 
         f.close()

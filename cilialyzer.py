@@ -72,39 +72,34 @@ import DynamicFilter
 import FlipbookPTrack
 # ------------------------------------------------------------------------------
 
-# ------------------------------------------ animation -------------------------
+# -------------------------------- animation -----------------------------------
 def animate_roi():
-
-    win = Toplevel()
+    win = roitab
+    #win = Toplevel()
     refresh = 0
-    player = Flipbook.ImgSeqPlayer(win,PIL_ImgSeq.directory,refresh,
-									roiplayer.roiseq,PIL_ImgSeq.seqlength)
+    player = Flipbook.ImgSeqPlayer(win,PIL_ImgSeq.directory,\
+                                  refresh,roiplayer.roiseq,PIL_ImgSeq.seqlength)
     player.animate() # call method animate 
 
 
-
-def animation():
-
-    window = animationtab 
-    refresh = 0    
-    player = Flipbook.ImgSeqPlayer(window,PIL_ImgSeq.directory,refresh,PIL_ImgSeq.sequence,PIL_ImgSeq.seqlength) 
-
-
-
+# def animation():
+#    window = animationtab 
+#    refresh = 0    
+#    player = Flipbook.ImgSeqPlayer(window,PIL_ImgSeq.directory,refresh,
+#    PIL_ImgSeq.sequence,PIL_ImgSeq.seqlength) 
 
 # ------------------------------------------------------------------------------
 
-#def set_fps(event):
+# def set_fps(event):
 #    global FPS
 #    FPS = eval(enter_fps.get())
 
-#def set_pixsize(event):
+# def set_pixsize(event):
 #    global pixsize 
 #    pixsize = eval(enter_pixsize.get()) 
 
 def helpbutton():
     webbrowser.open_new(r'./Doc/help.pdf')
-
 
 def endprogram():
 
@@ -147,8 +142,6 @@ def peak_cbf():
     powerspec_photo = ImageTk.PhotoImage(file=r"./powerspec.png") 
     can1.itemconfig(pscan, image=powerspec_photo)  
 
-
-
 def spatialacorr():
     global spatialacorr_photo, pixsize  
     poi.GetSpatialAcorr(pixsizecombo.get()) 
@@ -156,14 +149,12 @@ def spatialacorr():
     can2.itemconfig(sacorrcan, image=spatialacorr_photo)  
     nbook.select(sacorr)  
 
-
 def tempacorr(): 
     global tempacorr_photo 
     poi.GetTempAcorr(fpscombo.get())
     tempacorr_photo = ImageTk.PhotoImage(file=r"./tempacorr.png")
     can3.itemconfig(tacorrcan, image=tempacorr_photo)
     nbook.select(tacorr) 
-
 
 def loadvideo():
 
@@ -227,11 +218,11 @@ def selectdirectory():
     except NameError:
         pass
 
-    # ask the user to set a new directory 
+    # ask the user to set a new directory and load the images  
     PIL_ImgSeq.choose_directory(dirname,fname)
     PIL_ImgSeq.load_imgs()
 
-    # new directory is set -> destroy frames 
+    # if new directory is set -> destroy frames 
     try:
         player.frame.destroy()
     except NameError:
@@ -251,13 +242,20 @@ def selectdirectory():
     # delete content of powerspec tab, before switching to animation 
     powerspectrum.tkframe.destroy()
 
-    # switch to animation tab
-    nbook.select(0)
+    # switch to roi selection tab
+    nbook.select(nbook.index(roitab))
     refresh = 0
-    player = Flipbook.ImgSeqPlayer(animationtab, PIL_ImgSeq.directory,\
-                                   refresh,PIL_ImgSeq.sequence,\
-                                   PIL_ImgSeq.seqlength)
-    player.animate() # call method animate 
+    selectroi = 1
+    roiplayer = FlipbookROI.ImgSeqPlayer(roitab,PIL_ImgSeq.directory,refresh,
+                PIL_ImgSeq.sequence,PIL_ImgSeq.seqlength,roi,selectroi)
+    roiplayer.animate()
+
+    #nbook.select(0)
+    #refresh = 0
+    #player = Flipbook.ImgSeqPlayer(roitab, PIL_ImgSeq.directory,\
+    #                               refresh,PIL_ImgSeq.sequence,\
+    #                               PIL_ImgSeq.seqlength)
+    #player.animate() # call method animate 
 
 
 def corrgram():
@@ -309,15 +307,14 @@ def kspec():
         dynseq.kspec(float(fpscombo.get()),float(minscale.get()),float(maxscale.get()),kplotframe)
 
 
-
 def select_roi():
- 
+
     global roiplayer
-    try: 
+    try:
         # avoid crash 
         roiplayer.stop = 2
         # as roiplayer was not None -> destroy frame before it gets rebuilt:
-        roiplayer.frame.destroy() 
+        roiplayer.frame.destroy()
     except NameError:
         pass
 
@@ -350,14 +347,14 @@ def select_pixel():
 
 
 def pcolor_func():
-	pass 
+	pass
 
 
 
 def switchtab(event):
 
-    global player, roiplayer   
-    
+    global player, roiplayer
+
     # if tab is pressed (and pressed tab != active tab) then take precautions...  
 
     clicked_tab = nbook.tk.call(nbook._w, "identify", "tab", event.x, event.y)
@@ -365,20 +362,20 @@ def switchtab(event):
 
     #print("clicked tab: ", clicked_tab) 
 
-    if ((active_tab == nbook.index(animationtab)) and (clicked_tab != active_tab)):    
+    #if ((active_tab == nbook.index(animationtab)) and (clicked_tab != active_tab)):
+    #    try:
+    #        # stop the player to prevent a crash 
+    #        player.stop = 2
+    #    except NameError:
+    #        pass
+
+    if ((active_tab == nbook.index(roitab)) and (clicked_tab != active_tab)):
         try:
             # stop the player to prevent a crash 
-            player.stop = 2  
+            roiplayer.stop = 2
         except NameError:
             pass
-        
-    if ((active_tab == nbook.index(roitab)) and (clicked_tab != active_tab)): 
-        try:
-            # stop the player to prevent a crash 
-            roiplayer.stop = 2  
-        except NameError:
-            pass
-        
+
     if ((active_tab == nbook.index(ptracktab)) and (clicked_tab != active_tab)):
         # stop the player to prevent a crash  
         try: 
@@ -392,52 +389,49 @@ def switchtab(event):
     #        dynplayer.stop = 2 
     #    except NameError:
     #        pass
-           
+
 
     if (clicked_tab == nbook.index(roitab)):
 
         # ROI Selection tab got activated
 
-
-
         # if dynamically filtered sequence available -> substitue roiseq with 
-        # dyn. filtered seq 
-        try: 
+        # dynamically filtered sequence 
+        try:
             if (len(dynseq.dyn_roiseq) > 0):
-                PIL_ImgSeq.sequence = dynseq.dyn_roiseq 
-        except: 
-            pass 
-
+                PIL_ImgSeq.sequence = dynseq.dyn_roiseq
+        except:
+            pass
 
         try:
-            roiplayer.stop = 0 
+            roiplayer.stop = 0
         except:
-            try:         
+            try:
                 nbook.select(nbook.index(roitab))
                 refresh = 0
                 selectroi = 1
-                roiplayer = FlipbookROI.ImgSeqPlayer(roitab,PIL_ImgSeq.directory,\
-                                                 refresh,PIL_ImgSeq.sequence,\
-                                                 PIL_ImgSeq.seqlength,roi,selectroi) 
+                roiplayer = FlipbookROI.ImgSeqPlayer(roitab,
+                            PIL_ImgSeq.directory,refresh,PIL_ImgSeq.sequence,
+                            PIL_ImgSeq.seqlength,roi,selectroi)
                 roiplayer.animate()
-            except: 
-                pass 
+            except:
+                pass
 
 
     if (clicked_tab == nbook.index(ptracktab)):
         # particle tracking tab got selected  
-        nbook.select(nbook.index(ptracktab))  
+        nbook.select(nbook.index(ptracktab))
         # create player object 
-        refresh = 0 
-        selectroi = 1 
+        refresh = 0
+        selectroi = 1
         ptrackplayer = FlipbookPTrack.ImgSeqPlayer(ptracktab,PIL_ImgSeq.directory,\
                                                  refresh,roiplayer.roiseq,\
                                                  PIL_ImgSeq.seqlength,roi,selectroi,float(fpscombo.get()),float(pixsizecombo.get())) 
         ptrackplayer.animate()
-    
-    
-    
-    
+
+
+
+
     if (clicked_tab == nbook.index(dynfiltertab)): 
         # dynamic filtering tab 
         nbook.select(nbook.index(dynfiltertab))
@@ -562,7 +556,6 @@ ctrl_panel.iconphoto(False, PhotoImage(file='./logo/logo.png'))
 #ctrl_panel.config(menu=menubar)
 
 
-
 # Set the window title, default size, bg color 
 ctrl_panel.title("Cilialyzer")
 ctrl_panel.minsize(width=20,height=20)
@@ -571,31 +564,29 @@ ctrl_panel.minsize(width=20,height=20)
 # (offset,offset) [in pixels], where the upper left edge of the screen = (0,0)
 offset=40
 
-print("test")
-print(ctrl_panel.winfo_screenwidth())
-print(ctrl_panel.winfo_screenheight())
-print("---")
+# print("test")
+# print(ctrl_panel.winfo_screenwidth())
+# print(ctrl_panel.winfo_screenheight())
+# print("---")
 
+# winfo_screenheight and _screenwidth deliver the display's pixel resolution 
 ctrl_panel.geometry("%dx%d+%d+%d"%(
 	ctrl_panel.winfo_screenwidth(),ctrl_panel.winfo_screenheight(),0,0))
 ctrl_panel.update()
-# winfo_screenheight and _screenwidth deliver the display's pixel resolution 
+
+# since there is always a taskbar -> the ctrl_panel will be somewhat smaller 
+# than [ screenwidth x screenheight ] 
+# its actually generated dimensions can be queried as:
+# ctrl_panel.winfo_height() x ctrl_panel.winfo_width()
 
 
-
-print("ctrl_panel height:")
-print(ctrl_panel.winfo_height())
-print("ctrl_panel width:")
-print(ctrl_panel.winfo_width())
-
-
+#ctrl_panel.geometry("%dx%d+%d+%d"%(ctrl_panel.winfo_width(),
+#                    ctrl_panel.winfo_height(),offset,offset))
 
 #sys.exit()
 
-
-ctrl_panel.geometry("%dx%d+%d+%d"%(ctrl_panel.winfo_screenwidth()\
--2*(offset + 5),ctrl_panel.winfo_screenheight()-2*(offset + 5),offset,offset))
-
+#ctrl_panel.geometry("%dx%d+%d+%d"%(ctrl_panel.winfo_screenwidth()\
+#-2*(offset + 5),ctrl_panel.winfo_screenheight()-2*(offset + 5),offset,offset))
 
 
 # 'screenw, screenh' denote the width, height of the main window  
@@ -638,7 +629,6 @@ GeneralF = LabelFrame(text=' Current Settings ',labelanchor='n',borderwidth=2,\
                       padx=5,pady=5,font=("Helvetica",11,"bold"),relief=GROOVE)
 GeneralF.grid(row=0,column=1,columnspan=1,rowspan=1)
 
-
 import LoadSequence
 PIL_ImgSeq = LoadSequence.ImageSequence()
 # PIL_ImgSeq.directory -> contains path to choosen image sequence 
@@ -650,20 +640,15 @@ set_dirB = Button(GeneralF,height=25,width=180,text='Select Directory ',\
 				image=dirphoto,compound=RIGHT)
 set_dirB.grid(row=0,column=0)
 
-
 # display the name of an image of the selected sequence 
 fl = Label(GeneralF,text="First Image :",anchor='e',font=("Helvetica", 11),\
            width=22)
 fl.grid(row=1, column=0)
 
-
 # button for loading videos
 load_vidB = Button(GeneralF, height=1, width=22, text='Load Video',\
-            font=("Helvetica",11),command=loadvideo) 
+            font=("Helvetica",11),command=loadvideo)
 load_vidB.grid(row=2,column=0)
-
-
-
 
 # Label and Entry Widget for setting recording speed [FPS]
 fps_label=Label(GeneralF, text="Recording Speed [FPS] :",anchor='e',\
@@ -674,7 +659,7 @@ fps_list = [300,200,120,100,30]
 fpscombo = tkinter.ttk.Combobox(GeneralF,values=fps_list,width=5)
 #enter_fps.bind("<Return>", set_fps)
 #enter_fps.insert(END, '300') # set default 
-fpscombo.current(0) 
+fpscombo.current(0)
 fpscombo.grid(row=0,column=3)
 
 # Label and Entry Widget for setting the pixel size in [nm] 
@@ -683,20 +668,19 @@ pixsize_label=Label(GeneralF, text="Pixelsize [nm] :",width=22,anchor='e',\
 pixsize_label.grid(row=1,column=2)
 
 
-pixsize_list = [345, 173, 86] 
+pixsize_list = [345, 173, 86]
 pixsizecombo = tkinter.ttk.Combobox(GeneralF,values=pixsize_list,width=5)
 pixsizecombo.grid(row=1,column=3)
 pixsizecombo.current(0)
 
-GeneralF.grid_columnconfigure(0,minsize=200) 
+GeneralF.grid_columnconfigure(0,minsize=200)
 GeneralF.grid_columnconfigure(2,minsize=200)
 GeneralF.grid_columnconfigure(3,minsize=50)
-
 
 # now we calculate the size for column=1 in GeneralF, in order that it matches 
 # the width of the nbook 
 
-ctrl_panel.update() 
+ctrl_panel.update()
 # calc the width of column 1: 
 dirnamew = nbookw - 200 - 200 - 50 - 50
 GeneralF.grid_columnconfigure(1,minsize=dirnamew)
@@ -718,17 +702,17 @@ fname_label.grid(row=1,column=1)
 
 # *****************************************************************************#
 # *************** Determine the height of the Notebook widget *****************#
- 
+
 # the 'current settings'-frame, the help button and the quit button have been 
 # generated -> based on the size of these containers we can now determine the 
 # 'optimal' size of the 'notebook'! 
-GeneralF.update() 
+GeneralF.update()
 ctrl_panel.update() # update to determine the button size in pixels 
 
 emptyspace = 20
 
 nbookh = ctrl_panel.winfo_screenheight() - GeneralF.winfo_height() -\
-         emptyspace - 2*(offset + 5) 
+         emptyspace - 2*(offset + 5)
 #print('quitB width', quitB.winfo_width())
 #******************************************************************************#
 
@@ -746,15 +730,14 @@ nbookh = ctrl_panel.winfo_screenheight() - GeneralF.winfo_height() -\
 
 
 """
-###################################################################################################
-# this was a straigth-forward attempt to remove vibrations 
-# Wackel Dackel 
+################################################################################
+# this was a straigth-forward attempt to remove vibrations
+# Wackel Dackel
 wackelB = Button(CapSeqF,text='  WackelDackel  ', command=lambda: PIL_ImgSeq.wackeldackel(),\
-        height=bh,width=bw)   
+        height=bh,width=bw)
 wackelB.grid(row=4,column=0,columnspan=2)
-####################################################################################################
+################################################################################
 """
-
 
 
 
@@ -773,10 +756,7 @@ wackelB.grid(row=4,column=0,columnspan=2)
 #*************************************************************************************************#
 
 
-
-
-
-#*****************************************************************************#
+#******************************************************************************#
 # the main window is organized in notebook-tabs
 # available notebook tabs: animation, ROI selection, powerspec, activity map 
 
@@ -784,20 +764,20 @@ import tkinter.ttk
 nbook = tkinter.ttk.Notebook(ctrl_panel,width=nbookw,height=nbookh)
 nbook.grid(row=1,column=1,columnspan=1,rowspan=1,sticky='NESW',padx=10,pady=10)
 
-# if the clicked tab is not the current tab -> stop dyn. display (avoids crash!) 
+# if the clicked tab is not the current tab 
+# we need to stop animations to avoid the frontend to crash!! 
 nbook.bind('<ButtonPress-1>',switchtab)
 
 # animate the original sequence in 'animationtab' 
-animationtab = Frame(nbook,width=int(round(0.9*nbookw)),height=int(round(0.95*nbookh)))
-nbook.add(animationtab, text='Animate Sequence')
-
+# animationtab = Frame(nbook,width=int(round(0.9*nbookw)),height=int(round(0.95*nbookh)))
+# nbook.add(animationtab, text='Animate Sequence')
 
 
 
 # remove sensor pattern (Puybareau 2016) 
-#removepatternB = Button(animationtab,text='Pattern Removal',\
+# removepatternB = Button(animationtab,text='Pattern Removal',\
 #                   command=lambda: PIL_ImgSeq.removepattern(), height=bh, width=16)
-#removepatternB.place(in_=animationtab, anchor="c", relx=.07, rely=0.07)
+# removepatternB.place(in_=animationtab, anchor="c", relx=.07, rely=0.07)
 
 
 
@@ -807,26 +787,23 @@ nbook.add(animationtab, text='Animate Sequence')
 #imageregB.place(in_=animationtab, anchor="c", relx=.07, rely=.14)
 
 
+# ROI selection tab 
+roitab = Frame(nbook,width=int(round(0.9*nbookw)),\
+               height=int(round(0.95*nbookh)))
+nbook.add(roitab, text='ROI Selection')
+
 
 # motion extraction (Puybareau 2016) 
-motionextractB = Button(animationtab,text='Subtract Mean',\
-                   command=lambda: PIL_ImgSeq.extractmotion(), height=bh, width=16)
-motionextractB.place(in_=animationtab, anchor="c", relx=.07, rely=0.07)
-
-
-
-
-# ROI selection tab 
-roitab = Frame(nbook,width=int(round(0.9*nbookw)),height=int(round(0.95*nbookh)))
-nbook.add(roitab, text='ROI Selection') 
-
+motionextractB = Button(roitab,text='Subtract Mean',\
+                 command=lambda: PIL_ImgSeq.extractmotion(),height=bh,width=16)
+motionextractB.place(in_=roitab, anchor="c", relx=.07, rely=0.07)
 
 
 # ROI selection Button
 import RegionOfInterest
 roi = RegionOfInterest.ROI(ctrl_panel) # instantiate roi object 
 roiB = Button(roitab,text='Reset ROI', command=select_roi, height=bh, width=10)
-roiB.place(in_=roitab, anchor="c", relx=.07, rely=.07)
+roiB.place(in_=roitab, anchor="c", relx=.07, rely=.14)
 # roi sequence (cropped PIL image sequence) available by attribute: "roi.roiseq"  
 
 

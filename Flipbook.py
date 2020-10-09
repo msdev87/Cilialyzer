@@ -122,13 +122,12 @@ class ImgSeqPlayer(object):
     """
     def __init__(self, master, directory,refreshing,PILseq,seqlength):
 
-        
         self.refreshing = refreshing
 
         self.frame = tk.Frame(master,takefocus=0)
         self.frame.place(in_=master, anchor="c", relx=.5, rely=.5)
 
-        self.seqlength = seqlength 
+        self.seqlength = seqlength
 
         w,h = PILseq[0].size
         # create progressbar (indicator for the position of the current image in sequence)
@@ -136,10 +135,10 @@ class ImgSeqPlayer(object):
         s = ttk.Style()
         s.theme_use("default")
         s.configure("TProgressbar", thickness=5)
-        
+
         progbar = ttk.Progressbar(self.frame,mode="determinate",variable=self.pbvar,\
                 maximum=seqlength,length=0.5*w,style="TProgressbar")
-        progbar.grid(column=1,row=2) 
+        progbar.grid(column=1,row=2)
 
 
         self.frame2 = tk.LabelFrame(self.frame,takefocus=1, text='Player Controls', \
@@ -147,15 +146,13 @@ class ImgSeqPlayer(object):
         self.frame2.grid(row=3,column=1)
 
 
-       
-
         # create frame holding buttons: "pause, play, next, previous,.."
 
 
         with open("./icons/prev2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
-        previcon = ImageTk.PhotoImage(img)  
+        previcon = ImageTk.PhotoImage(img)
         #previcon = tk.PhotoImage(file="./icons/prev2.gif")
         self.prevB = Button(self.frame2, image=previcon, command=self.previous_image)
         self.prevB.image = previcon
@@ -201,7 +198,6 @@ class ImgSeqPlayer(object):
         self.nextB = Button(self.frame2, image=nexticon, command=self.next_image)
         self.nextB.image = nexticon
         self.nextB.grid(row=1,column=4)
-
 
         # For Zoom -> radiobutton!
 
