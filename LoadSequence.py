@@ -75,6 +75,7 @@ class ImageSequence:
     # from which the image sequence will be loaded
 
     def __init__(self):
+
         self.directory = ''
         self.sequence  = [] # holds the PIL image sequence  
         self.files     = None
@@ -82,6 +83,7 @@ class ImageSequence:
         self.height    = None
         self.seqlength = None
         self.videofile = '' # path to video   
+
 
     def choose_directory(self,dirname,fname):
 
@@ -103,6 +105,9 @@ class ImageSequence:
 
         # update the name of the first image:
         f = os.listdir(self.directory)
+        sort_list(f) 
+        #print('newtest') 
+        #print(f)
         fname = fname.set(f[0])
 
     def get_files(self):
@@ -166,12 +171,11 @@ class ImageSequence:
             ni = ni+1
         self.seqlength = ni
 
-
         s = tkinter.ttk.Style()
         s.theme_use("default")
         s.configure("TProgressbar", thickness=30)
 
-        pbvar = IntVar() # progress bar variable (counts number of loaded imgs)   
+        pbvar = IntVar() # progressbar variable (counts number of loaded imgs)   
         pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",
 			variable=pbvar,maximum=self.seqlength,length=600,
 			style="TProgressbar")
@@ -207,8 +211,8 @@ class ImageSequence:
         except:
             initdir=os.getcwd()
 
-        self.videofile = askopenfilename(
-							title="Select Video",initialdir=initdir)
+        self.videofile = askopenfilename(title="Select Video",
+                                        initialdir=initdir)
 
         f = open('user_settings.dat','w')
         f.write(os.path.split(self.videofile)[0])

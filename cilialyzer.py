@@ -139,22 +139,22 @@ def peak_cbf():
     powerspectrum.get_cbf(PIL_ImgSeq.seqlength,fpscombo.get())
     # anzeige des Powerspektrums in frontend (nbook) 
     #time.sleep(10) 
-    powerspec_photo = ImageTk.PhotoImage(file=r"./powerspec.png") 
-    can1.itemconfig(pscan, image=powerspec_photo)  
+    powerspec_photo = ImageTk.PhotoImage(file=r"./powerspec.png")
+    can1.itemconfig(pscan, image=powerspec_photo)
 
 def spatialacorr():
-    global spatialacorr_photo, pixsize  
-    poi.GetSpatialAcorr(pixsizecombo.get()) 
-    spatialacorr_photo = ImageTk.PhotoImage(file=r"./spatialacorr.png") 
-    can2.itemconfig(sacorrcan, image=spatialacorr_photo)  
-    nbook.select(sacorr)  
+    global spatialacorr_photo, pixsize
+    poi.GetSpatialAcorr(pixsizecombo.get())
+    spatialacorr_photo = ImageTk.PhotoImage(file=r"./spatialacorr.png")
+    can2.itemconfig(sacorrcan, image=spatialacorr_photo)
+    nbook.select(sacorr)
 
-def tempacorr(): 
-    global tempacorr_photo 
+def tempacorr():
+    global tempacorr_photo
     poi.GetTempAcorr(fpscombo.get())
     tempacorr_photo = ImageTk.PhotoImage(file=r"./tempacorr.png")
     can3.itemconfig(tacorrcan, image=tempacorr_photo)
-    nbook.select(tacorr) 
+    nbook.select(tacorr)
 
 def loadvideo():
 
@@ -262,19 +262,19 @@ def corrgram():
 
     # calculate spatio-temporal autocorrelation 
 
-    try: 
+    try:
         dynseq.spatiotempcorr(float(fpscombo.get()),float(minscale.get()),float(maxscale.get()))
     except NameError:
-        print("namerror") 
-        dynseq = DynamicFilter.DynFilter() 
+        print("namerror")
+        dynseq = DynamicFilter.DynFilter()
         dynseq.dyn_roiseq = roiplayer.roiseq
         dynseq.spatiotempcorr(float(fpscombo.get()),float(minscale.get()),float(maxscale.get()))
 
-    print("spatiotempcorr calculated")        
+    print("spatiotempcorr calculated")
     #print "spatiotempcorr calculated" 
-    refresh = 0    
+    refresh = 0
     corrplayer = Flipbook.ImgSeqPlayer(correlationtab,PIL_ImgSeq.directory, refresh,dynseq.corr_roiseq,len(dynseq.corr_roiseq)) 
-    corrplayer.animate() 
+    corrplayer.animate()
 
 
 
@@ -323,13 +323,13 @@ def select_roi():
     roiplayer = FlipbookROI.ImgSeqPlayer(roitab,PIL_ImgSeq.directory,refresh,PIL_ImgSeq.sequence,PIL_ImgSeq.seqlength,roi,selectroi) 
     roiplayer.animate()
 
-    
+
 def select_pixel():
     global roiplayer 
-    
+
     #print "this is a test" 
-    
-    try: 
+
+    try:
         # avoid crash 
         pixplayer.stop = 2
 #        # as roiplayer was not None -> destroy frame before it gets rebuilt:
@@ -443,12 +443,7 @@ def switchtab(event):
                                    refresh,dynseq.dyn_roiseq,\
                                    PIL_ImgSeq.seqlength) 
         dynplayer.animate() # call meth
-    
-    
-    
-    
- 
-    
+
 
 #def calcplot_powerspec(pwspec,roiseq,fps,specplot,frame):
 #    pwspec.calc_powerspec(roiseq,fps,specplot,frame)
@@ -462,12 +457,6 @@ def splitkspec(self):
     #angle = splitlinescale.get() 
     #dynseq.kxkyplotax.plot([3,3],[8,8],color='r',linewidth=4)  
     print('ok')  
-    
-
-
-
-
-
 
 
 
@@ -543,7 +532,6 @@ ctrl_panel = Tk()
 
 # set cilialyzer icon
 ctrl_panel.iconphoto(False, PhotoImage(file='./logo/logo.png'))
-
 
 # TODO : menu (for setting/confiuring notebook tabs) 
 
