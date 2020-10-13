@@ -220,7 +220,8 @@ def selectdirectory():
 
     # ask the user to set a new directory and load the images  
     PIL_ImgSeq.choose_directory(dirname,fname)
-    PIL_ImgSeq.load_imgs()
+    PIL_ImgSeq.load_imgs() # loads image sequence 
+    # PIL_ImgSeq.sequence[i] now holds the i-th frame (8 Bits, PIL) 
 
     # if new directory is set -> destroy frames 
     try:
@@ -242,7 +243,7 @@ def selectdirectory():
     # delete content of powerspec tab, before switching to animation 
     powerspectrum.tkframe.destroy()
 
-    # switch to roi selection tab
+    # finally, switch to the roi selection tab to animate the selected images
     nbook.select(nbook.index(roitab))
     refresh = 0
     selectroi = 1
@@ -341,7 +342,7 @@ def select_pixel():
     selectroi = 2 # selectroi = 2 -> pixel selection
     pixplayer = FlipbookROI.ImgSeqPlayer(pixelchoiceframe,PIL_ImgSeq.directory,refresh,roiplayer.roiseq,PIL_ImgSeq.seqlength,pixoi,selectroi) 
     pixplayer.animate()
-    
+ 
     #print " second test " 
     
 
@@ -655,11 +656,14 @@ pixsize_label=Label(GeneralF, text="Pixelsize [nm] :",width=22,anchor='e',\
                     font=("Helvetica",11))
 pixsize_label.grid(row=1,column=2)
 
-
 pixsize_list = [345, 173, 86]
 pixsizecombo = tkinter.ttk.Combobox(GeneralF,values=pixsize_list,width=5)
 pixsizecombo.grid(row=1,column=3)
 pixsizecombo.current(0)
+
+# add a 'Next Sequence' button 
+# TODO 
+
 
 GeneralF.grid_columnconfigure(0,minsize=200)
 GeneralF.grid_columnconfigure(2,minsize=200)
@@ -706,17 +710,6 @@ nbookh = ctrl_panel.winfo_screenheight() - GeneralF.winfo_height() -\
 
 
 
-
-
-#******************************************************************************#
-
-
-
-
-
-
-
-
 """
 ################################################################################
 # this was a straigth-forward attempt to remove vibrations
@@ -736,7 +729,6 @@ wackelB.grid(row=4,column=0,columnspan=2)
 #roiB.grid(row=0,column=1,columnspan=10) 
 # roi sequence (cropped PIL image sequence) available by attribute: "roi.roiseq"  
 
-
 # Animate ROI Button
 #animateROIB = Button(ROIF,text='Animate ROI', command=animate_roi,\
 #        height=imgbh,width=imgbw,image=moviephoto,compound=RIGHT) 
@@ -745,7 +737,7 @@ wackelB.grid(row=4,column=0,columnspan=2)
 
 
 #******************************************************************************#
-# the main window is organized in notebook-tabs
+# the main functions are provided by notebook-tabs
 # available notebook tabs: animation, ROI selection, powerspec, activity map 
 
 import tkinter.ttk
@@ -759,7 +751,6 @@ nbook.bind('<ButtonPress-1>',switchtab)
 # animate the original sequence in 'animationtab' 
 # animationtab = Frame(nbook,width=int(round(0.9*nbookw)),height=int(round(0.95*nbookh)))
 # nbook.add(animationtab, text='Animate Sequence')
-
 
 
 # remove sensor pattern (Puybareau 2016) 
@@ -781,7 +772,7 @@ roitab = Frame(nbook,width=int(round(0.9*nbookw)),\
 nbook.add(roitab, text='ROI Selection')
 
 
-# motion extraction (Puybareau 2016) 
+# motion extraction (see Puybareau et al. 2016) i.e. subtract the mean image  
 motionextractB = Button(roitab,text='Subtract Mean',\
                  command=lambda: PIL_ImgSeq.extractmotion(),height=bh,width=16)
 motionextractB.place(in_=roitab, anchor="c", relx=.07, rely=0.07)
@@ -790,24 +781,24 @@ motionextractB.place(in_=roitab, anchor="c", relx=.07, rely=0.07)
 # ROI selection Button
 import RegionOfInterest
 roi = RegionOfInterest.ROI(ctrl_panel) # instantiate roi object 
-roiB = Button(roitab,text='Reset ROI', command=select_roi, height=bh, width=10)
-roiB.place(in_=roitab, anchor="c", relx=.07, rely=.14)
+roiB = Button(roitab,text='Reset ROI', command=select_roi, height=bh, width=16)
+roiB.place(in_=roitab, anchor="c", relx=.07, rely=.12)
 # roi sequence (cropped PIL image sequence) available by attribute: "roi.roiseq"  
 
 
 # *****************************************************************************#
 cbftab = Frame(nbook,width=int(round(0.9*nbookw)),\
                height=int(round(0.95*nbookh)))
-nbook.add(cbftab, text='Ciliary Beat Frequency') 
+nbook.add(cbftab, text='Ciliary Beat Frequency')
 
 pwspec1frame = Frame(cbftab,width=int(round(0.65*nbookw)),\
                      height=int(round(0.65*nbookh)))
-pwspec1frame.place(in_=cbftab, anchor='c', relx=0.5,rely=0.4)  
+pwspec1frame.place(in_=cbftab, anchor='c', relx=0.5,rely=0.4)
 
 
 # Get Powerspec Button 
-import Powerspec 
-import Plots 
+import Powerspec
+import Plots
 
 powerspectrum = Powerspec.powerspec(pwspec1frame,int(round(0.6*nbookw)),\
                 int(round(0.6*nbookh)))
@@ -815,7 +806,7 @@ powerspectrum = Powerspec.powerspec(pwspec1frame,int(round(0.6*nbookw)),\
 minfreq = IntVar()
 maxfreq = IntVar()
 minfreq.set(5)
-maxfreq.set(15) 
+maxfreq.set(15)
 
 minscale = Scale(cbftab, from_=1, to=50, orient=HORIZONTAL,length=400,\
                  resolution=0.2,variable=minfreq,command=peakselector)

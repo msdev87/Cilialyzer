@@ -84,7 +84,6 @@ class ImageSequence:
         self.seqlength = None
         self.videofile = '' # path to video   
 
-
     def choose_directory(self,dirname,fname):
 
         try:
@@ -105,9 +104,7 @@ class ImageSequence:
 
         # update the name of the first image:
         f = os.listdir(self.directory)
-        sort_list(f) 
-        #print('newtest') 
-        #print(f)
+        sort_list(f)
         fname = fname.set(f[0])
 
     def get_files(self):
@@ -136,7 +133,7 @@ class ImageSequence:
 
         for filename in self.get_files():
             with open(filename, "rb") as f:
-                print(f)
+                #print(f)
                 fh = io.BytesIO(f.read())
             #Create a PIL image from the data
             img = Image.open(fh, mode="r")
@@ -147,6 +144,11 @@ class ImageSequence:
             yield img # yields a generator (PIL images)  
 
     def load_imgs(self):
+
+        # basically loads the image sequence into self.sequence
+        # by calling get_images()
+        # finally self.sequence[i] holds the i-th frame (8 Bit, PIL image) 
+
         # if directory not selected yet: 
         if (self.directory==''):
             tkinter.messagebox.showinfo("Title","Please select directory first")
@@ -216,7 +218,7 @@ class ImageSequence:
 
         f = open('user_settings.dat','w')
         f.write(os.path.split(self.videofile)[0])
-		# writes choosen directory (value of 'directory') into file 'f' 
+	# writes choosen directory (value of 'directory') into file 'f' 
         f.close()
 
         # update the label, which displays the directory name:
@@ -294,8 +296,8 @@ class ImageSequence:
 
 
     def imagereg(self):
-        import imreg_dft 
-        
+        import imreg_dft
+
         from pystackreg import StackReg
         sr = StackReg(StackReg.RIGID_BODY)
 
