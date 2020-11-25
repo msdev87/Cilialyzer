@@ -5,8 +5,8 @@ from PIL import Image, ImageTk, ImageEnhance
 import time
 import numpy
 import tkinter.ttk
+import math
 
-import math 
 if os.sys.version_info.major > 2:
     from tkinter.filedialog import askdirectory
     import tkinter as tk
@@ -21,19 +21,21 @@ VALID_TYPES = (
     "png", "pbm", "pgm", "ppm", "psd", "tif", "tiff", "xbm", "xpm"
 )
 
-
 def sort_list(l):
+
     """
     Mutates l, returns None.
     l: list of filenames.
 
-    Sorts l alphabetically. But fixes the fact that, alphabetically, '20' comes before '9'.
+    Sorts l alphabetically.
+    But fixes the fact that, alphabetically, '20' comes before '9'.
 
     Example:
         if l = ['10.png', '2.jpg']:
             a simple l.sort() would make l = ['10.png', '2.jpg'],
             but this function instead makes l = ['2.jpg', '10.png']
     """
+
     l.sort()
     numbers, extensions = [], []
     i = 0
@@ -55,8 +57,6 @@ def sort_list(l):
 
     for i in range(len(numbers)):
         l.insert(0, "%d.%s" % (numbers[i], extensions[i]))
-
-
 
 def get_files(directory):
     """
@@ -91,13 +91,16 @@ def GetMinMaxIntensity(self):
     #print self.MinIntensity 
 
 def GammaScale(self):
-    self.currentimg = ImageEnhance.Contrast(self.currentimg).enhance(self.contrast)
+    self.currentimg =\
+                ImageEnhance.Contrast(self.currentimg).enhance(self.contrast)
 
 def Sharpen(self):
-    self.currentimg = ImageEnhance.Sharpness(self.currentimg).enhance(self.sharp)
+    self.currentimg =\
+                ImageEnhance.Sharpness(self.currentimg).enhance(self.sharp)
 
 def Brighten(self):
-    self.currentimg = ImageEnhance.Brightness(self.currentimg).enhance(self.bright)
+    self.currentimg =\
+                ImageEnhance.Brightness(self.currentimg).enhance(self.bright)
 
 def bytescale(self):
 
@@ -105,15 +108,14 @@ def bytescale(self):
     #pixls = self.currentimg      
 
     self.currentimg = Image.eval(self.currentimg,
-            lambda xy: round((abs(xy - self.MinIntensity) / float(self.MaxIntensity-self.MinIntensity)) * 255))
-
+            lambda xy: round((abs(xy - self.MinIntensity) /
+                            float(self.MaxIntensity-self.MinIntensity)) * 255))
 
 def ResizeCurrentImage(self):
+
     w,h = self.currentimg.size
     scale = min((self.screen[0]/float(w), self.screen[1]/float(h)))
     self.currentimg=self.currentimg.resize((int(w*scale), int(h*scale)))
-
-
 
 class ImgSeqPlayer(object):
 
@@ -123,55 +125,53 @@ class ImgSeqPlayer(object):
 
     master: tk.Tk window.
     """
-    def __init__(self, master, directory,refreshing,PILseq,seqlength,roiobj,selectroi):
 
+    def __init__(self, master, directory, refreshing, PILseq, seqlength,
+                roiobj, selectroi):
 
-        self.roiseq = PILseq 
-        self.ROI = None  
+        self.roiseq = PILseq
+        self.ROI = None
         self.anchor = None
         self.item = None
         self.bbox = None
-        self.roiobj = roiobj 
-
+        self.roiobj = roiobj
         self.selectroi = selectroi
-
-
         self.refreshing = refreshing
-
         self.frame = tk.Frame(master,takefocus=0)
         self.frame.place(in_=master, anchor="c", relx=.5, rely=.5)
-
-        self.seqlength = seqlength 
+        self.seqlength = seqlength
 
         w,h = PILseq[0].size
-        # create progressbar (indicator for the position of the current image in sequence)
+        # create progressbar 
+        # (visually indicates the 'number' of the displayed frame)
         self.pbvar = tk.IntVar() # progress bar variable
         s = tkinter.ttk.Style()
         s.theme_use("default")
-        s.configure("TProgressbar", thickness=5)
-        progbar = tkinter.ttk.Progressbar(self.frame,mode="determinate",variable=self.pbvar,\
-                maximum=seqlength,length=0.5*w,style="TProgressbar")
-        progbar.grid(column=1,row=2) 
+        s.configure("TProgressbar", thickness=7)
+        progbar = tkinter.ttk.Progressbar(self.frame,mode="determinate",
+                    variable=self.pbvar,maximum=seqlength,length=0.5*w,
+                    style="TProgressbar")
+        progbar.grid(column=1,row=2)
 
-
-        self.frame2 = tk.LabelFrame(self.frame,takefocus=1, text='Player Controls', \
-                labelanchor='n',borderwidth = 4,padx=3,pady=3,font=("Helvetica", 11, "bold"))
+        self.frame2 = tk.LabelFrame(self.frame,takefocus=1,
+                text='Player Controls', labelanchor='n', borderwidth = 4,
+                padx=3,pady=3,font=("Helvetica", 11, "bold"))
         self.frame2.grid(row=3,column=1)
 
-    
         # ----------------------------------------------------------------------
-        # spinbox allowing for rotation! 
+        # spinbox allowing for rotation!
+
         if hasattr(self, 'rotationangle'):
             pass
         else:
             # set init/default value (no rotation)
-            self.rotationangle = 0.0   
+            self.rotationangle = 0.0
 
         self.rotframe=tk.Label(self.frame)
-        self.rotframe.grid(row=3,column=0,columnspan=1) 
+        self.rotframe.grid(row=3,column=0,columnspan=1)
 
         rotL=tk.Label(self.rotframe, text="Rotate [°]: ", height=2,width=15)
-        rotL.grid(row=0,column=0,columnspan=1) 
+        rotL.grid(row=0,column=0,columnspan=1)
 
         # spinbox 
         self.rotB = tk.Spinbox(self.rotframe, from_=-180, to=180, increment=15,\
@@ -181,15 +181,7 @@ class ImgSeqPlayer(object):
         self.rotB.insert(0,0)
         # ----------------------------------------------------------------------
 
-
-
-
-
-
-       
-
         # create frame holding buttons: "pause, play, next, previous,.."
-
 
         with open("./icons/prev2.png","rb") as f:
             fh = io.BytesIO(f.read())
@@ -200,7 +192,6 @@ class ImgSeqPlayer(object):
         self.prevB.image = previcon
         self.prevB.grid(row=1,column=0)
 
-
         with open("./icons/pause2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
@@ -209,7 +200,6 @@ class ImgSeqPlayer(object):
         self.pauseB = Button(self.frame2, image=pauseicon, command=self.zero_fps)
         self.pauseB.image = pauseicon
         self.pauseB.grid(row=1,column=2)
-
 
         with open("./icons/play2.png","rb") as f:
             fh = io.BytesIO(f.read())
@@ -220,7 +210,6 @@ class ImgSeqPlayer(object):
         self.playB.image = playicon # save image from garbage collection 
         self.playB.grid(row=1,column=1)
 
-
         with open("./icons/stop2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
@@ -229,7 +218,6 @@ class ImgSeqPlayer(object):
         self.stopB = Button(self.frame2, image=stopicon, command=self.escape)
         self.stopB.image = stopicon
         self.stopB.grid(row=1,column=3)
-
 
         with open("./icons/next2.png","rb") as f:
             fh = io.BytesIO(f.read())
@@ -240,21 +228,20 @@ class ImgSeqPlayer(object):
         self.nextB.image = nexticon
         self.nextB.grid(row=1,column=4)
 
+        # The zoom is controlled with a radiobutton 
+        # frame10 represents the zoom frame
 
-
-
-        # For Zoom -> radiobutton!
-
-        # frame 10 is for zoom frame!
         self.frame10 = tk.Frame(self.frame,takefocus=1)
         self.frame10.grid(row=1,column=0)
 
-        self.zoomframe = tk.LabelFrame(self.frame10,takefocus=1,text='Zoom', \
-                labelanchor='n',borderwidth = 4,padx=0,pady=0,font=("Helvetica", 11, "bold"))
+        self.zoomframe = tk.LabelFrame(self.frame10,takefocus=1,text='Zoom',
+                            labelanchor='n',borderwidth = 4,padx=0,pady=0,
+                            font=("Helvetica", 11, "bold"))
         #self.zoomframe.pack(side=tk.LEFT)
         self.zoomframe.grid(row=0,column=0,padx=3,pady=3)
 
-        self.zooom = [(" 75%",1),("100%", 2), ("125%", 3),("150%", 4), ("200%", 5), ("300%",6)]
+        self.zooom =[(" 75%",1),("100%", 2), ("125%", 3),
+                    ("150%", 4), ("200%", 5), ("300%",6)]
 
         if (not self.refreshing):
             if hasattr(self, 'var'):
@@ -268,7 +255,7 @@ class ImgSeqPlayer(object):
             value=mode, bd=4, width=6,command=self.refresh)
             self.zoomB.pack(side=tk.BOTTOM)
 
-        # checkbox for contrast bytescaling --------------------------------------------------------
+        # checkbox for contrast bytescaling ------------------------------------
 
         if hasattr(self, 'bscontrast'):
             pass
@@ -282,10 +269,11 @@ class ImgSeqPlayer(object):
             #print self.bscontrast 
             #time.sleep(5)
 
-
-        self.frame5 = tk.LabelFrame(self.frame, takefocus=1,text='Contrast Settings', \
-                labelanchor='n',borderwidth = 4,padx=3,pady=3,font=("Helvetica", 11, "bold"))
-        self.frame5.grid(row=0,column=1) 
+        self.frame5 = tk.LabelFrame(self.frame, takefocus=1,
+                                text='Contrast Settings', labelanchor='n',
+                                borderwidth = 4,padx=3,pady=3,
+                                font=("Helvetica", 11, "bold"))
+        self.frame5.grid(row=0,column=1)
 
         self.bscontrastB = tk.Checkbutton(self.frame5, text="Bytescaling",
         variable=self.bscontrast,command=self.setbscontrast)
@@ -297,38 +285,34 @@ class ImgSeqPlayer(object):
         else:
             self.bscontrastB.deselect()
 
-
-        # Gamma Faktor -----------------------------------------------------------------------------  
+        # Gamma Faktor ---------------------------------------------------------
         if hasattr(self, 'contrast'):
             pass
         else:
             self.contrast = 1.0 # init value  
 
-
         #self.frame6 = tk.Frame(self.frame, takefocus=1)
         #self.frame6.pack(side=tk.BOTTOM)
 
-        contrastL=tk.Label(self.frame5, text="Gamma Correction: ", height=2,width=18)
+        contrastL=tk.Label(self.frame5, text="Gamma Correction: ",
+                            height=2,width=18)
         #contrastL.pack(side=tk.LEFT)
-        contrastL.grid(row=1,column=0,columnspan=1) 
+        contrastL.grid(row=1,column=0,columnspan=1)
 
-
-
-        self.contrastB = tk.Spinbox(self.frame5, from_=0.5, to=5.0, increment=0.2,command=self.setcontrast,width=3)
+        self.contrastB = tk.Spinbox(self.frame5, from_=0.5, to=5.0,
+                                increment=0.2,command=self.setcontrast,width=3)
         #self.contrastB.pack(side=tk.LEFT)
         self.contrastB.grid(row=1,column=1,columnspan=1)
 
         self.contrastB.delete(0, "end")
         self.contrastB.insert(0,1.0)
-        # ------------------------------------------------------------------------------------------ 
-
+        # ----------------------------------------------------------------------
 
         # Image Sharpness 
         if hasattr(self, 'sharp'):
             pass
         else:
             self.sharp = 1.0 # init value  
-
 
         #self.frame7 = tk.Frame(self.frame, takefocus=1)
         #self.frame7.pack(side=tk.BOTTOM)
@@ -337,17 +321,14 @@ class ImgSeqPlayer(object):
         #sharpnessL.pack(side=tk.LEFT)
         sharpnessL.grid(row=0,column=2,columnspan=1)
 
-        self.sharpnessB = tk.Spinbox(self.frame5, from_=0.5, to=5.0, increment=0.5,command=self.sharpener,width=3)
+        self.sharpnessB = tk.Spinbox(self.frame5, from_=0.5, to=5.0,
+                                increment=0.5,command=self.sharpener,width=3)
         #self.sharpnessB.pack(side=tk.LEFT)
         self.sharpnessB.grid(row=0,column=3,columnspan=1)
 
         self.sharpnessB.delete(0, "end")
         self.sharpnessB.insert(0,1.0)
-        # --------------
-
-
-
-
+        # ----------------------------------------------------------------------
 
         # Image Brightness 
         if hasattr(self, 'bright'):
@@ -355,30 +336,28 @@ class ImgSeqPlayer(object):
         else:
             self.bright = 1.0 # init value  
 
-
         #self.frame8 = tk.Frame(self.frame, takefocus=1)
         #self.frame8.pack(side=tk.BOTTOM)
 
         brightnessL=tk.Label(self.frame5, text="Brightness: ", height=2,width=18)
         #brightnessL.pack(side=tk.LEFT)
-        brightnessL.grid(row=1,column=2,columnspan=1) 
-
+        brightnessL.grid(row=1,column=2,columnspan=1)
 
         self.brightnessB = tk.Spinbox(self.frame5, from_=0.5, to=5.0, increment=0.1,command=self.setbrightness,width=3)
-        self.brightnessB.grid(row=1,column=3,columnspan=1) 
+        self.brightnessB.grid(row=1,column=3,columnspan=1)
 
         self.brightnessB.delete(0, "end")
         self.brightnessB.insert(0,1.0)
-        # --------------
+        # ----------------------------------------------------------------------
 
+        # another radiobutton to comfortably set the replaying speed (FPS)  
+        self.frame12 = tk.Frame(self.frame, takefocus=1)
+        self.frame12.grid(row=1, column=2)
 
-
-        # another radiobutton for comfortably setting FPS  
-        self.frame12 = tk.Frame(self.frame,takefocus=1)
-        self.frame12.grid(row=1,column=2)
-
-        self.fpsframe = tk.LabelFrame(self.frame12,takefocus=1,text='Replay Speed', \
-                labelanchor='n',borderwidth = 4,padx=0,pady=0,font=("Helvetica", 11, "bold"))
+        self.fpsframe = tk.LabelFrame(self.frame12, takefocus=1,
+                            text='Replay Speed', labelanchor='n',
+                            borderwidth = 4, padx=0, pady=0,
+                            font=("Helvetica", 11, "bold"))
 
         #self.fpsframe.pack(side=tk.LEFT)
         self.fpsframe.grid(row=0,column=1,padx=3,pady=3)
@@ -390,33 +369,24 @@ class ImgSeqPlayer(object):
             pass
         else:
             self.fps = tk.StringVar()
-            self.fps.set(3) # initialize
+            self.fps.set(4) # initialize
 
         for text, mode in self.radio_fps:
             self.fpsB = tk.Radiobutton(self.fpsframe, text=text, variable=self.fps, value=mode,
             bd=4, width=6,command=self.fps_button)
             self.fpsB.pack(side=tk.BOTTOM)
 
-
-
-
         # get image size 
 
-
-
-        #Scale image to the screen size while keeping aspect ratio.
-        #w = self.roi[2] - self.roi[0]
-        #h = self.roi[3] - self.roi[1]
+        # Scale image to the screen size while keeping aspect ratio.
+        # w = self.roi[2] - self.roi[0]
+        # h = self.roi[3] - self.roi[1]
         w,h= PILseq[0].size
-        #print "w,h"
-        #print w
-        #print h
 
         ctrl_height = 0
         add_width = 0
 
         # Set the canvas size according to the size of the rescaled image
-
 
         self.zoomfac = 1.0
 
@@ -429,7 +399,7 @@ class ImgSeqPlayer(object):
             #self.can = tk.Canvas(self.frame, width = int(w)+add_width, height = int(h)+ctrl_height)
             self.can = tk.Canvas(self.frame, width = int(w), height = int(h))
             self.screen = w, h
-            self.zoomfac = 1.0 
+            self.zoomfac = 1.0
         if (self.var.get() == '3'):
             self.can = tk.Canvas(self.frame, width = int(1.25*w)+add_width,
             height = int(1.25*h)+ctrl_height)
@@ -450,30 +420,25 @@ class ImgSeqPlayer(object):
             height = int(3*h)+ctrl_height)
             self.screen = int(3*w), int(3*h)
             self.zoomfac = 3.0
+
         # place the canvas in which the images will be shown in the center of the window 
         self.can.grid(row=1,column=1,padx=5,pady=5)
 
         master.update()
 
-
-
-
-        #if (not self.refreshing):
+        # if (not self.refreshing):
         #    # generate the array of PIL images 'self.PILimgs'    
         #    self.PILimgs = PILseq
 
-        self.PILimgs = PILseq 
-
-
+        self.PILimgs = PILseq
 
         self.MaxIntensity = 0.0
         self.MinIntensity = 255.0
 
         GetMinMaxIntensity(self)
 
-
-        #if not self.photos:  #len(self.photos) must be > 0.
-        #    raise FolderError(directory)
+        # if not self.photos:  #len(self.photos) must be > 0.
+        # raise FolderError(directory)
 
         self.index = 0  #Index of next photo to draw in self.photos.
         self.current_image = False  #Start with no image drawn on screen.
@@ -483,7 +448,6 @@ class ImgSeqPlayer(object):
 
         #center position of photos on screen.
         self.center = (self.screen[0]+add_width)//2, (self.screen[1]+ctrl_height//3)//2
-
 
         # self.speed corresponds to the replayed "frames per second"
         if hasattr(self, 'speed'):
@@ -496,10 +460,10 @@ class ImgSeqPlayer(object):
         self.stop = 0 # variable to stop if spacebar gets hit 
 
         # Label displaying FPS  
-        #self.labeltext = tk.StringVar()
-        #self.labeltext.set('playback speed [FPS]: ' + str(self.speed))
-        #self.label = tk.Label(self.frame, textvariable=self.labeltext)
-        #self.label.pack(side=tk.TOP)
+        # self.labeltext = tk.StringVar()
+        # self.labeltext.set('playback speed [FPS]: ' + str(self.speed))
+        # self.label = tk.Label(self.frame, textvariable=self.labeltext)
+        # self.label.pack(side=tk.TOP)
 
 
 
@@ -516,6 +480,7 @@ class ImgSeqPlayer(object):
         """
 
         if (self.stop == 1):
+
             self.index = self.index
             #self.frame.quit()
 

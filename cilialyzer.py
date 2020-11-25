@@ -13,7 +13,6 @@
 # 
 # ==============================================================================
 
-
 # ******************************************************************************
 # ******************** Configuration of The main Window ************************
 # ******************************************************************************
@@ -129,8 +128,6 @@ def endprogram():
 #    peakmax = sbox_peakmax.get()
 #    plot_peak()
 
-
-
 def peak_cbf():
     global powerspec_photo
     powerspectrum.peakselection(powerspecplot)
@@ -221,7 +218,7 @@ def selectdirectory():
     # ask the user to set a new directory and load the images  
     PIL_ImgSeq.choose_directory(dirname,fname)
     PIL_ImgSeq.load_imgs() # loads image sequence 
-    # PIL_ImgSeq.sequence[i] now holds the i-th frame (8 Bits, PIL) 
+    # PIL_ImgSeq.sequence[i] now holds the i-th frame (img format: 8 Bits, PIL) 
 
     # if new directory is set -> destroy frames 
     try:
@@ -251,12 +248,12 @@ def selectdirectory():
                 PIL_ImgSeq.sequence,PIL_ImgSeq.seqlength,roi,selectroi)
     roiplayer.animate()
 
-    #nbook.select(0)
-    #refresh = 0
-    #player = Flipbook.ImgSeqPlayer(roitab, PIL_ImgSeq.directory,\
+    # nbook.select(0)
+    # refresh = 0
+    # player = Flipbook.ImgSeqPlayer(roitab, PIL_ImgSeq.directory,\
     #                               refresh,PIL_ImgSeq.sequence,\
     #                               PIL_ImgSeq.seqlength)
-    #player.animate() # call method animate 
+    # player.animate() # call method animate 
 
 
 def corrgram():
@@ -274,7 +271,7 @@ def corrgram():
     print("spatiotempcorr calculated")
     #print "spatiotempcorr calculated" 
     refresh = 0
-    corrplayer = Flipbook.ImgSeqPlayer(correlationtab,PIL_ImgSeq.directory, refresh,dynseq.corr_roiseq,len(dynseq.corr_roiseq)) 
+    corrplayer = Flipbook.ImgSeqPlayer(correlationtab,PIL_ImgSeq.directory, refresh,dynseq.corr_roiseq,len(dynseq.corr_roiseq))
     corrplayer.animate()
 
 
@@ -283,28 +280,25 @@ def meanscorrgram():
     global dynseq
 
     # calculate the mean spatial autocorrelation 
-    try: 
+    try:
         dynseq.mscorr(float(fpscombo.get()),float(minscale.get()),float(maxscale.get()),mscorrplotframe,mscorrprofileframe,float(pixsizecombo.get()))
 
     except NameError:
         print('except')
-        dynseq = DynamicFilter.DynFilter() 
+        dynseq = DynamicFilter.DynFilter()
         dynseq.dyn_roiseq = roiplayer.roiseq
         dynseq.mscorr(float(fpscombo.get()),float(minscale.get()),float(maxscale.get()),mscorrplotframe,mscorrprofileframe,float(pixsizecombo.get()))
 
 
-
-
-
 def kspec():
     # calculate the spatial power spectral density
-    global dynseq 
+    global dynseq
     try:
         dynseq.kspec(float(fpscombo.get()),float(minscale.get()),float(maxscale.get()),kplotframe)
     except NameError:
-        print("namerror") 
-        dynseq = DynamicFilter.DynFilter() 
-        dynseq.dyn_roiseq = roiplayer.roiseq  
+        print("namerror")
+        dynseq = DynamicFilter.DynFilter()
+        dynseq.dyn_roiseq = roiplayer.roiseq
         dynseq.kspec(float(fpscombo.get()),float(minscale.get()),float(maxscale.get()),kplotframe)
 
 
@@ -326,15 +320,15 @@ def select_roi():
 
 
 def select_pixel():
-    global roiplayer 
+    global roiplayer
 
     #print "this is a test" 
 
     try:
         # avoid crash 
         pixplayer.stop = 2
-#        # as roiplayer was not None -> destroy frame before it gets rebuilt:
-        pixplayer.frame.destroy() 
+        # as roiplayer was not None -> destroy frame before it gets rebuilt:
+        pixplayer.frame.destroy()
     except NameError:
         pass
 
@@ -342,9 +336,9 @@ def select_pixel():
     selectroi = 2 # selectroi = 2 -> pixel selection
     pixplayer = FlipbookROI.ImgSeqPlayer(pixelchoiceframe,PIL_ImgSeq.directory,refresh,roiplayer.roiseq,PIL_ImgSeq.seqlength,pixoi,selectroi) 
     pixplayer.animate()
- 
+
     #print " second test " 
-    
+
 
 
 def pcolor_func():
@@ -379,11 +373,10 @@ def switchtab(event):
 
     if ((active_tab == nbook.index(ptracktab)) and (clicked_tab != active_tab)):
         # stop the player to prevent a crash  
-        try: 
-            ptrackplayer.stop = 2 
+        try:
+            ptrackplayer.stop = 2
         except NameError:
             pass
-
 
     # if ((active_tab == 7) and (clicked_tab != active_tab)):
     #    try: 
@@ -431,45 +424,39 @@ def switchtab(event):
         ptrackplayer.animate()
 
 
-
-
-    if (clicked_tab == nbook.index(dynfiltertab)): 
+    if (clicked_tab == nbook.index(dynfiltertab)):
         # dynamic filtering tab 
         nbook.select(nbook.index(dynfiltertab))
         # 1. apply band-pass filter 
         dynseq.bandpass(roiplayer.roiseq,float(fpscombo.get()),float(minscale.get()),float(maxscale.get()),int(nrharmscombo.get()))
-    
-        refresh = 0    
+
+        refresh = 0
         dynplayer = Flipbook.ImgSeqPlayer(dynfiltertab, PIL_ImgSeq.directory,\
                                    refresh,dynseq.dyn_roiseq,\
                                    PIL_ImgSeq.seqlength) 
         dynplayer.animate() # call meth
 
-
-#def calcplot_powerspec(pwspec,roiseq,fps,specplot,frame):
-#    pwspec.calc_powerspec(roiseq,fps,specplot,frame)
+#   def calcplot_powerspec(pwspec,roiseq,fps,specplot,frame):
+#   pwspec.calc_powerspec(roiseq,fps,specplot,frame)
 
 def splitkspec(self):
-    
-    global dynseq  
+
+    global dynseq
     # draw the line 
     # according to splitangle 
     #global splitangle 
     #angle = splitlinescale.get() 
     #dynseq.kxkyplotax.plot([3,3],[8,8],color='r',linewidth=4)  
-    print('ok')  
-
-
-
+    print('ok')
 
 def peakselector(self):
 
     # this command gets executed if the user shifts the scrollbars, 
     # which define the min and max freq of the considered freq band, 
     # which is necessary for the determination of the CBF and the activity map 
-    
+
     global powerspectrum, minscale, maxscale, nrharmscombo 
-   
+
     minf = float(minscale.get())
     maxf = float(maxscale.get())
 
@@ -480,7 +467,6 @@ def peakselector(self):
     # fill whole area white (to delete prior selections!) 
     powerspectrum.pwspecplot.axes.fill_between(powerspectrum.freqs, powerspectrum.spec,facecolor='white',alpha=1.0)
 
-    
     # shade first harmonic (selection)  
     maxind = numpy.sum((numpy.array(powerspectrum.freqs) <= maxf).astype(int))
     minind = numpy.sum((numpy.array(powerspectrum.freqs) <= minf).astype(int))

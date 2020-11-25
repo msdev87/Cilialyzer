@@ -83,6 +83,7 @@ class ImageSequence:
         self.height    = None
         self.seqlength = None
         self.videofile = '' # path to video   
+        self.pbstyle = None
 
     def choose_directory(self,dirname,fname):
 
@@ -123,6 +124,7 @@ class ImageSequence:
         return (self.directory+"/"+f for f in files)
 
     def get_images(self):
+
         """
         directory: str, path to look for files in.
         screen: tuple, (w, h), screen size to resize images to fit on.
@@ -173,9 +175,9 @@ class ImageSequence:
             ni = ni+1
         self.seqlength = ni
 
-        s = tkinter.ttk.Style()
-        s.theme_use("default")
-        s.configure("TProgressbar", thickness=30)
+        self.pbstyle = tkinter.ttk.Style()
+        self.pbstyle.theme_use("default")
+        self.pbstyle.configure("TProgressbar", thickness=10)
 
         pbvar = IntVar() # progressbar variable (counts number of loaded imgs)   
         pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",
@@ -197,12 +199,11 @@ class ImageSequence:
             progress +=1
 
         progresswin.destroy()
-        s.configure("TProgressbar", thickness=5)
+        #style.configure("TProgressbar", thickness=5)
 
         # determine width and height of images: 
         firstimg = self.sequence[0]
         self.width, self.height = firstimg.size
-
 
     def load_video(self,dirname,fps):
 
@@ -227,7 +228,7 @@ class ImageSequence:
 
         # unfortunately it seems to be a paing to install the videosequence module in windows 
         # lets open the video and iterate over the frames, convert to 8Bit,PIL
-        #with closing(VideoSequence(self.videofile)) as frames:
+        # with closing(VideoSequence(self.videofile)) as frames:
         #    ni = 0 
         #    for frame in frames: 
         #        frame = frame.convert("L")  # convert to 8 Bit grayscale   
@@ -235,8 +236,8 @@ class ImageSequence:
         #        ni = ni + 1 
 
 
-        
-        
+
+
         # create a directory, which will hold the image sequence we will 
         # generate with ffmpeg, and set 'self.directory' to its corresponding path 
 
@@ -246,11 +247,11 @@ class ImageSequence:
         os.mkdir(self.directory) 
 
         # generate the image sequence in the just generated folder 
-        
+
         #seqname = os.path.split(os.path.split(self.directory)[1])
-        
+
         subprocess.call(['ffmpeg','-i',self.videofile,'-r',fps,self.videofile.split(".")[0]+'/frame_%04d.png'])  
-    
+
         #firstimg = self.sequence[0] 
         #self.width, self.height = firstimg.size
         #self.seqlength = ni 
