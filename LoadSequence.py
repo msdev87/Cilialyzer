@@ -134,6 +134,7 @@ class ImageSequence:
         """
 
         for filename in self.get_files():
+
             with open(filename, "rb") as f:
                 #print(f)
                 fh = io.BytesIO(f.read())
@@ -142,7 +143,11 @@ class ImageSequence:
             #print "image format" 
             #print img.format
 
-            img = img.convert("L")  # convert to 8 Bit grayscale   
+            img = img.convert("L")  # convert to 8 Bit grayscale 
+            w,h = img.size
+            # crop images to get rid of the embedded image information
+            img = img.crop((1,1,w-1,h-1)) # left,top,right,bottom 
+
             yield img # yields a generator (PIL images)  
 
     def load_imgs(self):
