@@ -418,9 +418,13 @@ def switchtab(event):
         # create player object 
         refresh = 0
         selectroi = 1
-        ptrackplayer = FlipbookPTrack.ImgSeqPlayer(ptracktab,PIL_ImgSeq.directory,\
-                                                 refresh,roiplayer.roiseq,\
-                                                 PIL_ImgSeq.seqlength,roi,selectroi,float(fpscombo.get()),float(pixsizecombo.get())) 
+        ptrackplayer = FlipbookPTrack.ImgSeqPlayer(ptracktab,
+                                                PIL_ImgSeq.directory,\
+                                                refresh,roiplayer.roiseq,\
+                                                PIL_ImgSeq.seqlength,roi,\
+                                                selectroi,\
+                                                float(fpscombo.get()),\
+                                                float(pixsizecombo.get()))
         ptrackplayer.animate()
 
 
