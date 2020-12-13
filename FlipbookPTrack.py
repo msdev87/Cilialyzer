@@ -5,6 +5,8 @@ from PIL import Image, ImageTk, ImageEnhance
 import time
 import numpy
 import tkinter.ttk
+import math
+import bytescl
 if os.sys.version_info.major > 2:
     from tkinter.filedialog import askdirectory
     import tkinter as tk
@@ -27,6 +29,8 @@ from scipy.ndimage.filters import uniform_filter
 
 import circle_fit
 
+from pandastable import Table
+import pandas
 
 VALID_TYPES = (
     "bmp", "dib", "dcx", "gif", "im", "jpg", "jpe", "jpeg", "pcd", "pcx",
@@ -122,18 +126,32 @@ def LeeFilter(self):
         else:
             leefiltered[numpy.where(leefiltered > (m-2*std))] = m
 
-        leefiltered = scipy.misc.bytescale(leefiltered)
+        leefiltered = bytescl.bytescl(leefiltered)
+
 
         # write the current image out as a png
-        #self.currentimg.save("img" + str(self.index) + ".png", "PNG")
+        # self.currentimg.save("img" + str(self.index) + ".png", "PNG")
 
         self.currentimg = Image.fromarray(numpy.uint8(leefiltered),'L')
 
         # export lee filtered sequence (for timelapse)  
         #self.currentimg.save("img" + str(self.index) + ".png", "PNG")  		
 
-
-
+"""
+def bytescl(array):
+    mini = numpy.amin(array)
+    maxi = numpy.amax(array)
+    r = 0
+    c = 0
+    cnt = 0
+    rows = array.shape[0]
+    cols = array.shape[1]
+    for el in numpy.nditer(array):
+        r = math.floor(cnt / cols)
+        c = cnt % cols
+        array[r,c] = round((abs(el - mini) / float(maxi-mini)) * 255)
+        cnt += 1
+""" 
 
 def GammaScale(self):
     self.currentimg = ImageEnhance.Contrast(self.currentimg).enhance(self.contrast)
@@ -174,7 +192,7 @@ class ImgSeqPlayer(object):
 
         self.pspeed = tk.StringVar()# particle speed 
 
-        self.ptracking = True # indicates state of particle tracking  
+        self.ptracking = True # indicates activity-status of particle tracking  
 
         self.circlefit = [] # holds the output from the circlefit 
 
@@ -189,11 +207,14 @@ class ImgSeqPlayer(object):
         self.bbox = None
         self.roiobj = roiobj
 
-        self.trajectory1 = []
-        self.trajectory1finish = 0
+        # vars and lists to collect the particle trajectories
+
+        self.latesttrace = [] # the current trajectory
+        self.alltraces = [] # holds all particle traces 
+        self.latesttrajectoryfinish = 0
         self.track_cnt = 0
         self.start_track = 0
-        self.trajectories = []
+
 
         self.selectroi = selectroi
 
@@ -226,34 +247,42 @@ class ImgSeqPlayer(object):
         self.frame2.grid(row=3,column=1)
 
 
+        # ----------------------------------------------------------------------
+        # **************** Particle Tracking Controls (Frame) ******************
 
-        # ****************
-        # add a frame, which holds the 'particle tracking controls' (trackcframe) 
-        self.trackcframe = tk.LabelFrame(self.frame,takefocus=1, text='Particle Tracking Controls',\
-        labelanchor='n',borderwidth=4,padx=2,pady=4,font=("Helvetica", 11, "bold"))
+        # add frame holding the 'particle tracking controls' (trackcframe) 
+        self.trackcframe = tk.LabelFrame(self.frame,takefocus=1,
+                            text='Particle Tracking Controls',\
+                            labelanchor='n', borderwidth=4, padx=2, pady=4,
+                            font=("Helvetica", 11, "bold"))
         self.trackcframe.grid(row=4,column=1)
 
-        # radiobutton to specify the 'color' of particles (self.pcolor=1 -> bright, self.pcolor=2->dark)   
+        # radiobutton to specify the 'color' of particles 
+        # (if self.pcolor=1 --> bright, if self.pcolor=2 --> dark)   
         self.radiocolor = [("Bright Particles", 1),("Dark Particles", 2)]
         self.pcolor = tk.StringVar()
-        self.pcolor.set(1) # initialize
+        self.pcolor.set(2) # initialize with dark particles 
 
-        self.pcolorB = tk.Radiobutton(self.trackcframe,text="Bright Particles",variable=self.pcolor,command=self.pcolor_func,value=1,bd=4,width=12)
+        self.pcolorB = tk.Radiobutton(self.trackcframe,text="Bright Particles",
+                        variable=self.pcolor,command=self.pcolor_func,
+                        value=1,bd=4,width=12)
         self.pcolorB.grid(row=0, column=0)
-        self.pcolorB = tk.Radiobutton(self.trackcframe,text="Dark Particles",variable=self.pcolor,command=self.pcolor_func,value=2,bd=4,width=12)
+        self.pcolorB = tk.Radiobutton(self.trackcframe,text="Dark Particles",
+                        variable=self.pcolor,command=self.pcolor_func,
+                        value=2,bd=4,width=12)
         self.pcolorB.grid(row=1, column=0)
 
-
-        # add "Lee-Filter button" 
-        self.extractparticlesB =tk.Button(self.trackcframe,text='Extract Particles',\
-                                          command=self.extractparticles,width=20,height=1)
+        # "Lee-Filter button" 
+        self.extractparticlesB = tk.Button(self.trackcframe,
+                                    text='Extract Particles',
+                                    command=self.extractparticles,
+                                    width=20,height=1)
         self.extractparticlesB.grid(row=0,column=1,padx=5)
 
 	# export trajectory button 
         self.exportB =tk.Button(self.trackcframe,text='Export Trajectory',\
                                           command=self.export_trajectory,width=20,height=1)
         self.exportB.grid(row=1,column=1)
-
 
         # spinbox for the window size of the gaussian blur 
         gaussL=tk.Label(self.trackcframe, text="Gaussian: ", height=2,width=18) 
@@ -263,9 +292,7 @@ class ImgSeqPlayer(object):
         #self.gaussB.delete(0, "end")
         self.gaussB.insert(0,20.0)
 
-
         # spinbox for lee filter
-
         leeL=tk.Label(self.trackcframe, text="lee filter: ", height=2,width=18) 
         leeL.grid(row=1,column=2,columnspan=1)
         self.leeB = tk.Spinbox(self.trackcframe, from_=1.0, to=30.0, increment=1.0,command=self.setleewin,width=4)
@@ -273,16 +300,18 @@ class ImgSeqPlayer(object):
         #self.gaussB.delete(0, "end")
         self.leeB.insert(0,7.0)
 
+        # Button to delete the latest particle trace 
+        self.delParticleB = tk.Button(self.trackcframe, text='Delete Particle', 
+                                command=self.delParticle, width=20, height=1)
+        self.delParticleB.grid(row=0,column=4,padx=5)
 
+        # Button to continue the particle tracking
+        self.continuetrackingB = tk.Button(self.trackcframe,
+                text='Continue Tracking', command = self.continuetracking,
+                width=20, height=1)
+        self.continuetrackingB.grid(row=1,column=4,padx=5)
 
-
-
-
-
-
-
-
-
+        # **********************************************************************
 
         # create frame holding buttons: "pause, play, next, previous,.."
 
@@ -295,7 +324,6 @@ class ImgSeqPlayer(object):
         self.prevB.image = previcon
         self.prevB.grid(row=1,column=0)
 
-
         with open("./icons/pause2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
@@ -304,7 +332,6 @@ class ImgSeqPlayer(object):
         self.pauseB = Button(self.frame2, image=pauseicon, command=self.zero_fps)
         self.pauseB.image = pauseicon
         self.pauseB.grid(row=1,column=2)
-
 
         with open("./icons/play2.png","rb") as f:
             fh = io.BytesIO(f.read())
@@ -315,7 +342,6 @@ class ImgSeqPlayer(object):
         self.playB.image = playicon # save image from garbage collection 
         self.playB.grid(row=1,column=1)
 
-
         with open("./icons/stop2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
@@ -324,7 +350,6 @@ class ImgSeqPlayer(object):
         self.stopB = Button(self.frame2, image=stopicon, command=self.escape)
         self.stopB.image = stopicon
         self.stopB.grid(row=1,column=3)
-
 
         with open("./icons/next2.png","rb") as f:
             fh = io.BytesIO(f.read())
@@ -486,13 +511,32 @@ class ImgSeqPlayer(object):
 
         # *************** results frame at the right ***************************
         # display the particle speeds
-
+        """
         self.reslframe = tk.LabelFrame(self.frame,takefocus=1,text='Results', \
                 labelanchor='n',borderwidth=4,padx=0,pady=0,font=("Helvetica", 11, "bold"))
         self.reslframe.grid(row=1,column=3,padx=30,pady=7)
 
         self.particlespeed = tk.Label(self.reslframe, textvariable=self.pspeed) 
         self.particlespeed.grid()
+        """
+
+        self.resultsframe = tk.LabelFrame(self.frame,takefocus=1,text='Results', \
+                labelanchor='n',borderwidth=4,padx=0,pady=0,font=("Helvetica", 11, "bold"), width=350, height=500)
+        self.resultsframe.grid(row=1,column=3,padx=60,pady=7)
+        self.resultsframe.grid_propagate(0)
+
+
+        pandas.options.display.float_format = '${:,.1f}'.format
+        # pandas frame 
+        self.pandadf = pandas.DataFrame({
+            'Radius' : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            'Speed': [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            'Angular Freq.': [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        })
+
+        self.resultstable = Table(self.resultsframe, dataframe=self.pandadf,
+                showtoolbar=True, showstatusbar=True)
+        self.resultstable.show()
 
         # **********************************************************************
 
@@ -670,13 +714,13 @@ class ImgSeqPlayer(object):
                 # start or restart tracking 
                 self.start_track = 0
 
-                if (len(self.trajectory1) > 1):
-                    self.trajectories.append(self.trajectory1) # collect trajectories! 
-                print("len trajectories", len(self.trajectories))
+                # if (len(self.latesttrajectory) > 1):
+                #    self.trajectories.append(self.latesttrajectory) # collect trajectories! 
+                #print("len trajectories", len(self.trajectories))
 
-                self.trajectory1 = []
-                #print "len? ", len(self.trajectory1)  
-                self.trajectory1finish = 0
+                self.latesttrace = []
+                #print "len? ", len(self.latesttrajectory)  
+                self.latesttrajectoryfinish = 0
                 self.track_cnt = 0
                 self.particle_coords = (None,None)
 
@@ -738,49 +782,50 @@ class ImgSeqPlayer(object):
 
         if (self.stop == 0):
             if self.anchor is not None:
-                # particle clicked -> start tracking (update particle coordinates)
+                # particle has been clicked 
+                # --> start/continue tracking 
                 self.trackparticle()
 
         self.current_photo = ImageTk.PhotoImage(self.currentimg)
         self.current_image = self.can.create_image(self.center,image=self.current_photo) # draw image! 
 
-
         if (self.selectroi == 1):
-            # update rectangle
-            if ((self.index % 1) == 0):
+            # update rectangle (red rectanlge indicates the tracking process) 
+            if ((self.index % 2) == 0):
                 if (self.bbox is not None):
-                    self.anchor = (int(round(self.particle_coords[0]))-5, int(round(self.particle_coords[1]))-5) 
-                    self.bbox = self.anchor + (int(round(self.particle_coords[0]))+5, int(round(self.particle_coords[1]))+5) 
-                    self.can.create_rectangle(self.bbox, outline="red")
-                    if (len(self.trajectory1)>1):
-                        #self.can.create_line(self.trajectory1,fill="red",width=2)#,smooth=True)
-                        pass
-                        #print self.trajectory1
-                    if (len(self.trajectories) > 1):
-                        for i in range(len(self.trajectories)):
-                            #self.can.create_line(self.trajectories[i], fill="red", width=2)#,smooth=True)
-                            pass
-
+                    self.anchor = (int(round(self.particle_coords[0]))-5, int(round(self.particle_coords[1]))-5)
+                    self.bbox = self.anchor + (int(round(self.particle_coords[0]))+5, int(round(self.particle_coords[1]))+5)
+                    self.can.create_rectangle(self.bbox, outline="red",width=2)
+                    # if (len(self.latesttrace)>1):
+                    # self.can.create_line(self.latesttrajectory,fill="red",width=2)#,smooth=True)
+                    # pass
+                    # print self.latesttrajectory
+                    # if (len(self.trajectories) > 1):
+                    #    for i in range(len(self.trajectories)):
+                    #        #self.can.create_line(self.trajectories[i], fill="red", width=2)#,smooth=True)
+                    #        pass
 
         if (self.stop != 2):
-            #self.frame.update_idletasks()
-            self.frame.after_idle(self.animate) # recalls self.animate  
+            self.frame.after_idle(self.animate) # recalls self.animate
+
         else:
             if (not self.ptracking):
 
-                # draw particle trace 
-                self.can.create_line(self.trajectory1,fill="red",width=2,smooth=True)
+                # particle tracking has stopped --> self.stop has been set to 2 
+                # particle has reached end of journey --> draw trace + circle 
 
+                # draw particle trace 
+                self.can.create_line(self.latesttrace,fill="red",width=3,smooth=True)
 
                 # compute arc to draw from circle fit  
                 xc,yc,rad,rss = self.circlefit
 
-
                 # draw fitted arc
-                self.can.create_oval(xc-rad,yc-rad,xc+rad,yc+rad,outline="yellow")
+                self.can.create_oval(xc-rad,yc-rad,xc+rad,yc+rad,outline="orange")
 
                 # makes sure that gui gets updated properly  
                 self.frame.update_idletasks()
+
             else:
                 pass
 
@@ -882,13 +927,13 @@ class ImgSeqPlayer(object):
         print("fname")
         print(fname)
 
-        l = len(self.trajectory1)
+        l = len(self.latesttrace)
         xpos = numpy.zeros(l)
         ypos = numpy.zeros(l)
-        time = numpy.zeros(l) 
+        time = numpy.zeros(l)
 
         for i in range(l):
-            yx = self.trajectory1[i]
+            yx = self.latesttrace[i]
             ypos[i] = float(yx[0])
             xpos[i] = float(yx[1])
             time[i] = float(i) / self.recordingfps
@@ -914,7 +959,7 @@ class ImgSeqPlayer(object):
 	# OR: until the particle reaches the edge of the images  
         # this gets checked by the following conditions 
 
-        if (((len(self.trajectory1)+self.start_track) < self.seqlength-10) and
+        if (((len(self.latesttrace)+self.start_track) < self.seqlength-10) and
             (not ((x < winsize) or (x > (imgw-winsize)) or
                   (y < winsize) or (y > (imgh-winsize))))):
 
@@ -948,7 +993,7 @@ class ImgSeqPlayer(object):
             self.track_cnt = self.track_cnt + 1
             self.particle_coords = (newx,newy) # tuple particle coords
 
-            self.trajectory1.append(self.particle_coords)
+            self.latesttrace.append(self.particle_coords)
 
         else:
 
@@ -957,46 +1002,95 @@ class ImgSeqPlayer(object):
 
             print("end reached")
 
-            l = len(self.trajectory1)
+            l = len(self.latesttrace)
 
             xpos = numpy.zeros(l)
             ypos = numpy.zeros(l)
 
             for i in range(l):
-                yx = self.trajectory1[i]
-                ypos[i] = float(yx[0])
-                xpos[i] = float(yx[1])
+                yx = self.latesttrace[i]
+                xpos[i] = float(yx[0])
+                ypos[i] = float(yx[1])
 
 
             # 1. fit a least-square circle to the particle trajectory
             # if the radius exceeds xxx cm -> fit a 3rd order polynomial 
             # to calculate the particle speed 
 
-            xc,yc,rad,rss = circle_fit.least_squares_circle(self.trajectory1)
+            xc,yc,rad,rss = circle_fit.least_squares_circle(self.latesttrace)
             # delivers xcenter, ycenter, radius and the residual sum of squares
             # in pixel-units
             self.circlefit = [xc,yc,rad,rss]
 
+            # calculate the particle speed
+            # curvelength = arc length (of fitted circle) 
+            # 1. calc the elapsed angle 'phi' (using the scalar product) 
+
+            # center of circle xc,yc 
+            # x1,y1 starting position of trace | xe,ye end position of trace 
+
+
+            imgw, imgh = self.currentimg.size
+
+            x1 = xpos[0]
+            y1 = ypos[0]
+
+            xe = xpos[-1]
+            ye = ypos[-1]
+
+            ax = x1 - xc
+            ay = y1 - yc
+
+            bx = xe - xc
+            by = ye - yc
+
+            #self.can.create_line((xc,yc),(x1,y1),fill="green",width=5)
+            #self.can.create_line((xc,yc),(xe,ye),fill="blue",width=3,smooth=True)
+            #self.master.update()
+            #time.sleep(10)
+
+            la = math.sqrt(ax**2 + ay**2)
+            lb = math.sqrt(bx**2 + by**2)
+
+            phi = math.acos(((ax * bx) + (ay * by)) / (la*lb))# phi in radians 
+
+            curvelength = phi * rad # curve length in pixels
+
+            # calculate particle speed 'pspeed' 
+            pspeed = curvelength * self.recordingfps * (self.pixsize/1000.0) / float(len(self.latesttrace))
+
+
+            tracenumber = len(self.alltraces)
+            # update results data frame 
+            self.pandadf.at[tracenumber,'Speed'] = pspeed
+            self.pandadf.at[tracenumber,'Radius'] = rad
+            self.resultstable.redraw()
 
             # stop tracking 
             self.stop = 2
 
             self.ptracking = False
+
+            # append the latest particle trace to alltraces list: 
+            self.alltraces.append(self.latesttrace)
+            print("len of alltraces:", len(self.alltraces))
+
+
             """
-            # check whether the particle moves around more vertically 
-            # or more horizontally (by simply comparing the variances):   
+            # check whether the particle moves around more vertically
+            # or more horizontally (by simply comparing the variances):
             xvar = numpy.var(xpos)
             yvar = numpy.var(ypos)
 
             if (xvar > yvar):
-                # fit y(x) to third order polynomial 
+                # fit y(x) to third order polynomial
 
                 c = numpy.polyfit(xpos,ypos,3)
                 p = numpy.poly1d(c)
                 fit = p(xpos)
-                #print(fit) 
+                #print(fit)
 
-                # calculate the mean particel speed along trajectory  
+                # calculate the mean particel speed along trajectory
                 # calculate curve length
 
                 xypos = numpy.concatenate((xpos, fit))
@@ -1006,18 +1100,18 @@ class ImgSeqPlayer(object):
 
                 lengths = numpy.sqrt(numpy.sum(numpy.diff(xypos, axis=0)**2, axis=1))
                 curvelength = numpy.sum(lengths)
-                #print("curvelength: ", curvelength) 
+                #print("curvelength: ", curvelength)
 
             else:
 
-                #print("test") 
+                #print("test")
                 dummy = xpos
                 xpos = ypos
                 ypos = dummy
                 c = numpy.polyfit(xpos,ypos,3)
                 p = numpy.poly1d(c)
                 fit = p(xpos)
-                #print(fit) 
+                #print(fit)
 
                 xypos = numpy.concatenate((xpos, fit))
                 xypos = numpy.reshape(xypos, (2,l))
@@ -1028,16 +1122,27 @@ class ImgSeqPlayer(object):
 
             # calculate the particle speed :
             pspeed = curvelength * self.recordingfps * (self.pixsize/1000.0) /
-                     float(len(self.trajectory1))
+                     float(len(self.latesttrajectory))
             self.pspeed.set("{:.1f}".format(pspeed))
             print(self.pspeed)
-            #print("particle speed: ", pspeed) 
-            #print("curvelength: ", curvelength) 
-            #print("fps: ", self.recordingfps) 
-            #print("pix size: ", self.pixsize) 
-            #print("(self.trajectory1) :", len(self.trajectory1))
-            """ 
+            #print("particle speed: ", pspeed)
+            #print("curvelength: ", curvelength)
+            #print("fps: ", self.recordingfps
+            #print("pix size: ", self.pixsize)
+            #print("(self.latesttrajectory) :", len(self.latesttrajectory))
+            """
 
+    def delParticle(self):
+        pass
+
+    def continuetracking(self):
+        print("continuetracking")
+        self.stop=0
+        self.latesttrace = []
+        self.anchor = None
+        self.bbox = None
+        self.ptracking = True
+        self.frame.after_idle(self.animate)
 
 def lee_filter(img, size):
 
@@ -1050,4 +1155,5 @@ def lee_filter(img, size):
     img_weights = img_variance / (img_variance + overall_variance)
     img_output = img_mean + img_weights * (img - img_mean)
     return img_output
+
 

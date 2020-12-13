@@ -646,7 +646,7 @@ pixsize_label=Label(GeneralF, text="Pixelsize [nm] :",width=22,anchor='e',\
                     font=("Helvetica",11))
 pixsize_label.grid(row=1,column=2)
 
-pixsize_list = [345, 173, 86]
+pixsize_list = [345, 173, 86, 5000]
 pixsizecombo = tkinter.ttk.Combobox(GeneralF,values=pixsize_list,width=5)
 pixsizecombo.grid(row=1,column=3)
 pixsizecombo.current(0)
@@ -949,14 +949,14 @@ if (SinglePixelAnalysis):
 
 #******************************************************************************#
 # ************************* Particle Tracking ******************************** #
-if (ParticleTracking): 
+if (ParticleTracking):
 	ptracktab = Frame(nbook,width=int(round(0.6*screenw)),height=int(round(0.6*screenh)))
-	nbook.add(ptracktab, text='Particle Tracking') 
+	nbook.add(ptracktab, text='Particle Tracking')
 
 	# top left -> 'controls' 
 
 	trackcframe = Frame(ptracktab,takefocus=0)
-	trackcframe.place(in_=ptracktab, anchor="c", relx=.1, rely=.2)
+	trackcframe.place(in_=ptracktab, anchor="c")#relx=.1, rely=.2)
 
 	#trackclframe = LabelFrame(trackcframe,takefocus=1, text='Controls',
 	#					labelanchor='n',borderwidth = 4,padx=3,pady=3,font=("Helvetica", 11, "bold"))
