@@ -190,6 +190,8 @@ class ImgSeqPlayer(object):
     def __init__(self, master, directory, refreshing, PILseq, seqlength,
                  roiobj,selectroi,FPS,pixsize):
 
+        self.searchbox = 10 # search box size 
+
         self.pspeed = tk.StringVar()# particle speed 
 
         self.ptracking = True # indicates activity-status of particle tracking  
@@ -293,7 +295,7 @@ class ImgSeqPlayer(object):
         self.gaussB.insert(0,20.0)
 
         # spinbox for lee filter
-        leeL=tk.Label(self.trackcframe, text="lee filter: ", height=2,width=18) 
+        leeL=tk.Label(self.trackcframe, text="Lee filter: ", height=2,width=18) 
         leeL.grid(row=1,column=2,columnspan=1)
         self.leeB = tk.Spinbox(self.trackcframe, from_=1.0, to=30.0, increment=1.0,command=self.setleewin,width=4)
         self.leeB.grid(row=1,column=3,columnspan=1)
@@ -385,6 +387,25 @@ class ImgSeqPlayer(object):
             self.zoomB = tk.Radiobutton(self.zoomframe, text=text, variable=self.var,
             value=mode, bd=4, width=6,command=self.refresh)
             self.zoomB.pack(side=tk.BOTTOM)
+
+
+
+
+        # ---------------------------------------------------------------------
+        # Spinbox to set the size of the search box
+        self.searchboxframe = tk.LabelFrame(self.frame, takefocus=1,text='Search Box', \
+                labelanchor='n',borderwidth = 4,padx=3,pady=3,font=("Helvetica", 11, "bold"))
+        self.searchboxframe.grid(row=0,column=2)
+
+        #searchboxlb=tk.Label(self.frame, text="Box Size: ", height=2,width=18) 
+        #leeL.grid(row=1,column=2,columnspan=1)
+        default = tk.StringVar()
+        default.set("10")
+        self.searchboxB = tk.Spinbox(self.searchboxframe, from_=1, to=30, increment=1,textvariable=default,command=self.setsearchbox,width=4)
+        self.searchboxB.grid(row=0,column=0,columnspan=1)
+        #self.searchboxB.insert(0,10)
+        # ----------------------------------------------------------------------
+
 
         # checkbox for contrast bytescaling --------------------------------------------------------
 
@@ -526,12 +547,12 @@ class ImgSeqPlayer(object):
         self.resultsframe.grid_propagate(0)
 
 
-        pandas.options.display.float_format = '${:,.1f}'.format
+        pandas.options.display.float_format = '${:,.2f}'.format
         # pandas frame 
         self.pandadf = pandas.DataFrame({
-            'Radius' : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            'Speed': [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            'Angular Freq.': [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            'Radius': [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
+            'Speed' : [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
+            'Omega' : [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
         })
 
         self.resultstable = Table(self.resultsframe, dataframe=self.pandadf,
@@ -793,9 +814,11 @@ class ImgSeqPlayer(object):
             # update rectangle (red rectanlge indicates the tracking process) 
             if ((self.index % 2) == 0):
                 if (self.bbox is not None):
-                    self.anchor = (int(round(self.particle_coords[0]))-5, int(round(self.particle_coords[1]))-5)
-                    self.bbox = self.anchor + (int(round(self.particle_coords[0]))+5, int(round(self.particle_coords[1]))+5)
+                    winsize = float(self.searchbox)
+                    self.anchor = (int(round(self.particle_coords[0]))-int(winsize/2), int(round(self.particle_coords[1]))-int(winsize/2))
+                    self.bbox = self.anchor + (int(round(self.particle_coords[0]))+int(winsize/2), int(round(self.particle_coords[1]))+int(winsize/2))
                     self.can.create_rectangle(self.bbox, outline="red",width=2)
+
                     # if (len(self.latesttrace)>1):
                     # self.can.create_line(self.latesttrajectory,fill="red",width=2)#,smooth=True)
                     # pass
@@ -870,6 +893,8 @@ class ImgSeqPlayer(object):
     def setleewin(self):
         self.leewin = float(self.leeB.get())
 
+    def setsearchbox(self):
+        self.searchbox =  self.searchboxB.get()
 
     def sharpener(self):
         self.sharp = float(self.sharpnessB.get())
@@ -953,15 +978,15 @@ class ImgSeqPlayer(object):
         img=numpy.array(self.currentimg)
         imgh, imgw = img.shape
 
-        winsize = 10
+        winsize = float(self.searchbox)
 
         # track particle until end of movie gets reached
 	# OR: until the particle reaches the edge of the images  
         # this gets checked by the following conditions 
 
         if (((len(self.latesttrace)+self.start_track) < self.seqlength-10) and
-            (not ((x < winsize) or (x > (imgw-winsize)) or
-                  (y < winsize) or (y > (imgh-winsize))))):
+            (not ((x < 2*winsize) or (x > (imgw-2*winsize)) or
+                  (y < 2*winsize) or (y > (imgh-2*winsize))))):
 
             # the above conditions check, whether the time index is smaller 
             # than T-10 and whether the particle did not yet reach the 
@@ -1029,7 +1054,6 @@ class ImgSeqPlayer(object):
             # center of circle xc,yc 
             # x1,y1 starting position of trace | xe,ye end position of trace 
 
-
             imgw, imgh = self.currentimg.size
 
             x1 = xpos[0]
@@ -1059,11 +1083,32 @@ class ImgSeqPlayer(object):
             # calculate particle speed 'pspeed' 
             pspeed = curvelength * self.recordingfps * (self.pixsize/1000.0) / float(len(self.latesttrace))
 
+            # calculate the angular frequency omega 
+            # omega = speed / radius (but the sign is tricky --> vector product)
+
+            # determine the sign of the angular frequency:
+            # sign ( vec_a x vec_b )  
+            bx = xpos[3] - xc
+            by = ypos[3] - yc
+
+            #self.can.create_line((xc,yc),(x1,y1),fill="green",width=5)
+            #self.can.create_line((xc,yc),(xpos[30],ypos[30]),fill="blue",width=3)
+            #self.master.update()
+            #time.sleep(10)
+
+
+            print("vectorproduct: ",(ax*by) - (ay*bx))
+            sign = numpy.sign((ax*by) - (ay*bx))
+
+            omega = sign * (pspeed / rad)
+            print("omega",omega)
+
 
             tracenumber = len(self.alltraces)
             # update results data frame 
             self.pandadf.at[tracenumber,'Speed'] = pspeed
             self.pandadf.at[tracenumber,'Radius'] = rad
+            self.pandadf.at[tracenumber,'Omega'] = omega
             self.resultstable.redraw()
 
             # stop tracking 
