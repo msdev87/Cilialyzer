@@ -31,6 +31,7 @@ import circle_fit
 
 from pandastable import Table
 import pandas
+import pandastable
 
 VALID_TYPES = (
     "bmp", "dib", "dcx", "gif", "im", "jpg", "jpe", "jpeg", "pcd", "pcx",
@@ -555,14 +556,16 @@ class ImgSeqPlayer(object):
             'Omega [°/s]'   :   [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
         })
 
-        pandas.set_option('display.max_colwidth', 100)
-
-
+        #pandas.set_option('display.max_colwidth', 100)
         self.resultstable = Table(self.resultsframe, dataframe=self.pandadf,
                 showtoolbar=True, showstatusbar=True)
         self.resultstable.show()
-
-
+        #self.resultstable.autoResizeColumns()
+        #options = {'colheadercolor':'green'}
+        #options =  {'cellwidth': 100}
+        #pandastable.config.apply_options(options, self.resultstable)
+        #pandas.set_option('display.min_colwidth',120)
+        #self.resultstable.redraw()
         #self.resultstable.rowheader.maxwidth = 100
         #self.resultstable.redraw()
         # **********************************************************************
@@ -1086,8 +1089,11 @@ class ImgSeqPlayer(object):
 
             curvelength = phi * rad # curve length in pixels
 
-            # calculate particle speed 'pspeed' 
+            # calculate particle speed 'pspeed' in [μm/s] 
             pspeed = curvelength * self.recordingfps * (self.pixsize/1000.0) / float(len(self.latesttrace))
+
+            # convert radius from pixel units into [μm]
+            rad = rad * self.pixsize / 1000.0
 
             # calculate the angular frequency omega 
             # omega = speed / radius (but the sign is tricky --> vector product)
