@@ -401,7 +401,7 @@ class ImgSeqPlayer(object):
         #leeL.grid(row=1,column=2,columnspan=1)
         default = tk.StringVar()
         default.set("10")
-        self.searchboxB = tk.Spinbox(self.searchboxframe, from_=1, to=30, increment=1,textvariable=default,command=self.setsearchbox,width=4)
+        self.searchboxB = tk.Spinbox(self.searchboxframe, from_=2, to=50, increment=2,textvariable=default,command=self.setsearchbox,width=4)
         self.searchboxB.grid(row=0,column=0,columnspan=1)
         #self.searchboxB.insert(0,10)
         # ----------------------------------------------------------------------
@@ -542,7 +542,7 @@ class ImgSeqPlayer(object):
         """
 
         self.resultsframe = tk.LabelFrame(self.frame,takefocus=1,text='Results', \
-                labelanchor='n',borderwidth=4,padx=0,pady=0,font=("Helvetica", 11, "bold"), width=350, height=500)
+                labelanchor='n',borderwidth=4,padx=0,pady=0,font=("Helvetica", 11, "bold"), width=400, height=500)
         self.resultsframe.grid(row=1,column=3,padx=60,pady=7)
         self.resultsframe.grid_propagate(0)
 
@@ -550,15 +550,21 @@ class ImgSeqPlayer(object):
         pandas.options.display.float_format = '${:,.2f}'.format
         # pandas frame 
         self.pandadf = pandas.DataFrame({
-            'Radius': [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
-            'Speed' : [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
-            'Omega' : [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+            'Radius [μm]'   :   [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
+            'Speed [μm/s]'  :   [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
+            'Omega [°/s]'   :   [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
         })
+
+        pandas.set_option('display.max_colwidth', 100)
+
 
         self.resultstable = Table(self.resultsframe, dataframe=self.pandadf,
                 showtoolbar=True, showstatusbar=True)
         self.resultstable.show()
 
+
+        #self.resultstable.rowheader.maxwidth = 100
+        #self.resultstable.redraw()
         # **********************************************************************
 
         # get image size 
@@ -1088,8 +1094,9 @@ class ImgSeqPlayer(object):
 
             # determine the sign of the angular frequency:
             # sign ( vec_a x vec_b )  
-            bx = xpos[3] - xc
-            by = ypos[3] - yc
+            bx = xpos[10] - xc
+            by = -(ypos[10] - yc)
+            ay = -ay # as the origin is located in the top left (displayed img)
 
             #self.can.create_line((xc,yc),(x1,y1),fill="green",width=5)
             #self.can.create_line((xc,yc),(xpos[30],ypos[30]),fill="blue",width=3)
@@ -1097,18 +1104,17 @@ class ImgSeqPlayer(object):
             #time.sleep(10)
 
 
-            print("vectorproduct: ",(ax*by) - (ay*bx))
+            #print("vectorproduct: ",(ax*by) - (ay*bx))
             sign = numpy.sign((ax*by) - (ay*bx))
 
-            omega = sign * (pspeed / rad)
-            print("omega",omega)
-
+            omega = float(sign * (pspeed / rad))
+            omega = float(omega / math.pi * 180.0)
 
             tracenumber = len(self.alltraces)
             # update results data frame 
-            self.pandadf.at[tracenumber,'Speed'] = pspeed
-            self.pandadf.at[tracenumber,'Radius'] = rad
-            self.pandadf.at[tracenumber,'Omega'] = omega
+            self.pandadf.at[tracenumber,'Speed [μm/s]'] = pspeed
+            self.pandadf.at[tracenumber,'Radius [μm]'] = rad
+            self.pandadf.at[tracenumber,'Omega [°/s]'] = omega
             self.resultstable.redraw()
 
             # stop tracking 
