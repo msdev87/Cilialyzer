@@ -197,6 +197,8 @@ class ImgSeqPlayer(object):
 
         self.ptracking = True # indicates activity-status of particle tracking  
 
+        self.tracenumber = 0
+
         self.circlefit = [] # holds the output from the circlefit 
 
         self.recordingfps = float(FPS)
@@ -1116,11 +1118,11 @@ class ImgSeqPlayer(object):
             omega = float(sign * (pspeed / rad))
             omega = float(omega / math.pi * 180.0)
 
-            tracenumber = len(self.alltraces)
+            self.tracenumber = len(self.alltraces)
             # update results data frame 
-            self.pandadf.at[tracenumber,'Speed [μm/s]'] = pspeed
-            self.pandadf.at[tracenumber,'Radius [μm]'] = rad
-            self.pandadf.at[tracenumber,'Omega [°/s]'] = omega
+            self.pandadf.at[self.tracenumber,'Speed [μm/s]'] = pspeed
+            self.pandadf.at[self.tracenumber,'Radius [μm]'] = rad
+            self.pandadf.at[self.tracenumber,'Omega [°/s]'] = omega
             self.resultstable.redraw()
 
             # stop tracking 
@@ -1190,7 +1192,19 @@ class ImgSeqPlayer(object):
             """
 
     def delParticle(self):
-        pass
+
+        # delete results from panda table  
+        self.pandadf.at[self.tracenumber,'Speed [μm/s]'] = 0.0
+        self.pandadf.at[self.tracenumber,'Radius [μm]'] = 0.0
+        self.pandadf.at[self.tracenumber,'Omega [°/s]'] = 0.0
+        self.resultstable.redraw()
+
+        # remove latest trace from all traces 
+        self.alltraces.remove(self.latesttrace)
+
+        # continue tracking
+        self.continuetracking()
+
 
     def continuetracking(self):
         print("continuetracking")
