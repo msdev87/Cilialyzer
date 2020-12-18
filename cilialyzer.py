@@ -646,7 +646,7 @@ pixsize_label=Label(GeneralF, text="Pixelsize [nm] :",width=22,anchor='e',\
                     font=("Helvetica",11))
 pixsize_label.grid(row=1,column=2)
 
-pixsize_list = [345, 173, 86, 5000]
+pixsize_list = [345, 173, 86, 4500,1]
 pixsizecombo = tkinter.ttk.Combobox(GeneralF,values=pixsize_list,width=5)
 pixsizecombo.grid(row=1,column=3)
 pixsizecombo.current(0)

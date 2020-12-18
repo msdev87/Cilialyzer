@@ -193,7 +193,7 @@ class ImgSeqPlayer(object):
 
         self.searchbox = 10 # search box size 
 
-        self.pspeed = tk.StringVar()# particle speed 
+        self.pspeed = tk.StringVar() # particle speed 
 
         self.ptracking = True # indicates activity-status of particle tracking  
 
@@ -246,11 +246,9 @@ class ImgSeqPlayer(object):
                 maximum=seqlength,length=0.5*w,style="TProgressbar")
         progbar.grid(column=1,row=2)
 
-
         self.frame2 = tk.LabelFrame(self.frame,takefocus=1, text='Player Controls', \
                 labelanchor='n',borderwidth = 4,padx=3,pady=3,font=("Helvetica", 11, "bold"))
         self.frame2.grid(row=3,column=1)
-
 
         # ----------------------------------------------------------------------
         # **************** Particle Tracking Controls (Frame) ******************
@@ -619,6 +617,10 @@ class ImgSeqPlayer(object):
         # place the canvas in which the images will be shown in the center of the window 
         self.can.grid(row=1,column=1,padx=5,pady=5)
 
+        # as the new zoom-factor (self.zoomfac) has now been set 
+        # we have to adjust the pixelsize:
+        self.pixsize = self.pixsize / self.zoomfac
+
         master.update()
 
         # if (not self.refreshing):
@@ -648,7 +650,7 @@ class ImgSeqPlayer(object):
         if hasattr(self, 'speed'):
             pass
         else:
-            self.speed = 50 # initialize with 100 frames per second  
+            self.speed = 50 # initialize with 50 frames per second  
 
         self.master, self.directory = master, directory
 
@@ -692,7 +694,6 @@ class ImgSeqPlayer(object):
                 self.index = (self.index + 4)%len(self.PILimgs)
             if (self.speed == 300):
                 self.index = (self.index + 6)%len(self.PILimgs)
-
 
         # update progressbar: 
         self.pbvar.set(self.index)
@@ -864,13 +865,11 @@ class ImgSeqPlayer(object):
                 pass
 
 
-
     def refresh(self):
         """ Destroy current frame. Re-initialize animation. """
         self.refreshing = 1
         self.frame.destroy()
 
-        self.pixsize = self.pixsize / self.zoomfac
         self.__init__(self.master, self.directory, self.refreshing,
                       self.PILimgs, self.seqlength, self.roiobj,
                       self.selectroi, self.recordingfps, self.pixsize)
@@ -897,7 +896,6 @@ class ImgSeqPlayer(object):
     def setcontrast(self):
         self.contrast = float(self.contrastB.get()) # get the value (return value -> string!)    
 
-
     def setgausswin(self):
         self.gausswin = float(self.gaussB.get())
 
@@ -912,11 +910,11 @@ class ImgSeqPlayer(object):
 
     def setbrightness(self):
         self.bright = float(self.brightnessB.get())
+
     def increase_fps(self):
         """ Decrease time between screen redraws. """
         self.speed = self.speed + 1 if self.speed > 1 else 1
         #self.labeltext.set('playback speed [FPS]: ' + str(float(self.speed)))
-
 
     def fps_button(self):
 
@@ -1102,8 +1100,8 @@ class ImgSeqPlayer(object):
 
             # determine the sign of the angular frequency:
             # sign ( vec_a x vec_b )  
-            bx = xpos[10] - xc
-            by = -(ypos[10] - yc)
+            bx = xpos[3] - xc
+            by = -(ypos[3] - yc)
             ay = -ay # as the origin is located in the top left (displayed img)
 
             #self.can.create_line((xc,yc),(x1,y1),fill="green",width=5)
