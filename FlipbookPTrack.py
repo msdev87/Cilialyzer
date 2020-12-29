@@ -191,7 +191,7 @@ class ImgSeqPlayer(object):
     def __init__(self, master, directory, refreshing, PILseq, seqlength,
                  roiobj,selectroi,FPS,pixsize):
 
-        self.searchbox = 10 # search box size 
+        #self.searchbox = 10 # search box size 
 
         self.pspeed = tk.StringVar() # particle speed 
 
@@ -394,17 +394,22 @@ class ImgSeqPlayer(object):
 
         # ---------------------------------------------------------------------
         # Spinbox to set the size of the search box
-        self.searchboxframe = tk.LabelFrame(self.frame, takefocus=1,text='Search Box', \
-                labelanchor='n',borderwidth = 4,padx=3,pady=3,font=("Helvetica", 11, "bold"))
+        # ---------------------------------------------------------------------
+        self.searchboxframe = tk.LabelFrame(self.frame,takefocus=1,
+                                text='Search Box',labelanchor='n',borderwidth=4,
+                                padx=3,pady=3,font=("Helvetica",11,"bold"))
         self.searchboxframe.grid(row=0,column=2)
 
-        #searchboxlb=tk.Label(self.frame, text="Box Size: ", height=2,width=18) 
-        #leeL.grid(row=1,column=2,columnspan=1)
-        default = tk.StringVar()
-        default.set("10")
-        self.searchboxB = tk.Spinbox(self.searchboxframe, from_=2, to=50, increment=2,textvariable=default,command=self.setsearchbox,width=4)
+        if hasattr(self, 'sboxsize'):
+            pass
+        else:
+            self.sboxsize = tk.StringVar()
+            self.sboxsize.set("16")
+
+        self.searchboxB = tk.Spinbox(self.searchboxframe, from_=2, to=50,
+                            increment=2,textvariable=self.sboxsize,
+                            command=self.setsearchbox,width=4)
         self.searchboxB.grid(row=0,column=0,columnspan=1)
-        #self.searchboxB.insert(0,10)
         # ----------------------------------------------------------------------
 
 
@@ -495,41 +500,43 @@ class ImgSeqPlayer(object):
 
         brightnessL=tk.Label(self.frame5, text="Brightness: ", height=2,width=18)
         #brightnessL.pack(side=tk.LEFT)
-        brightnessL.grid(row=1,column=2,columnspan=1) 
+        brightnessL.grid(row=1,column=2,columnspan=1)
 
 
         self.brightnessB = tk.Spinbox(self.frame5, from_=0.5, to=5.0, increment=0.1,command=self.setbrightness,width=3)
-        self.brightnessB.grid(row=1,column=3,columnspan=1) 
+        self.brightnessB.grid(row=1,column=3,columnspan=1)
 
         self.brightnessB.delete(0, "end")
         self.brightnessB.insert(0,1.0)
 
         # ----------------------------------------------------------------------
 
-        # another radiobutton for comfortably setting FPS  
+        # another radiobutton to set the replaying frame rate (FPS)  
         self.frame12 = tk.Frame(self.frame,takefocus=1)
         self.frame12.grid(row=1,column=2)
 
-        self.fpsframe = tk.LabelFrame(self.frame12,takefocus=1,text='Replay Speed', \
-                labelanchor='n',borderwidth = 4,padx=0,pady=0,font=("Helvetica", 11, "bold"))
+        self.fpsframe = tk.LabelFrame(self.frame12,takefocus=1,
+                            text='Replay Speed',labelanchor='n',
+                            borderwidth = 4,padx=0,pady=0,
+                            font=("Helvetica", 11, "bold"))
 
         #self.fpsframe.pack(side=tk.LEFT)
         self.fpsframe.grid(row=0,column=1,padx=3,pady=3)
 
-        self.radio_fps = [("  1 FPS",1), (" 10 FPS", 2),(" 50 FPS", 3), ("100 FPS", 4),
-        ("200 FPS", 5), ("300 FPS", 6)]
+        self.radio_fps = [  ("  1 FPS",1), (" 10 FPS", 2), (" 20 FPS", 3),
+                            (" 30 FPS", 4),(" 40 FPS", 5), (" 50 FPS", 6) ]
 
         if hasattr(self, 'fps'):
             pass
         else:
             self.fps = tk.StringVar()
-            self.fps.set(3) # initialize
+            self.fps.set(3) # initialize with 20 fps 
 
         for text, mode in self.radio_fps:
-            self.fpsB = tk.Radiobutton(self.fpsframe, text=text, variable=self.fps, value=mode,
-            bd=4, width=6,command=self.fps_button)
+            self.fpsB = tk.Radiobutton(self.fpsframe, text=text,
+                            variable=self.fps, value=mode, bd=4, width=6,
+                            command=self.fps_button)
             self.fpsB.pack(side=tk.BOTTOM)
-
 
         # *************** results frame at the right ***************************
         # display the particle speeds
@@ -650,7 +657,7 @@ class ImgSeqPlayer(object):
         if hasattr(self, 'speed'):
             pass
         else:
-            self.speed = 50 # initialize with 50 frames per second  
+            self.speed = 20 # initialize with 50 frames per second  
 
         self.master, self.directory = master, directory
 
@@ -826,7 +833,7 @@ class ImgSeqPlayer(object):
             # update rectangle (red rectanlge indicates the tracking process) 
             if ((self.index % 2) == 0):
                 if (self.bbox is not None):
-                    winsize = float(self.searchbox)
+                    winsize = float(self.sboxsize.get())
                     self.anchor = (int(round(self.particle_coords[0]))-int(winsize/2), int(round(self.particle_coords[1]))-int(winsize/2))
                     self.bbox = self.anchor + (int(round(self.particle_coords[0]))+int(winsize/2), int(round(self.particle_coords[1]))+int(winsize/2))
                     self.can.create_rectangle(self.bbox, outline="red",width=2)
@@ -920,10 +927,10 @@ class ImgSeqPlayer(object):
 
         if (self.fps.get() == '1'): self.speed = 1
         if (self.fps.get() == '2'): self.speed = 10
-        if (self.fps.get() == '3'): self.speed = 50
-        if (self.fps.get() == '4'): self.speed = 100
-        if (self.fps.get() == '5'): self.speed = 200
-        if (self.fps.get() == '6'): self.speed = 300
+        if (self.fps.get() == '3'): self.speed = 20
+        if (self.fps.get() == '4'): self.speed = 30
+        if (self.fps.get() == '5'): self.speed = 40
+        if (self.fps.get() == '6'): self.speed = 50
 
         #self.labeltext.set('playback speed [FPS]: ' + str(float(self.speed)))
 
@@ -934,7 +941,7 @@ class ImgSeqPlayer(object):
         self.labeltext.set('playback speed [FPS]: ' + str(float(self.speed)))
 
     def zero_fps(self):
-        """ Increase time between screen redraws. """ 
+        """ Increase time between screen redraws. """
         self.stop = 1
 
     def escape(self):
