@@ -263,8 +263,12 @@ class ImgSeqPlayer(object):
         # radiobutton to specify the 'color' of particles 
         # (if self.pcolor=1 --> bright, if self.pcolor=2 --> dark)   
         self.radiocolor = [("Bright Particles", 1),("Dark Particles", 2)]
-        self.pcolor = tk.StringVar()
-        self.pcolor.set(2) # initialize with dark particles 
+
+        if hasattr(self, 'pcolor'):
+            pass
+        else:
+            self.pcolor = tk.StringVar()
+            self.pcolor.set(2) # initialize with dark particles 
 
         self.pcolorB = tk.Radiobutton(self.trackcframe,text="Bright Particles",
                         variable=self.pcolor,command=self.pcolor_func,
@@ -538,8 +542,11 @@ class ImgSeqPlayer(object):
                             command=self.fps_button)
             self.fpsB.pack(side=tk.BOTTOM)
 
+        # ----------------------------------------------------------------------
         # *************** results frame at the right ***************************
-        # display the particle speeds
+        # ----------------------------------------------------------------------
+
+        # display the particle speed, radius, circ frequency 
         """
         self.reslframe = tk.LabelFrame(self.frame,takefocus=1,text='Results', \
                 labelanchor='n',borderwidth=4,padx=0,pady=0,font=("Helvetica", 11, "bold"))
@@ -556,17 +563,33 @@ class ImgSeqPlayer(object):
 
 
         pandas.options.display.float_format = '${:,.2f}'.format
-        # pandas frame 
+        # pandas frame
+        """
         self.pandadf = pandas.DataFrame({
             'Radius [μm]'   :   [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
             'Speed [μm/s]'  :   [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
             'Omega [°/s]'   :   [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
         })
+        """
+
+
+        col_names = ["Radius [μm]","Speed [μm/s]","Omega [°/s]"]
+
+        self.pandadf = pandas.DataFrame(columns = col_names)
+
+        """
+        self.pandadf = pandas.DataFrame({
+            'Radius [μm]'   :   [0.0],
+            'Speed [μm/s]'  :   [0.0],
+            'Omega [°/s]'   :   [0.0]
+        })
+        """
 
         #pandas.set_option('display.max_colwidth', 100)
         self.resultstable = Table(self.resultsframe, dataframe=self.pandadf,
                 showtoolbar=True, showstatusbar=True)
         self.resultstable.show()
+
         #self.resultstable.autoResizeColumns()
         #options = {'colheadercolor':'green'}
         #options =  {'cellwidth': 100}
@@ -910,7 +933,7 @@ class ImgSeqPlayer(object):
         self.leewin = float(self.leeB.get())
 
     def setsearchbox(self):
-        self.searchbox =  self.searchboxB.get()
+        self.sboxsize =  self.searchboxB.get()
 
     def sharpener(self):
         self.sharp = float(self.sharpnessB.get())
@@ -994,7 +1017,7 @@ class ImgSeqPlayer(object):
         img=numpy.array(self.currentimg)
         imgh, imgw = img.shape
 
-        winsize = float(self.searchbox)
+        winsize = float(self.sboxsize.get())
 
         # track particle until end of movie gets reached
 	# OR: until the particle reaches the edge of the images  
@@ -1124,11 +1147,41 @@ class ImgSeqPlayer(object):
             omega = float(omega / math.pi * 180.0)
 
             self.tracenumber = len(self.alltraces)
-            # update results data frame 
+            # update results data frame
+            #if (self.tracenumber == 0):
+
+
+            self.resultstable.addRow()
+
             self.pandadf.at[self.tracenumber,'Speed [μm/s]'] = pspeed
             self.pandadf.at[self.tracenumber,'Radius [μm]'] = rad
             self.pandadf.at[self.tracenumber,'Omega [°/s]'] = omega
+
+            self.pandadf.applymap("${0:.2f}".format)
+
+
+            #else:
+            """
+                self.resultstable.addRow()
+                df = pandas.DataFrame({
+                'Radius [μm]'   :   [0.0],
+                'Speed [μm/s]'  :   [0.0],
+                'Omega [°/s]'   :   [0.0]
+                })
+            """
+
+            print(self.pandadf)
+            #self.pandadf = self.pandadf.append(df, ignore_index=True)
+            #print(self.pandadf)
+
+            #self.resultstable.autoResizeColumns()
+            #self.resultstable.tableChanged()
+
+            self.resultstable.updateModel(pandastable.data.TableModel(self.pandadf))
             self.resultstable.redraw()
+
+
+
 
             # stop tracking 
             self.stop = 2
