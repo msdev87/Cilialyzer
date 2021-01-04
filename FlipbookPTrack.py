@@ -395,7 +395,6 @@ class ImgSeqPlayer(object):
 
 
 
-
         # ---------------------------------------------------------------------
         # Spinbox to set the size of the search box
         # ---------------------------------------------------------------------
@@ -407,13 +406,17 @@ class ImgSeqPlayer(object):
         if hasattr(self, 'sboxsize'):
             pass
         else:
-            self.sboxsize = tk.StringVar()
-            self.sboxsize.set("16")
+            #self.sboxsize = tk.StringVar()
+            #self.sboxsize.set("16")
+            self.sboxsize = 16
+
 
         self.searchboxB = tk.Spinbox(self.searchboxframe, from_=2, to=50,
-                            increment=2,textvariable=self.sboxsize,
+                            increment=2,
                             command=self.setsearchbox,width=4)
         self.searchboxB.grid(row=0,column=0,columnspan=1)
+        self.searchboxB.delete(0, "end") 
+        self.searchboxB.insert(0,16)
         # ----------------------------------------------------------------------
 
 
@@ -856,7 +859,7 @@ class ImgSeqPlayer(object):
             # update rectangle (red rectanlge indicates the tracking process) 
             if ((self.index % 2) == 0):
                 if (self.bbox is not None):
-                    winsize = float(self.sboxsize.get())
+                    winsize = self.sboxsize #int(self.sboxsize.get())
                     self.anchor = (int(round(self.particle_coords[0]))-int(winsize/2), int(round(self.particle_coords[1]))-int(winsize/2))
                     self.bbox = self.anchor + (int(round(self.particle_coords[0]))+int(winsize/2), int(round(self.particle_coords[1]))+int(winsize/2))
                     self.can.create_rectangle(self.bbox, outline="red",width=2)
@@ -933,7 +936,7 @@ class ImgSeqPlayer(object):
         self.leewin = float(self.leeB.get())
 
     def setsearchbox(self):
-        self.sboxsize =  self.searchboxB.get()
+        self.sboxsize =  int(self.searchboxB.get())
 
     def sharpener(self):
         self.sharp = float(self.sharpnessB.get())
@@ -1017,7 +1020,7 @@ class ImgSeqPlayer(object):
         img=numpy.array(self.currentimg)
         imgh, imgw = img.shape
 
-        winsize = float(self.sboxsize.get())
+        winsize = self.sboxsize
 
         # track particle until end of movie gets reached
 	# OR: until the particle reaches the edge of the images  
