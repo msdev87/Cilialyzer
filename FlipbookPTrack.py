@@ -246,7 +246,7 @@ class ImgSeqPlayer(object):
                 maximum=seqlength,length=0.5*w,style="TProgressbar")
         progbar.grid(column=1,row=2)
 
-        self.frame2 = tk.LabelFrame(self.frame,takefocus=1, text='Player Controls', \
+        self.frame2 = tk.LabelFrame(self.frame, takefocus=1, text='Player Controls', \
                 labelanchor='n',borderwidth = 4,padx=3,pady=3,font=("Helvetica", 11, "bold"))
         self.frame2.grid(row=3,column=1)
 
@@ -775,6 +775,10 @@ class ImgSeqPlayer(object):
 
         if (self.selectroi == 1):
 
+            #print('------------------------------')
+            #print('selectroi ', self.selectroi)
+            #print('------------------------------')
+
             def on_mouse_down(event):
 
                 # start or restart tracking 
@@ -790,25 +794,49 @@ class ImgSeqPlayer(object):
                 self.track_cnt = 0
                 self.particle_coords = (None,None)
 
-                self.anchor = (self.can.canvasx(event.x)-5, self.can.canvasy(event.y)-5)
+                self.anchor = (self.can.canvasx(event.x)-(self.sboxsize/2), self.can.canvasy(event.y)-(self.sboxsize/2))
 
-                self.bbox = self.anchor + (self.can.canvasx(event.x)+5, self.can.canvasy(event.y)+5)
-                self.ROI = self.bbox
-
-                # create rectangle (yellow border)
-                self.item = self.can.create_rectangle(self.bbox, outline="red")
-
+                # prevent error of clicking particle 
+                # to closely to image borders: 
                 self.particle_coords =(self.can.canvasx(event.x),self.can.canvasx(event.y))
-                # \
-                # (int(round(self.can.canvasx(event.x)/self.zoomfac)),\
-                # int(round(self.can.canvasy(event.y)/self.zoomfac)))
 
-                self.start_track = int(self.index)
+                x = int(round(self.particle_coords[0]))
+                y = int(round(self.particle_coords[1]))
+
+                print('x ',x)
+                print('y ',y)
+
+                img=numpy.array(self.currentimg)
+                imgh, imgw = img.shape
+
+                # check whether the click has been appropriate 
+                # otherwise ignore it 
+                if ((int(self.index) < self.seqlength-5) and
+                    (not ((x < int(1.1*self.sboxsize)) or (x > (imgw-(int(1.1*self.sboxsize)))) or
+                    (y < int(1.1*self.sboxsize)) or (y > (imgh-(int(1.1*self.sboxsize))))))):
+
+
+                    self.bbox = self.anchor + (self.can.canvasx(event.x)+(self.sboxsize/2), self.can.canvasy(event.y)+(self.sboxsize/2))
+                    self.ROI = self.bbox
+
+                    # create rectangle (yellow border)
+                    self.item = self.can.create_rectangle(self.bbox, outline="red")
+                    self.start_track = int(self.index)
+
+                    # add mouse bindings here
+                    #self.can.xview_moveto(0)
+                    #self.can.yview_moveto(0)
+                    #self.can.bind('<ButtonPress-1>', on_mouse_down)
+                else:
+                    pass
+
 
             # add mouse bindings here
             self.can.xview_moveto(0)
             self.can.yview_moveto(0)
             self.can.bind('<ButtonPress-1>', on_mouse_down)
+
+
 
         try:
             #print (time.time() - t0) * 1000.
@@ -857,8 +885,9 @@ class ImgSeqPlayer(object):
 
         if (self.selectroi == 1):
             # update rectangle (red rectanlge indicates the tracking process) 
-            if ((self.index % 2) == 0):
+            if ((self.index % 1) == 0):
                 if (self.bbox is not None):
+
                     winsize = self.sboxsize #int(self.sboxsize.get())
                     self.anchor = (int(round(self.particle_coords[0]))-int(winsize/2), int(round(self.particle_coords[1]))-int(winsize/2))
                     self.bbox = self.anchor + (int(round(self.particle_coords[0]))+int(winsize/2), int(round(self.particle_coords[1]))+int(winsize/2))
@@ -1026,9 +1055,9 @@ class ImgSeqPlayer(object):
 	# OR: until the particle reaches the edge of the images  
         # this gets checked by the following conditions 
 
-        if (((len(self.latesttrace)+self.start_track) < self.seqlength-10) and
-            (not ((x < 2*winsize) or (x > (imgw-2*winsize)) or
-                  (y < 2*winsize) or (y > (imgh-2*winsize))))):
+        if (((len(self.latesttrace)+self.start_track) < self.seqlength-5) and
+            (not ((x < int(1.1*winsize)) or (x > (imgw-(int(1.1*winsize)))) or
+                  (y < int(1.1*winsize)) or (y > (imgh-(int(1.1*winsize))))))):
 
             # the above conditions check, whether the time index is smaller 
             # than T-10 and whether the particle did not yet reach the 

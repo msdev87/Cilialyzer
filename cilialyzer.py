@@ -13,6 +13,40 @@
 # 
 # ==============================================================================
 
+# ---------------------- import necessary modules ------------------------------
+
+import FlipbookROI
+import math
+import getline
+import io, os
+from PIL import ImageTk
+import PIL.Image
+import webbrowser
+import warnings
+from tkinter import *
+import numpy
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import time
+import tkinter.messagebox
+import pylab as pl
+from matplotlib.patches import Rectangle
+import Flipbook
+
+import DynamicFilter
+import FlipbookPTrack
+
+import LoadSequence
+import tkinter.ttk
+import RegionOfInterest
+import Powerspec
+import Plots
+import activitymap
+
+# ------------------------------------------------------------------------------
+
+
 # ******************************************************************************
 # ******************** Configuration of The main Window ************************
 # ******************************************************************************
@@ -46,30 +80,6 @@ kSpectrum = 0
 
 # ******************************************************************************
 # ******************************************************************************
-
-# ---------------------- import necessary modules ------------------------------
-import FlipbookROI
-import math
-import getline
-import io, os
-from PIL import ImageTk
-import PIL.Image
-import webbrowser
-import warnings
-from tkinter import *
-import numpy
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import time
-import tkinter.messagebox
-import pylab as pl
-from matplotlib.patches import Rectangle
-import Flipbook
-
-import DynamicFilter
-import FlipbookPTrack
-# ------------------------------------------------------------------------------
 
 # -------------------------------- animation -----------------------------------
 def animate_roi():
@@ -608,7 +618,6 @@ GeneralF = LabelFrame(text=' Current Settings ',labelanchor='n',borderwidth=2,\
                       padx=5,pady=5,font=("Helvetica",11,"bold"),relief=GROOVE)
 GeneralF.grid(row=0,column=1,columnspan=1,rowspan=1)
 
-import LoadSequence
 PIL_ImgSeq = LoadSequence.ImageSequence()
 # PIL_ImgSeq.directory -> contains path to choosen image sequence 
 # PIL_ImgSeq.sequence  -> holds the PIL img sequence 
@@ -730,7 +739,6 @@ wackelB.grid(row=4,column=0,columnspan=2)
 # the main functions are provided by notebook-tabs
 # available notebook tabs: animation, ROI selection, powerspec, activity map 
 
-import tkinter.ttk
 nbook = tkinter.ttk.Notebook(ctrl_panel,width=nbookw,height=nbookh)
 nbook.grid(row=1,column=1,columnspan=1,rowspan=1,sticky='NESW',padx=10,pady=10)
 
@@ -769,7 +777,6 @@ motionextractB.place(in_=roitab, anchor="c", relx=.07, rely=0.07)
 
 
 # ROI selection Button
-import RegionOfInterest
 roi = RegionOfInterest.ROI(ctrl_panel) # instantiate roi object 
 roiB = Button(roitab,text='Reset ROI', command=select_roi, height=bh, width=16)
 roiB.place(in_=roitab, anchor="c", relx=.07, rely=.12)
@@ -787,9 +794,6 @@ pwspec1frame.place(in_=cbftab, anchor='c', relx=0.5,rely=0.4)
 
 
 # Get Powerspec Button 
-import Powerspec
-import Plots
-
 powerspectrum = Powerspec.powerspec(pwspec1frame,int(round(0.6*nbookw)),\
                 int(round(0.6*nbookh)))
 
@@ -865,7 +869,6 @@ mapframe.place(in_=activitytab, anchor='c', relx=0.5,rely=0.55)
 
 mapframe.update()
 
-import activitymap
 activity_map = activitymap.activitymap(mapframe,int(round(0.8*nbookh)),\
         int(round(0.8*nbookh))) # activity map object  
 

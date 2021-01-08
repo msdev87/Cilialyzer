@@ -1,0 +1,6 @@
+- bereits getrackte partikel anzeigen 
+
+- wechsel zwischen tabs verursacht probleme 
+
+- abstürze des frontends: höchstwahrscheinlich folge vom Mixen von 
+place/pack/grid (geometry manager) 
