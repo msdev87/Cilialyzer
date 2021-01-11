@@ -214,6 +214,9 @@ class ImgSeqPlayer(object):
 
         # vars and lists to collect the particle trajectories
 
+        self.trace_array = [] # array/list holding the trace (x,y,t,boxsize) 
+        self.alltracesarray = [] # list holding all trace arrays  
+
         self.latesttrace = [] # the current trajectory
         self.alltraces = [] # holds all particle traces 
         self.latesttrajectoryfinish = 0
@@ -577,14 +580,15 @@ class ImgSeqPlayer(object):
 
 
         col_names = ["Radius [μm]","Speed [μm/s]","Omega [°/s]"]
-
         self.pandadf = pandas.DataFrame(columns = col_names)
+
+        #pandas.options.display.float_format = '${:,.2f}'.format
 
         """
         self.pandadf = pandas.DataFrame({
-            'Radius [μm]'   :   [0.0],
-            'Speed [μm/s]'  :   [0.0],
-            'Omega [°/s]'   :   [0.0]
+            'Radius [μm]'   :   [0.00],
+            'Speed [μm/s]'  :   [0.00],
+            'Omega [°/s]'   :   [0.00]
         })
         """
 
@@ -893,14 +897,36 @@ class ImgSeqPlayer(object):
                     self.bbox = self.anchor + (int(round(self.particle_coords[0]))+int(winsize/2), int(round(self.particle_coords[1]))+int(winsize/2))
                     self.can.create_rectangle(self.bbox, outline="red",width=2)
 
-                    # if (len(self.latesttrace)>1):
-                    # self.can.create_line(self.latesttrajectory,fill="red",width=2)#,smooth=True)
-                    # pass
-                    # print self.latesttrajectory
-                    # if (len(self.trajectories) > 1):
-                    #    for i in range(len(self.trajectories)):
-                    #        #self.can.create_line(self.trajectories[i], fill="red", width=2)#,smooth=True)
-                    #        pass
+
+
+        # indicate all already tracked particles!
+        if (len(self.alltraces) > 0):
+            #print('test1')
+            for i in range(len(self.alltraces)):
+
+                # trace -> array holding x,y,timeindex,sboxsize 
+                trace = numpy.array(self.alltracesarray[i])
+
+                # check whether trace holds the current frame number
+                frameinds = list(trace[:,2])
+
+                try:
+                    ind = frameinds.index(self.index)
+
+                    # draw rectangle of already tracked particle i: 
+                    x = int(round(trace[ind,0]))
+                    y = int(round(trace[ind,1]))
+                    wsize = trace[ind,3] # search box size 
+                    bla = int(wsize/2)
+                    box = (x-bla,y-bla,x+bla,y+bla)
+
+                    self.can.create_rectangle(box,outline="red", width=2)
+                    #time.sleep(5)
+
+                except ValueError:
+                    # self.index was not in the list
+                    pass
+
 
         if (self.stop != 2):
             self.frame.after_idle(self.animate) # recalls self.animate
@@ -918,7 +944,7 @@ class ImgSeqPlayer(object):
                 xc,yc,rad,rss = self.circlefit
 
                 # draw fitted arc
-                self.can.create_oval(xc-rad,yc-rad,xc+rad,yc+rad,outline="orange")
+                self.can.create_oval(xc-rad,yc-rad,xc+rad,yc+rad,outline="orange",width=2)
 
                 # makes sure that gui gets updated properly  
                 self.frame.update_idletasks()
@@ -1091,6 +1117,8 @@ class ImgSeqPlayer(object):
 
             self.latesttrace.append(self.particle_coords)
 
+            self.trace_array.append([x,y,self.index,self.sboxsize])
+
         else:
 
             # particle reached the end of its journey 
@@ -1098,7 +1126,7 @@ class ImgSeqPlayer(object):
 
             print("end reached")
 
-            l = len(self.latesttrace)
+            l = len(self.latesttrace) # l: length of particle trace 
 
             xpos = numpy.zeros(l)
             ypos = numpy.zeros(l)
@@ -1107,7 +1135,6 @@ class ImgSeqPlayer(object):
                 yx = self.latesttrace[i]
                 xpos[i] = float(yx[0])
                 ypos[i] = float(yx[1])
-
 
             # 1. fit a least-square circle to the particle trajectory
             # if the radius exceeds xxx cm -> fit a 3rd order polynomial 
@@ -1133,16 +1160,11 @@ class ImgSeqPlayer(object):
             xe = xpos[-1]
             ye = ypos[-1]
 
-            ax = x1 - xc
-            ay = y1 - yc
+            ax = float(x1 - xc)
+            ay = float(y1 - yc)
 
-            bx = xe - xc
-            by = ye - yc
-
-            #self.can.create_line((xc,yc),(x1,y1),fill="green",width=5)
-            #self.can.create_line((xc,yc),(xe,ye),fill="blue",width=3,smooth=True)
-            #self.master.update()
-            #time.sleep(10)
+            bx = float(xe - xc)
+            by = float(ye - yc)
 
             la = math.sqrt(ax**2 + ay**2)
             lb = math.sqrt(bx**2 + by**2)
@@ -1152,18 +1174,20 @@ class ImgSeqPlayer(object):
             curvelength = phi * rad # curve length in pixels
 
             # calculate particle speed 'pspeed' in [μm/s] 
-            pspeed = curvelength * self.recordingfps * (self.pixsize/1000.0) / float(len(self.latesttrace))
+            pspeed = curvelength * self.recordingfps *\
+                    (self.pixsize/1000.0) / float(len(self.latesttrace))
 
             # convert radius from pixel units into [μm]
             rad = rad * self.pixsize / 1000.0
 
             # calculate the angular frequency omega 
-            # omega = speed / radius (but the sign is tricky --> vector product)
+            # omega = speed / radius 
+            # note that the sign of omega is determined by the vector product
 
             # determine the sign of the angular frequency:
             # sign ( vec_a x vec_b )  
-            bx = xpos[3] - xc
-            by = -(ypos[3] - yc)
+            bx = xpos[int(l/3)] - xc
+            by = -(ypos[int(l/3)] - yc)
             ay = -ay # as the origin is located in the top left (displayed img)
 
             #self.can.create_line((xc,yc),(x1,y1),fill="green",width=5)
@@ -1178,10 +1202,11 @@ class ImgSeqPlayer(object):
             omega = float(sign * (pspeed / rad))
             omega = float(omega / math.pi * 180.0)
 
+            print('omega: ',omega)
+
             self.tracenumber = len(self.alltraces)
             # update results data frame
             #if (self.tracenumber == 0):
-
 
             self.resultstable.addRow()
 
@@ -1189,31 +1214,10 @@ class ImgSeqPlayer(object):
             self.pandadf.at[self.tracenumber,'Radius [μm]'] = rad
             self.pandadf.at[self.tracenumber,'Omega [°/s]'] = omega
 
-            self.pandadf.applymap("${0:.2f}".format)
-
-
-            #else:
-            """
-                self.resultstable.addRow()
-                df = pandas.DataFrame({
-                'Radius [μm]'   :   [0.0],
-                'Speed [μm/s]'  :   [0.0],
-                'Omega [°/s]'   :   [0.0]
-                })
-            """
-
-            print(self.pandadf)
-            #self.pandadf = self.pandadf.append(df, ignore_index=True)
-            #print(self.pandadf)
-
-            #self.resultstable.autoResizeColumns()
-            #self.resultstable.tableChanged()
+            #self.pandadf.applymap("${0:.2f}".format)
 
             self.resultstable.updateModel(pandastable.data.TableModel(self.pandadf))
             self.resultstable.redraw()
-
-
-
 
             # stop tracking 
             self.stop = 2
@@ -1224,8 +1228,31 @@ class ImgSeqPlayer(object):
             self.alltraces.append(self.latesttrace)
             print("len of alltraces:", len(self.alltraces))
 
+            # 'tracking back in time' 
+            # this is just to indicate which particles have already been 
+            # tracked (in order to make sure that the user does not choose 
+            # the same particle twice)
+
+            # in order to "track the particles back in time", we simply use 
+            # the mean speed and the circular fit to 'extrapolate' the 
+            # particles' coordinates for all frames t < t' 
+            # (where t' denotes the frame in which the particle 
+            # has been clicked by the user) 
+
+            # t0: starting time of tracking
+            #t0 = numpy.array(self.trace_array)[0,2]
+
+            # now we extrapolate self.trace_array for all t < t0:
+            #for t in range(t0):
+            #    # determine for all t < t0 -> x(t),y(t)  
+
+
+            # now we can add trace_array to alltracesarray:
+            self.alltracesarray.append(self.trace_array)
+
 
             """
+            #"straight" transport can be fitted by a polynomial fit! 
             # check whether the particle moves around more vertically
             # or more horizontally (by simply comparing the variances):
             xvar = numpy.var(xpos)
@@ -1316,5 +1343,4 @@ def lee_filter(img, size):
     img_weights = img_variance / (img_variance + overall_variance)
     img_output = img_mean + img_weights * (img - img_mean)
     return img_output
-
 
