@@ -202,8 +202,8 @@ class ImgSeqPlayer(object):
         self.circlefit = [] # holds the output from the circlefit 
 
         self.recordingfps = float(FPS)
-        self.pixsize = pixsize
-        print("pixsize ", pixsize)
+        self.pixsize = None
+        self.recordedpixsize = pixsize
 
         self.roiseq = PILseq
         self.ROI = None
@@ -377,12 +377,13 @@ class ImgSeqPlayer(object):
         self.frame10 = tk.Frame(self.frame,takefocus=1)
         self.frame10.grid(row=1,column=0)
 
-        self.zoomframe = tk.LabelFrame(self.frame10,takefocus=1,text='Zoom', \
-                labelanchor='n',borderwidth = 4,padx=0,pady=0,font=("Helvetica", 11, "bold"))
-        #self.zoomframe.pack(side=tk.LEFT)
+        self.zoomframe = tk.LabelFrame(self.frame10,takefocus=1,text='Zoom',\
+            labelanchor='n',borderwidth = 4,padx=0,pady=0,
+            font=("Helvetica", 11, "bold"))
         self.zoomframe.grid(row=0,column=0,padx=3,pady=3)
 
-        self.zooom = [(" 75%",1),("100%",2),("125%",3),("150%",4),("200%",5),("300%",6)]
+        self.zooom =\
+            [(" 75%",1),("100%",2),("125%",3),("150%",4),("200%",5),("300%",6)]
 
         if (not self.refreshing):
             if hasattr(self, 'var'):
@@ -396,8 +397,6 @@ class ImgSeqPlayer(object):
             value=mode, bd=4, width=6,command=self.refresh)
             self.zoomB.pack(side=tk.BOTTOM)
 
-
-
         # ---------------------------------------------------------------------
         # Spinbox to set the size of the search box
         # ---------------------------------------------------------------------
@@ -409,16 +408,12 @@ class ImgSeqPlayer(object):
         if hasattr(self, 'sboxsize'):
             pass
         else:
-            #self.sboxsize = tk.StringVar()
-            #self.sboxsize.set("16")
             self.sboxsize = 16
 
-
         self.searchboxB = tk.Spinbox(self.searchboxframe, from_=2, to=50,
-                            increment=2,
-                            command=self.setsearchbox,width=4)
+            increment=2,command=self.setsearchbox,width=4)
         self.searchboxB.grid(row=0,column=0,columnspan=1)
-        self.searchboxB.delete(0, "end") 
+        self.searchboxB.delete(0, "end")
         self.searchboxB.insert(0,16)
         # ----------------------------------------------------------------------
 
@@ -436,7 +431,6 @@ class ImgSeqPlayer(object):
             #print "self.contrast is not set, now set to"
             #print self.bscontrast 
             #time.sleep(5)
-
 
         self.frame5 = tk.LabelFrame(self.frame, takefocus=1,text='Contrast Settings', \
                 labelanchor='n',borderwidth = 4,padx=3,pady=3,font=("Helvetica", 11, "bold"))
@@ -568,16 +562,8 @@ class ImgSeqPlayer(object):
         self.resultsframe.grid_propagate(0)
 
 
-        pandas.options.display.float_format = '${:,.2f}'.format
+        # pandas.options.display.float_format = '${:,.2f}'.format
         # pandas frame
-        """
-        self.pandadf = pandas.DataFrame({
-            'Radius [μm]'   :   [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
-            'Speed [μm/s]'  :   [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
-            'Omega [°/s]'   :   [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
-        })
-        """
-
 
         col_names = ["Radius [μm]","Speed [μm/s]","Omega [°/s]"]
         self.pandadf = pandas.DataFrame(columns = col_names)
@@ -619,7 +605,7 @@ class ImgSeqPlayer(object):
 
         # Set the canvas size according to the size of the rescaled image
 
-        self.zoomfac = 1.0
+        #self.zoomfac = 1.0
 
         if (self.var.get() == '1'):
             #self.can = tk.Canvas(self.frame, width = int(0.75*w)+add_width, height = int(0.75*h)+ctrl_height)
@@ -654,9 +640,10 @@ class ImgSeqPlayer(object):
         # place the canvas in which the images will be shown in the center of the window 
         self.can.grid(row=1,column=1,padx=5,pady=5)
 
-        # as the new zoom-factor (self.zoomfac) has now been set 
-        # we have to adjust the pixelsize:
-        self.pixsize = self.pixsize / self.zoomfac
+        # as the zoom-factor (self.zoomfac) has now been set 
+        # we can initialize the pixelsize:
+        self.pixsize = self.recordedpixsize / self.zoomfac
+        print("actual pixel size: ",self.pixsize)
 
         master.update()
 
@@ -954,13 +941,14 @@ class ImgSeqPlayer(object):
 
 
     def refresh(self):
+
         """ Destroy current frame. Re-initialize animation. """
         self.refreshing = 1
         self.frame.destroy()
 
         self.__init__(self.master, self.directory, self.refreshing,
                       self.PILimgs, self.seqlength, self.roiobj,
-                      self.selectroi, self.recordingfps, self.pixsize)
+                      self.selectroi, self.recordingfps, self.recordedpixsize)
         self.animate()
         self.stop = 0
         self.refreshing = 0 # as refreshing ends here  
