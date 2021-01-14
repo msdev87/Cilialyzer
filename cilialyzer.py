@@ -70,9 +70,9 @@ SinglePixelAnalysis = 0
 
 MotionTracking = 0
 
-ParticleTracking = 1
+ParticleTracking_flag = True
 
-DynamicFiltering = 0
+DynamicFiltering_flag = False
 
 SpatioTemporalCorrelogram = 0
 
@@ -211,7 +211,7 @@ def loadvideo():
 
 def selectdirectory():
 
-    global player,roiplayer
+    global player,roiplayer, ptrackplayer
 
     try:
         # avoid crash 
@@ -222,6 +222,11 @@ def selectdirectory():
     try:
         # avoid crash 
         roiplayer.stop = 2
+    except NameError:
+        pass
+
+    try:
+        ptrackplayer.stop = 2
     except NameError:
         pass
 
@@ -247,6 +252,13 @@ def selectdirectory():
     except NameError:
         pass
 
+    # destroy particle tracking application
+    try:
+        ptrackplayer.frame.destroy()
+        del ptrackplayer
+    except NameError:
+        pass
+
     # delete content of powerspec tab, before switching to animation 
     powerspectrum.tkframe.destroy()
 
@@ -257,13 +269,6 @@ def selectdirectory():
     roiplayer = FlipbookROI.ImgSeqPlayer(roitab,PIL_ImgSeq.directory,refresh,
                 PIL_ImgSeq.sequence,PIL_ImgSeq.seqlength,roi,selectroi)
     roiplayer.animate()
-
-    # nbook.select(0)
-    # refresh = 0
-    # player = Flipbook.ImgSeqPlayer(roitab, PIL_ImgSeq.directory,\
-    #                               refresh,PIL_ImgSeq.sequence,\
-    #                               PIL_ImgSeq.seqlength)
-    # player.animate() # call method animate 
 
 
 def corrgram():
@@ -358,7 +363,7 @@ def pcolor_func():
 
 def switchtab(event):
 
-    global player, roiplayer
+    global player, roiplayer, ptrackplayer
 
     # if tab is pressed (and pressed tab != active tab) then take precautions...  
 
@@ -437,15 +442,16 @@ def switchtab(event):
                                                 float(pixsizecombo.get()))
         ptrackplayer.animate()
 
+    if (DynamicFiltering_flag):
 
-    if (clicked_tab == nbook.index(dynfiltertab)):
-        # dynamic filtering tab 
-        nbook.select(nbook.index(dynfiltertab))
-        # 1. apply band-pass filter 
-        dynseq.bandpass(roiplayer.roiseq,float(fpscombo.get()),float(minscale.get()),float(maxscale.get()),int(nrharmscombo.get()))
+        if (clicked_tab == nbook.index(dynfiltertab)):
+            # dynamic filtering tab 
+            nbook.select(nbook.index(dynfiltertab))
+            # 1. apply band-pass filter 
+            dynseq.bandpass(roiplayer.roiseq,float(fpscombo.get()),float(minscale.get()),float(maxscale.get()),int(nrharmscombo.get()))
 
-        refresh = 0
-        dynplayer = Flipbook.ImgSeqPlayer(dynfiltertab, PIL_ImgSeq.directory,\
+            refresh = 0
+            dynplayer = Flipbook.ImgSeqPlayer(dynfiltertab, PIL_ImgSeq.directory,\
                                    refresh,dynseq.dyn_roiseq,\
                                    PIL_ImgSeq.seqlength) 
         dynplayer.animate() # call meth
@@ -592,9 +598,13 @@ py = 4  # pad y
 imgbh = 28 # button height for buttons containing images 
 imgbw = 182 # button width for buttons containing images 
 
-# Help Button 
-helpB = Button(text='Help',command=helpbutton,height=bh,width=7)
-helpB.grid(row=0,column=0,padx=px,pady=py,sticky='n')
+# In order to have more flexibility we have to add a "fakepixel" (transparent) 
+fakepixel= ImageTk.PhotoImage(file=r"./fakepixel.png")
+
+# Help Button
+helpB = Button(ctrl_panel,height=15,width=30,text='   Help',command=helpbutton,
+    image=fakepixel,compound=RIGHT)
+helpB.grid(row=0,column=0,padx=2,pady=2,sticky='n')
 
 # Quit Button (placed in the bottom right edge of the root window)  
 exitphoto = ImageTk.PhotoImage(file=r"./icons/exitalpha.png")
@@ -624,8 +634,7 @@ PIL_ImgSeq = LoadSequence.ImageSequence()
 
 dirphoto = ImageTk.PhotoImage(file=r"./icons/newdir2.png")
 set_dirB = Button(GeneralF,height=25,width=180,text='Select Directory ',\
-				font=("Helvetica",11),command=selectdirectory,\
-				image=dirphoto,compound=RIGHT)
+    font=("Helvetica",11),command=selectdirectory,image=dirphoto,compound=RIGHT)
 set_dirB.grid(row=0,column=0)
 
 # display the name of an image of the selected sequence 
@@ -946,26 +955,24 @@ if (SinglePixelAnalysis):
 #**************************************************************************************************#
 
 
-
-
-
-
 #******************************************************************************#
 # ************************* Particle Tracking ******************************** #
-if (ParticleTracking):
-	ptracktab = Frame(nbook,width=int(round(0.6*screenw)),height=int(round(0.6*screenh)))
-	nbook.add(ptracktab, text='Particle Tracking')
+if (ParticleTracking_flag):
+    ptracktab = Frame(nbook,width=int(round(0.6*screenw)),height=int(round(0.6*screenh)))
+    nbook.add(ptracktab, text='Particle Tracking')
 
-	# top left -> 'controls' 
+    #print('ptracktab ',nbook.index(ptracktab))
 
-	trackcframe = Frame(ptracktab,takefocus=0)
-	trackcframe.place(in_=ptracktab, anchor="c")#relx=.1, rely=.2)
+    # top left -> 'controls' 
 
-	#trackclframe = LabelFrame(trackcframe,takefocus=1, text='Controls',
-	#					labelanchor='n',borderwidth = 4,padx=3,pady=3,font=("Helvetica", 11, "bold"))
-	#trackclframe.grid(row=0,column=0)
+    trackcframe = Frame(ptracktab,takefocus=0)
+    trackcframe.place(in_=ptracktab, anchor="c")#relx=.1, rely=.2)
+
+    #trackclframe = LabelFrame(trackcframe,takefocus=1, text='Controls',
+    #					labelanchor='n',borderwidth = 4,padx=3,pady=3,font=("Helvetica", 11, "bold"))
+    #trackclframe.grid(row=0,column=0)
 #******************************************************************************#
-  
+
 
 
 
@@ -981,8 +988,8 @@ if (ParticleTracking):
 
 #**************************************************************************** #
 # ************************** Dynamic Filtering ****************************** #
-if (DynamicFiltering):
-	dynseq = DynamicFilter.DynFilter() 
+if (DynamicFiltering_flag):
+	dynseq = DynamicFilter.DynFilter()
 
 	dynfiltertab = Frame(nbook,width=int(round(0.75*screenw)),height=int(round(0.8*screenh)))
 	nbook.add(dynfiltertab, text='Dynamic Filtering') 
@@ -1030,29 +1037,19 @@ if (kSpectrum):
 # mean spatial autocorrelation tab 
 
 mcorrtab = Frame(nbook, width=int(round(0.9*nbookw)),height=int(round(0.95*nbookh)))
-nbook.add(mcorrtab, text='MeanCorr') 
+nbook.add(mcorrtab, text='MeanCorr')
 
 mcorrB = Button(mcorrtab, text='Mean Spatial Autocorrelation', command=meanscorrgram, height=bh, width=bw) 
-mcorrB.place(in_=mcorrtab, anchor="c", relx=.5, rely=.05) 
+mcorrB.place(in_=mcorrtab, anchor="c", relx=.5, rely=.05)
 
 # here we plot the mean spatial autocorrelation ('mscorr' = mean spatial correlation)  
 mscorrplotframe = Frame(mcorrtab,width=int(round(0.45*screenw)),height=int(round(0.6*screenh)))
-mscorrplotframe.place(in_=mcorrtab, anchor='c', relx=0.25, rely=0.5) 
+mscorrplotframe.place(in_=mcorrtab, anchor='c', relx=0.25, rely=0.5)
 
 
 # plot a profile along a selected line going through the center of the mean spatial acorr
 mscorrprofileframe = Frame(mcorrtab, width=int(round(0.45*screenw)),height=int(round(0.6*screenh)))
-mscorrprofileframe.place(in_=mcorrtab, anchor='c', relx=0.75, rely=0.5) 
-
-
-
-
-
-
-
-
-
-
+mscorrprofileframe.place(in_=mcorrtab, anchor='c', relx=0.75, rely=0.5)
 
 
 #placeholder_photo = ImageTk.PhotoImage(file=r"./icons/placeholder.png")
@@ -1066,14 +1063,7 @@ mscorrprofileframe.place(in_=mcorrtab, anchor='c', relx=0.75, rely=0.5)
 #**************************************************************************************************#
 
 
-
-
-
-
-
-
-
 # --------------------------------------------------------------------------------------------------
 ctrl_panel.mainloop() # loop and wait for events 
 # --------------------------------------------------------------------------------------------------
-sys.exit() 
+sys.exit()

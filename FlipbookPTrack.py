@@ -546,51 +546,22 @@ class ImgSeqPlayer(object):
         # *************** results frame at the right ***************************
         # ----------------------------------------------------------------------
 
-        # display the particle speed, radius, circ frequency 
-        """
-        self.reslframe = tk.LabelFrame(self.frame,takefocus=1,text='Results', \
-                labelanchor='n',borderwidth=4,padx=0,pady=0,font=("Helvetica", 11, "bold"))
-        self.reslframe.grid(row=1,column=3,padx=30,pady=7)
+        # display the particle speed, radius, circ frequency
 
-        self.particlespeed = tk.Label(self.reslframe, textvariable=self.pspeed) 
-        self.particlespeed.grid()
-        """
-
-        self.resultsframe = tk.LabelFrame(self.frame,takefocus=1,text='Results', \
-                labelanchor='n',borderwidth=4,padx=0,pady=0,font=("Helvetica", 11, "bold"), width=400, height=500)
-        self.resultsframe.grid(row=1,column=3,padx=60,pady=7)
+        self.resultsframe = tk.LabelFrame(self.frame,takefocus=1,text='Results',
+            labelanchor='n',borderwidth=4,padx=0,pady=0,
+            font=("Helvetica", 11, "bold"), width=400, height=500)
+        self.resultsframe.grid(row=1,column=3,rowspan=3,padx=10,pady=7)
         self.resultsframe.grid_propagate(0)
 
-
-        # pandas.options.display.float_format = '${:,.2f}'.format
         # pandas frame
-
         col_names = ["Radius [μm]","Speed [μm/s]","Omega [°/s]"]
         self.pandadf = pandas.DataFrame(columns = col_names)
 
-        #pandas.options.display.float_format = '${:,.2f}'.format
-
-        """
-        self.pandadf = pandas.DataFrame({
-            'Radius [μm]'   :   [0.00],
-            'Speed [μm/s]'  :   [0.00],
-            'Omega [°/s]'   :   [0.00]
-        })
-        """
-
-        #pandas.set_option('display.max_colwidth', 100)
         self.resultstable = Table(self.resultsframe, dataframe=self.pandadf,
                 showtoolbar=True, showstatusbar=True)
         self.resultstable.show()
 
-        #self.resultstable.autoResizeColumns()
-        #options = {'colheadercolor':'green'}
-        #options =  {'cellwidth': 100}
-        #pandastable.config.apply_options(options, self.resultstable)
-        #pandas.set_option('display.min_colwidth',120)
-        #self.resultstable.redraw()
-        #self.resultstable.rowheader.maxwidth = 100
-        #self.resultstable.redraw()
         # **********************************************************************
 
         # get image size 
