@@ -607,13 +607,13 @@ helpB = Button(ctrl_panel,height=15,width=30,text='   Help',command=helpbutton,
 helpB.grid(row=0,column=0,padx=2,pady=2,sticky='n')
 
 # Quit Button (placed in the bottom right edge of the root window)  
-exitphoto = ImageTk.PhotoImage(file=r"./icons/exitalpha.png")
-quitB=Button(ctrl_panel,image=exitphoto,command=endprogram,height=40,width=78)
-quitB.grid(row=1,column=2,columnspan=1,sticky='s',padx=4,pady=4)
+exitphoto = ImageTk.PhotoImage(file=r"./icons/exit/exit_small.png")
+quitB=Button(ctrl_panel,image=exitphoto,command=endprogram,height=32,width=64)
+quitB.grid(row=1,column=2,columnspan=1,sticky='s',padx=2,pady=2)
 
 #******************** Determine the width of the Notebook *********************# 
 ctrl_panel.update() # update to determine the button size in pixels 
-emptyspace = 15
+emptyspace = 4
 nbookw = ctrl_panel.winfo_screenwidth() - helpB.winfo_width() -\
          quitB.winfo_width() - emptyspace - 2*(offset + 5)
 #******************************************************************************#
@@ -625,15 +625,15 @@ nbookw = ctrl_panel.winfo_screenwidth() - helpB.winfo_width() -\
 #******************************************************************************#
 
 GeneralF = LabelFrame(text=' Current Settings ',labelanchor='n',borderwidth=2,\
-                      padx=5,pady=5,font=("Helvetica",11,"bold"),relief=GROOVE)
+                      padx=3,pady=3,font=("Helvetica",11,"bold"),relief=GROOVE)
 GeneralF.grid(row=0,column=1,columnspan=1,rowspan=1)
 
 PIL_ImgSeq = LoadSequence.ImageSequence()
 # PIL_ImgSeq.directory -> contains path to choosen image sequence 
 # PIL_ImgSeq.sequence  -> holds the PIL img sequence 
 
-dirphoto = ImageTk.PhotoImage(file=r"./icons/newdir2.png")
-set_dirB = Button(GeneralF,height=25,width=180,text='Select Directory ',\
+dirphoto = ImageTk.PhotoImage(file=r"./icons/directory/newdir_small.png")
+set_dirB = Button(GeneralF,height=16,width=160,text='Open Sequence ',\
     font=("Helvetica",11),command=selectdirectory,image=dirphoto,compound=RIGHT)
 set_dirB.grid(row=0,column=0)
 
@@ -643,8 +643,9 @@ fl = Label(GeneralF,text="First Image :",anchor='e',font=("Helvetica", 11),\
 fl.grid(row=1, column=0)
 
 # button for loading videos
-load_vidB = Button(GeneralF, height=1, width=22, text='Load Video',\
-            font=("Helvetica",11),command=loadvideo)
+load_vidB = Button(GeneralF, height=16, width=160, text='  Open Video',
+            font=("Helvetica",11),command=loadvideo,image=fakepixel,
+            compound=RIGHT)
 load_vidB.grid(row=2,column=0)
 
 # Label and Entry Widget for setting recording speed [FPS]
@@ -749,7 +750,7 @@ wackelB.grid(row=4,column=0,columnspan=2)
 # available notebook tabs: animation, ROI selection, powerspec, activity map 
 
 nbook = tkinter.ttk.Notebook(ctrl_panel,width=nbookw,height=nbookh)
-nbook.grid(row=1,column=1,columnspan=1,rowspan=1,sticky='NESW',padx=10,pady=10)
+nbook.grid(row=1,column=1,columnspan=1,rowspan=1,sticky='NESW',padx=5,pady=5)
 
 # if the clicked tab is not the current tab 
 # we need to stop animations to avoid the frontend to crash!! 
@@ -766,7 +767,6 @@ nbook.bind('<ButtonPress-1>',switchtab)
 # removepatternB.place(in_=animationtab, anchor="c", relx=.07, rely=0.07)
 
 
-
 # add an 'Image Registration'-button in the animation tab 
 #imageregB = Button(animationtab,text='Image Registration',\
 #                   command=lambda: PIL_ImgSeq.imagereg(), height=bh, width=16)
@@ -774,16 +774,14 @@ nbook.bind('<ButtonPress-1>',switchtab)
 
 
 # ROI selection tab 
-roitab = Frame(nbook,width=int(round(0.9*nbookw)),\
-               height=int(round(0.95*nbookh)))
+roitab = Frame(nbook,width=int(round(0.9*nbookw)),
+    height=int(round(0.95*nbookh)))
 nbook.add(roitab, text='ROI Selection')
-
 
 # motion extraction (see Puybareau et al. 2016) i.e. subtract the mean image  
 motionextractB = Button(roitab,text='Subtract Mean',\
-                 command=lambda: PIL_ImgSeq.extractmotion(),height=bh,width=16)
+    command=lambda: PIL_ImgSeq.extractmotion(),height=bh,width=16)
 motionextractB.place(in_=roitab, anchor="c", relx=.07, rely=0.07)
-
 
 # ROI selection Button
 roi = RegionOfInterest.ROI(ctrl_panel) # instantiate roi object 

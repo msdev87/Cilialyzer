@@ -44,7 +44,8 @@ def sort_list(l):
     Mutates l, returns None.
     l: list of filenames.
 
-    Sorts l alphabetically. But fixes the fact that, alphabetically, '20' comes before '9'.
+    Sorts l alphabetically.
+    But fixes the fact that, alphabetically, '20' comes before '9'.
 
     Example:
         if l = ['10.png', '2.jpg']:
@@ -73,8 +74,6 @@ def sort_list(l):
     for i in range(len(numbers)):
         l.insert(0, "%d.%s" % (numbers[i], extensions[i]))
 
-
-
 def get_files(directory):
     """
     directory: str, directory to search for files.
@@ -93,7 +92,6 @@ def get_files(directory):
 def GetMinMaxIntensity(self):
 
     pixls = self.PILimgs[0] # pixls = PIL image
-
     w,h = pixls.size # width and height of image
 
     # we crop the relevant part of the image 
@@ -116,7 +114,8 @@ def LeeFilter(self):
         #print self.extractparticles 
 
         pix = numpy.array(self.currentimg)
-        leefiltered = numpy.subtract(pix, gaussian_filter(lee_filter(pix,self.leewin), self.gausswin))
+        leefiltered = numpy.subtract(pix,
+                gaussian_filter(lee_filter(pix,self.leewin), self.gausswin))
 
         m = numpy.mean(leefiltered)
         std = numpy.std(leefiltered)
@@ -129,7 +128,6 @@ def LeeFilter(self):
 
         leefiltered = bytescl.bytescl(leefiltered)
 
-
         # write the current image out as a png
         # self.currentimg.save("img" + str(self.index) + ".png", "PNG")
 
@@ -138,46 +136,30 @@ def LeeFilter(self):
         # export lee filtered sequence (for timelapse)  
         #self.currentimg.save("img" + str(self.index) + ".png", "PNG")  		
 
-"""
-def bytescl(array):
-    mini = numpy.amin(array)
-    maxi = numpy.amax(array)
-    r = 0
-    c = 0
-    cnt = 0
-    rows = array.shape[0]
-    cols = array.shape[1]
-    for el in numpy.nditer(array):
-        r = math.floor(cnt / cols)
-        c = cnt % cols
-        array[r,c] = round((abs(el - mini) / float(maxi-mini)) * 255)
-        cnt += 1
-""" 
-
 def GammaScale(self):
-    self.currentimg = ImageEnhance.Contrast(self.currentimg).enhance(self.contrast)
+    self.currentimg =\
+        ImageEnhance.Contrast(self.currentimg).enhance(self.contrast)
 
 def Sharpen(self):
-    self.currentimg = ImageEnhance.Sharpness(self.currentimg).enhance(self.sharp)
+    self.currentimg =\
+        ImageEnhance.Sharpness(self.currentimg).enhance(self.sharp)
 
 def Brighten(self):
-    self.currentimg = ImageEnhance.Brightness(self.currentimg).enhance(self.bright)
+    self.currentimg =\
+        ImageEnhance.Brightness(self.currentimg).enhance(self.bright)
 
 def bytescale(self):
 
     # lambda function performs the byte-scaling (contrast enhancement)  
     #pixls = self.currentimg      
 
-    self.currentimg = Image.eval(self.currentimg,
-            lambda xy: round((abs(xy - self.MinIntensity) / float(self.MaxIntensity-self.MinIntensity)) * 255))
-
+    self.currentimg = Image.eval(self.currentimg,lambda xy: round((abs(
+        xy-self.MinIntensity)/float(self.MaxIntensity-self.MinIntensity))*255))
 
 def ResizeCurrentImage(self):
     w,h = self.currentimg.size
     scale = min((self.screen[0]/float(w), self.screen[1]/float(h)))
     self.currentimg=self.currentimg.resize((int(w*scale), int(h*scale)))
-
-
 
 class ImgSeqPlayer(object):
 
@@ -245,8 +227,9 @@ class ImgSeqPlayer(object):
         s = tkinter.ttk.Style()
         s.theme_use("default")
         s.configure("TProgressbar", thickness=5)
-        progbar = tkinter.ttk.Progressbar(self.frame,mode="determinate",variable=self.pbvar,\
-                maximum=seqlength,length=0.5*w,style="TProgressbar")
+        progbar = tkinter.ttk.Progressbar(self.frame,mode="determinate",\
+            variable=self.pbvar,maximum=seqlength,length=0.5*w,\
+            style="TProgressbar")
         progbar.grid(column=1,row=2)
 
         self.frame2 = tk.LabelFrame(self.frame, takefocus=1, text='Player Controls', \
@@ -258,9 +241,8 @@ class ImgSeqPlayer(object):
 
         # add frame holding the 'particle tracking controls' (trackcframe) 
         self.trackcframe = tk.LabelFrame(self.frame,takefocus=1,
-                            text='Particle Tracking Controls',\
-                            labelanchor='n', borderwidth=4, padx=2, pady=4,
-                            font=("Helvetica", 11, "bold"))
+            text='Particle Tracking Controls',labelanchor='n',borderwidth=4,
+            padx=2,pady=4,font=("Helvetica", 11, "bold"))
         self.trackcframe.grid(row=4,column=1)
 
         # radiobutton to specify the 'color' of particles 
@@ -274,19 +256,20 @@ class ImgSeqPlayer(object):
             self.pcolor.set(2) # initialize with dark particles 
 
         self.pcolorB = tk.Radiobutton(self.trackcframe,text="Bright Particles",
-                        variable=self.pcolor,command=self.pcolor_func,
-                        value=1,bd=4,width=12)
+            variable=self.pcolor,command=self.pcolor_func,value=1,bd=4,width=12)
         self.pcolorB.grid(row=0, column=0)
         self.pcolorB = tk.Radiobutton(self.trackcframe,text="Dark Particles",
-                        variable=self.pcolor,command=self.pcolor_func,
-                        value=2,bd=4,width=12)
+            variable=self.pcolor,command=self.pcolor_func,value=2,bd=4,width=12)
         self.pcolorB.grid(row=1, column=0)
 
+        fakepixel = ImageTk.PhotoImage(file=r"./fakepixel.png")
         # "Lee-Filter button" 
         self.extractparticlesB = tk.Button(self.trackcframe,
-                                    text='Extract Particles',
-                                    command=self.extractparticles,
-                                    width=20,height=1)
+            text='Extract Particles',command=self.extractparticles,width=20,
+            height=1)
+
+        #self.extractparticlesB = tk.Button(self.trackcframe,height=15,width=120,
+        #    text='Extract Particles',command=self.extractparticles,image=fakepixel,compound=tk.LEFT)
         self.extractparticlesB.grid(row=0,column=1,padx=5)
 
 	# export trajectory button 
@@ -402,7 +385,7 @@ class ImgSeqPlayer(object):
         # ---------------------------------------------------------------------
         self.searchboxframe = tk.LabelFrame(self.frame,takefocus=1,
                                 text='Search Box',labelanchor='n',borderwidth=4,
-                                padx=3,pady=3,font=("Helvetica",11,"bold"))
+                                padx=22,pady=3,font=("Helvetica",11,"bold"))
         self.searchboxframe.grid(row=0,column=2)
 
         if hasattr(self, 'sboxsize'):
@@ -418,7 +401,7 @@ class ImgSeqPlayer(object):
         # ----------------------------------------------------------------------
 
 
-        # checkbox for contrast bytescaling --------------------------------------------------------
+        # checkbox for contrast bytescaling ------------------------------------
 
         if hasattr(self, 'bscontrast'):
             pass
@@ -432,13 +415,13 @@ class ImgSeqPlayer(object):
             #print self.bscontrast 
             #time.sleep(5)
 
-        self.frame5 = tk.LabelFrame(self.frame, takefocus=1,text='Contrast Settings', \
-                labelanchor='n',borderwidth = 4,padx=3,pady=3,font=("Helvetica", 11, "bold"))
+        self.frame5 = tk.LabelFrame(self.frame,takefocus=1,
+            text='Contrast Settings',labelanchor='n',borderwidth=4,padx=2,
+            pady=1,font=("Helvetica", 11, "bold"))
         self.frame5.grid(row=0,column=1)
 
         self.bscontrastB = tk.Checkbutton(self.frame5, text="Bytescaling",
-        variable=self.bscontrast,command=self.setbscontrast)
-        #self.bscontrastB.pack(side=tk.LEFT) 
+            variable=self.bscontrast,command=self.setbscontrast)
         self.bscontrastB.grid(row=0,column=0,columnspan=2)
 
         if (self.bscontrast):
@@ -447,26 +430,22 @@ class ImgSeqPlayer(object):
             self.bscontrastB.deselect()
 
 
-        # Gamma Faktor ----------------------------------------------  
+        # ------------------------- Gamma Faktor ------------------------------  
 
         if hasattr(self, 'contrast'):
             pass
         else:
             self.contrast = 1.0 # init value  
 
-        #self.frame6 = tk.Frame(self.frame, takefocus=1)
-        #self.frame6.pack(side=tk.BOTTOM)
-
-        contrastL=tk.Label(self.frame5, text="Gamma Correction: ", height=2,width=18)
-        #contrastL.pack(side=tk.LEFT)
+        contrastL=tk.Label(self.frame5, text="Gamma Correction: ", height=1,width=18)
         contrastL.grid(row=1,column=0,columnspan=1)
 
-        self.contrastB = tk.Spinbox(self.frame5, from_=0.5, to=5.0, increment=0.2,command=self.setcontrast,width=3)
-        #self.contrastB.pack(side=tk.LEFT)
+        self.contrastB = tk.Spinbox(self.frame5,from_=0.5,to=5.0,increment=0.2,
+            command=self.setcontrast,width=3)
         self.contrastB.grid(row=1,column=1,columnspan=1)
-
         self.contrastB.delete(0, "end")
         self.contrastB.insert(0,1.0)
+
         # ---------------------------------------------------------------------- 
 
         # Image Sharpness 
@@ -475,41 +454,30 @@ class ImgSeqPlayer(object):
         else:
             self.sharp = 1.0 # init value  
 
-
-        #self.frame7 = tk.Frame(self.frame, takefocus=1)
-        #self.frame7.pack(side=tk.BOTTOM)
-
-        sharpnessL=tk.Label(self.frame5, text="Sharpness: ", height=2,width=18)
-        #sharpnessL.pack(side=tk.LEFT)
+        sharpnessL=tk.Label(self.frame5, text="Sharpness: ", height=1,width=18)
         sharpnessL.grid(row=0,column=2,columnspan=1)
 
-        self.sharpnessB = tk.Spinbox(self.frame5, from_=0.5, to=5.0, increment=0.5,command=self.sharpener,width=3)
-        #self.sharpnessB.pack(side=tk.LEFT)
+        self.sharpnessB = tk.Spinbox(self.frame5,from_=0.5,to=5.0,
+            increment=0.5,command=self.sharpener,width=3)
         self.sharpnessB.grid(row=0,column=3,columnspan=1)
-
         self.sharpnessB.delete(0, "end")
         self.sharpnessB.insert(0,1.0)
 
         # ----------------------------------------------------------------------
 
-        # Image Brightness 
+        # ----------------------- Image Brightness -----------------------------
+
         if hasattr(self, 'bright'):
             pass
         else:
             self.bright = 1.0 # init value  
 
-
-        #self.frame8 = tk.Frame(self.frame, takefocus=1)
-        #self.frame8.pack(side=tk.BOTTOM)
-
-        brightnessL=tk.Label(self.frame5, text="Brightness: ", height=2,width=18)
-        #brightnessL.pack(side=tk.LEFT)
+        brightnessL=tk.Label(self.frame5,text="Brightness: ",height=2,width=18)
         brightnessL.grid(row=1,column=2,columnspan=1)
 
-
-        self.brightnessB = tk.Spinbox(self.frame5, from_=0.5, to=5.0, increment=0.1,command=self.setbrightness,width=3)
+        self.brightnessB = tk.Spinbox(self.frame5,from_=0.5,to=5.0,
+            increment=0.1,command=self.setbrightness,width=3)
         self.brightnessB.grid(row=1,column=3,columnspan=1)
-
         self.brightnessB.delete(0, "end")
         self.brightnessB.insert(0,1.0)
 
@@ -520,11 +488,8 @@ class ImgSeqPlayer(object):
         self.frame12.grid(row=1,column=2)
 
         self.fpsframe = tk.LabelFrame(self.frame12,takefocus=1,
-                            text='Replay Speed',labelanchor='n',
-                            borderwidth = 4,padx=0,pady=0,
-                            font=("Helvetica", 11, "bold"))
-
-        #self.fpsframe.pack(side=tk.LEFT)
+            text='Replay Speed',labelanchor='n',borderwidth=4,padx=0,pady=0,
+            font=("Helvetica", 11, "bold"))
         self.fpsframe.grid(row=0,column=1,padx=3,pady=3)
 
         self.radio_fps = [  ("  1 FPS",1), (" 10 FPS", 2), (" 20 FPS", 3),
@@ -537,9 +502,9 @@ class ImgSeqPlayer(object):
             self.fps.set(3) # initialize with 20 fps 
 
         for text, mode in self.radio_fps:
-            self.fpsB = tk.Radiobutton(self.fpsframe, text=text,
-                            variable=self.fps, value=mode, bd=4, width=6,
-                            command=self.fps_button)
+            self.fpsB = tk.Radiobutton(self.fpsframe,text=text,
+                variable=self.fps,value=mode,bd=4,width=6,
+                command=self.fps_button)
             self.fpsB.pack(side=tk.BOTTOM)
 
         # ----------------------------------------------------------------------
@@ -550,8 +515,8 @@ class ImgSeqPlayer(object):
 
         self.resultsframe = tk.LabelFrame(self.frame,takefocus=1,text='Results',
             labelanchor='n',borderwidth=4,padx=0,pady=0,
-            font=("Helvetica", 11, "bold"), width=400, height=500)
-        self.resultsframe.grid(row=1,column=3,rowspan=3,padx=10,pady=7)
+            font=("Helvetica", 11, "bold"), width=300, height=400)
+        self.resultsframe.grid(row=1,column=3,rowspan=3,padx=40,pady=7)
         self.resultsframe.grid_propagate(0)
 
         # pandas frame
@@ -560,6 +525,11 @@ class ImgSeqPlayer(object):
 
         self.resultstable = Table(self.resultsframe, dataframe=self.pandadf,
                 showtoolbar=True, showstatusbar=True)
+
+
+        options = {'fontsize' : 10, 'floatprecision': 1}
+        pandastable.config.apply_options(options, self.resultstable)
+
         self.resultstable.show()
 
         # **********************************************************************
@@ -576,15 +546,12 @@ class ImgSeqPlayer(object):
 
         # Set the canvas size according to the size of the rescaled image
 
-        #self.zoomfac = 1.0
-
         if (self.var.get() == '1'):
-            #self.can = tk.Canvas(self.frame, width = int(0.75*w)+add_width, height = int(0.75*h)+ctrl_height)
-            self.can = tk.Canvas(self.frame, width = int(0.75*w), height = int(0.75*h))
+            self.can = tk.Canvas(self.frame,width=int(0.75*w),
+                height=int(0.75*h))
             self.screen = int(0.75*w), int(0.75*h)
             self.zoomfac = 0.75
         if (self.var.get() == '2'):
-            #self.can = tk.Canvas(self.frame, width = int(w)+add_width, height = int(h)+ctrl_height)
             self.can = tk.Canvas(self.frame, width = int(w), height = int(h))
             self.screen = w, h
             self.zoomfac = 1.0
@@ -608,7 +575,8 @@ class ImgSeqPlayer(object):
             height = int(3*h)+ctrl_height)
             self.screen = int(3*w), int(3*h)
             self.zoomfac = 3.0
-        # place the canvas in which the images will be shown in the center of the window 
+
+        # place the canvas in which the images will be shown in the center 
         self.can.grid(row=1,column=1,padx=5,pady=5)
 
         # as the zoom-factor (self.zoomfac) has now been set 
@@ -632,7 +600,7 @@ class ImgSeqPlayer(object):
         # if not self.photos:  #len(self.photos) must be > 0.
         # raise FolderError(directory)
 
-        self.index = 0  #Index of next photo to draw in self.photos.
+        self.index = 0  # Index of next photo to draw in self.photos.
         self.current_image = False  #Start with no image drawn on screen.
 
         self.current_photo = False
@@ -645,7 +613,7 @@ class ImgSeqPlayer(object):
         if hasattr(self, 'speed'):
             pass
         else:
-            self.speed = 20 # initialize with 50 frames per second  
+            self.speed = 20 # initialize with 20 frames per second  
 
         self.master, self.directory = master, directory
 
@@ -792,13 +760,10 @@ class ImgSeqPlayer(object):
                 else:
                     pass
 
-
             # add mouse bindings here
             self.can.xview_moveto(0)
             self.can.yview_moveto(0)
             self.can.bind('<ButtonPress-1>', on_mouse_down)
-
-
 
         try:
             #print (time.time() - t0) * 1000.
@@ -851,16 +816,21 @@ class ImgSeqPlayer(object):
                 if (self.bbox is not None):
 
                     winsize = self.sboxsize #int(self.sboxsize.get())
-                    self.anchor = (int(round(self.particle_coords[0]))-int(winsize/2), int(round(self.particle_coords[1]))-int(winsize/2))
-                    self.bbox = self.anchor + (int(round(self.particle_coords[0]))+int(winsize/2), int(round(self.particle_coords[1]))+int(winsize/2))
+                    self.anchor =\
+                        (int(round(self.particle_coords[0]))-int(winsize/2),
+                        int(round(self.particle_coords[1]))-int(winsize/2))
+                    self.bbox = self.anchor +\
+                        (int(round(self.particle_coords[0]))+int(winsize/2),
+                        int(round(self.particle_coords[1]))+int(winsize/2))
                     self.can.create_rectangle(self.bbox, outline="red",width=2)
-
 
 
         # indicate all already tracked particles!
         if (len(self.alltraces) > 0):
-            #print('test1')
+
             for i in range(len(self.alltraces)):
+
+                #print('drawing ',i,'-th trace')
 
                 # trace -> array holding x,y,timeindex,sboxsize 
                 trace = numpy.array(self.alltracesarray[i])
@@ -878,8 +848,8 @@ class ImgSeqPlayer(object):
                     bla = int(wsize/2)
                     box = (x-bla,y-bla,x+bla,y+bla)
 
-                    self.can.create_rectangle(box,outline="red", width=2)
-                    #time.sleep(5)
+                    #print('drawing box of ',i,'-th particle') 
+                    self.can.create_rectangle(box,outline="yellow", width=2)
 
                 except ValueError:
                     # self.index was not in the list
@@ -917,9 +887,9 @@ class ImgSeqPlayer(object):
         self.refreshing = 1
         self.frame.destroy()
 
-        self.__init__(self.master, self.directory, self.refreshing,
-                      self.PILimgs, self.seqlength, self.roiobj,
-                      self.selectroi, self.recordingfps, self.recordedpixsize)
+        self.__init__(self.master,self.directory,self.refreshing,self.PILimgs,
+            self.seqlength, self.roiobj,self.selectroi, self.recordingfps,
+            self.recordedpixsize)
         self.animate()
         self.stop = 0
         self.refreshing = 0 # as refreshing ends here  
@@ -1169,9 +1139,9 @@ class ImgSeqPlayer(object):
 
             self.resultstable.addRow()
 
-            self.pandadf.at[self.tracenumber,'Speed [μm/s]'] = pspeed
-            self.pandadf.at[self.tracenumber,'Radius [μm]'] = rad
-            self.pandadf.at[self.tracenumber,'Omega [°/s]'] = omega
+            self.pandadf.at[self.tracenumber,'Speed [μm/s]'] = round(pspeed,2)
+            self.pandadf.at[self.tracenumber,'Radius [μm]'] = round(rad,2)
+            self.pandadf.at[self.tracenumber,'Omega [°/s]'] = round(omega,2)
 
             #self.pandadf.applymap("${0:.2f}".format)
 
@@ -1278,18 +1248,21 @@ class ImgSeqPlayer(object):
         # remove latest trace from all traces 
         self.alltraces.remove(self.latesttrace)
 
+        self.alltracesarray.remove(self.trace_array)
+        self.trace_array = []
+
         # continue tracking
         self.continuetracking()
 
-
     def continuetracking(self):
-        print("continuetracking")
+        #print("continuetracking")
         self.stop=0
         self.latesttrace = []
         self.anchor = None
         self.bbox = None
         self.ptracking = True
         self.frame.after_idle(self.animate)
+        self.trace_array = []
 
 def lee_filter(img, size):
 
