@@ -24,7 +24,6 @@ import PIL.Image
 import webbrowser
 import warnings
 import tkinter as tk
-#from tkinter import *
 import numpy
 import matplotlib
 import matplotlib.pyplot as plt
@@ -34,10 +33,8 @@ import tkinter.messagebox
 import pylab as pl
 from matplotlib.patches import Rectangle
 import Flipbook
-
 import DynamicFilter
 import FlipbookPTrack
-
 import LoadSequence
 import tkinter.ttk
 import RegionOfInterest
@@ -45,6 +42,7 @@ import Powerspec
 import Plots
 import activitymap
 import sys
+import menubar
 
 # ------------------------------------------------------------------------------
 
@@ -111,13 +109,13 @@ def endprogram():
     global player, roiplayer
 
     try:
-        # next line avoids crash 
+        # next line avoids crash
         player.stop = 2
         player.frame.destroy()
     except NameError:
         pass
     try:
-        # avoid crash 
+        # avoid crash
         roiplayer.stop = 2
         roiplayer.frame.destroy()
     except NameError:
@@ -199,7 +197,7 @@ def loadvideo():
 
 
 
-
+"""
 def selectdirectory():
 
     global player,roiplayer, ptrackplayer
@@ -210,7 +208,7 @@ def selectdirectory():
     #import avoid_troubles
     #avoid_troubles.stop_animation(player,roiplayer,ptrackplayer)
 
-    """
+ 
     try:
         # avoid crash
         player.stop = 2
@@ -227,7 +225,7 @@ def selectdirectory():
         ptrackplayer.stop = 2
     except NameError:
         pass
-    """
+
 
     # ask the user to set a new directory and load the images  
     PIL_ImgSeq.choose_directory(dirname,fname)
@@ -237,7 +235,7 @@ def selectdirectory():
 
     avoid_troubles.clear_main(player,roiplayer,ptrackplayer)
 
-    """
+
     # if new directory is set -> destroy frames 
     try:
         player.frame.destroy()
@@ -265,7 +263,7 @@ def selectdirectory():
     # delete content of powerspec tab, before switching to animation
     powerspectrum.tkframe.destroy()
 
-    """
+
 
     # finally, switch to the roi selection tab to animate the selected images
     nbook.select(nbook.index(roitab))
@@ -274,6 +272,8 @@ def selectdirectory():
     roiplayer = FlipbookROI.ImgSeqPlayer(roitab,PIL_ImgSeq.directory,refresh,
         PIL_ImgSeq.sequence,PIL_ImgSeq.seqlength,roi,selectroi)
     roiplayer.animate()
+"""
+
 
 
 def corrgram():
@@ -524,7 +524,7 @@ def peakselector(self):
         maxind = numpy.sum((numpy.array(powerspectrum.freqs) <= secondmaxf).astype(int))
         minind = numpy.sum((numpy.array(powerspectrum.freqs) <= secondminf).astype(int))
         powerspectrum.pwspecplot.axes.fill_between(powerspectrum.freqs[minind:maxind+1], powerspectrum.spec[minind:maxind+1],facecolor='gray',alpha=0.4)
-    
+
         powerspectrum.pwspecplot.canvas.draw()
 
     if (int(nrharmscombo.get()) > 2):
@@ -581,7 +581,7 @@ def resize(event):
         #exitphoto = ImageTk.PhotoImage(file=r"./icons/exit/exit_small.png")
         #quitB=Button(mainframe,image=exitphoto,command=endprogram,height=32,width=64)
         #quitB.grid(row=1,column=1,columnspan=1,sticky='s',padx=2,pady=2)
-    
+
         ctrl_panel.update()
 
     else:
@@ -613,23 +613,27 @@ ctrl_panel = tk.Tk()
 # set cilialyzer icon
 ctrl_panel.iconphoto(False, tk.PhotoImage(file='./logo/logo.png'))
 
-# TODO : menu (for setting/confiuring notebook tabs) 
-
-#menubar = Menu(ctrl_panel)
-#show_all = BooleanVar()
-#show_all.set(True)
-#view_menu = Menu(menubar)
-#view_menu.add_checkbutton(label="Show All", onvalue=1, offvalue=0, variable=show_all)
-#menubar.add_cascade(label='Configure', menu=view_menu)
-#ctrl_panel.config(menu=menubar)
-
-# Set the window title, default size, bg color 
+# Set the window title
 ctrl_panel.title("Cilialyzer")
 ctrl_panel.minsize(width=20,height=20)
 
+# add the menubar (mbar) to the root window ('ctrl_panel'):
+mbar = menubar.Menubar(ctrl_panel)
+ctrl_panel.config(menu=mbar.menubar)
+ctrl_panel.update()
+
+# height of menubar (in pixels) 
+mbar_height = mbar.menubar.winfo_reqheight()
+
+
+#print('-----------------------------------------------------------------------')
+#print('ctrl_panel dimensions')
+#print(ctrl_panel.winfo_screenwidth(),ctrl_panel.winfo_screenheight())
+#print('frame dimensions:')
+#print(mainframe.winfo_screenwidth(),mainframe.winfo_screenheight())
+#print('-----------------------------------------------------------------------')
 
 # note that the upper left edge of the screen has the coordinates (0,0)
-
 
 # the upper left edge of the main window gets created at the coordinates 
 # (offset,offset) [in pixels], where the upper left edge of the screen = (0,0)
@@ -640,7 +644,7 @@ offset=10
 # print(ctrl_panel.winfo_screenheight())
 # print("---")
 
-# winfo_screenheight and _screenwidth deliver the display's pixel resolution 
+# winfo_screenheight and _screenwidth deliver the display's pixel-resolution 
 ctrl_panel.geometry("%dx%d+%d+%d"%(
     ctrl_panel.winfo_screenwidth(),ctrl_panel.winfo_screenheight(),0,0))
 ctrl_panel.update()
@@ -650,19 +654,9 @@ ctrl_panel.update()
 # its actually generated dimensions (width x height) can be queried as:
 # ctrl_panel.winfo_height() x ctrl_panel.winfo_width()
 
-
-# create the main frame 'mainframe' (holding all the widgets) in ctrl_panel:
+# create the main frame (container for all the widgets) in ctrl_panel:
 mainframe = tk.Frame(ctrl_panel,takefocus=0)
 mainframe.grid(row=0,column=0,sticky='n,s,w,e')
-
-
-print('-----------------------------------------------------------------------')
-print('ctrl_panel dimensions')
-print(ctrl_panel.winfo_screenwidth(),ctrl_panel.winfo_screenheight())
-print('frame dimensions:')
-print(mainframe.winfo_screenwidth(),mainframe.winfo_screenheight())
-print('-----------------------------------------------------------------------')
-
 
 # 'screenw, screenh' denote the width, height of the main window  
 screenw = ctrl_panel.winfo_screenwidth() - 2*(offset + 5)
@@ -677,7 +671,7 @@ py = 4  # pad y
 imgbh = 28 # button height for buttons containing images 
 imgbw = 182 # button width for buttons containing images 
 
-# In order to have more flexibility we have to add a "fakepixel" (transparent) 
+# In order to have more flexibility: add a "fakepixel" (transparent photo image) 
 fakepixel= ImageTk.PhotoImage(file=r"./fakepixel.png")
 
 # Help Button
@@ -690,12 +684,10 @@ fakepixel= ImageTk.PhotoImage(file=r"./fakepixel.png")
 #quitB=tk.Button(mainframe,image=exitphoto,command=endprogram,height=32,width=64)
 #quitB.grid(row=1,column=2,columnspan=1,sticky='s',padx=2,pady=2)
 
-
 # upadate button 
 #updatephoto = ImageTk.PhotoImage(file=r"./icons/update_small.png")
 #updateB=Button(ctrl_panel,image=updatephoto,command=update_winsize,height=50,width=50)
 #updateB.grid(row=0,column=2,columnspan=1,padx=2,pady=2)
-
 
 
 #******************** Determine the width of the Notebook *********************# 
@@ -725,6 +717,8 @@ PIL_ImgSeq = LoadSequence.ImageSequence()
 
 
 
+toolbar_height = 60
+statusbar_height = 50
 
 
 
@@ -734,10 +728,10 @@ PIL_ImgSeq = LoadSequence.ImageSequence()
 
 # TODO: determine nbookw,nbookh correctly
 #nbook = tkinter.ttk.Notebook(mainframe,width=nbookw,height=nbookh)
-nbookw = 1800
-nbookh = 800
-nbook = tkinter.ttk.Notebook(mainframe,width=1800,height=980)
-nbook.grid(row=1,column=1,columnspan=1,rowspan=1,sticky='NESW',padx=5,pady=5)
+nbookw = mainframe.winfo_screenwidth()-100
+nbookh = mainframe.winfo_screenheight()-mbar_height-toolbar_height-statusbar_height
+nbook = tkinter.ttk.Notebook(mainframe,width=nbookw,height=nbookh)
+nbook.grid(row=1,column=1,columnspan=1,rowspan=1,sticky='NESW',padx=10,pady=10)
 
 # if the clicked tab is not the current tab 
 # we need to stop animations to avoid to cash the frontend!  
@@ -746,12 +740,8 @@ nbook.bind('<ButtonPress-1>',switchtab)
 
 
 # ROI selection tab 
-roitab = tk.Frame(nbook,width=int(round(0.9*nbookw)),
-    height=int(round(0.95*nbookh)))
+roitab = tk.Frame(nbook,width=int(round(0.9*nbookw)),height=int(round(0.95*nbookh)))
 nbook.add(roitab, text='ROI Selection')
-
-
-
 
 # ROI selection Button
 roi = RegionOfInterest.ROI(mainframe) # instantiate roi object 
@@ -763,7 +753,7 @@ roiB.place(in_=roitab, anchor="c", relx=.07, rely=.12)
 # initialize the roiplayer
 roiplayer = FlipbookROI.ImgSeqPlayer(roitab,PIL_ImgSeq.directory,0,
 PIL_ImgSeq.sequence,PIL_ImgSeq.seqlength,roi,1)
-print('roiplayer id after init: ',id(roiplayer)) 
+#print('roiplayer id after init: ',id(roiplayer)) 
 
 
 

@@ -4,17 +4,30 @@ class Menubar:
 
     def __init__(self, parent):
 
-        self.menubar = tk.Menu(parent) # creates the menubar of parent tk-window
+        myfont = ("Verdana",10,)
 
-        self.mfile = tk.Menu(self.menubar) # creates 'File' in menubar 
+        self.menubar = tk.Menu(parent,bg='gray30',fg='gray95') # creates the menubar of parent tk-window
 
-        # create submenus of File-menu: 
-        self.mfile.add_command(label="Open sequence...", font=("Verdana",10))
-        self.mfile.add_command(label="Open video...",font=("Verdana",10))
+        # create 'File'-tab in menubar
+        self.mfile = tk.Menu(self.menubar)
+        # create submenus of File-tab: 
+        self.mfile.add_command(label="Open sequence...", font=myfont)
+        self.mfile.add_command(label="Open video...",font=myfont)
+
+
+        # create 'Appearance'-tab 
+        self.mapp = tk.Menu(self.menubar)
+        # create submenus
+        self.mapp.add_command(label="Configure...",font=myfont)
+
+
+        # create 'Help'-tab 
+
+        # create 'Exit'-tab
 
         # add menus to menubar: 
-        self.menubar.add_cascade(label="File", menu=self.mfile)
-
+        self.menubar.add_cascade(label="File",font=myfont,menu=self.mfile)
+        self.menubar.add_cascade(label="Appearance",font=myfont,menu=self.mapp)
 
 if __name__ == "__main__":
 
