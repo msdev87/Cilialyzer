@@ -52,7 +52,7 @@ class powerspec:
         firstimg = roiseq[0] # first image of roi sequence  
         width, height = firstimg.size # dimension of images 
         nimgs = len(roiseq) # number of images   
-   
+
         # initialize numpy float array, which will hold the image sequence  
         array = numpy.zeros((int(nimgs),int(height),int(width)))  
 
@@ -61,10 +61,9 @@ class powerspec:
         for i in range(nimgs):
             array[i,:,:] = numpy.array(roiseq[i])   
 
-
         (nt,ni,nj) = numpy.shape(array)
 
-
+        print('shape of array: ',nt,ni,nj)
 
         # create a toplevel window to display the progress indicator
 	# caution: the feedback to the frontend slows down the cbf calculation!   
@@ -72,7 +71,7 @@ class powerspec:
         progresswin = Toplevel()
         progresswin.minsize(width=500,height=30)
         progresswin.title("Powerspectrum in Progress, Please Wait...") 
-   
+
         # get the monitor dimensions:
         screenw = progresswin.winfo_screenwidth()
         screenh = progresswin.winfo_screenheight()  
@@ -88,35 +87,27 @@ class powerspec:
         pbvar = IntVar() # progress bar variable (counting the number of loaded images)   
         pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",variable=pbvar,\
                 maximum=ni*nj,length=600,style="TProgressbar")
-        pb.grid(row=1,column=0,pady=5)  
+        pb.grid(row=1,column=0,pady=5)
         progress = 0
         # ********************************************************************#
 
-
-
         # fast-fourier-transform along time axis (pixel-wise) 
-        
+
         # powerspectrum.pixelspectra : 3D array, which holds the 
         # power spectra along the time-axis for each pixel 
-        
+
         self.pixelspectra = numpy.zeros((nt,ni,nj))
-        
-        
+
         self.spec = numpy.zeros(nt)
-        
-               
+
         for i in range(ni):
             for j in range(nj):
                 spec = numpy.square(numpy.absolute(numpy.fft.fft(array[:,i,j],axis=0)))
-                self.pixelspectra[:,i,j] = spec 
+                self.pixelspectra[:,i,j] = spec
                 self.spec = numpy.add(self.spec,spec)
-                
-                 
-                progress += 1 
-            pbvar.set(progress)  
+                progress += 1
+            pbvar.set(progress)
             progresswin.update()
-               
-
 
         self.spec = self.spec[1:round(nt/2)] # note that we conciously throw away the zero-frequency part 
         self.spec = self.spec / numpy.sum(self.spec)
@@ -125,25 +116,22 @@ class powerspec:
         print('test if self.spec is properly normalized to 1:') 
         print(numpy.sum(self.spec))
         print('--------------------------------------------------')
- 
-
-
 
         # calculate the corresponding frequencies: 
         self.freqs = numpy.zeros(self.spec.size)
         for i in range(self.spec.size):
             self.freqs[i] = (i+1) * float(FPS) / float(nimgs) 
-            
-        progresswin.destroy() 
+
+        progresswin.destroy()
         s.configure("TProgressbar", thickness=5)
- 
-        ylabel = 'Power Spectral Density' 
+
+        ylabel = 'Power Spectral Density'
         xlabel = 'Frequency [Hz]'
         labelpad=10
         fontsize=14
 
         #powerspecplot.plot(self.freqs,self.spec,xlabel,ylabel,labelpad,fontsize) 
-         
+
         self.pwspecplot.plot(self.freqs,self.spec,xlabel,ylabel,labelpad,fontsize)
 
 

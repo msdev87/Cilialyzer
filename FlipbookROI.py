@@ -804,7 +804,6 @@ class ImgSeqPlayer(object):
         """ Destroy current frame. Re-initialize animation. """
         self.refreshing = 1
         self.frame.destroy()
-        
         self.__init__(self.master, self.directory,self.refreshing,self.PILimgs,self.seqlength,self.roiobj,self.selectroi)
         self.animate()
         self.stop = 0

@@ -76,16 +76,31 @@ class ImageSequence:
 
     def __init__(self):
 
-        self.directory = ''
+        # initially we load a "fake image"  
+
+        self.directory = './fakesequence'
+
         self.sequence  = [] # holds the PIL image sequence  
+        with open('./fakesequence/frame1.png', "rb") as f:
+            fh = io.BytesIO(f.read())
+            #Create a PIL image from the data                     
+        img = Image.open(fh, mode="r")
+        img = img.convert("L")  # convert to 8 Bit grayscale  
+        self.sequence.append(img)
+
+
         self.files     = None
         self.width     = None
         self.height    = None
-        self.seqlength = None
+        self.seqlength = 1
         self.videofile = '' # path to video   
         self.pbstyle = None
 
-    def choose_directory(self,dirname,fname):
+        self.dirname = StringVar() # new feb 2021
+        self.fname = StringVar()  # feb 2021
+
+    def choose_directory(self):
+    #def choose_directory(self,dirname,fname):
 
         try:
             # read file
@@ -101,12 +116,15 @@ class ImageSequence:
         f.close()
 
         # update the label, which displays the directory name:
-        dirname.set(self.directory)
+        self.dirname.set(self.directory)
 
         # update the name of the first image:
         f = os.listdir(self.directory)
         sort_list(f)
-        fname = fname.set(f[0])
+        #self.fname = self.fname.set(f[0])
+        self.fname.set(f[0])
+
+
 
     def get_files(self):
         """

@@ -366,14 +366,14 @@ class ImgSeqPlayer(object):
         self.zoomframe.grid(row=0,column=0,padx=3,pady=3)
 
         self.zooom =\
-            [(" 75%",1),("100%",2),("125%",3),("150%",4),("200%",5),("300%",6)]
+            [(" 25%",1),("50%",2),("75%",3),("100%",4),("150%",5),("200%",6)]
 
         if (not self.refreshing):
             if hasattr(self, 'var'):
                 pass
             else:
                 self.var = tk.StringVar()
-                self.var.set(2) # initialize zoom to 100% 
+                self.var.set(1) # initialize zoom to 25% 
 
         for text, mode in self.zooom:
             self.zoomB = tk.Radiobutton(self.zoomframe, text=text, variable=self.var,
@@ -547,34 +547,35 @@ class ImgSeqPlayer(object):
         # Set the canvas size according to the size of the rescaled image
 
         if (self.var.get() == '1'):
-            self.can = tk.Canvas(self.frame,width=int(0.75*w),
-                height=int(0.75*h))
+            self.can = tk.Canvas(self.frame,width=int(0.25*w),
+                height=int(0.25*h))
+            self.screen = int(0.25*w), int(0.25*h)
+            self.zoomfac = 0.25
+        if (self.var.get() == '2'):
+            self.can = tk.Canvas(self.frame,width=int(0.5*w),
+				height = int(0.5*h))
+            self.screen = int(0.5*w), int(0.5*h)
+            self.zoomfac = 0.5
+        if (self.var.get() == '3'):
+            self.can = tk.Canvas(self.frame, width = int(0.75*w),
+				height = int(0.75*h))
             self.screen = int(0.75*w), int(0.75*h)
             self.zoomfac = 0.75
-        if (self.var.get() == '2'):
-            self.can = tk.Canvas(self.frame, width = int(w), height = int(h))
-            self.screen = w, h
-            self.zoomfac = 1.0
-        if (self.var.get() == '3'):
-            self.can = tk.Canvas(self.frame, width = int(1.25*w)+add_width,
-            height = int(1.25*h)+ctrl_height)
-            self.screen = int(1.25*w), int(1.25*h)
-            self.zoomfac = 1.25
         if (self.var.get() == '4'):
-            self.can = tk.Canvas(self.frame, width = int(1.5*w)+add_width,
-            height = int(1.5*h)+ctrl_height)
+            self.can = tk.Canvas(self.frame, width = int(1*w),
+            height = int(1*h))
+            self.screen = int(1*w), int(1*h)
+            self.zoomfac = 1.0
+        if (self.var.get() == '5'):
+            self.can = tk.Canvas(self.frame, width = int(1.5*w),
+            height = int(1.5*h))
             self.screen = int(1.5*w), int(1.5*h)
             self.zoomfac = 1.5
-        if (self.var.get() == '5'):
-            self.can = tk.Canvas(self.frame, width = int(2*w)+add_width,
-            height = int(2*h)+ctrl_height)
+        if (self.var.get() == '6'):
+            self.can = tk.Canvas(self.frame, width = int(2*w),
+            height = int(2*h))
             self.screen = int(2*w), int(2*h)
             self.zoomfac = 2.0
-        if (self.var.get() == '6'):
-            self.can = tk.Canvas(self.frame, width = int(3*w)+add_width,
-            height = int(3*h)+ctrl_height)
-            self.screen = int(3*w), int(3*h)
-            self.zoomfac = 3.0
 
         # place the canvas in which the images will be shown in the center 
         self.can.grid(row=1,column=1,padx=5,pady=5)
