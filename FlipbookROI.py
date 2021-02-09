@@ -1,7 +1,6 @@
 import sys
 import io, os
 from PIL import Image, ImageTk, ImageEnhance
-#import psutil 
 import time
 import numpy
 import tkinter.ttk
@@ -105,8 +104,6 @@ def Brighten(self):
 def bytescale(self):
 
     # lambda function performs the byte-scaling (contrast enhancement)  
-    #pixls = self.currentimg      
-
     self.currentimg = Image.eval(self.currentimg,
             lambda xy: round((abs(xy - self.MinIntensity) /
                             float(self.MaxIntensity-self.MinIntensity)) * 255))
@@ -498,54 +495,8 @@ class ImgSeqPlayer(object):
             if (self.speed == 300):
                 self.index = (self.index + 6)%len(self.PILimgs)
 
-
         # update progressbar: 
         self.pbvar.set(self.index)
-
-        # check selected tab (from the notebook/mainloop) -> tabindex
-        #if (self.tabindex):
-        #    self.frame.destroy()
-
-
-
-
-        """
-        def on_mouse_down(event):
-            self.anchor = (event.widget.canvasx(event.x), event.widget.canvasy(event.y))
-            self.item = None
-        def on_mouse_drag(event):
-            self.bbox = self.anchor + (event.widget.canvasx(event.x), event.widget.canvasy(event.y))
-            self.ROI = self.bbox
-            print "self.ROI "
-            print self.ROI
-            if self.item is None:
-                self.item = event.widget.create_rectangle(self.bbox, outline="yellow")
-            else:
-                event.widget.coords(self.item, *self.bbox)
-        def on_mouse_up(event):
-            if self.item:
-                on_mouse_drag(event)
-                box = tuple((int(round(v)) for v in event.widget.coords(self.item)))
-
-            # create cropped image sequence in self.roiseq: 
-            xroi = sorted([int(self.ROI[0]),int(self.ROI[2])])
-            yroi = sorted([int(self.ROI[1]),int(self.ROI[3])])
-
-            nimgs = self.seqlength # number of images
-            
-            x1,x2 = int(xroi[0]), int(xroi[1])
-            y1,y2 = int(yroi[0]), int(yroi[1])
-             
-            self.roiseq = [self.PILimgs[i].crop(self.ROI) for i in range(nimgs)]
-         
-            # crop ROI/resfresh and finally, animate ROI! 
-            self.refreshing = 1
-            self.frame.destroy()
-            self.__init__(self.master, self.directory,self.refreshing,self.roiseq,self.seqlength,self.roiobj)
-            self.animate()
-            self.stop = 0
-            self.refreshing = 0 # as refreshing ends here  
-        """
 
         if (self.selectroi == 1):
             def on_mouse_down(event):
@@ -554,8 +505,6 @@ class ImgSeqPlayer(object):
             def on_mouse_drag(event):
                 self.bbox = self.anchor + (self.can.canvasx(event.x), self.can.canvasy(event.y))
                 self.ROI = self.bbox
-                #print "self.ROI "
-                #print self.ROI
                 if self.item is None:
                     self.item = self.can.create_rectangle(self.bbox, outline="yellow")
                 else:
@@ -565,24 +514,33 @@ class ImgSeqPlayer(object):
                     on_mouse_drag(event)
                     box = tuple((int(round(v)) for v in self.can.coords(self.item)))
 
-
                 # the next lines create the cropped image sequence
                 # we need to consider both: the scaling and the rotation! 
-
 
                 # create cropped image sequence in self.roiseq: 
                 xroi = sorted([int(self.ROI[0]),int(self.ROI[2])])
                 yroi = sorted([int(self.ROI[1]),int(self.ROI[3])])
 
                 nimgs = self.seqlength # number of images
-            
+
                 x1,x2 = int(xroi[0]), int(xroi[1])
                 y1,y2 = int(yroi[0]), int(yroi[1])
-              
+
+                w,h = self.currentimg.size
+
+                # make sure that the selected ROI is inside the intended range:
+                if (x1<0): x1=0
+                if (x2<0): x2=0
+                if (y1<0): y1=0
+                if (y2<0): y2=0
+
+                if (x1>w): x1=w-1
+                if (x2>w): x2=w-1
+                if (y1>h): y1=h-1
+                if (y2>h): y2=h-1
+
                 # center of current image 
-                w,h = self.currentimg.size 
-                
-        
+                #w,h = self.currentimg.size
                 self.ROI = list(self.ROI)
 
                 # if the image has been rotated by +alpha, we need to rotate 
@@ -595,34 +553,19 @@ class ImgSeqPlayer(object):
                 # rotate these 4 points, and finally, determine the new 
                 # left, upper, right, lower edges 
 
-                '''
-                print('x1', x1, 'x2', x2, 'y1', y1, 'y2',y2)
-
-                xc = w/2
-                yc = h/2 
-                angle = self.rotationangle 
-                x1 = int(round(math.cos(angle)*(x1-xc) - math.sin(angle)*(y1-yc) + xc))
-                y1 = int(round(math.sin(angle)*(x1-xc) + math.cos(angle)*(y1-yc) + yc))
-
-                x2 = int(round(math.cos(angle)*(x2-xc) - math.sin(angle)*(y2-yc) + xc))
-                y2 = int(round(math.sin(angle)*(x2-xc) + math.cos(angle)*(y2-yc) + yc))
-
-                        
-                print('x1', x1, 'x2', x2, 'y1', y1, 'y2',y2)
-                '''
                 x1,x2 = sorted([x1,x2])
-                y1,y2 = sorted([y1,y2]) 
+                y1,y2 = sorted([y1,y2])
 
                 # furthermore we need to consider the zoomfactor 
                 self.ROI[0] = int(round(x1/self.zoomfac))
                 self.ROI[1] = int(round(y1/self.zoomfac))
                 self.ROI[2] = int(round(x2/self.zoomfac))
                 self.ROI[3] = int(round(y2/self.zoomfac))
-                self.ROI = tuple(self.ROI) 
+                self.ROI = tuple(self.ROI)
                 #print self.ROI  
 
                 self.roiseq = [self.PILimgs[i].rotate(self.rotationangle).crop(self.ROI) for i in range(nimgs)]
-        
+
                 #print "TEST self.roiseq" 
                 #print type(self.roiseq) 
 

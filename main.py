@@ -86,9 +86,8 @@ player = None
 ptrackplayer = None
 
 # ******************************************************************************
-
+"""
 # -------------------------------- ROI animation -------------------------------
-
 def animate_roi():
 
     win = roitab
@@ -98,6 +97,8 @@ def animate_roi():
     player.animate() # call method animate 
 
 # ------------------------------------------------------------------------------
+"""
+
 
 #def helpbutton():
 #    webbrowser.open_new(r'./Doc/help.pdf')
@@ -923,10 +924,10 @@ maxscale = tk.Scale(cbftab, from_=1, to=50, orient=tk.HORIZONTAL,length=400,\
                  resolution=0.2,variable=maxfreq,command=peakselector)
 maxscale.place(in_=cbftab,anchor='c', relx=0.5,rely=0.85)
 
-powerspecB=tk.Button(cbftab,text='Powerspectrum', \
-        command=lambda: powerspectrum.calc_powerspec(roiplayer.roiseq,toolbar_object.fpscombo.get(),\
-                        pwspec1frame),height=bh,width=bw)
-powerspecB.place(in_=cbftab, anchor='c', relx=0.5, rely=0.05) 
+powerspecB=tk.Button(cbftab,text='Powerspectrum',\
+    command=lambda: powerspectrum.calc_powerspec(roiplayer.roiseq,\
+    toolbar_object.fpscombo.get(),pwspec1frame),height=bh,width=bw)
+powerspecB.place(in_=cbftab, anchor='c', relx=0.5, rely=0.05)
 
 # get_cbf is defined in 'TkPowerspecPlot.py' 
 

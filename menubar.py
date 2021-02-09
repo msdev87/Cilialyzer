@@ -22,12 +22,19 @@ class Menubar:
 
 
         # create 'Help'-tab 
+        self.mhelp = tk.Menu(self.menubar)
+
 
         # create 'Exit'-tab
+        self.mexit = tk.Menu(self.menubar)
+
 
         # add menus to menubar: 
         self.menubar.add_cascade(label="File",font=myfont,menu=self.mfile)
         self.menubar.add_cascade(label="Appearance",font=myfont,menu=self.mapp)
+        self.menubar.add_cascade(label="Help",font=myfont,menu=self.mhelp)
+        self.menubar.add_cascade(label="Exit",font=myfont,menu=self.mexit) 
+
 
 if __name__ == "__main__":
 
