@@ -86,19 +86,6 @@ player = None
 ptrackplayer = None
 
 # ******************************************************************************
-"""
-# -------------------------------- ROI animation -------------------------------
-def animate_roi():
-
-    win = roitab
-    refresh = 0
-    player = Flipbook.ImgSeqPlayer(win,PIL_ImgSeq.directory,refresh,
-        roiplayer.roiseq,PIL_ImgSeq.seqlength)
-    player.animate() # call method animate 
-
-# ------------------------------------------------------------------------------
-"""
-
 
 #def helpbutton():
 #    webbrowser.open_new(r'./Doc/help.pdf')
