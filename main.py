@@ -705,7 +705,7 @@ PIL_ImgSeq = LoadSequence.ImageSequence()
 
 
 
-toolbar_height = 60
+toolbar_height = 30
 statusbar_height = 50
 
 
@@ -719,7 +719,7 @@ statusbar_height = 50
 nbookw = mainframe.winfo_screenwidth()-100
 nbookh = mainframe.winfo_screenheight()-mbar_height-toolbar_height-statusbar_height
 nbook = tkinter.ttk.Notebook(mainframe,width=nbookw,height=nbookh)
-nbook.grid(row=1,column=1,columnspan=1,rowspan=1,sticky='NESW',padx=10,pady=10)
+nbook.grid(row=1,column=0,columnspan=1,rowspan=1,sticky='NESW',padx=10,pady=10)
 
 # if the clicked tab is not the current tab 
 # we need to stop animations to avoid to cash the frontend!  
@@ -741,15 +741,18 @@ roiB.place(in_=roitab, anchor="c", relx=.07, rely=.12)
 # initialize the roiplayer
 roiplayer = FlipbookROI.ImgSeqPlayer(roitab,PIL_ImgSeq.directory,0,
 PIL_ImgSeq.sequence,PIL_ImgSeq.seqlength,roi,1)
+roiplayer.animate()
+roiplayer.stop=2
+
 #print('roiplayer id after init: ',id(roiplayer)) 
 
 
 
 # ------------------------- create the toolbar --------------------------------#
 import toolbar
-toolbar_object = toolbar.Toolbar(mainframe,player,roiplayer,ptrackplayer,PIL_ImgSeq,nbook,roitab,roi)
+toolbar_object = toolbar.Toolbar(mainframe,player,roiplayer,ptrackplayer,PIL_ImgSeq,nbook,roitab,roi,toolbar_height,nbookw)
 toolbarF = toolbar_object.toolbarframe
-toolbarF.grid(row=0,column=1,columnspan=1,rowspan=1)
+toolbarF.grid(row=0,column=0,columnspan=1,rowspan=1,sticky='ew')
 # ---------------------------------------------------------------------------- #
 
 
