@@ -610,6 +610,13 @@ ctrl_panel.geometry("%dx%d+%d+%d"%(
     ctrl_panel.winfo_screenwidth(),ctrl_panel.winfo_screenheight(),0,0))
 ctrl_panel.update()
 
+if (os.name == 'nt'):
+    ctrl_panel.state('zoomed')
+else:
+    ctrl_panel.attributes('-zoomed', True)
+ctrl_panel.update()
+
+
 ctrl_panel_h1 = ctrl_panel.winfo_height()
 
 # add the menubar (mbar) to the root window ('ctrl_panel'):
@@ -733,13 +740,30 @@ print('mainframe size: ')
 print(mainframe.winfo_width())
 print(mainframe.winfo_height())
 
+"""
+# get taskbar in windows
+if (os.name == 'nt'):
+    from win32api import GetMonitorInfo, MonitorFromPoint
+    monitor_info = GetMonitorInfo(MonitorFromPoint((0,0)))
+    monitor_area = monitor_info.get("Monitor")
+    work_area = monitor_info.get("Work")
+    win_taskbar = monitor_area[3]-work_area[3]
+"""
 
 # TODO: determine nbookw,nbookh correctly
 # nbook = tkinter.ttk.Notebook(mainframe,width=nbookw,height=nbookh)
 nbookw = ctrl_panel.winfo_width()-14
+
+"""
+if (os.name == 'nt'):
+    nbookh = ctrl_panel.winfo_height()-mbar_height-toolbar_height-statusbar_height-5-win_taskbar
+else:
+"""
 nbookh = ctrl_panel.winfo_height()-mbar_height-toolbar_height-statusbar_height-5
 nbook = tkinter.ttk.Notebook(mainframe,width=nbookw,height=nbookh)
-nbook.grid(row=1,column=0,columnspan=1,rowspan=1,sticky='NESW',padx=4,pady=4)
+#nbook.grid(row=1,column=0,columnspan=1,rowspan=1,sticky='NESW',padx=4,pady=4)
+nbook.grid(row=1,column=0,columnspan=1,rowspan=1,padx=4,pady=4)
+
 
 # if the clicked tab is not the current tab 
 # we need to stop all animations to avoid to crash the frontend!  
