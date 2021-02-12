@@ -30,9 +30,6 @@ class Toolbar:
         #print('roiplayer id in Toolbar: ',id(self.roiplayer))
         self.roiplayer.animate()
 
-    
-
-
     def nextdirectory(self):
 
         avoid_troubles.stop_animation(self.player,self.roiplayer,self.ptrackplayer)
@@ -57,9 +54,17 @@ class Toolbar:
         # find the next consecutive directory (relative to the cwd):
         ind=subdirectories.index(directory)
 
-        next_directory = subdirectories[ind+1]
+        if (ind+1 < len(subdirectories)):
+            next_directory = subdirectories[ind+1]
+        else:
+            tk.messagebox.showwarning(title='warning',\
+                    message='You have already analyzed all the sequences. The first image sequence is now getting loaded again...')
+            next_directory = subdirectories[0]
+
 
         self.PIL_ImgSeq.directory = next_directory
+        self.PIL_ImgSeq.dirname.set(next_directory)
+
         f = open('user_settings.dat','w')
         f.write(next_directory) # write choosen directory into file 'f'   
         f.close()
@@ -82,13 +87,15 @@ class Toolbar:
         self.roiplayer.__init__(self.roitab,self.PIL_ImgSeq.directory,refresh,
         self.PIL_ImgSeq.sequence,self.PIL_ImgSeq.seqlength,self.roi,selectroi)
 
+
+        # update label in statusbar:
+        self.statusbar.update(self.PIL_ImgSeq)
+
+
         #print('roiplayer id in Toolbar: ',id(self.roiplayer))
         self.roiplayer.animate()
 
-
-
-
-    def __init__(self,parent,player,roiplayer,ptrackplayer,PIL_ImgSeq,nbook,roitab,roi,toolbar_h,toolbar_w):
+    def __init__(self,parent,player,roiplayer,ptrackplayer,PIL_ImgSeq,nbook,roitab,roi,toolbar_h,toolbar_w,statusbar):
 
         self.player = player
         self.roiplayer = roiplayer
@@ -97,6 +104,8 @@ class Toolbar:
         self.nbook = nbook
         self.roitab = roitab
         self.roi = roi
+        self.statusbar = statusbar
+
 
         self.toolbarframe = tk.Frame(parent,width=toolbar_w,height=toolbar_h) # main frame containing the tools
         print('test')
@@ -116,14 +125,6 @@ class Toolbar:
         self.nextdiriconB = tk.Button(self.toolbarframe,height=23,width=30,\
             borderwidth=0,command=self.nextdirectory,image=self.nextdiricon)
         self.nextdiriconB.grid(row=0,column=1,padx=5,pady=3,sticky='e')
-
-
-
-
-
-
-
-
 
         # Label Widget + Entry Widget for setting the recording speed [FPS] 
 

@@ -605,37 +605,50 @@ ctrl_panel.iconphoto(False, tk.PhotoImage(file='./logo/logo.png'))
 ctrl_panel.title("Cilialyzer")
 ctrl_panel.minsize(width=20,height=20)
 
+# winfo_screenheight and _screenwidth deliver the display's pixel-resolution 
+ctrl_panel.geometry("%dx%d+%d+%d"%(
+    ctrl_panel.winfo_screenwidth(),ctrl_panel.winfo_screenheight(),0,0))
+ctrl_panel.update()
+
+ctrl_panel_h1 = ctrl_panel.winfo_height()
+
 # add the menubar (mbar) to the root window ('ctrl_panel'):
 mbar = menubar.Menubar(ctrl_panel)
 ctrl_panel.config(menu=mbar.menubar)
 ctrl_panel.update()
 
 # height of menubar (in pixels) 
-mbar_height = mbar.menubar.winfo_reqheight()
+#mbar_height = mbar.menubar.winfo_reqheight()
+#print('mbar_height: ',mbar_height)
 
+ctrl_panel_h2 = ctrl_panel.winfo_height()
+
+mbar_height = ctrl_panel_h1 - ctrl_panel_h2
 
 #print('-----------------------------------------------------------------------')
-#print('ctrl_panel dimensions')
-#print(ctrl_panel.winfo_screenwidth(),ctrl_panel.winfo_screenheight())
-#print('frame dimensions:')
-#print(mainframe.winfo_screenwidth(),mainframe.winfo_screenheight())
+#print('ctrl_panel dimensions after mbar')
+#print(ctrl_panel.winfo_width(),ctrl_panel.winfo_height())
 #print('-----------------------------------------------------------------------')
+
 
 # note that the upper left edge of the screen has the coordinates (0,0)
 
 # the upper left edge of the main window gets created at the coordinates 
 # (offset,offset) [in pixels], where the upper left edge of the screen = (0,0)
-offset=10
+offset=1
 
 # print("test")
 # print(ctrl_panel.winfo_screenwidth())
 # print(ctrl_panel.winfo_screenheight())
 # print("---")
 
-# winfo_screenheight and _screenwidth deliver the display's pixel-resolution 
-ctrl_panel.geometry("%dx%d+%d+%d"%(
-    ctrl_panel.winfo_screenwidth(),ctrl_panel.winfo_screenheight(),0,0))
-ctrl_panel.update()
+#print("test")
+#print(ctrl_panel.winfo_width())
+#print(ctrl_panel.winfo_height())
+#print("---")
+
+#time.sleep(10)
+#sys.exit()
 
 # since there is always a taskbar -> the ctrl_panel will be somewhat smaller 
 # than [ screenwidth x screenheight ] 
@@ -644,7 +657,12 @@ ctrl_panel.update()
 
 # create the main frame (container for all the widgets) in ctrl_panel:
 mainframe = tk.Frame(ctrl_panel,takefocus=0)
-mainframe.grid(row=0,column=0,sticky='n,s,w,e')
+mainframe.grid(row=0,column=0,sticky='nswe')
+
+#mainframe.grid_rowconfigure(0, weight = 1)
+#mainframe.grid_columnconfigure(0, weight = 1)
+
+
 
 # 'screenw, screenh' denote the width, height of the main window  
 screenw = ctrl_panel.winfo_screenwidth() - 2*(offset + 5)
@@ -692,39 +710,40 @@ emptyspace = 4
 # In which we display the current settings (directory, filename, FPS, etc.)
 #******************************************************************************#
 
-# Feb 2021: we chage the GeneralF to a toolbar frame
+# Feb 2021: we change the GeneralF to a toolbar frame
 
 # GeneralF = tk.LabelFrame(mainframe, text=' Current Settings ',labelanchor='n',
 # borderwidth=2, padx=3,pady=3,font=("Helvetica",11,"bold"),relief=tk.GROOVE)
 # GeneralF.grid(row=0,column=1,columnspan=1,rowspan=1)
 
-
 PIL_ImgSeq = LoadSequence.ImageSequence()
 # PIL_ImgSeq.directory -> contains path to choosen image sequence 
 # PIL_ImgSeq.sequence  -> holds the PIL img sequence 
 
-
-
-toolbar_height = 30
-statusbar_height = 50
-
-
+toolbar_height = 35
+statusbar_height = 35
 
 #******************************************************************************#
 # the main features are provided by notebook-tabs
 # available notebook tabs: animation, ROI selection, powerspec, activity map 
 
+mainframe.update()
+print('----------------------------')
+print('mainframe size: ')
+print(mainframe.winfo_width())
+print(mainframe.winfo_height())
+
+
 # TODO: determine nbookw,nbookh correctly
-#nbook = tkinter.ttk.Notebook(mainframe,width=nbookw,height=nbookh)
-nbookw = mainframe.winfo_screenwidth()-100
-nbookh = mainframe.winfo_screenheight()-mbar_height-toolbar_height-statusbar_height
+# nbook = tkinter.ttk.Notebook(mainframe,width=nbookw,height=nbookh)
+nbookw = ctrl_panel.winfo_width()-14
+nbookh = ctrl_panel.winfo_height()-mbar_height-toolbar_height-statusbar_height-5
 nbook = tkinter.ttk.Notebook(mainframe,width=nbookw,height=nbookh)
-nbook.grid(row=1,column=0,columnspan=1,rowspan=1,sticky='NESW',padx=10,pady=10)
+nbook.grid(row=1,column=0,columnspan=1,rowspan=1,sticky='NESW',padx=4,pady=4)
 
 # if the clicked tab is not the current tab 
-# we need to stop animations to avoid to cash the frontend!  
+# we need to stop all animations to avoid to crash the frontend!  
 nbook.bind('<ButtonPress-1>',switchtab)
-
 
 
 # ROI selection tab 
@@ -747,13 +766,44 @@ roiplayer.stop=2
 #print('roiplayer id after init: ',id(roiplayer)) 
 
 
+# ----------------------- create the statusbar ---------------------------------
+
+#dirname=tk.StringVar()
+#dirname.set("No Directory Selected") # initial value of dirname 
+#dirname_label = tk.Label(GeneralF,textvariable=dirname,anchor='center',\
+#                      font=("Helvetica",11))
+#dirname_label.grid(row=0,column=1)
+
+#fname=tk.StringVar()
+#fname.set("No Directory Selected")
+#fname_label = tk.Label(GeneralF,textvariable=fname,font=("Helvetica",11))
+#fname_label.grid(row=1,column=1)
+
+#mainframe.grid_columnconfigure(0, weight=1)
+#mainframe.grid_rowconfigure(2, weight=1)
+#mainframe.update()
+# create the statusbar 
+import statusbar
+statusbar_width = ctrl_panel.winfo_width()
+statusbar_obj = statusbar.StatusBar(mainframe,statusbar_width,statusbar_height,ctrl_panel,PIL_ImgSeq)
+statusF = statusbar_obj.statusbarframe
+statusF.grid(row=2,column=0,sticky='NESW')
+#statusF.grid_columnconfigure(0,weight=1)
+
+print('width statusbar frame: ',statusF.winfo_width())
+
+
+
+
 
 # ------------------------- create the toolbar --------------------------------#
 import toolbar
-toolbar_object = toolbar.Toolbar(mainframe,player,roiplayer,ptrackplayer,PIL_ImgSeq,nbook,roitab,roi,toolbar_height,nbookw)
+toolbar_object = toolbar.Toolbar(mainframe,player,roiplayer,ptrackplayer,PIL_ImgSeq,nbook,roitab,roi,toolbar_height,nbookw,statusbar_obj)
 toolbarF = toolbar_object.toolbarframe
 toolbarF.grid(row=0,column=0,columnspan=1,rowspan=1,sticky='ew')
 # ---------------------------------------------------------------------------- #
+
+
 
 
 
@@ -806,11 +856,6 @@ pixsizecombo.grid(row=0,column=6)
 pixsizecombo.current(0)
 """
 
-
-
-# add a 'Next Sequence' button 
-# TODO 
-
 #toolbarF.grid_columnconfigure(0,minsize=200)
 #toolboxF.grid_columnconfigure(2,minsize=200)
 #toolboxF.grid_columnconfigure(3,minsize=50)
@@ -822,17 +867,6 @@ ctrl_panel.update()
 # calc the width of column 1: 
 # dirnamew = nbookw - 200 - 200 - 50 - 50
 # toolboxF.grid_columnconfigure(1,minsize=dirnamew)
-
-#dirname=tk.StringVar()
-#dirname.set("No Directory Selected") # initial value of dirname 
-#dirname_label = tk.Label(GeneralF,textvariable=dirname,anchor='center',\
-#                      font=("Helvetica",11))
-#dirname_label.grid(row=0,column=1)
-
-#fname=tk.StringVar()
-#fname.set("No Directory Selected")
-#fname_label = tk.Label(GeneralF,textvariable=fname,font=("Helvetica",11))
-#fname_label.grid(row=1,column=1)
 
 #******************************************************************************#
 

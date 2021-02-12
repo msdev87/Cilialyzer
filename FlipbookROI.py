@@ -499,16 +499,19 @@ class ImgSeqPlayer(object):
         self.pbvar.set(self.index)
 
         if (self.selectroi == 1):
+
             def on_mouse_down(event):
                 self.anchor = (self.can.canvasx(event.x), self.can.canvasy(event.y))
                 self.item = None
+
             def on_mouse_drag(event):
-                self.bbox = self.anchor + (self.can.canvasx(event.x), self.can.canvasy(event.y))
+                self.bbox=self.anchor+ (self.can.canvasx(event.x), self.can.canvasy(event.y))
                 self.ROI = self.bbox
                 if self.item is None:
-                    self.item = self.can.create_rectangle(self.bbox, outline="yellow")
+                    self.item=self.can.create_rectangle(self.bbox,outline="yellow")
                 else:
                     self.can.coords(self.item, *self.bbox)
+
             def on_mouse_up(event):
                 if self.item:
                     on_mouse_drag(event)
@@ -572,7 +575,7 @@ class ImgSeqPlayer(object):
                 # crop ROI/resfresh and finally, animate ROI! 
                 self.refreshing = 1
                 self.frame.destroy()
-                self.selectroi=0
+                self.selectroi = 0
                 self.__init__(self.master, self.directory,self.refreshing,self.roiseq,self.seqlength,self.roiobj,self.selectroi)
                 self.animate()
                 self.stop = 0

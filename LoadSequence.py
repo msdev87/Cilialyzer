@@ -97,7 +97,12 @@ class ImageSequence:
         self.pbstyle = None
 
         self.dirname = StringVar() # new feb 2021
+        self.dirname.set("No Directory Selected")
         self.fname = StringVar()  # feb 2021
+        self.fname.set("No Directory Selected")
+
+
+
 
     def choose_directory(self):
     #def choose_directory(self,dirname,fname):
