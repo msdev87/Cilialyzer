@@ -48,26 +48,46 @@ def sort_list(l):
             a simple l.sort() would make l = ['10.png', '2.jpg'],
             but this function instead makes l = ['2.jpg', '10.png']
     """
+
     l.sort()
-    numbers, extensions = [], []
+
+    # our image sequences are named as follows: 
+    # base-name-numbering.ending 
+    # here is a concrete example: '30fps_RT_1_swirl_2018-12-21-151557-0467.tif'
+
+    # leading zeros may or may not be present! (both cases are to be handled) 
+
+    numbering, basename = [], []
     i = 0
     while i < len(l):
         try:
-            s = l[i].split(".")
-            numbers.append(int(s[0]))
-            extensions.append(s[1])
-            l.pop(i)
+
+            fname = l[i]
+            s = fname.split(".")
+            file_ending = s[-1]
+
+            bla = s[0].split("-")
+            number = bla[-1]
+            numbering.append(number)
+
+            del_chars = len(file_ending) + 1 + len(number)
+            basename.append(fname[0:-del_chars])
+
+            l.pop(i) # pop removes the i-th element from list 'l'
+
         except ValueError:
             i += 1
-    #Selection sort.
-    for i in range(len(numbers)):
-        for n in range(i, len(numbers)):
-            if numbers[i] < numbers[n]:
-                numbers[i], numbers[n] = numbers[n], numbers[i]
-                extensions[i], extensions[n] = extensions[n], extensions[i]
 
-    for i in range(len(numbers)):
-        l.insert(0, "%d.%s" % (numbers[i], extensions[i]))
+    for i in range(len(numbering)):
+        for n in range(i, len(numbering)):
+            if int(numbering[i]) < int(numbering[n]):
+                numbering[i], numbering[n] = numbering[n], numbering[i]
+                basename[i], basename[n] = basename[n], basename[i]
+
+    for i in range(len(numbering)):
+        l.insert(0, "%s%s.%s" % (basename[i],numbering[i],file_ending))
+
+    print(l)
 
 class ImageSequence:
 
