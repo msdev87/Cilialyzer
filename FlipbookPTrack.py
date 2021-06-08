@@ -200,6 +200,7 @@ class ImgSeqPlayer(object):
         self.alltracesarray = [] # list holding all trace arrays  
 
         self.latesttrace = [] # the current trajectory
+        self.smoothtrace = []
         self.alltraces = [] # holds all particle traces 
         self.latesttrajectoryfinish = 0
         self.track_cnt = 0
@@ -720,6 +721,7 @@ class ImgSeqPlayer(object):
                 #print("len trajectories", len(self.trajectories))
 
                 self.latesttrace = []
+                self.smoothtrace = []
                 #print "len? ", len(self.latesttrajectory)  
                 self.latesttrajectoryfinish = 0
                 self.track_cnt = 0
@@ -805,7 +807,7 @@ class ImgSeqPlayer(object):
         if (self.stop == 0):
             if self.anchor is not None:
                 # particle has been clicked 
-                # --> start/continue tracking 
+                # --> start or continue tracking 
                 self.trackparticle()
 
         self.current_photo = ImageTk.PhotoImage(self.currentimg)
@@ -867,13 +869,12 @@ class ImgSeqPlayer(object):
                 # particle has reached end of journey --> draw trace + circle 
 
                 # draw particle trace 
-                self.can.create_line(self.latesttrace,fill="red",width=3,smooth=True)
-
-                # compute arc to draw from circle fit  
-                xc,yc,rad,rss = self.circlefit
+                self.can.create_line(self.latesttrace,fill="red",width=2,smooth=True) 
 
                 # draw fitted arc
-                self.can.create_oval(xc-rad,yc-rad,xc+rad,yc+rad,outline="orange",width=2)
+                #self.can.create_oval(xc-rad,yc-rad,xc+rad,yc+rad,outline="orange",width=2)
+                self.can.create_line(self.smoothtrace,fill="orange",width=3)
+
 
                 # makes sure that gui gets updated properly  
                 self.frame.update_idletasks()
@@ -1056,7 +1057,10 @@ class ImgSeqPlayer(object):
 
             print("end reached")
 
-            l = len(self.latesttrace) # l: length of particle trace 
+            l = len(self.latesttrace) # l: length of particle trace (timesteps)  
+
+            print("self.latesttrace")
+            print(self.latesttrace)
 
             xpos = numpy.zeros(l)
             ypos = numpy.zeros(l)
@@ -1066,73 +1070,44 @@ class ImgSeqPlayer(object):
                 xpos[i] = float(yx[0])
                 ypos[i] = float(yx[1])
 
-            # 1. fit a least-square circle to the particle trajectory
-            # if the radius exceeds xxx cm -> fit a 3rd order polynomial 
-            # to calculate the particle speed 
+            # smooth the trajectory and fit a spline to the smoothed trajectory  
+            import smooth
+            from scipy import interpolate
 
-            xc,yc,rad,rss = circle_fit.least_squares_circle(self.latesttrace)
-            # delivers xcenter, ycenter, radius and the residual sum of squares
-            # in pixel-units
-            self.circlefit = [xc,yc,rad,rss]
+            xs=smooth.running_average(xpos,5)
+            ys=smooth.running_average(ypos,5)
 
-            # calculate the particle speed
-            # curvelength = arc length (of fitted circle) 
-            # 1. calc the elapsed angle 'phi' (using the scalar product) 
+            bla=numpy.array(range(len(xs)))
 
-            # center of circle xc,yc 
-            # x1,y1 starting position of trace | xe,ye end position of trace 
+            splx = interpolate.UnivariateSpline(bla,xs)
+            sply = interpolate.UnivariateSpline(bla,ys)
 
-            imgw, imgh = self.currentimg.size
+            # calculate the particle speed = curvelength / elapsed time  
 
-            x1 = xpos[0]
-            y1 = ypos[0]
+            xnew=splx(bla)
+            ynew=sply(bla)
+        
+            for i in range(len(bla)):
+                self.smoothtrace.append((xnew[i],ynew[i]))
 
-            xe = xpos[-1]
-            ye = ypos[-1]
 
-            ax = float(x1 - xc)
-            ay = float(y1 - yc)
-
-            bx = float(xe - xc)
-            by = float(ye - yc)
-
-            la = math.sqrt(ax**2 + ay**2)
-            lb = math.sqrt(bx**2 + by**2)
-
-            phi = math.acos(((ax * bx) + (ay * by)) / (la*lb))# phi in radians 
-
-            curvelength = phi * rad # curve length in pixels
+            curvelength=0.
+            for i in range(l-1):
+                dx=xnew[i+1]-xnew[i]
+                dy=ynew[i+1]-ynew[i]
+                curvelength=curvelength+math.sqrt(dx**2+dy**2)
 
             # calculate particle speed 'pspeed' in [μm/s] 
             pspeed = curvelength * self.recordingfps *\
                     (self.pixsize/1000.0) / float(len(self.latesttrace))
 
-            # convert radius from pixel units into [μm]
-            rad = rad * self.pixsize / 1000.0
 
-            # calculate the angular frequency omega 
-            # omega = speed / radius 
-            # note that the sign of omega is determined by the vector product
-
-            # determine the sign of the angular frequency:
-            # sign ( vec_a x vec_b )  
-            bx = xpos[int(l/3)] - xc
-            by = -(ypos[int(l/3)] - yc)
-            ay = -ay # as the origin is located in the top left (displayed img)
 
             #self.can.create_line((xc,yc),(x1,y1),fill="green",width=5)
             #self.can.create_line((xc,yc),(xpos[30],ypos[30]),fill="blue",width=3)
             #self.master.update()
             #time.sleep(10)
 
-
-            #print("vectorproduct: ",(ax*by) - (ay*bx))
-            sign = numpy.sign((ax*by) - (ay*bx))
-
-            omega = float(sign * (pspeed / rad))
-            omega = float(omega / math.pi * 180.0)
-
-            print('omega: ',omega)
 
             self.tracenumber = len(self.alltraces)
             # update results data frame
@@ -1141,10 +1116,6 @@ class ImgSeqPlayer(object):
             self.resultstable.addRow()
 
             self.pandadf.at[self.tracenumber,'Speed [μm/s]'] = round(pspeed,2)
-            self.pandadf.at[self.tracenumber,'Radius [μm]'] = round(rad,2)
-            self.pandadf.at[self.tracenumber,'Omega [°/s]'] = round(omega,2)
-
-            #self.pandadf.applymap("${0:.2f}".format)
 
             self.resultstable.updateModel(pandastable.data.TableModel(self.pandadf))
             self.resultstable.redraw()

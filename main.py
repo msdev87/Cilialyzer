@@ -72,7 +72,7 @@ MotionTracking = 0
 
 ParticleTracking_flag = True
 
-DynamicFiltering_flag = False
+DynamicFiltering_flag = True
 
 SpatioTemporalCorrelogram = 0
 
@@ -360,6 +360,7 @@ def pcolor_func():
 def switchtab(event):
 
     global player, roiplayer, ptrackplayer
+    global dynplayer
 
     # if tab is pressed (and pressed tab != active tab) then take precautions...  
 
@@ -457,7 +458,7 @@ def switchtab(event):
             dynplayer = Flipbook.ImgSeqPlayer(dynfiltertab, PIL_ImgSeq.directory,\
                                    refresh,dynseq.dyn_roiseq,\
                                    PIL_ImgSeq.seqlength) 
-        dynplayer.animate() # call meth
+            dynplayer.animate() # call meth
 
 #   def calcplot_powerspec(pwspec,roiseq,fps,specplot,frame):
 #   pwspec.calc_powerspec(roiseq,fps,specplot,frame)
@@ -610,10 +611,10 @@ ctrl_panel.geometry("%dx%d+%d+%d"%(
     ctrl_panel.winfo_screenwidth(),ctrl_panel.winfo_screenheight(),0,0))
 ctrl_panel.update()
 
-if (os.name == 'nt'):
-    ctrl_panel.state('zoomed')
-else:
-    ctrl_panel.attributes('-zoomed', True)
+#if (os.name == 'nt'):
+#    ctrl_panel.state('zoomed')
+#else:
+#    ctrl_panel.attributes('-zoomed', True)
 ctrl_panel.update()
 
 
@@ -1099,10 +1100,11 @@ if (ParticleTracking_flag):
 #**************************************************************************** #
 # ************************** Dynamic Filtering ****************************** #
 if (DynamicFiltering_flag):
-	dynseq = DynamicFilter.DynFilter()
+    global dynseq
+    dynseq = DynamicFilter.DynFilter()
 
-	dynfiltertab = tk.Frame(nbook,width=int(round(0.75*screenw)),height=int(round(0.8*screenh)))
-	nbook.add(dynfiltertab, text='Dynamic Filtering') 
+    dynfiltertab = tk.Frame(nbook,width=int(round(0.75*screenw)),height=int(round(0.8*screenh)))
+    nbook.add(dynfiltertab, text='Dynamic Filtering') 
 #*****************************************************************************#
 
 
@@ -1169,9 +1171,6 @@ mscorrprofileframe.place(in_=mcorrtab, anchor='c', relx=0.75, rely=0.5)
 #**************************************************************************************************#
 
 #ctrl_panel.resizable(True, True)
-
-
-
 
 # we want the ctrl_panel to be resizable!
 #ctrl_panel.bind( "<Configure>", resize)

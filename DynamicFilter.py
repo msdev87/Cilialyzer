@@ -365,10 +365,6 @@ class DynFilter:
 
 
 
-
-
-          
-
     def mscorr(self,fps,minf,maxf,tkparent,tkparent2,pixsize):
 
         # calc mean spatial autocorrelation 
@@ -393,7 +389,7 @@ class DynFilter:
         scorr[:,:] = 0.0 
 
 
-        for t in range(nimgs):
+        for t in range(0):
 
             # get image pair  
             img1[:,:] = numpy.array(self.dyn_roiseq[t]) 

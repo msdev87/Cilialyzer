@@ -18,3 +18,4 @@
 *.tiff
 *.tif    
 *.dat 
+./test*

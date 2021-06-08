@@ -178,15 +178,23 @@ class ImageSequence:
 
         for filename in self.get_files():
 
-            with open(filename, "rb") as f:
-                #print(f)
-                fh = io.BytesIO(f.read())
-            #Create a PIL image from the data
-            img = Image.open(fh, mode="r")
-            #print "image format" 
-            #print img.format
+            print('filename: ',filename)
+            #with open(filename, "rb") as f:
+            #    #print(f)
+            #    fh = io.BytesIO(f.read())
+            ##Create a PIL image from the data
+            img = Image.open(filename, mode="r")
 
-            img = img.convert("L")  # convert to 8 Bit grayscale 
+
+            if (img.mode == "L"):
+                pass
+            else:
+                numpyimg = numpy.array(img)
+                numpyimg = numpyimg / 65536.0 * 255
+                numpyimg.astype(int)
+                img = Image.fromarray(numpyimg)
+                img = img.convert("L")  # convert to 8 Bit grayscale
+
             w,h = img.size
             # crop images to get rid of the embedded image information
             img = img.crop((1,1,w-1,h-1)) # left,top,right,bottom 
