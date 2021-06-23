@@ -372,7 +372,7 @@ class DynFilter:
         nimgs = len(self.dyn_roiseq)
         firstimg = self.dyn_roiseq[0]
         width, height = firstimg.size
-       
+
         #print('width', width) 
         #print('height', height) 
 
@@ -383,13 +383,13 @@ class DynFilter:
         img1 = numpy.zeros((height,width),dtype=float)
         img2 = numpy.zeros((height,width),dtype=float)
 
-        
+
         # loop over time 
-        
+
         scorr[:,:] = 0.0 
 
 
-        for t in range(0):
+        for t in range(10):
 
             # get image pair  
             img1[:,:] = numpy.array(self.dyn_roiseq[t]) 

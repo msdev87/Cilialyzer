@@ -2,9 +2,9 @@
 #
 # This is the main loop of the "Cilialyzer" application 
 #
-# Purpose: provides a comfortable tool for clinicians to assess 
-# the health status of the mucociliary transport mechanism 
-# by quantitatively characterizing the (muco)ciliary motion  
+# Purpose: provides a comfortable tool for clinicians to quantitatively assess 
+# the health status of the mucociliary clearance mechanism 
+# by a semi-automatic characterization of the (muco)ciliary motion  
 #
 # Author: 
 # Martin Schneiter, University of Bern, Switzerland  
@@ -60,7 +60,7 @@ AnimateSequence = 1
 ROISelection = 1
 
 # Tab to generate the (ROI-based) power spectral density [PSD]  
-CBF = 1
+CBF_flag = True
 
 # Tab to generate the activity map (ROI-based, PSD-based)  
 ActivityMap = 1
@@ -331,7 +331,7 @@ def select_roi():
     refresh = 0
     selectroi = 1
     roiplayer = FlipbookROI.ImgSeqPlayer(roitab,PIL_ImgSeq.directory,refresh,
-        PIL_ImgSeq.sequence,PIL_ImgSeq.seqlength,roi,selectroi) 
+        PIL_ImgSeq.sequence,PIL_ImgSeq.seqlength,roi,selectroi)
     roiplayer.animate()
 
 
@@ -360,7 +360,7 @@ def pcolor_func():
 def switchtab(event):
 
     global player, roiplayer, ptrackplayer
-    global dynplayer
+    #global dynplayer
 
     # if tab is pressed (and pressed tab != active tab) then take precautions...  
 
@@ -599,7 +599,7 @@ myfont = ("Verdana", 10)
 # First, we need a Tkinter root window (named as "ctrl_panel"):  
 ctrl_panel = tk.Tk()
 
-# set cilialyzer icon
+# set the cilialyzer icon
 ctrl_panel.iconphoto(False, tk.PhotoImage(file='./logo/logo.png'))
 
 # Set the window title
@@ -616,7 +616,6 @@ ctrl_panel.update()
 #else:
 #    ctrl_panel.attributes('-zoomed', True)
 ctrl_panel.update()
-
 
 ctrl_panel_h1 = ctrl_panel.winfo_height()
 
@@ -658,7 +657,7 @@ offset=1
 #time.sleep(10)
 #sys.exit()
 
-# since there is always a taskbar -> the ctrl_panel will be somewhat smaller 
+# since there is usually a taskbar -> the ctrl_panel will be somewhat smaller 
 # than [ screenwidth x screenheight ] 
 # its actually generated dimensions (width x height) can be queried as:
 # ctrl_panel.winfo_height() x ctrl_panel.winfo_width()
@@ -669,8 +668,6 @@ mainframe.grid(row=0,column=0,sticky='nswe')
 
 #mainframe.grid_rowconfigure(0, weight = 1)
 #mainframe.grid_columnconfigure(0, weight = 1)
-
-
 
 # 'screenw, screenh' denote the width, height of the main window  
 screenw = ctrl_panel.winfo_screenwidth() - 2*(offset + 5)
@@ -686,7 +683,7 @@ imgbh = 28 # button height for buttons containing images
 imgbw = 182 # button width for buttons containing images 
 
 # In order to have more flexibility: add a "fakepixel" (transparent photo image) 
-fakepixel= ImageTk.PhotoImage(file=r"./fakepixel.png")
+fakepixel = ImageTk.PhotoImage(file=r"./fakepixel.png")
 
 # Help Button
 #helpB = tk.Button(mainframe,height=15,width=30,text='   Help',command=helpbutton,
@@ -770,21 +767,19 @@ nbook.grid(row=1,column=0,columnspan=1,rowspan=1,padx=4,pady=4)
 # we need to stop all animations to avoid to crash the frontend!  
 nbook.bind('<ButtonPress-1>',switchtab)
 
-
 # ROI selection tab 
 roitab = tk.Frame(nbook,width=int(round(0.9*nbookw)),height=int(round(0.95*nbookh)))
 nbook.add(roitab, text='ROI Selection')
 
 # ROI selection Button
 roi = RegionOfInterest.ROI(mainframe) # instantiate roi object 
-roiB = tk.Button(roitab,text='Reset ROI', command=select_roi, height=bh, width=16)
+roiB = tk.Button(roitab,text='Reset ROI',command=select_roi,height=bh,width=16)
 roiB.place(in_=roitab, anchor="c", relx=.07, rely=.12)
 # roi sequence (cropped PIL image sequence) available by attribute: "roi.roiseq"  
 
-
 # initialize the roiplayer
 roiplayer = FlipbookROI.ImgSeqPlayer(roitab,PIL_ImgSeq.directory,0,
-PIL_ImgSeq.sequence,PIL_ImgSeq.seqlength,roi,1)
+	PIL_ImgSeq.sequence,PIL_ImgSeq.seqlength,roi,1)
 roiplayer.animate()
 roiplayer.stop=2
 
@@ -818,18 +813,12 @@ statusF.grid(row=2,column=0,sticky='NESW')
 print('width statusbar frame: ',statusF.winfo_width())
 
 
-
-
-
 # ------------------------- create the toolbar --------------------------------#
 import toolbar
 toolbar_object = toolbar.Toolbar(mainframe,player,roiplayer,ptrackplayer,PIL_ImgSeq,nbook,roitab,roi,toolbar_height,nbookw,statusbar_obj)
 toolbarF = toolbar_object.toolbarframe
 toolbarF.grid(row=0,column=0,columnspan=1,rowspan=1,sticky='ew')
 # ---------------------------------------------------------------------------- #
-
-
-
 
 
 
@@ -922,10 +911,6 @@ wackelB.grid(row=4,column=0,columnspan=2)
 ################################################################################
 """
 
-
-
-
-
 # remove sensor pattern (Puybareau 2016) 
 # removepatternB = Button(animationtab,text='Pattern Removal',\
 #                   command=lambda: PIL_ImgSeq.removepattern(), height=bh, width=16)
@@ -938,8 +923,6 @@ wackelB.grid(row=4,column=0,columnspan=2)
 #imageregB.place(in_=animationtab, anchor="c", relx=.07, rely=.14)
 
 
-
-
 # motion extraction (see Puybareau et al. 2016) i.e. subtract the mean image  
 motionextractB = tk.Button(roitab,text='Subtract Mean',\
     command=lambda: PIL_ImgSeq.extractmotion(),height=bh,width=16)
@@ -947,14 +930,16 @@ motionextractB.place(in_=roitab, anchor="c", relx=.07, rely=0.07)
 
 
 # *****************************************************************************#
+#                           CBF notebook-tab                                   # 
+# *****************************************************************************#
+
 cbftab = tk.Frame(nbook,width=int(round(0.9*nbookw)),\
-            height=int(round(0.95*nbookh)))
-nbook.add(cbftab, text='Ciliary Beat Frequency')
+    height=int(round(0.95*nbookh)))
+nbook.add(cbftab, text='  CBF  ')
 
 pwspec1frame = tk.Frame(cbftab,width=int(round(0.65*nbookw)),\
                 height=int(round(0.65*nbookh)))
 pwspec1frame.place(in_=cbftab, anchor='c', relx=0.5,rely=0.4)
-
 
 # Get Powerspec Button 
 powerspectrum = Powerspec.powerspec(pwspec1frame,int(round(0.6*nbookw)),\
@@ -981,26 +966,25 @@ powerspecB.place(in_=cbftab, anchor='c', relx=0.5, rely=0.05)
 # get_cbf is defined in 'TkPowerspecPlot.py' 
 
 cbfB = tk.Button(cbftab,text='Determine CBF',command=lambda: \
-              powerspectrum.pwspecplot.get_cbf(float(minscale.get()),\
-              float(maxscale.get()),toolbar_object.fpscombo.get()), height=bh, width=bw) 
-cbfB.place(in_=cbftab, anchor='c', relx=0.5, rely=0.92) 
+	powerspectrum.pwspecplot.get_cbf(float(minscale.get()),\
+	float(maxscale.get()),toolbar_object.fpscombo.get()), height=bh, width=bw)
+cbfB.place(in_=cbftab, anchor='c', relx=0.5, rely=0.92)
 
 # powerspectrum.spec : holds the spectrum 
 # powerspectrum.freqs : holds the corresponding frequencies 
-
 
 # ------------------------------------------------------------------------------
 # add a combobox in which the user is supposed to specify the 
 # number of harmonics, the default is 2 
 
 # Label and Entry Widget for specifying the number of visible harmonics  
-nrharms_label=tk.Label(cbftab, text="Number of Harmonics :",width=22,anchor='e',\
-                    font=("Helvetica",11))
-nrharms_label.place(in_=cbftab, anchor='c', relx=0.75, rely=0.15) 
+nrharms_label=tk.Label(cbftab,text="Number of Harmonics :",width=22,anchor='e',\
+	font=("Helvetica",11))
+nrharms_label.place(in_=cbftab, anchor='c', relx=0.75, rely=0.15)
 
-nrharms_list = [1,2,3] 
+nrharms_list = [1,2,3]
 nrharmscombo = tkinter.ttk.Combobox(cbftab,values=nrharms_list,width=5)
-nrharmscombo.place(in_=cbftab, anchor='c', relx=0.85, rely=0.15) 
+nrharmscombo.place(in_=cbftab, anchor='c', relx=0.85, rely=0.15)
 nrharmscombo.current(0)
 # ------------------------------------------------------------------------------
 
@@ -1100,9 +1084,8 @@ if (ParticleTracking_flag):
 #**************************************************************************** #
 # ************************** Dynamic Filtering ****************************** #
 if (DynamicFiltering_flag):
-    global dynseq
+    #global dynseq
     dynseq = DynamicFilter.DynFilter()
-
     dynfiltertab = tk.Frame(nbook,width=int(round(0.75*screenw)),height=int(round(0.8*screenh)))
     nbook.add(dynfiltertab, text='Dynamic Filtering') 
 #*****************************************************************************#
@@ -1142,12 +1125,14 @@ if (kSpectrum):
 #******************************************************************************#
 
 # **************************************************************************** # 
-# mean spatial autocorrelation tab 
+#                     Spatial autocorrelation tab 
+# *****************************************************************************#
 
 mcorrtab = tk.Frame(nbook, width=int(round(0.9*nbookw)),height=int(round(0.95*nbookh)))
-nbook.add(mcorrtab, text='MeanCorr')
+nbook.add(mcorrtab, text=' Spatial Autocorrelation ')
 
-mcorrB = tk.Button(mcorrtab, text='Mean Spatial Autocorrelation', command=meanscorrgram, height=bh, width=bw) 
+mcorrB = tk.Button(mcorrtab, text='Mean Spatial Autocorrelation',
+	command=meanscorrgram, height=bh, width=bw)
 mcorrB.place(in_=mcorrtab, anchor="c", relx=.5, rely=.05)
 
 # here we plot the mean spatial autocorrelation ('mscorr' = mean spatial correlation)  

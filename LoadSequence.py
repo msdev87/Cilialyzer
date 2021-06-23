@@ -55,7 +55,7 @@ def sort_list(l):
     # base-name-numbering.ending 
     # here is a concrete example: '30fps_RT_1_swirl_2018-12-21-151557-0467.tif'
 
-    # leading zeros may or may not be present! (both cases are to be handled) 
+    # leading zeros may or may not be present! (both cases are handled) 
 
     numbering, basename = [], []
     i = 0
@@ -87,6 +87,7 @@ def sort_list(l):
     for i in range(len(numbering)):
         l.insert(0, "%s%s.%s" % (basename[i],numbering[i],file_ending))
 
+	# TODO comment out next line as soon as safe 
     print(l)
 
 class ImageSequence:
@@ -108,7 +109,6 @@ class ImageSequence:
         img = img.convert("L")  # convert to 8 Bit grayscale  
         self.sequence.append(img)
 
-
         self.files     = None
         self.width     = None
         self.height    = None
@@ -120,8 +120,6 @@ class ImageSequence:
         self.dirname.set("No Directory Selected")
         self.fname = StringVar()  # feb 2021
         self.fname.set("No Directory Selected")
-
-
 
 
     def choose_directory(self):
@@ -150,7 +148,6 @@ class ImageSequence:
         self.fname.set(f[0])
 
 
-
     def get_files(self):
         """
         directory: str, directory to search for files.
@@ -165,6 +162,7 @@ class ImageSequence:
         sort_list(files)
 
         return (self.directory+"/"+f for f in files)
+
 
     def get_images(self):
 
@@ -275,14 +273,14 @@ class ImageSequence:
 
         f = open('user_settings.dat','w')
         f.write(os.path.split(self.videofile)[0])
-	# writes choosen directory (value of 'directory') into file 'f' 
+		# writes choosen directory (value of 'directory') into file 'f' 
         f.close()
 
         # update the label, which displays the directory name:
         dirname.set(self.directory)
 
 
-        # unfortunately it seems to be a paing to install the videosequence module in windows 
+        # unfortunately it seems to be a pain to install the videosequence module in windows 
         # lets open the video and iterate over the frames, convert to 8Bit,PIL
         # with closing(VideoSequence(self.videofile)) as frames:
         #    ni = 0 
@@ -387,16 +385,18 @@ class ImageSequence:
         #    self.sequence[i] = Image.fromarray(numpy.uint8(scipy.misc.bytescale(aligned[i,:,:])))
 
 
-
     def extractmotion(self):
+
+        # subtracts the mean image,
+		# which is equivalent to remove the zero-frequency contribution 
+
         firstimg = self.sequence[0] # first image of roi sequence  
         width, height = firstimg.size # dimension of images 
         nimgs = len(self.sequence) # number of images   
 
         # initialize numpy float array, which will hold the image sequence  
         array = numpy.zeros((int(nimgs),int(height),int(width)),dtype=float)
-
-        sumimg = numpy.zeros((int(height),int(width)),dtype=float)
+        sumimg = numpy.zeros((int(height),int(width)),dtype=float) # sum of imgs
 
         # PIL images -> numpy array 
         for i in range(nimgs):
@@ -405,13 +405,25 @@ class ImageSequence:
         # calc mean image 
         for i in range(nimgs):
             sumimg = numpy.add(sumimg,array[i,:,:])
-        meanimg = numpy.multiply(1.0/float(nimgs), sumimg)  
+        meanimg = numpy.multiply(1.0/float(nimgs), sumimg)
 
         # extract motion  
         for i in range(nimgs):
             array[i,:,:] = numpy.subtract(array[i,:,:], meanimg)
 
+        # subtract the minimum value of array from array  
+        # (as the minimum value is always negative)
+        # this ensures that all values are positive in 'array'
+
+        array = numpy.subtract(array, numpy.amin(array))
+
         array = numpy.uint8(bytescl(array))
+
+        #print('max', numpy.amax(array))
+        #print('min', numpy.amin(array))
+
+        #array = numpy.uint8(array) 
+        #print(array[0,:,:])
         for i in range(nimgs):
             self.sequence[i] = Image.fromarray(array[i,:,:])
 

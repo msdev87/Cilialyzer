@@ -58,6 +58,7 @@ def sort_list(l):
         l.insert(0, "%d.%s" % (numbers[i], extensions[i]))
 
 def get_files(directory):
+
     """
     directory: str, directory to search for files.
 
@@ -74,20 +75,27 @@ def get_files(directory):
 
 def GetMinMaxIntensity(self):
 
-    pixls = self.PILimgs[0] # pixls = PIL image
+	# get the minimum and maximum value over of the first image 
+	# (avoiding byte-coded camera information)
 
-    w,h = pixls.size # width and height of image
+	pixls = self.PILimgs[0] # pixls = PIL image
+	w,h = pixls.size # width and height of image
 
-    # we crop the relevant part of the image 
-    # (avoiding byte coded camera information at the border)  
-    pixbox = pixls.crop((4,4,int(w-4),int(h-4)))
-    pix_box = list(pixbox.getdata())
+	# we crop the relevant part of the image 
+	# (in order to avoid byte-coded camera information at the border)  
+	pixbox = pixls.crop((4,4,int(w-4),int(h-4)))
+	pixlist = list(pixbox.getdata())
 
-    self.MaxIntensity = max(pix_box)
-    self.MinIntensity = min(pix_box)
+	maxintensity = max(pixlist)
+	minintensity = min(pixlist)
 
-    #print self.MaxIntensity 
-    #print self.MinIntensity 
+	if minintensity < self.MinIntensity:
+		self.MinIntensity = minintensity
+	if maxintensity > self.MaxIntensity:
+		self.MaxIntensity = maxintensity
+
+
+
 
 def GammaScale(self):
     self.currentimg =\
@@ -107,6 +115,10 @@ def bytescale(self):
     self.currentimg = Image.eval(self.currentimg,
             lambda xy: round((abs(xy - self.MinIntensity) /
                             float(self.MaxIntensity-self.MinIntensity)) * 255))
+
+    #print(self.currentimg)
+
+
 
 def ResizeCurrentImage(self):
 
@@ -245,7 +257,7 @@ class ImgSeqPlayer(object):
                 pass
             else:
                 self.var = tk.StringVar()
-                self.var.set(1) # initialize zoom to 75% 
+                self.var.set(2) # initialize zoom to 100% 
 
         for text, mode in self.zooom:
             self.zoomB = tk.Radiobutton(self.zoomframe, text=text, variable=self.var,
@@ -724,9 +736,6 @@ class ImgSeqPlayer(object):
         #self.currentimg.save("img" + str(self.index) + ".png", "PNG")
 
 
-
-
-
         self.current_photo = ImageTk.PhotoImage(self.currentimg)
         self.current_image = self.can.create_image(self.center,image=self.current_photo) # draw image! 
 
@@ -737,8 +746,6 @@ class ImgSeqPlayer(object):
         if (self.selectroi == 2):
             if (self.bbox is not None):
                 self.can.create_rectangle(self.bbox, fill="yellow")
-
-
 
         if (self.stop != 2):
             self.frame.after_idle(self.animate) # recalls self.animate  
