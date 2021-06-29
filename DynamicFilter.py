@@ -1,14 +1,12 @@
-import numpy 
-import PIL 
-import scipy 
+import numpy
+import PIL
+import scipy
 #from scipy.misc import bytescale 
-from bytescl import bytescl 
-
-import sys 
-
-import math 
-
+from bytescl import bytescl
+import sys
+import math
 import os
+
 if os.sys.version_info.major > 2:
     from tkinter import *
 else:
@@ -22,7 +20,6 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 from matplotlib.figure import Figure
 
 import matplotlib.pyplot as plt
-
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -44,34 +41,31 @@ class DynFilter:
 
         self.profileframe = None
 
-        self.kxkyplotax = None  
-        self.kxkyrows = None 
-        self.kxkycols = None 
-        self.kxky = None 
-        self.splitline = None 
+        self.kxkyplotax = None
+        self.kxkyrows = None
+        self.kxkycols = None
+        self.kxky = None
+        self.splitline = None
 
-
-        
     def bandpass(self, PILseq, fps, minf, maxf,nharms):
-        
+
         # input: roiseq 
         # output: dynamically filtered roiseq 
-        
+
         # dynamic filtering: bandpass -> keep frequencies f : minf <= f <= maxf 
-        
+
         firstimg = PILseq[0] # first image of roi sequence  
         width, height = firstimg.size # dimension of images 
         nimgs = len(PILseq) # number of images  
-        
+
         # create numpy array 'array' 
         array = numpy.zeros((int(nimgs),int(height),int(width)))  
         for i in range(nimgs):
             array[i,:,:] = numpy.array(PILseq[i])   
         (nt,ni,nj) = numpy.shape(array)
-       
 
         # determine the frequency band to be filtered (under consideration of nrharms) 
-         
+
 
         # remove frequency if not contained in any band
         
@@ -282,93 +276,71 @@ class DynFilter:
         ys = round(len(kxky[:,0])/2) - round(len(kxky[:,0])/8) 
         ye = round(len(kxky[:,0])/2) + round(len(kxky[:,0])/8) + 1  
         xs = round(len(kxky[0,:])/2) - round(len(kxky[0,:])/8) 
-        xe = round(len(kxky[0,:])/2) + round(len(kxky[0,:])/8) + 1  
-       
-        self.kxkyrows = ye - ys   
-        self.kxkycols = xe - xs  
+        xe = round(len(kxky[0,:])/2) + round(len(kxky[0,:])/8) + 1
 
-        self.kxky = kxky 
+        self.kxkyrows = ye - ys
+        self.kxkycols = xe - xs
 
+        self.kxky = kxky
 
         la1 = self.kxkyplotax.imshow(kxky[ys:ye,xs:xe], alpha=1.0,cmap='bwr',interpolation='none')
         #self.splitline, = self.kxkyplotax.plot([3,3],[10,10], color='green',linewidth=5)
-       
-        
+
         #if ((len(kxky[ys:ye,0]) % 2) == 0):
         #    self.kxkyplotax.axes.axhline(y=round(len(kxky[ys:ye,0]))-round(len(kxky[ys:ye,0])/2),color='w',linewidth=1)
         #else: 
         #    self.kxkyplotax.axes.axhline(y=round(len(kxky[ys:ye,0]))-round(len(kxky[ys:ye,0])/2),color='w',linewidth=1)
-  
+
         #if ((len(kxky[0,xs:xe]) % 2) == 0): 
         #    self.kxkyplotax.axes.axvline(x=round(len(kxky[0,xs:xe]))-round(len(kxky[0,xs:xe])/2),color='w',linewidth=1)
         #else: 
         #    self.kxkyplotax.axes.axvline(x=round(len(kxky[0,xs:xe]))-round(len(kxky[0,xs:xe])/2),color='w',linewidth=1)
- 
-
-
-
-
-
-
-
-
 
         #####################################################################
         # filtering in the wave vector domain # 
 
-   
-
         #fftarray[:,:,:] = 0.0         
 
-        fftarray[0:round(nimgs/2),:,:] = 0.0 
-        fftarray[:,round(width/2+1):,:] = 0.0 
-
-
-
+        fftarray[0:round(nimgs/2),:,:] = 0.0
+        fftarray[:,round(width/2+1):,:] = 0.0
 
         # rücktransformation 
 
         array = numpy.real(numpy.fft.ifftn(fftarray))
         array = bytescl(array)
 
-        print(array) 
+        #print(array) 
 
-        
-        self.dyn_roiseq = [] 
+        self.dyn_roiseq = []
 
         for i in range(nimgs):
             self.dyn_roiseq.append(PIL.Image.fromarray(numpy.uint8(array[i,:,:])))
         ###################################################################### 
-        print('------------- test -----------------')  
-    
+        print('------------------------- test -----------------')
 
-     
         self.kxkyplotax.set_title('Spatial Power Spectral Density')
         divider = make_axes_locatable(self.kxkyplotax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
-        cbar=fig.colorbar(la1,cax=cax)  
-        
-        
-        self.kxkyplotax.axes.get_xaxis().set_ticks([])
-        self.kxkyplotax.axes.get_yaxis().set_ticks([])   
+        cbar=fig.colorbar(la1,cax=cax)
 
+        self.kxkyplotax.axes.get_xaxis().set_ticks([])
+        self.kxkyplotax.axes.get_yaxis().set_ticks([])
 
         can.draw()
-        can.get_tk_widget().pack() 
+        can.get_tk_widget().pack()
         can._tkcanvas.pack()
-
 
 
     def mscorr(self,fps,minf,maxf,tkparent,tkparent2,pixsize):
 
-        def gaussian(x, a, b, c):
-            return a*numpy.exp(-numpy.power(x - b, 2)/(2*numpy.power(c, 2)))
+        # mscorr calculates the mean spatial autocorrelation
+        # over several images of the image sequence 
+
+        #def gaussian(x, a, b, c):
+        #    return a*numpy.exp(-numpy.power(x - b, 2)/(2*numpy.power(c, 2)))
 
         def exponential(x,a):
             return numpy.exp(-abs(x/a))
-
-
-        # mscorr calculates the mean spatial autocorrelation 
 
         nimgs = len(self.dyn_roiseq)
         firstimg = self.dyn_roiseq[0]
@@ -386,6 +358,7 @@ class DynFilter:
         # we do not have to average over the whole image stack
         # consequently, the average over 50 images is a good approximation 
         # for the overall average 
+
         nimgs = 50
 
         for t in range(nimgs): # loop over time
@@ -438,21 +411,19 @@ class DynFilter:
         can = FigureCanvasTkAgg(fig, self.tkframe)
 
 		# only the center of scorr is interesting
-        #xs = round(nrows/2)-round(nrows/8)
-        #xe = round(nrows/2)+round(nrows/8)
-        #ys = round(ncols/2)-round(ncols/8)
-        #ye = round(ncols/2)+round(ncols/8)
-
+        # xs = round(nrows/2)-round(nrows/8)
+        # xe = round(nrows/2)+round(nrows/8)
+        # ys = round(ncols/2)-round(ncols/8)
+        # ye = round(ncols/2)+round(ncols/8)
         # axis tick labels for correlogram plot
+        # la1= ax.imshow(scorr[xs:xe,ys:ye], alpha=1.0,cmap='bwr',interpolation='none')
+        # xmin, xmax = -0.125*ncols*pixsize*0.001,0.125*ncols*pixsize*0.001
+        # ymin, ymax = -0.125*nrows*pixsize*0.001,0.125*nrows*pixsize*0.001
+        # la1= ax.imshow(scorr[xs:xe,ys:ye],alpha=1.0,cmap='bwr',interpolation='none',
+        # extent=[xmin,xmax,ymin,ymax])
 
-        #la1= ax.imshow(scorr[xs:xe,ys:ye], alpha=1.0,cmap='bwr',interpolation='none')
-        #xmin, xmax = -0.125*ncols*pixsize*0.001,0.125*ncols*pixsize*0.001
-        #ymin, ymax = -0.125*nrows*pixsize*0.001,0.125*nrows*pixsize*0.001
-
-        #la1= ax.imshow(scorr[xs:xe,ys:ye],alpha=1.0,cmap='bwr',interpolation='none',
-        #    extent=[xmin,xmax,ymin,ymax])
-
-        la1= ax.imshow(scorr,alpha=1.0,cmap='bwr',interpolation='none')
+        # 2D colormap of scorr 
+        la1 = ax.imshow(scorr,alpha=1.0,cmap='bwr',interpolation='none')
 
         ax.set_title('Mean Spatial Autocorrelation')
         divider = make_axes_locatable(ax)
@@ -467,13 +438,11 @@ class DynFilter:
         #ax.axes.axhline(y=round(len(scorr[xs:xe,0])-1)-round(len(scorr[xs:xe,0])/2),color='w',linewidth=2)
         #ax.axes.axvline(x=round(len(scorr[0,ys:ye])-1)-round(len(scorr[0,ys:ye])/2),color='w',linewidth=2)
 
-
         ########################################################################
         # plot the profile of the correlogram along the line 
         # connecting the two minima (and the global maximum)
 
         # get the location of the extrema in scorr (in pixel coordinates) 
-
         maxy, maxx = numpy.unravel_index(numpy.argmax(scorr,axis=None),scorr.shape)
         miny, minx = numpy.unravel_index(numpy.argmin(scorr,axis=None),scorr.shape)
 
@@ -495,10 +464,35 @@ class DynFilter:
         # wavelength in pixels:                   
         dx = maxx-minx
         dy = maxy-miny
-        wavelength=2*math.sqrt(dx**2+dy**2)
+        wavelength_pix=2*math.sqrt(dx**2+dy**2)
 
-        x0,y0 = maxx-4*dx,maxy-4*dy
-        x1,y1 = maxx+4*dx,maxy+4*dy
+        # plot the correlation profile along the line (x0,y0) -- (x1,y1) 
+        x0,y0 = maxx-(5*dx),maxy-(5*dy)
+        x1,y1 = maxx+(5*dx),maxy+(5*dy)
+
+        # the line needs to be restricted by the size of scorr (nrows, ncols) 
+        # (in the case of long wavelengths or small images)  
+        if (x0 > x1):
+            if (x0 > ncols-1):
+                x0 = ncols-1
+            if (x1 < 0):
+                x1 = 0
+        else:
+            if (x0 < 0):
+                x0 = 0
+            if (x1 > ncols-1):
+                x1 = ncols-1
+
+        if (y0 > y1):
+            if (y0 > nrows-1):
+                y0 = nrows-1
+            if (y1 < 0):
+                y1 = 0
+        else:
+            if (y0 < 0):
+                y0 = 0
+            if (y1 > nrows-1):
+                y1 = nrows-1
 
         # ----------------- plot scorr with profile line --------------------
 
@@ -509,24 +503,39 @@ class DynFilter:
         can._tkcanvas.pack()
 
         # --------------------------------------------------------------------
-        print('wavelength in pixels: ',wavelength)
+        print('wavelength in pixels: ',wavelength_pix)
 
         # get profile
-
-        x, y = numpy.linspace(x0, x1, 1000), numpy.linspace(y0, y1, 1000)
+        num = 1000
+        print('x0,x1,y0,y1',x0,x1,y0,y1)
+        x, y = numpy.linspace(x0, x1, num), numpy.linspace(y0, y1, num)
         scorr_profile = scorr[y.astype(numpy.int), x.astype(numpy.int)]
         distmat_profile= distmat[y.astype(numpy.int), x.astype(numpy.int)]
 
-        # distmat_profile designates the x-axis in the profile plot 
+        # distmat_profile determines the x-axis in the profile plot 
         # half of all values need to be negative
         dm = numpy.argmin(distmat_profile) # dm = location of correlation max.  
-        distmat_profile[0:dm] = -distmat_profile[0:dm]
+
+        print('test')
+
+
+        print('distmat_profile[dm-3]: ',distmat_profile[dm-3])
+        print('distmat_profile[dm-2]: ',distmat_profile[dm-2])
+        print('distmat_profile[dm-1]: ',distmat_profile[dm-1])
+        print('distmat_profile[dm]: ',distmat_profile[dm])
+        print('distmat_profile[dm+1]: ',distmat_profile[dm+1])
+        print('distmat_profile[dm+2]: ',distmat_profile[dm+2])
+        print('distmat_profile[dm+3]: ',distmat_profile[dm+3])
+
+
+        distmat_profile[0:dm+1] = -distmat_profile[0:dm+1]
 
         # smooth profile
-        scorr_profile = smooth.running_average(scorr_profile,70)
-        distmat_profile = smooth.running_average(distmat_profile,70)
+        #scorr_profile = smooth.running_average(scorr_profile,70)
+        #distmat_profile = smooth.running_average(distmat_profile,70)
 
         fig = Figure(figsize=(6,5), dpi=100)
+        fig.subplots_adjust(left=0.15,bottom=0.15)
         ax = fig.add_subplot(111)
 
         self.profileframe = Frame(tkparent2)
@@ -534,16 +543,16 @@ class DynFilter:
 
         can = FigureCanvasTkAgg(fig, self.profileframe)
 
-        ax.axes.tick_params(labelsize=15)
+        ax.axes.tick_params(labelsize=14)
 
         # convert to microns: 
         distmat_profile = distmat_profile * pixsize * 0.001
-        wavelength = wavelength * pixsize * 0.001
+        wavelength = wavelength_pix * pixsize * 0.001
 
-        ax.plot(distmat_profile,scorr_profile,linewidth=2,color='0.3')
+        ax.plot(distmat_profile,scorr_profile,linewidth=3,color='0.3')
         ax.set_ylim([-0.6,1.05])
-        ax.axvline(x=0.5*wavelength,ymin=0.25,ymax=0.95)
-        ax.axvline(x=-0.5*wavelength,ymin=0.25,ymax=0.95)
+        ax.axvline(x=0.5*wavelength,ymin=-0.55,ymax=0.95,linestyle='dashed',color='0.3')
+        ax.axvline(x=-0.5*wavelength,ymin=-0.55,ymax=0.95,linestyle='dashed',color='0.3')
 
         str1 = "$\lambda$ = "
         str2 = "$%.1f$" %wavelength
@@ -559,6 +568,8 @@ class DynFilter:
         #cax = divider.append_axes("right", size="5%", pad=0.05)
         #fig.colorbar(la1,cax=cax)  
 
+        ax.set_xlabel("Distance [$\mu$m]",fontsize=14)
+        ax.set_ylabel("Correlation",fontsize=14)
 
         # draw also the absolute value of the correlation profile
         # as well as its envelope, which we use to determine 
@@ -568,21 +579,25 @@ class DynFilter:
         #ax.plot(distmat_profile,numpy.abs(signal.hilbert(scorr_profile)),color='darkorange')
 
         # the autocorrelation length (\xi) is determined as the de-correlation
-        # of the gaussian 'envelope' fit to 1/e
-        # the gaussian is fitted to 3 points (the two minima & the maximum)
+        # of the exponential fit to the 'envelope' exp(-2)
+        # the exponential is fitted to 3 points (the two minima & the maximum)
+        # seems oversimplified, but represents a robust measure for the 
+        # de-correlation length 
 
-        gfx = numpy.array([distmat_profile[375],distmat_profile[500],distmat_profile[625]]) # x values determining gauss fit 
-        gfy = numpy.array([scorr_profile[375],scorr_profile[500],scorr_profile[625]])# y values determining gauss fit   
-
+        #gfx = numpy.array([distmat_profile[375],distmat_profile[500],distmat_profile[625]]) # x values determining gauss fit 
+        #gfy = numpy.array([scorr_profile[375],scorr_profile[500],scorr_profile[625]])# y values determining gauss fit   
         #pars,cov = curve_fit(f=gaussian,xdata=gfx, ydata=gfy,p0=[0.1,0.0,5.0],bounds=(-numpy.inf, numpy.inf))
 
-        pars,cov = curve_fit(f=exponential,xdata=gfx, ydata=gfy,p0=[2.0],bounds=(-numpy.inf, numpy.inf))
+        # fx and fy determine the x and y values to determine the exponential fit
+        inds = [dm-wavelength_pix,dm,dm+wavelength_pix]
+        fx = distmat_profile[inds]
+        fy = scorr_profile[inds]
+        pars,cov = curve_fit(f=exponential,xdata=fx, ydata=fy,p0=[3.0],bounds=(-numpy.inf, numpy.inf))
 
-
-        print('pars ',pars)
-        #a,b,c = pars[0],pars[1],pars[2]
+        # print('pars ',pars)
+        # a,b,c = pars[0],pars[1],pars[2]
         a = pars[0]
-        #print(distmat_profile.size)
+        # print(distmat_profile.size)
         gf = numpy.zeros(1000)
         for i in range(1000):
             gf[i] = exponential(distmat_profile[i],a)
@@ -593,8 +608,9 @@ class DynFilter:
         str1=r'$\xi$'
         str2=" = $%.1f$" %acorrlength
         str3=" $\mu$m"
-        ax.text(1*wavelength,0.65,str1+str2+str3,fontsize=14,color='darkorange')
+        ax.text(1*wavelength,0.7,str1+str2+str3,fontsize=14,color='darkorange')
 
+        ax.margins(0.01)
 
         can.draw()
         can.get_tk_widget().pack()
@@ -606,7 +622,7 @@ class DynFilter:
 
         # determine the direction of maximum correlation
         # and plot the cross-section of the 2D mean spatial autocorrelation 
-        
+
         # first, get the location of the maximum in scorr:
         """
         ind = np.unravel_index(np.argmax(scorr, axis=None), scorr.shape)

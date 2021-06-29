@@ -769,7 +769,7 @@ nbook.bind('<ButtonPress-1>',switchtab)
 
 # ROI selection tab 
 roitab = tk.Frame(nbook,width=int(round(0.9*nbookw)),height=int(round(0.95*nbookh)))
-nbook.add(roitab, text='ROI Selection')
+nbook.add(roitab, text='  ROI Selection  ')
 
 # ROI selection Button
 roi = RegionOfInterest.ROI(mainframe) # instantiate roi object 
