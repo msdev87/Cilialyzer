@@ -521,16 +521,13 @@ class ImgSeqPlayer(object):
         self.resultsframe.grid_propagate(0)
 
         # pandas frame
-        col_names = ["Radius [μm]","Speed [μm/s]","Omega [°/s]"]
+        #col_names = ["Radius [μm]","Speed [μm/s]","Omega [°/s]"]
+        col_names =["Speed [μm/s]"]
         self.pandadf = pandas.DataFrame(columns = col_names)
-
         self.resultstable = Table(self.resultsframe, dataframe=self.pandadf,
                 showtoolbar=True, showstatusbar=True)
-
-
-        options = {'fontsize' : 10, 'floatprecision': 1}
+        options = {'fontsize' : 12, 'floatprecision': 1}
         pandastable.config.apply_options(options, self.resultstable)
-
         self.resultstable.show()
 
         # **********************************************************************
@@ -540,6 +537,7 @@ class ImgSeqPlayer(object):
         #Scale image to the screen size while keeping aspect ratio.
         #w = self.roi[2] - self.roi[0]
         #h = self.roi[3] - self.roi[1]
+
         w,h= PILseq[0].size
 
         ctrl_height = 0
@@ -1213,8 +1211,8 @@ class ImgSeqPlayer(object):
 
         # delete results from panda table  
         self.pandadf.at[self.tracenumber,'Speed [μm/s]'] = 0.0
-        self.pandadf.at[self.tracenumber,'Radius [μm]'] = 0.0
-        self.pandadf.at[self.tracenumber,'Omega [°/s]'] = 0.0
+        #self.pandadf.at[self.tracenumber,'Radius [μm]'] = 0.0
+        #self.pandadf.at[self.tracenumber,'Omega [°/s]'] = 0.0
         self.resultstable.redraw()
 
         # remove latest trace from all traces 
