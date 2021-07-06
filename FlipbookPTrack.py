@@ -582,7 +582,7 @@ class ImgSeqPlayer(object):
         # as the zoom-factor (self.zoomfac) has now been set 
         # we can initialize the pixelsize:
         self.pixsize = self.recordedpixsize / self.zoomfac
-        print("actual pixel size: ",self.pixsize)
+        #print("actual pixel size: ",self.pixsize)
 
         master.update()
 
@@ -734,8 +734,8 @@ class ImgSeqPlayer(object):
                 x = int(round(self.particle_coords[0]))
                 y = int(round(self.particle_coords[1]))
 
-                print('x ',x)
-                print('y ',y)
+                #print('x ',x)
+                #print('y ',y)
 
                 img=numpy.array(self.currentimg)
                 imgh, imgw = img.shape
@@ -967,8 +967,9 @@ class ImgSeqPlayer(object):
         self.leefilter = 1
 
     def pcolor_func(self):
-        print("test pcolor")
-        print(self.pcolor.get())
+        #print("test pcolor")
+        #print(self.pcolor.get())
+        pass
 
     def export_trajectory(self):
         # export the trajectory to a csv file 
@@ -1053,12 +1054,12 @@ class ImgSeqPlayer(object):
             # particle reached the end of its journey 
             # least square fit and draw the trajectory 
 
-            print("end reached")
+            #print("end reached")
 
             l = len(self.latesttrace) # l: length of particle trace (timesteps)  
 
-            print("self.latesttrace")
-            print(self.latesttrace)
+            #print("self.latesttrace")
+            #print(self.latesttrace)
 
             xpos = numpy.zeros(l)
             ypos = numpy.zeros(l)
@@ -1117,6 +1118,13 @@ class ImgSeqPlayer(object):
 
             self.resultstable.updateModel(pandastable.data.TableModel(self.pandadf))
             self.resultstable.redraw()
+            
+            
+            print(pspeed)
+
+            #print('---------------------- pandatable -------------------------')    
+            #print(self.resultstable)
+            #print('-----------------------------------------------------------')
 
             # stop tracking 
             self.stop = 2
@@ -1125,7 +1133,7 @@ class ImgSeqPlayer(object):
 
             # append the latest particle trace to alltraces list: 
             self.alltraces.append(self.latesttrace)
-            print("len of alltraces:", len(self.alltraces))
+            #print("len of alltraces:", len(self.alltraces))
 
             # 'tracking back in time' 
             # this is just to indicate which particles have already been 
