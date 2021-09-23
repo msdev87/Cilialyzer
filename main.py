@@ -4,7 +4,7 @@
 #
 # Purpose: provides a comfortable tool for clinicians to quantitatively assess 
 # the health status of the mucociliary clearance mechanism 
-# by a semi-automatic characterization of the (muco)ciliary motion  
+# by a semi-automatic characterization of the (muco)ciliary function  
 #
 # Author: 
 # Martin Schneiter, University of Bern, Switzerland  
@@ -291,15 +291,16 @@ def meanscorrgram():
     global dynseq
 
     # calculate the mean spatial autocorrelation 
-    try:
+
+    if (len(dynseq.dyn_roiseq) > 1):
         dynseq.mscorr(float(toolbar_object.fpscombo.get()),float(minscale.get()),
             float(maxscale.get()),mscorrplotframe,mscorrprofileframe,
             float(toolbar_object.pixsizecombo.get()))
 
-    except NameError:
-        print('except')
-        dynseq = DynamicFilter.DynFilter()
-        dynseq.dyn_roiseq = roiplayer.roiseq
+    else:
+        #print('except')
+        #dynseq = DynamicFilter.DynFilter()
+        dynseq.dyn_roiseq = PIL_ImgSeq.sequence
         dynseq.mscorr(float(toolbar_object.fpscombo.get()),float(minscale.get()),
             float(maxscale.get()),mscorrplotframe,mscorrprofileframe,
             float(toolbar_object.pixsizecombo.get()))
@@ -683,7 +684,7 @@ imgbh = 28 # button height for buttons containing images
 imgbw = 182 # button width for buttons containing images 
 
 # In order to have more flexibility: add a "fakepixel" (transparent photo image) 
-fakepixel = ImageTk.PhotoImage(file=r"./fakepixel.png")
+fakepixel = ImageTk.PhotoImage(file=r"./icons/fakepixel.png")
 
 # Help Button
 #helpB = tk.Button(mainframe,height=15,width=30,text='   Help',command=helpbutton,
@@ -726,7 +727,7 @@ PIL_ImgSeq = LoadSequence.ImageSequence()
 # PIL_ImgSeq.sequence  -> holds the PIL img sequence 
 
 toolbar_height = 35
-statusbar_height = 35
+statusbar_height = 55
 
 #******************************************************************************#
 # the main features are provided by notebook-tabs
@@ -950,11 +951,11 @@ maxfreq = tk.IntVar()
 minfreq.set(5)
 maxfreq.set(15)
 
-minscale = tk.Scale(cbftab, from_=1, to=50, orient=tk.HORIZONTAL,length=400,\
+minscale = tk.Scale(cbftab, from_=0.5, to=150, orient=tk.HORIZONTAL,length=400,\
                  resolution=0.2,variable=minfreq,command=peakselector)
 minscale.place(in_=cbftab,anchor='c', relx=0.5,rely=0.8)
 
-maxscale = tk.Scale(cbftab, from_=1, to=50, orient=tk.HORIZONTAL,length=400,\
+maxscale = tk.Scale(cbftab, from_=0.5, to=150, orient=tk.HORIZONTAL,length=400,\
                  resolution=0.2,variable=maxfreq,command=peakselector)
 maxscale.place(in_=cbftab,anchor='c', relx=0.5,rely=0.85)
 
@@ -977,15 +978,16 @@ cbfB.place(in_=cbftab, anchor='c', relx=0.5, rely=0.92)
 # add a combobox in which the user is supposed to specify the 
 # number of harmonics, the default is 2 
 
-# Label and Entry Widget for specifying the number of visible harmonics  
-nrharms_label=tk.Label(cbftab,text="Number of Harmonics :",width=22,anchor='e',\
-	font=("Helvetica",11))
-nrharms_label.place(in_=cbftab, anchor='c', relx=0.75, rely=0.15)
+# Label and Entry Widget for specifying the number of visible harmonics 
+if (DynamicFiltering_flag):
+    nrharms_label=tk.Label(cbftab,text="Number of Harmonics :",width=22,anchor='e',\
+        font=("Helvetica",11))
+    nrharms_label.place(in_=cbftab, anchor='c', relx=0.75, rely=0.15)
 
-nrharms_list = [1,2,3]
-nrharmscombo = tkinter.ttk.Combobox(cbftab,values=nrharms_list,width=5)
-nrharmscombo.place(in_=cbftab, anchor='c', relx=0.85, rely=0.15)
-nrharmscombo.current(0)
+    nrharms_list = [1,2,3]
+    nrharmscombo = tkinter.ttk.Combobox(cbftab,values=nrharms_list,width=5)
+    nrharmscombo.place(in_=cbftab, anchor='c', relx=0.85, rely=0.15)
+    nrharmscombo.current(0)
 # ------------------------------------------------------------------------------
 
 

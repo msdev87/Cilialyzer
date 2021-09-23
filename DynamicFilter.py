@@ -35,7 +35,7 @@ from scipy.optimize import curve_fit
 class DynFilter:
 
     def __init__(self):
-        self.dyn_roiseq = []
+        self.dyn_roiseq = [] 
         self.corr_roiseq = []
         self.tkframe = None
 
@@ -344,6 +344,7 @@ class DynFilter:
             return a*numpy.exp(-abs(x/b))
 
         nimgs = len(self.dyn_roiseq)
+        print('nimgs', nimgs)
         firstimg = self.dyn_roiseq[0]
         width, height = firstimg.size
 
@@ -596,7 +597,7 @@ class DynFilter:
 
         ax.plot(distmat_profile,gf,color='darkorange')
         # acorrlength measures distance after which correlation amounts to exp(-4)
-        acorrlength=4*abs(b)
+        acorrlength=3*abs(b)
 
         str1=r'$\xi_{exp}$'
         str2=" = $%.1f$" %acorrlength
@@ -612,7 +613,7 @@ class DynFilter:
 
         # search index k: 
         k=0
-        while ( scorr_profile[k] <= math.exp(-4) ):
+        while ( scorr_profile[k] <= math.exp(-3) ):
             k=k+1
         # determine distance to correlation maximum (in real units) 
         xi = abs(dm - k) * 4 * wavelength / num

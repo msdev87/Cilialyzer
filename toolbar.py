@@ -111,7 +111,6 @@ class Toolbar:
         print('test')
         print(self.toolbarframe.winfo_screenwidth())
 
-
         # image-Button to select the directory holding the image sequence  
         self.diricon = ImageTk.PhotoImage(file=r"./icons/directory/newdir2.png")
         self.diriconB = tk.Button(self.toolbarframe,height=23,width=30,\
@@ -144,7 +143,7 @@ class Toolbar:
             width=22,anchor='e',font=("Verdana",10))
         pixsize_label.grid(row=0,column=5,sticky='W')
 
-        pixsize_list = [345, 173, 86, 4500,1]
+        pixsize_list = [1823, 345, 173, 86, 4500,1]
         self.pixsizecombo = tk.ttk.Combobox(self.toolbarframe,values=pixsize_list,width=5)
         self.pixsizecombo.grid(row=0,column=6,padx=5,sticky='W')
         self.pixsizecombo.current(0)
