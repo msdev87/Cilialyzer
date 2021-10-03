@@ -19,7 +19,7 @@ import FlipbookROI
 import math
 import getline
 import io, os
-from PIL import ImageTk
+from PIL import ImageTk,Image
 import PIL.Image
 import webbrowser
 import warnings
@@ -44,7 +44,12 @@ import activitymap
 import sys
 import menubar
 
+import multiprocessing
+
 # ------------------------------------------------------------------------------
+
+pool = multiprocessing.Pool(multiprocessing.cpu_count())
+
 
 
 # ******************************************************************************
@@ -589,6 +594,103 @@ def resize(event):
 #    print('update: ',ctrl_panel.winfo_width())
 #    pass
 
+
+
+
+
+
+
+
+
+
+
+
+def image_stabilization():
+
+    global pool
+    #import multitest
+    import stabilize_proc
+
+    from pystackreg import StackReg
+    import multiprocessing
+
+
+    ################### new #############################################   
+    sr = StackReg(StackReg.RIGID_BODY)
+
+    firstimg = roiplayer.roiseq[0] # first image of roi sequence                 
+    width, height = firstimg.size # dimension of images                     
+    nimgs = len(roiplayer.roiseq) # number of images                             
+
+    # initialize numpy float array, which will hold the image sequence      
+    array = numpy.zeros((int(nimgs),int(height),int(width)))
+    array_stabilized = numpy.copy(array)
+
+    # PIL images -> numpy array                                             
+    for i in range(nimgs):
+        array[i,:,:] = numpy.array(roiplayer.roiseq[i])
+
+
+    # compute mean image:                                                   
+    meanimg = numpy.mean(array, axis=0)
+
+    """
+    # loop over all images
+    for i in range(nimgs):
+        #note that only every second image is registered (perf
+        if ((i % 2) == 0):
+            sr.register(meanimg,array[i,:,:])
+            # therefore, every second image is transformed as its 
+        array_stabilized[i,:,:] = sr.transform(array[i,:,:])
+
+        roiplayer.roiseq[i] = Image.fromarray(numpy.uint8(array_stabilized[i,:,:]))
+    """
+
+    num_procs = multiprocessing.cpu_count()
+    subarrays = []
+    arrayslice = round(nimgs/num_procs)
+
+    # careful: remember python's array slicing:
+    # array[start:stop] delivers all elements from start to stop-1! 
+    for i in range(num_procs):
+        if (i < num_procs-1):
+            subarrays.append((meanimg,array[i*arrayslice:(i+1)*arrayslice,:,:]))
+    else:
+        subarrays.append((meanimg,array[i*arrayslice:nimgs,:,:]))
+
+
+    result = pool.map(stabilize_proc.subproc, [subarrays[i] for i in range(num_procs)])
+
+    pool.close()
+
+    print(type(result))
+    print('length of list',len(result))
+    print('type of first element: ',type(result[0]))
+    #print(result)
+
+    # join the array slices together again
+    # there are now 'num_procs' array slices, which have to be put together 
+    # -> fill 'array_stabilized'
+
+    for i in range(num_procs):
+        if (i < num_procs-1):
+            array_stabilized[i*arrayslice:(i+1)*arrayslice,:,:] = result[i] 
+        else:
+            array_stabilized[i*arrayslice:nimgs,:,:] = result[num_procs-1] 
+
+    for i in range(nimgs):
+        roiplayer.roiseq[i] = Image.fromarray(numpy.uint8(array_stabilized[i,20:height-20,20:width-20]))
+
+
+
+
+
+
+
+
+
+
+
 # ==============================================================================
 # ==============================================================================
 # ------- Below the root window and its buttons get created & arranged ---------
@@ -775,10 +877,12 @@ nbook.add(roitab, text='  ROI Selection  ')
 # ROI selection Button
 roi = RegionOfInterest.ROI(mainframe) # instantiate roi object 
 roiB = tk.Button(roitab,text='Reset ROI',command=select_roi,height=bh,width=16)
-roiB.place(in_=roitab, anchor="c", relx=.07, rely=.12)
+roiB.place(in_=roitab, anchor="c", relx=.07, rely=.17)
 # roi sequence (cropped PIL image sequence) available by attribute: "roi.roiseq"  
 
 # initialize the roiplayer
+
+#subprocs = multiprocessing.Pool(processes = 10)
 roiplayer = FlipbookROI.ImgSeqPlayer(roitab,PIL_ImgSeq.directory,0,
 	PIL_ImgSeq.sequence,PIL_ImgSeq.seqlength,roi,1)
 roiplayer.animate()
@@ -902,15 +1006,15 @@ emptyspace = 20
 #******************************************************************************#
 
 
-"""
+
 ################################################################################
 # this was a straigth-forward attempt to remove vibrations
 # Wackel Dackel
-wackelB = Button(CapSeqF,text='  WackelDackel  ', command=lambda: PIL_ImgSeq.wackeldackel(),\
-        height=bh,width=bw)
-wackelB.grid(row=4,column=0,columnspan=2)
+#wackelB = tk.Button(roitab,text='Remove cell movement', command=lambda: PIL_ImgSeq.wackeldackel(),\
+#        height=bh,width=bw)
+#wackelB.place(in_=roitab, anchor="c", relx=0.07, rely=0.4)
 ################################################################################
-"""
+
 
 # remove sensor pattern (Puybareau 2016) 
 # removepatternB = Button(animationtab,text='Pattern Removal',\
@@ -919,15 +1023,27 @@ wackelB.grid(row=4,column=0,columnspan=2)
 
 
 # add an 'Image Registration'-button in the animation tab 
-#imageregB = Button(animationtab,text='Image Registration',\
-#                   command=lambda: PIL_ImgSeq.imagereg(), height=bh, width=16)
-#imageregB.place(in_=animationtab, anchor="c", relx=.07, rely=.14)
+imageregB = tk.Button(roitab,text='Image Stabilization',\
+command=image_stabilization, height=bh, width=16)
+
+#command=lambda: roiplayer.imagereg(), height=bh, width=16)
+#command=lambda: PIL_ImgSeq.imagereg(), height=bh, width=16)
+
+imageregB.place(in_=roitab, anchor="c", relx=.07, rely=.07)
 
 
 # motion extraction (see Puybareau et al. 2016) i.e. subtract the mean image  
 motionextractB = tk.Button(roitab,text='Subtract Mean',\
     command=lambda: PIL_ImgSeq.extractmotion(),height=bh,width=16)
-motionextractB.place(in_=roitab, anchor="c", relx=.07, rely=0.07)
+motionextractB.place(in_=roitab, anchor="c", relx=.07, rely=0.12)
+
+
+
+## crop margins 
+#cropB = tk.Button(roitab, text='Crop Margins',command=lambda:
+
+
+
 
 
 # *****************************************************************************#
@@ -951,11 +1067,11 @@ maxfreq = tk.IntVar()
 minfreq.set(5)
 maxfreq.set(15)
 
-minscale = tk.Scale(cbftab, from_=0.5, to=150, orient=tk.HORIZONTAL,length=400,\
+minscale = tk.Scale(cbftab, from_=0.5, to=50, orient=tk.HORIZONTAL,length=400,\
                  resolution=0.2,variable=minfreq,command=peakselector)
 minscale.place(in_=cbftab,anchor='c', relx=0.5,rely=0.8)
 
-maxscale = tk.Scale(cbftab, from_=0.5, to=150, orient=tk.HORIZONTAL,length=400,\
+maxscale = tk.Scale(cbftab, from_=0.5, to=50, orient=tk.HORIZONTAL,length=400,\
                  resolution=0.2,variable=maxfreq,command=peakselector)
 maxscale.place(in_=cbftab,anchor='c', relx=0.5,rely=0.85)
 

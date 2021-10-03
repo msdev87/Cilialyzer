@@ -1,3 +1,4 @@
+*.BACK
 *.bak
 *.back
 *.pyc
@@ -19,3 +20,5 @@
 *.tif    
 *.dat 
 ./test*
+./tests*
+test*

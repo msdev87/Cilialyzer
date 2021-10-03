@@ -391,6 +391,12 @@ class DynFilter:
 
         scorr = numpy.squeeze(scorr) # get rid of extra dimensions
 
+
+        # FOR TEST write scorr out for tests 
+        #numpy.savetxt('scorr.dat',scorr)
+
+
+
         # 'scorr' holds now the two-dimensional mean spatial autocorrelation
 		# based on which we determine the metachronal wavelength 
 		# according to Ryser et al. 2007 

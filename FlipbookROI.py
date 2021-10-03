@@ -6,6 +6,10 @@ import numpy
 import tkinter.ttk
 import math
 
+import multiprocessing
+#from multiprocessing import Pool
+
+
 if os.sys.version_info.major > 2:
     from tkinter.filedialog import askdirectory
     import tkinter as tk
@@ -19,6 +23,10 @@ VALID_TYPES = (
     "bmp", "dib", "dcx", "gif", "im", "jpg", "jpe", "jpeg", "pcd", "pcx",
     "png", "pbm", "pgm", "ppm", "psd", "tif", "tiff", "xbm", "xpm"
 )
+
+#p = Pool(processes = 10)
+
+
 
 def sort_list(l):
 
@@ -126,6 +134,15 @@ def ResizeCurrentImage(self):
     scale = min((self.screen[0]/float(w), self.screen[1]/float(h)))
     self.currentimg=self.currentimg.resize((int(w*scale), int(h*scale)))
 
+
+
+
+
+
+
+
+
+
 class ImgSeqPlayer(object):
 
     """
@@ -149,6 +166,9 @@ class ImgSeqPlayer(object):
         self.frame = tk.Frame(master,takefocus=0)
         self.frame.place(in_=master, anchor="c", relx=.5, rely=.5)
         self.seqlength = seqlength
+        #self.subprocs = subprocs # Pool-object from multiprocessing module
+        #self.subproc_args = () # 
+
 
         w,h = PILseq[0].size
         # create progressbar 
@@ -835,5 +855,142 @@ class ImgSeqPlayer(object):
         self.index = (self.index - 1)%(len(self.PILimgs))
 
 
+
+
+
+    def imagereg(self):
+
+
+
+
+
+        def subproc(args):
+            # process, which is ran concurrently 
+            """
+            meanimg = tup[0]
+            array = tup[1]
+
+            nimgs = array.shape[0]
+
+            array_stabilized = numpy.copy(array)
+            # loop over all images
+            for i in range(nimgs):
+            #note that only every second image is registered (performance)
+            if ((i % 2) == 0):
+            sr.register(meanimg,array[i,:,:])
+            # therefore, every second image is transformed as its predecessor
+            array_stabilized[i,:,:] = sr.transform(array[i,:,:])
+            return array_stabilized
+            """
+            print(args)
+
+
+
+        #import imreg_dft                                                        
+        #global p
+        #global subproc 
+        import time
+
+        start = time.time()
+        from pystackreg import StackReg
+
+        ################### new #############################################
+        sr = StackReg(StackReg.RIGID_BODY)
+
+        firstimg = self.roiseq[0] # first image of roi sequence               
+        width, height = firstimg.size # dimension of images                     
+        nimgs = len(self.roiseq) # number of images                           
+
+        # initialize numpy float array, which will hold the image sequence      
+        array = numpy.zeros((int(nimgs),int(height),int(width)))
+        array_stabilized = numpy.zeros((int(nimgs),int(height),int(width)))
+
+
+        # PIL images -> numpy array                                             
+        for i in range(nimgs):
+            array[i,:,:] = numpy.array(self.roiseq[i])
+
+        # compute mean image:
+        mean_img = numpy.mean(array, axis=0)
+
+        ## plot mean image
+        #import matplotlib
+        #import matplotlib.pyplot as plt
+        #from mpl_toolkits.axes_grid1 import make_axes_locatable
+        #ax = plt.subplot()
+        #img = ax.imshow(mean_img, cmap='gray')
+        #divider = make_axes_locatable(ax)
+        #cax = divider.append_axes("right", size="5%", pad=0.05)
+        #plt.colorbar(img, cax=cax)
+        #plt.show()
+
+        # divide array into subarrays 
+        # create a list of tupels (containing the mean image and a piece of 'array') 
+        num_procs = 6
+        subarrays = []
+        """
+        for i in range(num_procs):
+            if (i < num_procs-1):
+                subarrays.append((mean_img,array[round(i*nimgs/num_procs):round((i+1)*nimgs/num_procs-1),:,:]))
+            else:
+                subarrays.append((mean_img,array[round(i*nimgs):,:,:]))
+        """
+        subarrays= range(1000)
+
+
+
+        def my_func(x):
+            return x**2
+
+        #pool = multiprocessing.Pool(multiprocessing.cpu_count())
+        #result = pool.map(my_func, [4,2,3,5,3,2,1,2])
+
+
+
+
+
+
+
+
+
+        #out = self.subprocs.map(subproc,[i for i in range(10)])
+        #self.subprocs.close()
+
+
+
+        #self.roiseq[i] = Image.fromarray(numpy.uint8(aligned[10:height-10,10:width-10]))
+
+
+
+        ########################################################
+
+
+        """
+        sr = StackReg(StackReg.RIGID_BODY)
+
+        firstimg = self.roiseq[0] # first image of roi sequence               
+        width, height = firstimg.size # dimension of images                     
+        nimgs = len(self.roiseq) # number of images                           
+
+        # initialize numpy float array, which will hold the image sequence      
+        array = numpy.zeros((int(nimgs),int(height),int(width)))
+
+        # PIL images -> numpy array                                             
+        for i in range(nimgs):
+            array[i,:,:] = numpy.array(self.roiseq[i])
+
+        # set reference to 'first', 'previous', or 'mean'                       
+        aligned = sr.register_transform_stack(array, reference='mean',verbose=True)
+
+        print('max value')
+        print(numpy.amax(aligned))
+        print('min value')
+        print(numpy.amin(aligned))
+
+        for i in range(nimgs):
+            self.roiseq[i] = Image.fromarray(numpy.uint8(aligned[i,:,:]))
+        """
+
+        print('elapsed time: ', time.time()-start)
 
 

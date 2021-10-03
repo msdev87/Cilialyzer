@@ -33,7 +33,7 @@ class TkPowerspecPlot:
         self.meancbf = None
         self.CBFtxt = None 
 
-    def plot(self,xax,yax,xl='xlabel',yl='ylabel',lp=10,fs=12,xlims=(0.5,150)):
+    def plot(self,xax,yax,xl='xlabel',yl='ylabel',lp=10,fs=12,xlims=(0.5,50)):
 
         self.xlabel = xl
         self.ylabel = yl

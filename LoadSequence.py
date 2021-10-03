@@ -1,6 +1,8 @@
 import os,io
 import numpy
 
+
+
 if os.sys.version_info.major > 2:
     from tkinter import *
     from tkinter.filedialog import askdirectory
@@ -363,26 +365,25 @@ class ImageSequence:
         # initialize numpy float array, which will hold the image sequence  
         array = numpy.zeros((int(nimgs),int(height),int(width)))
 
-
         # gaussian blurring 
-        for i in range(nimgs):
-            self.sequence[i] = self.sequence[i].filter(ImageFilter.GaussianBlur(radius=10))
-
-        
-        # PIL images -> numpy array 
         #for i in range(nimgs):
-        #    array[i,:,:] = numpy.array(self.sequence[i])
-        
-        #print(len(array.shape)) 
-        #aligned = sr.register_transform_stack(array, reference='previous',verbose=True)
+        #    self.sequence[i] = self.sequence[i].filter(ImageFilter.GaussianBlur(radius=10))
+
+        # PIL images -> numpy array 
+        for i in range(nimgs):
+            array[i,:,:] = numpy.array(self.sequence[i])
+
+        #print(len(array.shape))
+        # set reference to 'first', 'previous', or 'mean'
+        aligned = sr.register_transform_stack(array, reference='mean',verbose=True)
         #for i in range(nimgs):
         #    #if (i > 0):
         #    mydict = imreg_dft.imreg.similarity(array[0,:,:],array[i,:,:])
         #    array[i,:,:] = mydict["timg"]
 
 
-        #for i in range(nimgs):
-        #    self.sequence[i] = Image.fromarray(numpy.uint8(scipy.misc.bytescale(aligned[i,:,:])))
+        for i in range(nimgs):
+            self.sequence[i] = Image.fromarray(numpy.uint8(aligned[i,:,:]))
 
 
     def extractmotion(self):

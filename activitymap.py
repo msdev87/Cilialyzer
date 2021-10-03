@@ -102,21 +102,21 @@ class activitymap:
 
                 # threshold in Ryser was set to 0.15 
                 threshold = 0.4
-                
+
                 A_xy = numpy.sum(self.spec[bot:top+1])
 
                 if (A_xy > threshold * A_bar):
                     # valid pixel 
                     # calculate the mean freq in freq band (weighted mean)
-                    
+
                     self.freqmap[i,j] = numpy.sum(numpy.multiply(self.freqs[bot:top+1], self.spec[bot:top+1])) / numpy.sum(self.spec[bot:top+1])
-                    
+
                 else:
                     # invalid pixel 
                     self.freqmap[i,j] = numpy.nan
-     
-            
-        dpis = 150 
+
+
+        dpis = 150
 
         #figw = int(round(self.tkframe.winfo_width() / dpis *0.8)) 
         #figh = int(round(self.tkframe.winfo_height() / dpis * 0.8)) 
