@@ -608,6 +608,7 @@ class ImgSeqPlayer(object):
                 self.refreshing = 1
                 self.frame.destroy()
                 self.selectroi = 0
+                self.stop = 2
                 self.__init__(self.master, self.directory,self.refreshing,self.roiseq,self.seqlength,self.roiobj,self.selectroi)
                 self.animate()
                 self.stop = 0
@@ -636,13 +637,13 @@ class ImgSeqPlayer(object):
             def on_mouse_down(event):
                 self.stop = 2 
                 self.anchor = (self.can.canvasx(event.x), self.can.canvasy(event.y))
-                
+
                 #print "\n"
                 #print "anchor"
                 #print self.anchor 
                 #print "\n"
-                
-                
+
+
                 self.item = None
             
                 self.bbox = self.anchor + (self.can.canvasx(event.x)+5, self.can.canvasy(event.y)+5)
@@ -853,6 +854,51 @@ class ImgSeqPlayer(object):
 
     def previous_image(self):
         self.index = (self.index - 1)%(len(self.PILimgs))
+
+
+
+
+    def crop_margins(self):
+        # crop margins
+
+        # get dimensions of roi-image stack
+        w,h = self.roiseq[0].size
+
+        for i in range(self.seqlength):
+            self.roiseq[i] = self.roiseq[i].crop((5,5,w-5,h-5)) 
+
+        self.refreshing = 1
+        self.frame.destroy()
+        self.selectroi = 0
+        self.__init__(self.master, self.directory,self.refreshing,self.roiseq,self.seqlength,self.roiobj,self.selectroi)
+        self.stop = 0
+        self.refreshing = 0 # as refreshing ends here                   
+        self.animate()
+ 
+
+        #pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

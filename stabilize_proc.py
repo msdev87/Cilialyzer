@@ -11,7 +11,6 @@ def subproc(args):
     nimgs = array.shape[0]
     print('nimgs: ',nimgs)
 
-
     array_stabilized = numpy.copy(array)
 
     sr = StackReg(StackReg.RIGID_BODY)

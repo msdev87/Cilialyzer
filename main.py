@@ -48,7 +48,10 @@ import multiprocessing
 
 # ------------------------------------------------------------------------------
 
-pool = multiprocessing.Pool(multiprocessing.cpu_count())
+
+# TODO 
+multiprocessing.freeze_support()
+#pool = multiprocessing.Pool(multiprocessing.cpu_count())
 
 
 
@@ -614,7 +617,6 @@ def image_stabilization():
     from pystackreg import StackReg
     import multiprocessing
 
-
     ################### new #############################################   
     sr = StackReg(StackReg.RIGID_BODY)
 
@@ -630,9 +632,8 @@ def image_stabilization():
     for i in range(nimgs):
         array[i,:,:] = numpy.array(roiplayer.roiseq[i])
 
-
     # compute mean image:                                                   
-    meanimg = numpy.mean(array, axis=0)
+    meanimg = numpy.mean(array[0:int(nimgs/10),:,:], axis=0)
 
     """
     # loop over all images
@@ -658,14 +659,13 @@ def image_stabilization():
     else:
         subarrays.append((meanimg,array[i*arrayslice:nimgs,:,:]))
 
-
     result = pool.map(stabilize_proc.subproc, [subarrays[i] for i in range(num_procs)])
 
     pool.close()
 
-    print(type(result))
-    print('length of list',len(result))
-    print('type of first element: ',type(result[0]))
+    #print(type(result))
+    #print('length of list',len(result))
+    #print('type of first element: ',type(result[0]))
     #print(result)
 
     # join the array slices together again
@@ -679,7 +679,7 @@ def image_stabilization():
             array_stabilized[i*arrayslice:nimgs,:,:] = result[num_procs-1] 
 
     for i in range(nimgs):
-        roiplayer.roiseq[i] = Image.fromarray(numpy.uint8(array_stabilized[i,20:height-20,20:width-20]))
+        roiplayer.roiseq[i] = Image.fromarray(numpy.uint8(array_stabilized[i,0:height-0,0:width-0]))
 
 
 
@@ -1040,8 +1040,8 @@ motionextractB.place(in_=roitab, anchor="c", relx=.07, rely=0.12)
 
 
 ## crop margins 
-#cropB = tk.Button(roitab, text='Crop Margins',command=lambda:
-
+cropB = tk.Button(roitab, text='Crop Margins',command=lambda: roiplayer.crop_margins(),height=bh, width=16)
+cropB.place(in_=roitab,anchor="c",relx=.07,rely=.22)
 
 
 
