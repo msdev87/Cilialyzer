@@ -430,10 +430,32 @@ class DynFilter:
         # la1= ax.imshow(scorr[xs:xe,ys:ye],alpha=1.0,cmap='bwr',interpolation='none',
         # extent=[xmin,xmax,ymin,ymax])
 
-        # 2D colormap of scorr 
-        la1 = ax.imshow(scorr,alpha=1.0,cmap='bwr',interpolation='none')
 
-        ax.set_title('Mean Spatial Autocorrelation')
+
+
+
+
+
+
+        # 2D colormap of scorr
+        xmin=-ncols/2.0*pixsize*0.001
+        xmax=-xmin
+        ymin=nrows/2.0*pixsize*0.001
+        ymax=-ymin
+
+        print('ncols',ncols)
+        print('nrows',nrows)
+        print('xmin,xmax,ymin,ymax ',xmin, xmax, ymin, ymax)
+
+
+        la1 = ax.imshow(scorr,alpha=1.0,cmap='bwr',interpolation='none',extent=[xmin,xmax,ymin,ymax])
+
+        #ax.set_title('Mean Spatial Autocorrelation',fontsize=16)
+        ax.set_xlabel("$\Delta$x [$\mu$m]",fontsize=16)
+        ax.set_ylabel("$\Delta$y [$\mu$m]",fontsize=16)
+
+
+
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
         cbar=fig.colorbar(la1,cax=cax)
@@ -501,8 +523,10 @@ class DynFilter:
 
         # ----------------- plot scorr with profile line --------------------
 
-        ax.plot([x0, x1], [y0, y1], color="orange", linewidth=1)
-
+        fac = 0.001*pixsize
+        ax.plot([x0*fac-xmax, x1*fac-xmax], [y0*fac+ymax, y1*fac+ymax], color="orange", linewidth=1)
+        
+        fig.tight_layout()
         can.draw()
         can.get_tk_widget().pack()
         can._tkcanvas.pack()
@@ -544,10 +568,13 @@ class DynFilter:
         distmat_profile = distmat_profile * pixsize * 0.001
         wavelength = wavelength_pix * pixsize * 0.001
 
-        ax.plot(distmat_profile,scorr_profile,linewidth=3,color='0.3')
+        ax.plot([distmat_profile[0],distmat_profile[-1]],[0,0], color='black',linewidth=2.0)
+ 
+
+        ax.plot(distmat_profile,scorr_profile,linewidth=3,color='darkorange')
         ax.set_ylim([-0.6,1.05])
-        ax.axvline(x=0.5*wavelength,ymin=-0.55,ymax=0.95,linestyle='dashed',color='0.3')
-        ax.axvline(x=-0.5*wavelength,ymin=-0.55,ymax=0.95,linestyle='dashed',color='0.3')
+        ax.axvline(x=0.5*wavelength,ymin=-0.55,ymax=0.95,linestyle='dashed',color='0.5')
+        ax.axvline(x=-0.5*wavelength,ymin=-0.55,ymax=0.95,linestyle='dashed',color='0.5')
 
         # print the wavelength 'lambda' 
         str1 = "$\lambda$ = "
@@ -562,14 +589,14 @@ class DynFilter:
         #cax = divider.append_axes("right", size="5%", pad=0.05)
         #fig.colorbar(la1,cax=cax)  
 
-        ax.set_xlabel("Distance [$\mu$m]",fontsize=14)
-        ax.set_ylabel("Correlation",fontsize=14)
+        ax.set_xlabel("Displacement [$\mu$m]",fontsize=16)
+        ax.set_ylabel("Correlation",fontsize=16)
 
         # draw also the absolute value of the correlation profile
         # as well as its envelope, which we use to determine 
         # the spatial correlation length 
         scorr_profile = numpy.absolute(scorr_profile)
-        ax.plot(distmat_profile,scorr_profile,linewidth=1,color='orange',linestyle='dashed')
+        #ax.plot(distmat_profile,scorr_profile,linewidth=1,color='orange',linestyle='dashed')
 
         # the autocorrelation length (\xi) is determined as the de-correlation
         # of the exponential fit to the 'envelope' exp(-2)
@@ -601,14 +628,14 @@ class DynFilter:
         for i in range(1000):
             gf[i] = exponential(distmat_profile[i],a,b)
 
-        ax.plot(distmat_profile,gf,color='darkorange')
+        #ax.plot(distmat_profile,gf,color='darkorange')
         # acorrlength measures distance after which correlation amounts to exp(-4)
         acorrlength=3*abs(b)
 
-        str1=r'$\xi_{exp}$'
-        str2=" = $%.1f$" %acorrlength
-        str3=" $\mu$m"
-        ax.text(0.7*wavelength,0.8,str1+str2+str3,fontsize=14,color='darkorange')
+        #str1=r'$\xi_{exp}$'
+        #str2=" = $%.1f$" %acorrlength
+        #str3=" $\mu$m"
+        #ax.text(0.7*wavelength,0.8,str1+str2+str3,fontsize=14,color='darkorange')
 
         # some correlation profiles are not well approximated by 
         # an exponential fit -> therefore, a second spatial correlation length
@@ -627,7 +654,7 @@ class DynFilter:
         str1=r'$\xi$'
         str2=" = $%.1f$" %xi
         str3=" $\mu$m"
-        ax.text(0.7*wavelength,0.7,str1+str2+str3,fontsize=14,color='darkorange')
+        ax.text(0.7*wavelength,0.75,str1+str2+str3,fontsize=14,color='darkorange')
 
 
         ax.margins(0.01)

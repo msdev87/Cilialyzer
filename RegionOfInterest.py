@@ -3,6 +3,7 @@ import os, io
 import Flipbook
 import PIL
 import PIL.Image
+
 if os.sys.version_info.major > 2:
     from tkinter import *
     from tkinter.filedialog import askdirectory

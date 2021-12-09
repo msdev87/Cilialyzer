@@ -11,7 +11,7 @@ class Toolbar:
 
     def selectdirectory(self):
 
-        avoid_troubles.stop_animation(self.player,self.roiplayer,self.ptrackplayer)
+        avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
 
         # ask the user to set a new directory and load the images                 
         self.PIL_ImgSeq.choose_directory()
@@ -95,7 +95,7 @@ class Toolbar:
         #print('roiplayer id in Toolbar: ',id(self.roiplayer))
         self.roiplayer.animate()
 
-    def __init__(self,parent,player,roiplayer,ptrackplayer,PIL_ImgSeq,nbook,roitab,roi,toolbar_h,toolbar_w,statusbar):
+    def __init__(self, parent, player, roiplayer, ptrackplayer, PIL_ImgSeq, nbook, roitab, roi, toolbar_h, toolbar_w, statusbar):
 
         self.player = player
         self.roiplayer = roiplayer
@@ -127,8 +127,8 @@ class Toolbar:
 
         # Label Widget + Entry Widget for setting the recording speed [FPS] 
 
-        fps_label=tk.Label(self.toolbarframe, text="Recording Speed [FPS] :",\
-            anchor='e', font=("Verdana",10),width=22)
+        fps_label=tk.Label(self.toolbarframe, text="Recording Speed [fps] :",\
+            anchor='e', font=("TkDefaultFont",10),width=22)
         fps_label.grid(row=0,column=3,padx=5,sticky='W')
 
         fps_list = [300,200,120,100,30]
@@ -140,7 +140,7 @@ class Toolbar:
         # ----------------------------------------------------------------------
         # Label and Entry Widget for setting the pixel size in [nm]                    
         pixsize_label=tk.Label(self.toolbarframe,text="Pixelsize [nm] :",\
-            width=22,anchor='e',font=("Verdana",10))
+            width=22,anchor='e',font=("TkDefaultFont",10))
         pixsize_label.grid(row=0,column=5,sticky='W')
 
         pixsize_list = [1779, 345, 173, 86, 4500,1]

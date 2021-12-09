@@ -263,7 +263,7 @@ class ImgSeqPlayer(object):
             variable=self.pcolor,command=self.pcolor_func,value=2,bd=4,width=12)
         self.pcolorB.grid(row=1, column=0)
 
-        fakepixel = ImageTk.PhotoImage(file=r"./fakepixel.png")
+        fakepixel = ImageTk.PhotoImage(file=r"./icons/fakepixel.png")
         # "Lee-Filter button" 
         self.extractparticlesB = tk.Button(self.trackcframe,
             text='Extract Particles',command=self.extractparticles,width=20,

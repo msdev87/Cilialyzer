@@ -19,6 +19,4 @@
 *.tiff
 *.tif    
 *.dat 
-./test*
-./tests*
-test*
+.idea/*

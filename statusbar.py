@@ -12,7 +12,7 @@ class StatusBar:
         self.dirname.set(PIL_ImgSeq.dirname.get())
         self.filename.set(PIL_ImgSeq.fname.get())
 
-    def __init__(self,parent,bar_w,bar_h,ctrl_panel,PIL_ImgSeq):
+    def __init__(self, parent, bar_w, bar_h, ctrl_panel, PIL_ImgSeq):
 
         self.statusbarframe = tk.Frame(parent,width=bar_w,height=bar_h,bg='gray92')
         self.ctrl_panel = ctrl_panel
