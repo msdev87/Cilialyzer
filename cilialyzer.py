@@ -124,10 +124,10 @@ class Cilialyzer():
             self.ptrackplayer.animate()
 
 
-        if (DynamicFiltering_flag):
+        if (self.DynamicFiltering_flag):
             if (clicked_tab == self.nbook.index(self.dynfiltertab)):
                 # dynamic filtering tab got selected
-                self.nbook.select(nbook.index(dynfiltertab))
+                self.nbook.select(self.nbook.index(self.dynfiltertab))
                 # 1. apply band-pass filter
                 self.dynseq.bandpass(self.roiplayer.roiseq,
                     float(self.toolbar.fpscombo.get()), float(self.minscale.get()),
@@ -468,29 +468,29 @@ class Cilialyzer():
         # Configure which tabs should be made available when launching the application
 
         # Tab to view the sequence
-        AnimateSequence = True
+        # AnimateSequence = True
 
         # Tab to select a ROI
-        ROISelection = True
+        self.ROISelection_flag = True
 
         # Tab to generate the (ROI-based) power spectral density [PSD]
-        CBF_flag = True
+        self.CBF_flag = True
 
         # Tab to generate the activity map (ROI-based, PSD-based)
-        ActivityMap = True
+        self.ActivityMap_flag = True
 
         # Tab to analyze single pixels
-        SinglePixelAnalysis = False
+        self.SinglePixelAnalysis_flag = False
 
-        MotionTracking = False
+        self.MotionTracking_flag = False
 
-        ParticleTracking_flag = True
+        self.ParticleTracking_flag = True
 
-        DynamicFiltering_flag = True
+        self.DynamicFiltering_flag = True
 
-        SpatioTemporalCorrelogram = False
+        self.SpatioTemporalCorrelogram_flag = False
 
-        kSpectrum = False
+        self.kSpectrum_flag = False
 
         resize_flag = False  # indicates whether the user resized the main window
 
@@ -729,7 +729,7 @@ class Cilialyzer():
         # add a combobox in which the user is supposed to specify the
         # number of harmonics, the default is 2
         # Label and Entry Widget for specifying the number of visible harmonics
-        if (DynamicFiltering_flag):
+        if (self.DynamicFiltering_flag):
             self.nrharms_label=tk.Label(self.cbftab, text="Number of Harmonics :",width=22,anchor='e',\
             font=("Helvetica",11))
             self.nrharms_label.place(in_=self.cbftab, anchor='c', relx=0.75, rely=0.15)
@@ -770,7 +770,7 @@ class Cilialyzer():
         
         #*****************************************************************************#
         # *************************** Single Pixel Analysis **************************# 
-        if (SinglePixelAnalysis):
+        if (self.SinglePixelAnalysis_flag):
 
             pixeltab = tk.Frame(nbook,width=int(round(0.75*screenw)),height=int(round(0.8*screenh)))
             nbook.add(pixeltab, text='Single Pixel Analysis')
@@ -794,7 +794,7 @@ class Cilialyzer():
 
         #******************************************************************************#
         # ************************* Particle Tracking ******************************** #
-        if (ParticleTracking_flag):
+        if (self.ParticleTracking_flag):
             self.ptracktab = tk.Frame(self.nbook, width=int(round(0.6*self.nbookw)), height=int(round(0.6*self.nbookh)))
             self.nbook.add(self.ptracktab, text='Particle Tracking')
 
@@ -812,7 +812,7 @@ class Cilialyzer():
 
         #********************************************************************* #
         # ********************** Dynamic Filtering *************************** #
-        if (DynamicFiltering_flag):
+        if (self.DynamicFiltering_flag):
             self.dynseq = DynamicFilter.DynFilter()
             self.dynfiltertab = tk.Frame(self.nbook,width=int(round(0.75*self.nbookw)),height=int(round(0.8*self.nbookh)))
             self.nbook.add(self.dynfiltertab, text='Dynamic Filtering')
@@ -824,7 +824,7 @@ class Cilialyzer():
         #******************************************************************************#
         # ******************* Spatio-Temporal Correlation **************************** #
         
-        if (SpatioTemporalCorrelogram):
+        if (self.SpatioTemporalCorrelogram_flag):
             correlationtab = tk.Frame(nbook,width=int(round(0.75*screenw)),height=int(round(0.8*screenh)))
             nbook.add(correlationtab, text='Saptio-Temporal Correlation')
 
@@ -836,7 +836,7 @@ class Cilialyzer():
 
         #******************************************************************************#
         
-        if (kSpectrum):
+        if (self.kSpectrum_flag):
             kspectab = tk.Frame(nbook,width=int(round(0.75*screenw)),\
             height=int(round(0.8*screenh)))
             nbook.add(kspectab, text='kSpec') 
