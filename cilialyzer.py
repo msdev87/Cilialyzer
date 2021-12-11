@@ -12,6 +12,8 @@ import numpy
 import Powerspec
 import activitymap
 import DynamicFilter
+import Flipbook
+import FlipbookPTrack
 import multiprocessing
 
 
@@ -139,31 +141,23 @@ class Cilialyzer():
                 self.dynplayer.animate() # call meth
 
 
+    def select_roi(self):
 
-
-
-
-
-
-    def select_roi():
-
-        global roiplayer
+        #global roiplayer
         try:
             # avoid crash
-            roiplayer.stop = 2
+            self.roiplayer.stop = 2
             # as roiplayer was not None -> destroy frame before it gets rebuilt:
-            roiplayer.frame.destroy()
+            self.roiplayer.frame.destroy()
         except NameError:
             pass
 
         refresh = 0
         selectroi = 1
-        roiplayer = FlipbookROI.ImgSeqPlayer(roitab, PIL_ImgSeq.directory,
-                                             refresh,
-                                             PIL_ImgSeq.sequence,
-                                             PIL_ImgSeq.seqlength, roi,
-                                             selectroi)
-        roiplayer.animate()
+        self.roiplayer = FlipbookROI.ImgSeqPlayer(self.roitab,
+            self.PIL_ImgSeq.directory, refresh, self.PIL_ImgSeq.sequence,
+            self.PIL_ImgSeq.seqlength, self.roi, selectroi)
+        self.roiplayer.animate()
 
 
     def peakselector(self, event):
@@ -196,7 +190,7 @@ class Cilialyzer():
 
         # ------- shade the second and third harmonic (if selected) --------
 
-        if (int(nrharmscombo.get()) > 1):
+        if (int(self.nrharmscombo.get()) > 1):
             fpeakw = maxf - minf
             fpeak = minf + 0.5 * fpeakw
             secondpeakf = 2.0 * fpeak
@@ -214,7 +208,7 @@ class Cilialyzer():
 
             powerspectrum.pwspecplot.canvas.draw()
 
-        if (int(nrharmscombo.get()) > 2):
+        if (int(self.nrharmscombo.get()) > 2):
             thrdpeakf = 3.0 * fpeak
             thrdminf = thrdpeakf - 0.5 * fpeakw
             thrdmaxf = thrdpeakf + 0.5 * fpeakw
@@ -761,7 +755,7 @@ class Cilialyzer():
             command=lambda: self.activity_map.calc_activitymap(self.mapframe,\
             self.roiplayer.roiseq,float(self.toolbar.fpscombo.get()),\
             float(self.minscale.get()), float(self.maxscale.get()),\
-            powerspectrum), height=bh, width=bw)
+            self.powerspectrum), height=bh, width=bw)
         self.activityB.place(in_=self.activitytab, anchor='c', relx=0.5, rely=0.05)
 
         #**********************************************************************#
