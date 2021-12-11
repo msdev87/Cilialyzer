@@ -352,24 +352,22 @@ class Cilialyzer():
         player.animate()  # call method animate 
     """
 
-    def meanscorrgram():
-        global dynseq
+    # --------------------------------------------------------------------------
+    def meanscorrgram(self):
+        """
+        Computes the mean spatial autocorrelation
+        """
 
-        # calculate the mean spatial autocorrelation
-
-        if (len(dynseq.dyn_roiseq) > 1):
-            dynseq.mscorr(float(toolbar_object.fpscombo.get()), float(minscale.get()),
-                          float(maxscale.get()), mscorrplotframe, mscorrprofileframe,
-                          float(toolbar_object.pixsizecombo.get()))
-
+        if (len(self.dynseq.dyn_roiseq) > 1):
+            self.dynseq.mscorr(float(self.toolbar.fpscombo.get()), float(self.minscale.get()),
+                float(self.maxscale.get()), self.mscorrplotframe, self.mscorrprofileframe,
+                float(self.toolbar.pixsizecombo.get()))
         else:
-            # print('except')
-            # dynseq = DynamicFilter.DynFilter()
-            dynseq.dyn_roiseq = PIL_ImgSeq.sequence
-            dynseq.mscorr(float(toolbar_object.fpscombo.get()), float(minscale.get()),
-                          float(maxscale.get()), mscorrplotframe, mscorrprofileframe,
-                          float(toolbar_object.pixsizecombo.get()))
-
+            self.dynseq.dyn_roiseq = self.PIL_ImgSeq.sequence
+            self.dynseq.mscorr(float(self.toolbar.fpscombo.get()), float(self.minscale.get()),
+                float(self.maxscale.get()), self.mscorrplotframe, self.mscorrprofileframe,
+                float(self.toolbar.pixsizecombo.get()))
+    # --------------------------------------------------------------------------
 
     def corrgram():
 
@@ -485,6 +483,8 @@ class Cilialyzer():
         self.SpatioTemporalCorrelogram_flag = False
 
         self.kSpectrum_flag = False
+
+        self.SpatialAcorr_flag = True
 
         resize_flag = False  # indicates whether the user resized the main window
 
@@ -851,39 +851,34 @@ class Cilialyzer():
         
 
 
+        # ******************************************************************** #
+        #                    Spatial autocorrelation tab
+        # *********************************************************************#
 
+        if (self.SpatialAcorr_flag):
+            self.mcorrtab = tk.Frame(self.nbook, width=int(round(0.9*self.nbookw)),
+                height=int(round(0.95*self.nbookh)))
+            self.nbook.add(self.mcorrtab, text=' Spatial Autocorrelation ')
 
-        # **************************************************************************** #
-        #                     Spatial autocorrelation tab
-        # *****************************************************************************#
-
-        """
-        self.mcorrtab = tk.Frame(self.nbook, width=int(round(0.9*self.nbookw)),height=int(round(0.95*self.nbookh)))
-        self.nbook.add(self.mcorrtab, text=' Spatial Autocorrelation ')
-
-        self.mcorrB = tk.Button(mcorrtab, text='Mean Spatial Autocorrelation',
-        command=meanscorrgram, height=bh, width=bw)
-        mcorrB.place(in_=mcorrtab, anchor="c", relx=.5, rely=.05)
+        self.mcorrB = tk.Button(self.mcorrtab, text='Mean Spatial Autocorrelation',
+            command=self.meanscorrgram, height=bh, width=bw)
+        self.mcorrB.place(in_=self.mcorrtab, anchor="c", relx=.5, rely=.05)
 
         # here we plot the mean spatial autocorrelation ('mscorr' = mean spatial correlation)  
-        mscorrplotframe = tk.Frame(mcorrtab,width=int(round(0.45*screenw)),height=int(round(0.6*screenh)))
-        mscorrplotframe.place(in_=mcorrtab, anchor='c', relx=0.25, rely=0.5)
+        self.mscorrplotframe = tk.Frame(self.mcorrtab, width=int(round(0.45*self.nbookw)),
+            height=int(round(0.6*self.nbookh)))
+        self.mscorrplotframe.place(in_=self.mcorrtab, anchor='c', relx=0.25, rely=0.5)
 
         # plot a profile along a selected line going through the center of the mean spatial acorr
-        mscorrprofileframe = tk.Frame(mcorrtab, width=int(round(0.45*screenw)),height=int(round(0.6*screenh)))
-        mscorrprofileframe.place(in_=mcorrtab, anchor='c', relx=0.75, rely=0.5)
-        """
+        self.mscorrprofileframe = tk.Frame(self.mcorrtab,
+            width=int(round(0.45*self.nbookw)),height=int(round(0.6*self.nbookh)))
+        self.mscorrprofileframe.place(in_=self.mcorrtab, anchor='c', relx=0.75, rely=0.5)
 
-
-        
+        # ----------------------------------------------------------------------
 
 
         # each time the application's window size gets changed -> call 'resize'
         # self.main_window.bind( "<Configure>", self.resize)
-
-
-
-
 
 if __name__ == "__main__":
 
