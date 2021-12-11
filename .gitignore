@@ -6,17 +6,6 @@
 *.log
 *.aux 
 *.out
-*.pdf
 *~
-*.png 
-*.jpeg
-*.pgm
-*.gif
-./icons/*
-*.jpg
-*.svg
-*.ppm
-*.tiff
-*.tif    
 *.dat 
 .idea/*
