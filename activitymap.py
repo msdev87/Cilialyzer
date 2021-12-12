@@ -1,20 +1,16 @@
-import numpy 
-import os
+import numpy
 from tkinter import *
 import matplotlib
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
-from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 class activitymap:
 
-    def __init__(self,parent,parentw, parenth):
+    def __init__(self, parent, parentw, parenth):
 
         self.map = None
-
-        
         self.parentw = parentw 
         self.parenth = parenth
         self.tkframe = Frame(parent,width=self.parentw,height=self.parenth) 
@@ -38,12 +34,11 @@ class activitymap:
 
         self.canvas = None 
 
-    def calc_activitymap(self,parent,PILseq,FPS,minf,maxf,powerspectrum): 
+    def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum):
 
         # initialize attributes 
 
         pwspecplot = powerspectrum.pwspecplot 
-        
 
         self.firstimg = PILseq[0] 
         self.width, self.height = self.firstimg.size # dimension of images 
@@ -53,29 +48,26 @@ class activitymap:
 
         #for i in range(self.nimgs): 
         #    self.array[i,:,:] = numpy.array(PILseq[i]) # array holds image intensties 
-       
-        self.freqmap = numpy.zeros((int(self.height),int(self.width))) # activity map 
 
+       # initialze the array holding the activity map
+        self.freqmap = numpy.zeros((int(self.height), int(self.width)))
 
         self.tkframe.destroy()
-        self.tkframe = Frame(parent,width=self.parentw,height=self.parenth)
+        self.tkframe = Frame(parent, width=self.parentw, height=self.parenth)
         self.tkframe.pack()
 
-
         # fast-fourier-transform along time axis (pixel-wise) 
-        #(nt,ni,nj) = numpy.shape(self.array)
-        (nt,ni,nj) = numpy.shape(powerspectrum.pixelspectra)
+        # (nt,ni,nj) = numpy.shape(self.array)
+        (nt, ni, nj) = numpy.shape(powerspectrum.pixelspectra)
         self.spec = numpy.zeros(nt)
-
 
         # calculate the frequencies: 
         self.freqs = numpy.zeros(self.spec.size)
         for i in range(self.spec.size):
             self.freqs[i] = (i+1) * float(FPS) / float(self.nimgs)
 
-
-        bot =  int(round( (float(self.nimgs)*minf/float(FPS))-1 ))
-        top =  int(round( (float(self.nimgs)*maxf/float(FPS))-1 ))
+        bot = int(round( (float(self.nimgs)*minf/float(FPS))-1 ))
+        top = int(round( (float(self.nimgs)*maxf/float(FPS))-1 ))
         
         #print "bot", bot 
         #print "top", top 
@@ -97,11 +89,11 @@ class activitymap:
 
                 # check the validity of each pixel: 
                 # according to the procedure of the 'integral spectral density' 
-                # presented in Ryser 2007 
+                # presented in Ryser et al. 2007
                 # (condition for invalidity: A_xy / A_bar < 0.15)  
 
                 # threshold in Ryser was set to 0.15 
-                threshold = 0.4
+                threshold = 0.3
 
                 A_xy = numpy.sum(self.spec[bot:top+1])
 
@@ -141,11 +133,10 @@ class activitymap:
 
         divider = make_axes_locatable(self.ax1)
         cax = divider.append_axes("right", size="7%", pad=0.08)
-        bla1=self.ax1.imshow(self.freqmap, alpha=1.0,cmap='coolwarm',interpolation='none') 
+        bla1=self.ax1.imshow(self.freqmap, alpha=1.0, cmap='coolwarm', interpolation='none')
         self.ax1.set_title('Activity Map') 
         self.fig.colorbar(bla1,cax=cax)
-        
-        
+
         divider = make_axes_locatable(self.ax2)
         cax = divider.append_axes("right", size="7%", pad=0.08)
         bla2=self.ax2.imshow(numpy.asarray(self.firstimg),cmap='gray',alpha=1.0)

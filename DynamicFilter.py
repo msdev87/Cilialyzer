@@ -38,9 +38,7 @@ class DynFilter:
         self.dyn_roiseq = [] 
         self.corr_roiseq = []
         self.tkframe = None
-
         self.profileframe = None
-
         self.kxkyplotax = None
         self.kxkyrows = None
         self.kxkycols = None
@@ -332,7 +330,7 @@ class DynFilter:
         can.get_tk_widget().pack()
         can._tkcanvas.pack()
 
-    def mscorr(self,fps,minf,maxf,tkparent,tkparent2,pixsize):
+    def mscorr(self, fps, minf, maxf, tkparent,tkparent2,pixsize):
 
         # mscorr calculates the mean spatial autocorrelation
         # over several images of the image sequence 

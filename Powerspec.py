@@ -72,7 +72,7 @@ class powerspec:
             print('shape of array: ',nt,ni,nj)
 
             # create a toplevel window to display the progress indicator
-	    # caution: the feedback to the frontend slows down the cbf calculation!   
+	        # caution: the feedback to the frontend slows down the cbf calculation!
             # ******************************************************************* #
             progresswin = Toplevel()
             progresswin.minsize(width=500,height=30)
@@ -138,7 +138,7 @@ class powerspec:
 
             #powerspecplot.plot(self.freqs,self.spec,xlabel,ylabel,labelpad,fontsize) 
 
-            self.pwspecplot.plot(self.freqs,self.spec,xlabel,ylabel,labelpad,fontsize)
+            self.pwspecplot.plot(self.freqs, self.spec, xlabel, ylabel, labelpad, fontsize)
 
 
 

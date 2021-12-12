@@ -135,14 +135,6 @@ def ResizeCurrentImage(self):
     self.currentimg=self.currentimg.resize((int(w*scale), int(h*scale)))
 
 
-
-
-
-
-
-
-
-
 class ImgSeqPlayer(object):
 
     """
@@ -168,7 +160,6 @@ class ImgSeqPlayer(object):
         self.seqlength = seqlength
         #self.subprocs = subprocs # Pool-object from multiprocessing module
         #self.subproc_args = () # 
-
 
         w,h = PILseq[0].size
         # create progressbar 
@@ -204,7 +195,7 @@ class ImgSeqPlayer(object):
 
         # spinbox 
         self.rotB = tk.Spinbox(self.rotframe, from_=-180, to=180, increment=15,\
-                                command=self.rotate,width=3)
+            command=self.rotate,width=3)
         self.rotB.grid(row=0,column=1,columnspan=1)
         self.rotB.delete(0, "end")
         self.rotB.insert(0,0)

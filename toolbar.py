@@ -32,7 +32,7 @@ class Toolbar:
 
     def nextdirectory(self):
 
-        avoid_troubles.stop_animation(self.player,self.roiplayer,self.ptrackplayer)
+        avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
 
         # get a list of all subdirectories of the parent directory
         directory = self.PIL_ImgSeq.directory
@@ -58,9 +58,9 @@ class Toolbar:
             next_directory = subdirectories[ind+1]
         else:
             tk.messagebox.showwarning(title='warning',\
-                    message='You have already analyzed all the sequences. The first image sequence is now getting loaded again...')
+                message='You have already analyzed all the sequences. '
+                        'The first image sequence is now getting loaded again...')
             next_directory = subdirectories[0]
-
 
         self.PIL_ImgSeq.directory = next_directory
         self.PIL_ImgSeq.dirname.set(next_directory)
@@ -87,10 +87,8 @@ class Toolbar:
         self.roiplayer.__init__(self.roitab,self.PIL_ImgSeq.directory,refresh,
         self.PIL_ImgSeq.sequence,self.PIL_ImgSeq.seqlength,self.roi,selectroi)
 
-
         # update label in statusbar:
         self.statusbar.update(self.PIL_ImgSeq)
-
 
         #print('roiplayer id in Toolbar: ',id(self.roiplayer))
         self.roiplayer.animate()
@@ -105,7 +103,6 @@ class Toolbar:
         self.roitab = roitab
         self.roi = roi
         self.statusbar = statusbar
-
 
         self.toolbarframe = tk.Frame(parent,width=toolbar_w,height=toolbar_h) # main frame containing the tools
         print('test')

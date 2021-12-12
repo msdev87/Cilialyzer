@@ -73,7 +73,6 @@ class Cilialyzer():
         active_tab = self.nbook.index(self.nbook.select())
 
         if ((active_tab == self.nbook.index(self.roitab)) and (clicked_tab != active_tab)):
-
             try:
                 self.roiplayer.stop = 2
             except NameError:
@@ -112,7 +111,6 @@ class Cilialyzer():
                 except:
                     pass
 
-
         if (clicked_tab == self.nbook.index(self.ptracktab)):
             # particle tracking tab got selected
             self.nbook.select(self.nbook.index(self.ptracktab))
@@ -124,7 +122,6 @@ class Cilialyzer():
                 self.PIL_ImgSeq.seqlength, self.roi, selectroi,
                 float(self.toolbar.fpscombo.get()), float(self.toolbar.pixsizecombo.get()))
             self.ptrackplayer.animate()
-
 
         if (self.DynamicFiltering_flag):
             if (clicked_tab == self.nbook.index(self.dynfiltertab)):
@@ -159,25 +156,20 @@ class Cilialyzer():
             self.PIL_ImgSeq.seqlength, self.roi, selectroi)
         self.roiplayer.animate()
 
-
+    # ------------------------- peakselector -----------------------------------
     def peakselector(self, event):
-
-        # this command gets executed if the user shifts the scrollbars,
-        # which define the min and max freq of the considered freq band,
-        # which is necessary for the determination of the CBF and the activity map
-
-        #global powerspectrum, minscale, maxscale, nrharmscombo
+        """"
+        this command gets executed if the user shifts the scrollbars,
+        which define the min and max freq of the considered freq band,
+        which is necessary for the determination of the CBF and the activity map
+        """
 
         minf = float(self.minscale.get())
         maxf = float(self.maxscale.get())
 
-        #print(minf)
-        #print(maxf)
-
         # fill whole area white (to delete prior selections!)
         self.powerspectrum.pwspecplot.axes.fill_between(self.powerspectrum.freqs,
-                                                        self.powerspectrum.spec,
-                                                        facecolor='white', alpha=1.0)
+            self.powerspectrum.spec, facecolor='white', alpha=1.0)
 
         # shade first harmonic (selection)
         maxind = numpy.sum((numpy.array(self.powerspectrum.freqs) <= maxf).astype(int))
@@ -188,8 +180,7 @@ class Cilialyzer():
 
         self.powerspectrum.pwspecplot.canvas.draw()
 
-        # ------- shade the second and third harmonic (if selected) --------
-
+        # --------- shade the second and third harmonic (if selected) ----------
         if (int(self.nrharmscombo.get()) > 1):
             fpeakw = maxf - minf
             fpeak = minf + 0.5 * fpeakw
@@ -198,15 +189,14 @@ class Cilialyzer():
             secondmaxf = secondpeakf + 0.5 * fpeakw
 
             maxind = numpy.sum(
-                (numpy.array(powerspectrum.freqs) <= secondmaxf).astype(int))
+                (numpy.array(self.powerspectrum.freqs) <= secondmaxf).astype(int))
             minind = numpy.sum(
-                (numpy.array(powerspectrum.freqs) <= secondminf).astype(int))
-            powerspectrum.pwspecplot.axes.fill_between(
-                powerspectrum.freqs[minind:maxind + 1],
-                powerspectrum.spec[minind:maxind + 1], facecolor='gray',
-                alpha=0.4)
+                (numpy.array(self.powerspectrum.freqs) <= secondminf).astype(int))
+            self.powerspectrum.pwspecplot.axes.fill_between(
+                self.powerspectrum.freqs[minind:maxind + 1],
+                self.powerspectrum.spec[minind:maxind + 1], facecolor='gray', alpha=0.4)
 
-            powerspectrum.pwspecplot.canvas.draw()
+            self.powerspectrum.pwspecplot.canvas.draw()
 
         if (int(self.nrharmscombo.get()) > 2):
             thrdpeakf = 3.0 * fpeak
@@ -214,25 +204,21 @@ class Cilialyzer():
             thrdmaxf = thrdpeakf + 0.5 * fpeakw
 
             maxind = numpy.sum(
-                (numpy.array(powerspectrum.freqs) <= thrdmaxf).astype(int))
+                (numpy.array(self.powerspectrum.freqs) <= thrdmaxf).astype(int))
             minind = numpy.sum(
-                (numpy.array(powerspectrum.freqs) <= thrdminf).astype(int))
-            powerspectrum.pwspecplot.axes.fill_between(
-                powerspectrum.freqs[minind:maxind + 1],
-                powerspectrum.spec[minind:maxind + 1], facecolor='gray',
+                (numpy.array(self.powerspectrum.freqs) <= thrdminf).astype(int))
+            self.powerspectrum.pwspecplot.axes.fill_between(
+                self.powerspectrum.freqs[minind:maxind + 1],
+                self.powerspectrum.spec[minind:maxind + 1], facecolor='gray',
                 alpha=0.4)
 
-            powerspectrum.pwspecplot.canvas.draw()
-
-
-
-
+            self.powerspectrum.pwspecplot.canvas.draw()
+    # ----------------------- end of peakselector ------------------------------
 
 
     def image_stabilization(self):
 
         import stabilize_proc
-
         from pystackreg import StackReg
         import multiprocessing
 
@@ -304,6 +290,8 @@ class Cilialyzer():
         for i in range(nimgs):
             self.roiplayer.roiseq[i] = Image.fromarray(
                 numpy.uint8(array_stabilized[i,:,:]))
+
+
     """
     def loadvideo():
         # TODO : videos should be loadable as well (not only image sequences) 
@@ -660,7 +648,7 @@ class Cilialyzer():
 
         # motion extraction (see Puybareau et al. 2016) i.e. subtract the mean image
         self.motionextractB = tk.Button(self.roitab, text='Subtract Mean',
-                                    command=lambda: PIL_ImgSeq.extractmotion(), height=bh, width=16)
+            command=lambda: self.PIL_ImgSeq.extractmotion(), height=bh, width=16)
         self.motionextractB.place(in_=self.roitab, anchor="c", relx=.07, rely=0.12)
 
 
@@ -785,11 +773,10 @@ class Cilialyzer():
         #**************************************************************************** #
         
 
-
-        #******************************************************************************#
-        # ************************* Particle Tracking ******************************** #
+        # ************************* Particle Tracking ************************ #
         if (self.ParticleTracking_flag):
-            self.ptracktab = tk.Frame(self.nbook, width=int(round(0.6*self.nbookw)), height=int(round(0.6*self.nbookh)))
+            self.ptracktab = tk.Frame(self.nbook, width=int(round(0.6*self.nbookw)),
+                height=int(round(0.6*self.nbookh)))
             self.nbook.add(self.ptracktab, text='Particle Tracking')
 
             #print('ptracktab ',nbook.index(ptracktab))
@@ -797,27 +784,19 @@ class Cilialyzer():
             # top left -> 'controls'
             self.trackcframe = tk.Frame(self.ptracktab, takefocus=0)
             self.trackcframe.place(in_=self.ptracktab, anchor="c")
-
-            #trackclframe = LabelFrame(trackcframe,takefocus=1, text='Controls',
-            #					labelanchor='n',borderwidth = 4,padx=3,pady=3,font=("Helvetica", 11, "bold"))
-            #trackclframe.grid(row=0,column=0)
-        #******************************************************************************#
+        #**********************************************************************#
 
 
-        #********************************************************************* #
         # ********************** Dynamic Filtering *************************** #
         if (self.DynamicFiltering_flag):
             self.dynseq = DynamicFilter.DynFilter()
-            self.dynfiltertab = tk.Frame(self.nbook,width=int(round(0.75*self.nbookw)),height=int(round(0.8*self.nbookh)))
+            self.dynfiltertab = tk.Frame(self.nbook, width=int(round(0.75*self.nbookw)),
+                height=int(round(0.8*self.nbookh)))
             self.nbook.add(self.dynfiltertab, text='Dynamic Filtering')
         #**********************************************************************#
 
 
-
-
-        #******************************************************************************#
-        # ******************* Spatio-Temporal Correlation **************************** #
-        
+        # ****************** Spatio-Temporal Correlation ********************* #
         if (self.SpatioTemporalCorrelogram_flag):
             correlationtab = tk.Frame(nbook,width=int(round(0.75*screenw)),height=int(round(0.8*screenh)))
             nbook.add(correlationtab, text='Saptio-Temporal Correlation')
@@ -828,7 +807,7 @@ class Cilialyzer():
         
 
 
-        #******************************************************************************#
+        #**********************************************************************#
         
         if (self.kSpectrum_flag):
             kspectab = tk.Frame(nbook,width=int(round(0.75*screenw)),\
@@ -847,7 +826,7 @@ class Cilialyzer():
             splitlinescale = tk.Scale(kspectab, from_=0, to=180, orient=tk.HORIZONTAL,length=400,\
             resolution=1.0,variable=splitangle,command=splitkspec)
             splitlinescale.place(in_=kspectab,anchor='c', relx=0.5,rely=0.9)
-        #******************************************************************************#
+        #**********************************************************************#
         
 
 
