@@ -46,10 +46,22 @@ class Toolbar:
         directory = self.PIL_ImgSeq.directory
 
         parent_path = pathlib.Path(directory).parent
+        parent_path = os.path.abspath(parent_path)
+        print('*****************************')
+        print(os.path.abspath(os.path.join(directory, os.pardir)))
+        print('*****************************')
+
         contents = os.listdir(parent_path)
+        print('parent_path:')
+        print(parent_path)
+        print('--------')
+
 
         for i in range(len(contents)):
-            contents[i] = os.path.abspath(os.path.join(parent_path,contents[i]))
+            contents[i] = os.path.abspath(os.path.join(parent_path, contents[i]))
+
+        print('contents again:')
+        print(contents)
 
         subdirectories=[]
 
@@ -58,6 +70,12 @@ class Toolbar:
                 subdirectories.append(item)
 
         subdirectories.sort()
+
+        print('test')
+        print(subdirectories)
+        print(directory)
+        print('--------------------')
+
 
         # find the next consecutive directory (relative to the cwd):
         ind=subdirectories.index(directory)
