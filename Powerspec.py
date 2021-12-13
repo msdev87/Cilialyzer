@@ -32,7 +32,8 @@ class powerspec:
         self.tkframe.pack()
         self.tkframe.update() 
         self.pwspecplot = TkPowerspecPlot.TkPowerspecPlot(self.tkframe)
-        self.pixelspectra = None  
+        self.pixelspectra = None
+        self.pixelffts = None
 
 
 
@@ -100,28 +101,32 @@ class powerspec:
             # fast-fourier-transform along time axis (pixel-wise) 
 
             # powerspectrum.pixelspectra : 3D array, which holds the 
-            # power spectra along the time-axis for each pixel 
+            # power spectra along the time-axis for each pixel
+            self.pixelspectra = numpy.zeros((nt, ni, nj))
 
-            self.pixelspectra = numpy.zeros((nt,ni,nj))
+            # powerspectrum.pixelffts: 3D array holding the pixel-wise temp.fft
+            self.pixelffts = numpy.zeros((nt, ni, nj), dtype=numpy.complex_)
 
             self.spec = numpy.zeros(nt)
 
             for i in range(ni):
                 for j in range(nj):
-                    spec = numpy.square(numpy.absolute(numpy.fft.fft(array[:,i,j],axis=0)))
+                    self.pixelffts[:,i,j] = numpy.fft.fft(array[:,i,j], axis=0)
+                    spec = numpy.square(numpy.absolute(self.pixelffts[:,i,j]))
                     self.pixelspectra[:,i,j] = spec
-                    self.spec = numpy.add(self.spec,spec)
+                    self.spec = numpy.add(self.spec, spec)
                     progress += 1
                 pbvar.set(progress)
                 progresswin.update()
 
-            self.spec = self.spec[1:round(nt/2)] # note that we conciously throw away the zero-frequency part 
+            # note that we (conciously) throw away the zero-frequency part
+            self.spec = self.spec[1:round(nt/2)]
             self.spec = self.spec / numpy.sum(self.spec)
 
-            print('--------------------------------------------------')
-            print('test if self.spec is properly normalized to 1:') 
-            print(numpy.sum(self.spec))
-            print('--------------------------------------------------')
+            #print('--------------------------------------------------')
+            #print('test if self.spec is properly normalized to 1:')
+            #print(numpy.sum(self.spec))
+            #print('--------------------------------------------------')
 
             # calculate the corresponding frequencies: 
             self.freqs = numpy.zeros(self.spec.size)

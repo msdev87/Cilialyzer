@@ -416,6 +416,12 @@ class Cilialyzer():
     #            compound=tk.RIGHT)
     # load_vidB.grid(row=2,column=0)
 
+    def frequency_correlation(self):
+        pass
+
+    def tacorr(self):
+        # calls temporal_autocorrelation
+        self.activity_map.temporal_autocorrelation(self.powerspectrum)
 
     def __init__(self):
 
@@ -749,7 +755,27 @@ class Cilialyzer():
         #**********************************************************************#
 
 
-        
+        # ******************** Frequency correlation tab ***********************
+        # notebook tab to compute the correlation length in the activity map
+        self.freqcorrtab = tk.Frame(self.nbook)
+        self.nbook.add(self.freqcorrtab, text='Frequency Correlation')
+
+        self.freqcorrB = tk.Button(self.freqcorrtab, text='Frequency Correlation',
+            command=self.frequency_correlation(), height=bh, width=bw)
+        self.freqcorrB.place(in_=self.freqcorrtab, anchor='c', relx=0.5, rely=0.05)
+        # **********************************************************************
+
+
+        # ****************** Temporal autocorrelation tab **********************
+        self.tacorrtab = tk.Frame(self.nbook)
+        self.nbook.add(self.tacorrtab, text='Temporal Autocorrelation')
+
+        self.tacorrB = tk.Button(self.tacorrtab, text='Temporal Autocorrelation',
+            command=lambda: self.tacorr(), height=bh, width=bw)
+        self.tacorrB.place(in_=self.tacorrtab, anchor='c', relx=0.5, rely=0.05)
+        # **********************************************************************
+
+
         #*****************************************************************************#
         # *************************** Single Pixel Analysis **************************# 
         if (self.SinglePixelAnalysis_flag):
@@ -854,6 +880,10 @@ class Cilialyzer():
         self.mscorrprofileframe.place(in_=self.mcorrtab, anchor='c', relx=0.75, rely=0.5)
 
         # ----------------------------------------------------------------------
+
+
+
+
 
 
         # each time the application's window size gets changed -> call 'resize'

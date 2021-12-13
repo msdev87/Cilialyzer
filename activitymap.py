@@ -8,6 +8,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 class activitymap:
 
+
     def __init__(self, parent, parentw, parenth):
 
         self.map = None
@@ -32,12 +33,19 @@ class activitymap:
         self.ax1 = None 
         self.ax2 = None 
 
-        self.canvas = None 
+        self.canvas = None
+        self.fps = None
+
+        self.meantacorr = None # mean temporal autocorrelation
 
     def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum):
+        """
+        calculation of the activity map (spatially resolved CBF map)
+        """
 
-        # initialize attributes 
+        self.fps = FPS
 
+        # initialize attributes
         pwspecplot = powerspectrum.pwspecplot 
 
         self.firstimg = PILseq[0] 
@@ -45,11 +53,10 @@ class activitymap:
         self.nimgs = len(PILseq) # number of images   
 
         #self.array = numpy.zeros((int(self.nimgs),int(self.height),int(self.width)))
-
         #for i in range(self.nimgs): 
         #    self.array[i,:,:] = numpy.array(PILseq[i]) # array holds image intensties 
 
-       # initialze the array holding the activity map
+        # initialze the array holding the activity map
         self.freqmap = numpy.zeros((int(self.height), int(self.width)))
 
         self.tkframe.destroy()
@@ -68,24 +75,16 @@ class activitymap:
 
         bot = int(round( (float(self.nimgs)*minf/float(FPS))-1 ))
         top = int(round( (float(self.nimgs)*maxf/float(FPS))-1 ))
-        
-        #print "bot", bot 
-        #print "top", top 
 
         # integral of the 'mean' powerspectrum over choosen frequency band 
         A_bar = numpy.sum(pwspecplot.yax[bot:top+1])
-        
-        
+
         for i in range(ni):
             for j in range(nj):
 
-                #self.spec = numpy.square(numpy.absolute(numpy.fft.fft(self.array[:,i,j],axis=0)))
                 self.spec = powerspectrum.pixelspectra[:,i,j]
                 self.spec = self.spec[1:round(nt/2)-1] 
                 self.spec = self.spec / numpy.sum(self.spec) 
-
-                #peak = numpy.amax(self.spec)   
-                #ind = numpy.where(self.spec == peak)
 
                 # check the validity of each pixel: 
                 # according to the procedure of the 'integral spectral density' 
@@ -100,24 +99,19 @@ class activitymap:
                 if (A_xy > threshold * A_bar):
                     # valid pixel 
                     # calculate the mean freq in freq band (weighted mean)
-
-                    self.freqmap[i,j] = numpy.sum(numpy.multiply(self.freqs[bot:top+1], self.spec[bot:top+1])) / numpy.sum(self.spec[bot:top+1])
-
+                    self.freqmap[i,j] = numpy.sum(numpy.multiply(self.freqs[bot:top+1],
+                        self.spec[bot:top+1])) / numpy.sum(self.spec[bot:top+1])
                 else:
                     # invalid pixel 
                     self.freqmap[i,j] = numpy.nan
 
-
+        # plot the activity map (self.freqmap)
         dpis = 150
-
-        #figw = int(round(self.tkframe.winfo_width() / dpis *0.8)) 
-        #figh = int(round(self.tkframe.winfo_height() / dpis * 0.8)) 
-
 
         figw = round(1.5*self.parentw / dpis)   
         figh = round(self.parenth / dpis) 
     
-        self.fig, (self.ax1, self.ax2) = plt.subplots(ncols=2, figsize=(figw,figh),dpi=dpis)
+        self.fig, (self.ax1, self.ax2) = plt.subplots(ncols=2, figsize=(figw, figh), dpi=dpis)
          
         # plot first image & overlay activity map  
         
@@ -149,5 +143,36 @@ class activitymap:
         self.canvas.draw()
         self.canvas.get_tk_widget().pack() 
         self.canvas._tkcanvas.pack()
+
+    def freq_correlogram(self):
+        """
+        Computes the autocorrelation of the activity map
+        """
+        pass
+
+    def temporal_autocorrelation(self, powerspectrum):
+        """
+        computes the mean temporal autocorrelation function
+        from which we determine the autocorrelation time
+        """
+
+        # powerspectrum.pixelffts holds complex ffts along time axis
+
+        if (type(powerspectrum.pixelffts).__module__ == numpy.__name__):
+            (nt,ni,nj) = numpy.shape(powerspectrum.pixelffts)
+            print(nt,ni,nj)
+
+        # determine the temporal correlation function for each pixel,
+        # calculate the average and plot the average temporal autocorrelation
+
+        self.meantacorr =  numpy.zeros(nt)
+        for i in range(ni):
+            for j in range(nj):
+                # see PathOfInterest.py
+                pass
+
+
+
+
 
 
