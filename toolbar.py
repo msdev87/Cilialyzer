@@ -24,8 +24,16 @@ class Toolbar:
         refresh = 0
         selectroi = 1
 
-        self.roiplayer.__init__(self.roitab,self.PIL_ImgSeq.directory,refresh,
-        self.PIL_ImgSeq.sequence,self.PIL_ImgSeq.seqlength,self.roi,selectroi)
+        try:
+            # avoid crash
+            self.roiplayer.stop = 2
+            # as roiplayer was not None -> destroy frame before it gets rebuilt:
+            self.roiplayer.frame.destroy()
+        except NameError:
+            pass
+
+        self.roiplayer.__init__(self.roitab, self.PIL_ImgSeq.directory, refresh,
+            self.PIL_ImgSeq.sequence, self.PIL_ImgSeq.seqlength, self.roi,selectroi)
 
         #print('roiplayer id in Toolbar: ',id(self.roiplayer))
         self.roiplayer.animate()

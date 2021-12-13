@@ -137,10 +137,8 @@ class Cilialyzer():
                     self.PIL_ImgSeq.seqlength)
                 self.dynplayer.animate() # call meth
 
-
     def select_roi(self):
 
-        #global roiplayer
         try:
             # avoid crash
             self.roiplayer.stop = 2
