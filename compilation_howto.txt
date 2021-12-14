@@ -1,0 +1,2 @@
+compilation with pyinstaller: 
+pyinstaller --noconsole --onefile --noupx cilialyzer.py
