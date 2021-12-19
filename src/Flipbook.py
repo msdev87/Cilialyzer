@@ -4,7 +4,7 @@ from PIL import Image, ImageTk, ImageEnhance
 #import psutil 
 import time
 import numpy
-import ttk
+from tkinter import ttk
 if os.sys.version_info.major > 2:
     from tkinter.filedialog import askdirectory
     import tkinter as tk
@@ -114,32 +114,20 @@ def ResizeCurrentImage(self):
 
 
 class ImgSeqPlayer(object):
-
     """
     Creates a tk.Frame and packs it onto the main window (master).
     Creates a tk.Canvas and packs it onto the frame.
 
     master: tk.Tk window.
     """
-    def __init__(self, master, directory,refreshing,PILseq,seqlength,roiobj,selectroi):
-
-
-        self.roiseq = PILseq 
-        self.ROI = None  
-        self.anchor = None
-        self.item = None
-        self.bbox = None
-        self.roiobj = roiobj 
-
-        self.selectroi = selectroi
-
+    def __init__(self, master, directory,refreshing,PILseq,seqlength):
 
         self.refreshing = refreshing
 
         self.frame = tk.Frame(master,takefocus=0)
         self.frame.place(in_=master, anchor="c", relx=.5, rely=.5)
 
-        self.seqlength = seqlength 
+        self.seqlength = seqlength
 
         w,h = PILseq[0].size
         # create progressbar (indicator for the position of the current image in sequence)
@@ -147,9 +135,10 @@ class ImgSeqPlayer(object):
         s = ttk.Style()
         s.theme_use("default")
         s.configure("TProgressbar", thickness=5)
+
         progbar = ttk.Progressbar(self.frame,mode="determinate",variable=self.pbvar,\
                 maximum=seqlength,length=0.5*w,style="TProgressbar")
-        progbar.grid(column=1,row=2) 
+        progbar.grid(column=1,row=2)
 
 
         self.frame2 = tk.LabelFrame(self.frame,takefocus=1, text='Player Controls', \
@@ -157,12 +146,10 @@ class ImgSeqPlayer(object):
         self.frame2.grid(row=3,column=1)
 
 
-       
-
         # create frame holding buttons: "pause, play, next, previous,.."
 
 
-        with open("./icons/prev2.png","rb") as f:
+        with open("../icons/prev2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         previcon = ImageTk.PhotoImage(img)
@@ -172,47 +159,45 @@ class ImgSeqPlayer(object):
         self.prevB.grid(row=1,column=0)
 
 
-        with open("./icons/pause2.png","rb") as f:
+        with open("../icons/pause2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
-        pauseicon = ImageTk.PhotoImage(img)
+        pauseicon = ImageTk.PhotoImage(img)   
         #pauseicon = tk.PhotoImage(file="./icons/pause2.gif")
         self.pauseB = Button(self.frame2, image=pauseicon, command=self.zero_fps)
         self.pauseB.image = pauseicon
         self.pauseB.grid(row=1,column=2)
 
 
-        with open("./icons/play2.png","rb") as f:
+        with open("../icons/play2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
-        playicon = ImageTk.PhotoImage(img)
+        playicon = ImageTk.PhotoImage(img)    
         #playicon = tk.PhotoImage(file="./icons/play2.gif")
         self.playB = Button(self.frame2, image=playicon, command=self.play)
         self.playB.image = playicon # save image from garbage collection 
         self.playB.grid(row=1,column=1)
 
 
-        with open("./icons/stop2.png","rb") as f:
+
+        with open("../icons/stop2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
-        stopicon = ImageTk.PhotoImage(img)
+        stopicon = ImageTk.PhotoImage(img)     
         #stopicon = tk.PhotoImage(file="./icons/stop2.gif")
         self.stopB = Button(self.frame2, image=stopicon, command=self.escape)
-        self.stopB.image = stopicon
+        self.stopB.image = stopicon 
         self.stopB.grid(row=1,column=3)
 
 
-        with open("./icons/next2.png","rb") as f:
+        with open("../icons/next2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
-        nexticon = ImageTk.PhotoImage(img)
+        nexticon = ImageTk.PhotoImage(img)      
         #nexticon = tk.PhotoImage(file="./icons/next2.gif")
         self.nextB = Button(self.frame2, image=nexticon, command=self.next_image)
         self.nextB.image = nexticon
         self.nextB.grid(row=1,column=4)
-
-
-
 
         # For Zoom -> radiobutton!
 
@@ -225,14 +210,14 @@ class ImgSeqPlayer(object):
         #self.zoomframe.pack(side=tk.LEFT)
         self.zoomframe.grid(row=0,column=0,padx=3,pady=3)
 
-        self.zooom = [(" 75%",1),("100%", 2), ("125%", 3),("150%", 4), ("200%", 5), ("300%",6)]
+        self.zooom = [("50%",1),("75%",2),("100%", 3), ("125%", 4),("150%", 5), ("200%", 6), ("300%",7)]
 
         if (not self.refreshing):
             if hasattr(self, 'var'):
                 pass
             else:
                 self.var = tk.StringVar()
-                self.var.set(2) # initialize zoom to 100% 
+                self.var.set(1) # initialize zoom to 100% 
 
         for text, mode in self.zooom:
             self.zoomB = tk.Radiobutton(self.zoomframe, text=text, variable=self.var,
@@ -354,8 +339,8 @@ class ImgSeqPlayer(object):
         #self.fpsframe.pack(side=tk.LEFT)
         self.fpsframe.grid(row=0,column=1,padx=3,pady=3)
 
-        self.radio_fps = [(" 10 FPS", 1),(" 50 FPS", 2), ("100 FPS", 3),
-        ("200 FPS", 4), ("300 FPS", 5)]
+        self.radio_fps = [(" 10 FPS", 1),(" 20 FPS", 2), ("50 FPS", 3),
+        ("100 FPS", 4), ("200 FPS", 5), ("300 FPS",6)]
 
         if hasattr(self, 'fps'):
             pass
@@ -378,10 +363,7 @@ class ImgSeqPlayer(object):
         #Scale image to the screen size while keeping aspect ratio.
         #w = self.roi[2] - self.roi[0]
         #h = self.roi[3] - self.roi[1]
-        w,h= PILseq[0].size
-        print "w,h"
-        print w
-        print h
+        w,h= PILseq[0].size 
 
         ctrl_height = 0
         add_width = 0
@@ -389,53 +371,42 @@ class ImgSeqPlayer(object):
         # Set the canvas size according to the size of the rescaled image
 
 
-        self.zoomfac = 1.0
-
         if (self.var.get() == '1'):
-            #self.can = tk.Canvas(self.frame, width = int(0.75*w)+add_width, height = int(0.75*h)+ctrl_height)
-            self.can = tk.Canvas(self.frame, width = int(0.75*w), height = int(0.75*h))
-            self.screen = int(0.75*w), int(0.75*h)
-            self.zoomfac = 0.75
+            self.can = tk.Canvas(self.frame, width = int(0.5*w)+add_width, height = int(0.5*h)+ctrl_height)
+            self.screen = int(0.5*w), int(0.5*h)
         if (self.var.get() == '2'):
-            #self.can = tk.Canvas(self.frame, width = int(w)+add_width, height = int(h)+ctrl_height)
-            self.can = tk.Canvas(self.frame, width = int(w), height = int(h))
-            self.screen = w, h
-            self.zoomfac = 1.0 
+            self.can = tk.Canvas(self.frame, width = int(0.75*w)+add_width, height = int(0.75*h)+ctrl_height)
+            self.screen = int(0.75*w), int(0.75*h)
         if (self.var.get() == '3'):
+            self.can = tk.Canvas(self.frame, width = int(w)+add_width, height = int(h)+ctrl_height)
+            self.screen = w, h
+        if (self.var.get() == '4'):
             self.can = tk.Canvas(self.frame, width = int(1.25*w)+add_width,
             height = int(1.25*h)+ctrl_height)
             self.screen = int(1.25*w), int(1.25*h)
-            self.zoomfac = 1.25
-        if (self.var.get() == '4'):
+        if (self.var.get() == '5'):
             self.can = tk.Canvas(self.frame, width = int(1.5*w)+add_width,
             height = int(1.5*h)+ctrl_height)
             self.screen = int(1.5*w), int(1.5*h)
-            self.zoomfac = 1.5
-        if (self.var.get() == '5'):
+        if (self.var.get() == '6'):
             self.can = tk.Canvas(self.frame, width = int(2*w)+add_width,
             height = int(2*h)+ctrl_height)
             self.screen = int(2*w), int(2*h)
-            self.zoomfac = 2.0
-        if (self.var.get() == '6'):
+        if (self.var.get() == '7'):
             self.can = tk.Canvas(self.frame, width = int(3*w)+add_width,
             height = int(3*h)+ctrl_height)
             self.screen = int(3*w), int(3*h)
-            self.zoomfac = 3.0
-        # place the canvas in which the images will be shown in the center of the window 
+
+        # place the canvas in which the images will be showed in the center of the window 
         self.can.grid(row=1,column=1,padx=5,pady=5)
 
         master.update()
 
 
-
-
-        #if (not self.refreshing):
-        #    # generate the array of PIL images 'self.PILimgs'    
-        #    self.PILimgs = PILseq
-
-        self.PILimgs = PILseq 
-
-
+        if (not self.refreshing):
+            # generate the array of PIL images 'self.PILimgs'   
+            #self.PILimgs = [img for img in get_images(self,directory)] # ORIGINAL IMAGE FILES! 
+            self.PILimgs = PILseq
 
         self.MaxIntensity = 0.0
         self.MinIntensity = 255.0
@@ -512,190 +483,6 @@ class ImgSeqPlayer(object):
         #    self.frame.destroy()
 
 
-
-
-        """
-        def on_mouse_down(event):
-            self.anchor = (event.widget.canvasx(event.x), event.widget.canvasy(event.y))
-            self.item = None
-        def on_mouse_drag(event):
-            self.bbox = self.anchor + (event.widget.canvasx(event.x), event.widget.canvasy(event.y))
-            self.ROI = self.bbox
-            print "self.ROI "
-            print self.ROI
-            if self.item is None:
-                self.item = event.widget.create_rectangle(self.bbox, outline="yellow")
-            else:
-                event.widget.coords(self.item, *self.bbox)
-        def on_mouse_up(event):
-            if self.item:
-                on_mouse_drag(event)
-                box = tuple((int(round(v)) for v in event.widget.coords(self.item)))
-
-            # create cropped image sequence in self.roiseq: 
-            xroi = sorted([int(self.ROI[0]),int(self.ROI[2])])
-            yroi = sorted([int(self.ROI[1]),int(self.ROI[3])])
-
-            nimgs = self.seqlength # number of images
-            
-            x1,x2 = int(xroi[0]), int(xroi[1])
-            y1,y2 = int(yroi[0]), int(yroi[1])
-             
-            self.roiseq = [self.PILimgs[i].crop(self.ROI) for i in range(nimgs)]
-         
-            # crop ROI/resfresh and finally, animate ROI! 
-            self.refreshing = 1
-            self.frame.destroy()
-            self.__init__(self.master, self.directory,self.refreshing,self.roiseq,self.seqlength,self.roiobj)
-            self.animate()
-            self.stop = 0
-            self.refreshing = 0 # as refreshing ends here  
-        """
-
-        if (self.selectroi == 1):
-            def on_mouse_down(event):
-                self.anchor = (self.can.canvasx(event.x), self.can.canvasy(event.y))
-                self.item = None
-            def on_mouse_drag(event):
-                self.bbox = self.anchor + (self.can.canvasx(event.x), self.can.canvasy(event.y))
-                self.ROI = self.bbox
-                #print "self.ROI "
-                #print self.ROI
-                if self.item is None:
-                    self.item = self.can.create_rectangle(self.bbox, outline="yellow")
-                else:
-                    self.can.coords(self.item, *self.bbox)
-            def on_mouse_up(event):
-                if self.item:
-                    on_mouse_drag(event)
-                    box = tuple((int(round(v)) for v in self.can.coords(self.item)))
-
-                # create cropped image sequence in self.roiseq: 
-                xroi = sorted([int(self.ROI[0]),int(self.ROI[2])])
-                yroi = sorted([int(self.ROI[1]),int(self.ROI[3])])
-
-                nimgs = self.seqlength # number of images
-            
-                x1,x2 = int(xroi[0]), int(xroi[1])
-                y1,y2 = int(yroi[0]), int(yroi[1])
-              
-        
-                self.ROI = list(self.ROI)
-                # consider the zoomfactor 
-                self.ROI[0] = int(round(self.ROI[0]/self.zoomfac))
-                self.ROI[1] = int(round(self.ROI[1]/self.zoomfac))
-                self.ROI[2] = int(round(self.ROI[2]/self.zoomfac))
-                self.ROI[3] = int(round(self.ROI[3]/self.zoomfac))
-                self.ROI = tuple(self.ROI) 
-                print self.ROI  
-
-                self.roiseq = [self.PILimgs[i].crop(self.ROI) for i in range(nimgs)]
-        
-                print "TEST self.roiseq" 
-                print type(self.roiseq) 
-
-                # crop ROI/resfresh and finally, animate ROI! 
-                self.refreshing = 1
-                self.frame.destroy()
-                self.selectroi=0
-                self.__init__(self.master, self.directory,self.refreshing,self.roiseq,self.seqlength,self.roiobj,self.selectroi)
-                self.animate()
-                self.stop = 0
-                self.refreshing = 0 # as refreshing ends here  
-
-
-            # add mouse bindings here
-
-            self.can.xview_moveto(0)
-            self.can.yview_moveto(0)
-
-            self.can.bind('<ButtonPress-1>', on_mouse_down)
-            self.can.bind('<B1-Motion>', on_mouse_drag)
-            self.can.bind('<ButtonRelease-1>', on_mouse_up)
-
-
-        #print "type in flipROI"
-        #print type(self.roiseq) 
-
-
-
-
-
-
-        if (self.selectroi == 2):
-            def on_mouse_down(event):
-                self.stop = 2 
-                self.anchor = (self.can.canvasx(event.x), self.can.canvasy(event.y))
-                
-                #print "\n"
-                #print "anchor"
-                #print self.anchor 
-                #print "\n"
-                
-                
-                self.item = None
-            
-                self.bbox = self.anchor + (self.can.canvasx(event.x)+5, self.can.canvasy(event.y)+5)
-                self.ROI = self.bbox
-    
-                
-                self.item = self.can.create_rectangle(self.bbox, fill="yellow")
-                
-                self.can.coords(self.item, *self.bbox)
-                
-                box = tuple((int(round(v)) for v in self.can.coords(self.item)))
-
-
-                self.ROI = list(self.ROI)
-                # consider the zoomfactor 
-                self.ROI[0] = int(round(self.ROI[0]/self.zoomfac))
-                self.ROI[1] = int(round(self.ROI[1]/self.zoomfac))
-                self.ROI[2] = int(round(self.ROI[2]/self.zoomfac))
-                self.ROI[3] = int(round(self.ROI[3]/self.zoomfac))
-                self.ROI = tuple(self.ROI) 
-               
-                self.roiobj.anchor = self.anchor 
-                # Pixel got choosen -> plot! 
-                self.roiobj.pixelplots(self.roiseq)
-    
-
-
-
-            # add mouse bindings here
-
-            self.can.xview_moveto(0)
-            self.can.yview_moveto(0)
-
-            self.can.bind('<ButtonPress-1>', on_mouse_down)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         try:
             #print (time.time() - t0) * 1000.
             if (self.speed < 100):
@@ -723,6 +510,10 @@ class ImgSeqPlayer(object):
 
 
 
+
+
+
+
         # Create new image!
         t0 = time.time()
 
@@ -735,8 +526,8 @@ class ImgSeqPlayer(object):
 
 
 
-        #if (self.bbox is not None):
-        #    self.can.create_rectangle(self.bbox, outline="yellow")
+
+
 
 
 
@@ -763,17 +554,13 @@ class ImgSeqPlayer(object):
         Sharpen(self)
         Brighten(self)
 
+
+        # write the current image out as a png
+        #self.currentimg.save("img" + str(self.index) + ".png", "PNG")
+
+
         self.current_photo = ImageTk.PhotoImage(self.currentimg)
         self.current_image = self.can.create_image(self.center,image=self.current_photo) # draw image! 
-
-        if (self.selectroi == 1):
-            if (self.bbox is not None):
-                self.can.create_rectangle(self.bbox, outline="yellow")
-
-        if (self.selectroi == 2):
-            if (self.bbox is not None):
-                self.can.create_rectangle(self.bbox, fill="yellow")
-
 
 
         if (self.stop != 2):
@@ -786,8 +573,7 @@ class ImgSeqPlayer(object):
         """ Destroy current frame. Re-initialize animation. """
         self.refreshing = 1
         self.frame.destroy()
-        
-        self.__init__(self.master, self.directory,self.refreshing,self.PILimgs,self.seqlength,self.roiobj,self.selectroi)
+        self.__init__(self.master, self.directory,self.refreshing,self.PILimgs,self.seqlength)
         self.animate()
         self.stop = 0
         self.refreshing = 0 # as refreshing ends here  
@@ -830,10 +616,11 @@ class ImgSeqPlayer(object):
     def fps_button(self):
 
         if (self.fps.get() == '1'): self.speed = 10
-        if (self.fps.get() == '2'): self.speed = 50
-        if (self.fps.get() == '3'): self.speed = 100
-        if (self.fps.get() == '4'): self.speed = 200
-        if (self.fps.get() == '5'): self.speed = 300
+        if (self.fps.get() == '2'): self.speed = 20
+        if (self.fps.get() == '3'): self.speed = 50
+        if (self.fps.get() == '4'): self.speed = 100
+        if (self.fps.get() == '5'): self.speed = 200
+        if (self.fps.get() == '6'): self.speed = 300
 
         #self.labeltext.set('playback speed [FPS]: ' + str(float(self.speed)))
 

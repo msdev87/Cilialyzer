@@ -419,7 +419,8 @@ class Cilialyzer():
 
     def tacorr(self):
         # calls temporal_autocorrelation
-        self.activity_map.temporal_autocorrelation(self.powerspectrum)
+        self.dynseq.temporal_autocorrelation(self.tacorr_plotframe,
+            self.activity_map.freqmap)
 
     def __init__(self):
 
@@ -496,7 +497,7 @@ class Cilialyzer():
         self.main_window = tk.Tk()
 
         # set the cilialyzer icon
-        self.main_window.iconphoto(False, tk.PhotoImage(file='./logo/logo.png'))
+        self.main_window.iconphoto(False, tk.PhotoImage(file='../logo/logo.png'))
 
         # Set the window title
         self.main_window.title("Cilialyzer")
@@ -551,7 +552,7 @@ class Cilialyzer():
         imgbw = 182  # button width for buttons containing images
 
         # In order to have more flexibility: add a "fakepixel" (transparent photo image)
-        self.fakepixel = ImageTk.PhotoImage(file=r"./icons/fakepixel.png")
+        self.fakepixel = ImageTk.PhotoImage(file=r"../icons/fakepixel.png")
 
         self.PIL_ImgSeq = LoadSequence.ImageSequence()
         # PIL_ImgSeq.directory -> contains path to selected image sequence
@@ -767,6 +768,10 @@ class Cilialyzer():
         # ****************** Temporal autocorrelation tab **********************
         self.tacorrtab = tk.Frame(self.nbook)
         self.nbook.add(self.tacorrtab, text='Temporal Autocorrelation')
+
+        self.tacorr_plotframe = tk.Frame(self.tacorrtab,
+            width=int(round(0.8*self.nbookh)), height=int(round(0.8*self.nbookh)))
+        self.tacorr_plotframe.place(in_=self.tacorrtab, anchor='c', relx=0.5, rely=0.55)
 
         self.tacorrB = tk.Button(self.tacorrtab, text='Temporal Autocorrelation',
             command=lambda: self.tacorr(), height=bh, width=bw)

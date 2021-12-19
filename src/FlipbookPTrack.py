@@ -263,7 +263,7 @@ class ImgSeqPlayer(object):
             variable=self.pcolor,command=self.pcolor_func,value=2,bd=4,width=12)
         self.pcolorB.grid(row=1, column=0)
 
-        fakepixel = ImageTk.PhotoImage(file=r"./icons/fakepixel.png")
+        fakepixel = ImageTk.PhotoImage(file=r"../icons/fakepixel.png")
         # "Lee-Filter button" 
         self.extractparticlesB = tk.Button(self.trackcframe,
             text='Extract Particles',command=self.extractparticles,width=20,
@@ -309,7 +309,7 @@ class ImgSeqPlayer(object):
 
         # create frame holding buttons: "pause, play, next, previous,.."
 
-        with open("./icons/prev2.png","rb") as f:
+        with open("../icons/prev2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         previcon = ImageTk.PhotoImage(img)
@@ -318,7 +318,7 @@ class ImgSeqPlayer(object):
         self.prevB.image = previcon
         self.prevB.grid(row=1,column=0)
 
-        with open("./icons/pause2.png","rb") as f:
+        with open("../icons/pause2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         pauseicon = ImageTk.PhotoImage(img)
@@ -327,7 +327,7 @@ class ImgSeqPlayer(object):
         self.pauseB.image = pauseicon
         self.pauseB.grid(row=1,column=2)
 
-        with open("./icons/play2.png","rb") as f:
+        with open("../icons/play2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         playicon = ImageTk.PhotoImage(img)
@@ -336,7 +336,7 @@ class ImgSeqPlayer(object):
         self.playB.image = playicon # save image from garbage collection 
         self.playB.grid(row=1,column=1)
 
-        with open("./icons/stop2.png","rb") as f:
+        with open("../icons/stop2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         stopicon = ImageTk.PhotoImage(img)
@@ -345,7 +345,7 @@ class ImgSeqPlayer(object):
         self.stopB.image = stopicon
         self.stopB.grid(row=1,column=3)
 
-        with open("./icons/next2.png","rb") as f:
+        with open("../icons/next2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         nexticon = ImageTk.PhotoImage(img)

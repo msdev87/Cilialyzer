@@ -8,7 +8,6 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 class activitymap:
 
-
     def __init__(self, parent, parentw, parenth):
 
         self.map = None
@@ -38,6 +37,8 @@ class activitymap:
 
         self.meantacorr = None # mean temporal autocorrelation
 
+
+
     def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum):
         """
         calculation of the activity map (spatially resolved CBF map)
@@ -58,6 +59,7 @@ class activitymap:
 
         # initialze the array holding the activity map
         self.freqmap = numpy.zeros((int(self.height), int(self.width)))
+
 
         self.tkframe.destroy()
         self.tkframe = Frame(parent, width=self.parentw, height=self.parenth)
@@ -92,12 +94,12 @@ class activitymap:
                 # (condition for invalidity: A_xy / A_bar < 0.15)  
 
                 # threshold in Ryser was set to 0.15 
-                threshold = 0.3
+                threshold = 0.15
 
                 A_xy = numpy.sum(self.spec[bot:top+1])
 
                 if (A_xy > threshold * A_bar):
-                    # valid pixel 
+                    # valid pixel
                     # calculate the mean freq in freq band (weighted mean)
                     self.freqmap[i,j] = numpy.sum(numpy.multiply(self.freqs[bot:top+1],
                         self.spec[bot:top+1])) / numpy.sum(self.spec[bot:top+1])
@@ -149,28 +151,6 @@ class activitymap:
         Computes the autocorrelation of the activity map
         """
         pass
-
-    def temporal_autocorrelation(self, powerspectrum):
-        """
-        computes the mean temporal autocorrelation function
-        from which we determine the autocorrelation time
-        """
-
-        # powerspectrum.pixelffts holds complex ffts along time axis
-
-        if (type(powerspectrum.pixelffts).__module__ == numpy.__name__):
-            (nt,ni,nj) = numpy.shape(powerspectrum.pixelffts)
-            print(nt,ni,nj)
-
-        # determine the temporal correlation function for each pixel,
-        # calculate the average and plot the average temporal autocorrelation
-
-        self.meantacorr =  numpy.zeros(nt)
-        for i in range(ni):
-            for j in range(nj):
-                # see PathOfInterest.py
-                pass
-
 
 
 

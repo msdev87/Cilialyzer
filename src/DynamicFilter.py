@@ -6,6 +6,7 @@ from bytescl import bytescl
 import sys
 import math
 import os
+import autocorrelaion_zeropadding
 
 if os.sys.version_info.major > 2:
     from tkinter import *
@@ -35,6 +36,7 @@ from scipy.optimize import curve_fit
 class DynFilter:
 
     def __init__(self):
+
         self.dyn_roiseq = [] 
         self.corr_roiseq = []
         self.tkframe = None
@@ -44,7 +46,7 @@ class DynFilter:
         self.kxkycols = None
         self.kxky = None
         self.splitline = None
-
+        self.pixelffts = []
 
 
     def bandpass(self, PILseq, fps, minf, maxf,nharms):
@@ -58,32 +60,29 @@ class DynFilter:
         width, height = firstimg.size # dimension of images 
         nimgs = len(PILseq) # number of images  
 
+
         # create numpy array 'array' 
-        array = numpy.zeros((int(nimgs),int(height),int(width)))  
+        array = numpy.zeros((int(nimgs),int(height),int(width)))
         for i in range(nimgs):
             array[i,:,:] = numpy.array(PILseq[i])   
         (nt,ni,nj) = numpy.shape(array)
 
-        # determine the frequency band to be filtered (under consideration of nrharms) 
-
-
+        # determine the frequency band(s) to be filtered (consdier nrharms)
         # remove frequency if not contained in any band
         
         filt = numpy.zeros(nt)
-    
-       
+
         # ---------- get indices of 'cbf band' -> keep fundamental freq --------
         # we also have to filter in the negative frequency domain!  
         minf1 = int(round((float(nimgs)*minf/float(fps))-1))
         maxf1 = int(round((float(nimgs)*maxf/float(fps))-1))
-          
+
+        # keep positive frquencies
         filt[minf1:maxf1+1] = 1.0 
    
         # get corresponding negative frequencies:
-        filt[-maxf1:-minf1+1] = 1.0  
-
+        filt[-maxf1:-minf1+1] = 1.0
         # ---------------------------------------------------------------------- 
-
 
         # ------------------ keep second harmonic freq band --------------------
         if (nharms > 1):
@@ -101,8 +100,6 @@ class DynFilter:
             # corr. negative freqs: 
             filt[-maxf2:-minf2+1] = 1.0  
 
-
-        
         # ------------------ keep third harmonic freq band --------------------
         if (nharms > 2): 
        
@@ -112,56 +109,136 @@ class DynFilter:
             minf3 = int(round((float(nimgs)*tminf/float(fps))-1))
             maxf3 = int(round((float(nimgs)*tmaxf/float(fps))-1))
 
-            
-           
-  
             filt[minf3:maxf3+1] = 1.0 
             # corr. negative freqs: 
-            filt[-maxf3:-minf3+1] = 1.0  
-
-   
+            filt[-maxf3:-minf3+1] = 1.0
         # ----------------------------------------------------------------------
-
-
 
         numpy.set_printoptions(threshold=sys.maxsize)
         #print(filt)
 
-
-       
-      
         # dynamic filtering for each pixel separately! (in time domain)   
        
         # loop over pixels (spatial domain)  
-        # apply bandpass for pixel after pixel 
+        # apply bandpass (along time axis!) for pixel after pixel
+
 
         for i in range(ni):
             for j in range(nj):
 
-                array[:,i,j] = numpy.real(numpy.fft.ifft(numpy.multiply(numpy.fft.fft(array[:,i,j],axis=0),filt),axis=0))
-
-
+                array[:,i,j] = numpy.real(numpy.fft.ifft(numpy.multiply(
+                    numpy.fft.fft(array[:, i, j], axis=0), filt), axis=0))
 
         array = bytescl(array)
 
         # inverse transform 
-        #array = bytescl(numpy.real(numpy.fft.ifftn(array)))
-         
-        #print "inverse fft:"
-        #print array 
-        
-        # create PIL sequence from numpy array!
-        
-        print(numpy.shape(array)) 
+        # array = bytescl(numpy.real(numpy.fft.ifftn(array)))
 
+        # create PIL sequence from numpy array!
         for i in range(nimgs):
             self.dyn_roiseq.append(PIL.Image.fromarray(numpy.uint8(array[i,:,:])))
-        
-        
-        
-        
-     
-    def spatiotempcorr(self,fps,minf,maxf):
+
+
+    def temporal_autocorrelation(self, tkplotframe, frequencymap):
+            """
+            computes the mean temporal autocorrelation function
+            from which we determine the autocorrelation time
+            """
+
+            firstimg = self.dyn_roiseq[0]  # first image of dyn roi sequence
+            width, height = firstimg.size  # dimension of images
+            nimgs = len(self.dyn_roiseq)  # number of images
+
+            # create numpy array from self.dyn_roiseq,
+            # which holds the list of dynamically filtered PIL images
+            array = numpy.zeros((int(nimgs), int(height), int(width)))
+
+            (nt, ni, nj) = numpy.shape(array)
+            for t in range(nt):
+                array[t, :, :] = numpy.array(self.dyn_roiseq[t])
+
+            # determine the temporal correlation function for each pixel,
+            # calculate the average and plot the average temporal autocorrelation
+
+            self.meantacorr = numpy.zeros(int(nt/2))
+
+            for i in range(ni):
+                for j in range(nj):
+
+                    if (not (numpy.isnan( frequencymap[i,j] ))):
+                        # timeseries of pixel i,j
+                        timeseries = array[:, i, j]
+
+                        acorr = autocorrelaion_zeropadding.acorr_zp(timeseries)
+
+                        # add zero-padding along time axis
+                        #zs = numpy.zeros(len(timeseries), dtype=float)
+                        #timeseries_zp = numpy.concatenate((timeseries, zs))
+                        #timeseries_zp = timeseries
+
+                        #fft = numpy.fft.fft(timeseries_zp)
+                        #prod = numpy.multiply(fft, numpy.conjugate(fft)) / float(2*nt)
+                        #ifft = numpy.real(numpy.fft.ifft(prod))
+
+                        #ifft = numpy.fft.fftshift(ifft)
+                        #ifft = ifft[0:nt] # keep only positive lags
+
+                        #mu1 = numpy.mean(timeseries_zp)
+                        #mu2 = numpy.mean(timeseries_zp)
+
+                        #std1 = numpy.std(timeseries_zp)
+                        #std2 = numpy.std(timeseries_zp)
+
+                        #acorr = numpy.subtract(ifft, mu1*mu2)/(std1*std2)
+                        self.meantacorr = numpy.add(self.meantacorr, acorr)
+
+            # average acorr (subtract all invalid pixels)
+            self.meantacorr = self.meantacorr / (float(ni * nj) - numpy.sum(numpy.isnan(frequencymap)))
+
+            # plot the average temporal autocorrelation function
+
+            fig = plt.figure(figsize=(7, 5), dpi=100)
+            ax = fig.add_subplot(111)
+
+            can = FigureCanvasTkAgg(fig, tkplotframe)
+
+            ax.axes.tick_params(labelsize=14)
+            ax.plot(self.meantacorr, color='black', linewidth=2.0)
+
+            ax.margins(0.05)
+            can.draw()
+            can.get_tk_widget().pack()
+            can._tkcanvas.pack()
+
+            # ax.set_ylim([-0.6, 1.05])
+            # ax.axvline(x=0.5 * wavelength, ymin=-0.55, ymax=0.95, linestyle='dashed', color='0.5')
+            # ax.axvline(x=-0.5 * wavelength, ymin=-0.55, ymax=0.95, linestyle='dashed', color='0.5')
+
+            # print the wavelength 'lambda'
+            # str1 = "$\lambda$ = "
+            # str2 = "$%.1f$" % wavelength
+            # str3 = " $\mu$m"
+            # xpos = 0.7 * wavelength
+            # ypos = 0.9
+            # ax.text(xpos, ypos, str1 + str2 + str3, fontsize=14)
+
+            # ax.set_title('Mean Spatial Autocorrelation')
+            # divider = make_axes_locatable(ax)
+            # cax = divider.append_axes("right", size="5%", pad=0.05)
+            # fig.colorbar(la1,cax=cax)
+
+            ax.set_xlabel("$\Delta$t [ms]", fontsize=16)
+            ax.set_ylabel("Temporal autocorrelation", fontsize=16)
+
+
+
+
+
+
+
+
+
+    def spatiotempcorr(self, fps, minf, maxf):
 
         # calc spatio-temporal correlation 
         nimgs = len(self.dyn_roiseq)
@@ -330,7 +407,7 @@ class DynFilter:
         can.get_tk_widget().pack()
         can._tkcanvas.pack()
 
-    def mscorr(self, fps, minf, maxf, tkparent,tkparent2,pixsize):
+    def mscorr(self, fps, minf, maxf, tkparent, tkparent2, pixsize):
 
         # mscorr calculates the mean spatial autocorrelation
         # over several images of the image sequence 
@@ -351,8 +428,8 @@ class DynFilter:
         scorr = numpy.zeros((height,width)) # sum (over time) of spatial acorrs 
 
         # 2D arrays, which will be correlated
-        img1 = numpy.zeros((height,width),dtype=float)
-        img2 = numpy.zeros((height,width),dtype=float)
+        img1 = numpy.zeros((height, width), dtype=float)
+        img2 = numpy.zeros((height, width), dtype=float)
 
         # as the spatial autocorrelation hardly varies over time
         # we do not have to average over the whole image stack

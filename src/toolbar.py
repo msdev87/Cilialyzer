@@ -135,14 +135,14 @@ class Toolbar:
         print(self.toolbarframe.winfo_screenwidth())
 
         # image-Button to select the directory holding the image sequence  
-        self.diricon = ImageTk.PhotoImage(file=r"./icons/directory/newdir2.png")
+        self.diricon = ImageTk.PhotoImage(file=r"../icons/directory/newdir2.png")
         self.diriconB = tk.Button(self.toolbarframe,height=23,width=30,\
             borderwidth=0,command=self.selectdirectory,image=self.diricon)
         self.diriconB.grid(row=0,column=0,padx=5,pady=3,sticky='e')
 
         # --------------------------------------------------------------------- 
         # image-Button 'next directory' to select the next subdirectory 
-        self.nextdiricon = ImageTk.PhotoImage(file=r"./icons/directory/nextdir.png")
+        self.nextdiricon = ImageTk.PhotoImage(file=r"../icons/directory/nextdir.png")
 
         self.nextdiriconB = tk.Button(self.toolbarframe,height=23,width=30,\
             borderwidth=0,command=self.nextdirectory,image=self.nextdiricon)
