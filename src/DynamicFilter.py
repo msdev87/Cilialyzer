@@ -47,6 +47,7 @@ class DynFilter:
         self.kxky = None
         self.splitline = None
         self.pixelffts = []
+        self.fps = None  
 
 
     def bandpass(self, PILseq, fps, minf, maxf,nharms):
@@ -55,6 +56,8 @@ class DynFilter:
         # output: dynamically filtered roiseq 
 
         # dynamic filtering: bandpass -> keep frequencies f : minf <= f <= maxf 
+
+        self.fps = fps
 
         firstimg = PILseq[0] # first image of roi sequence  
         width, height = firstimg.size # dimension of images 
@@ -161,6 +164,9 @@ class DynFilter:
             # calculate the average and plot the average temporal autocorrelation
 
             self.meantacorr = numpy.zeros(int(nt/2))
+            time = numpy.zeros(int(nt/2))
+
+            time = numpy.divide(numpy.array(range(int(nt/2))),float(self.fps))
 
             for i in range(ni):
                 for j in range(nj):
@@ -203,14 +209,15 @@ class DynFilter:
             can = FigureCanvasTkAgg(fig, tkplotframe)
 
             ax.axes.tick_params(labelsize=14)
-            ax.plot(self.meantacorr, color='black', linewidth=2.0)
+            ax.plot(time, self.meantacorr, color='orange', linewidth=2.0)
 
             ax.margins(0.05)
             can.draw()
             can.get_tk_widget().pack()
             can._tkcanvas.pack()
 
-            # ax.set_ylim([-0.6, 1.05])
+            ax.set_ylim([-0.6, 1.05])
+            ax.set_xlim([0, 1.4])
             # ax.axvline(x=0.5 * wavelength, ymin=-0.55, ymax=0.95, linestyle='dashed', color='0.5')
             # ax.axvline(x=-0.5 * wavelength, ymin=-0.55, ymax=0.95, linestyle='dashed', color='0.5')
 
@@ -227,7 +234,7 @@ class DynFilter:
             # cax = divider.append_axes("right", size="5%", pad=0.05)
             # fig.colorbar(la1,cax=cax)
 
-            ax.set_xlabel("$\Delta$t [ms]", fontsize=16)
+            ax.set_xlabel("Time delay $\Delta$t [ms]", fontsize=16)
             ax.set_ylabel("Temporal autocorrelation", fontsize=16)
 
 
