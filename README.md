@@ -1,4 +1,4 @@
-The Cilialyzer software  ![alt text](https://github.com/msdev87/Cilialyzer/tree/master/logo/logo.png?raw=true)
+The Cilialyzer software  &nbsp;&nbsp; <img src="logo/logo.png" alt="drawing" width="39"/>
 =======================
 
 Description
