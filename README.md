@@ -1,5 +1,8 @@
-The Cilialyzer software
+The Cilialyzer software  ![alt text](https://github.com/msdev87/Cilialyzer/tree/master/logo/logo.png?raw=true)
 =======================
+
+Description
+-----------
 
 Primary ciliary dyskinesia (PCD) is a rare genetic disorder causing a 
 flawed ciliary structure, which predominantly leads to an impaired 
