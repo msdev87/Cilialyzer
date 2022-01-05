@@ -1,4 +1,4 @@
-The Cilialyzer software  &nbsp;&nbsp; <img src="logo/logo.png" alt="drawing" width="39"/>
+The Cilialyzer software  &nbsp; <img src="logo/logo.png" alt="drawing" width="39"/>
 =======================
 
 Description
