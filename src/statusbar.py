@@ -20,7 +20,7 @@ class StatusBar:
         self.filename = PIL_ImgSeq.fname
 
         # Quit Button (placed in the bottom right edge of the root window)              
-        self.exitphoto = ImageTk.PhotoImage(file=r"../icons/exit/exit_small.png")
+        self.exitphoto = ImageTk.PhotoImage(file=r"../images/icons/exit/exit_small.png")
         self.quitB=tk.Button(self.statusbarframe,image=self.exitphoto,
             command=self.endprogram,height=25,width=52,borderwidth=0)
         self.quitB.grid(row=0,column=1,columnspan=1,rowspan=2,sticky='e',padx=3,pady=3)

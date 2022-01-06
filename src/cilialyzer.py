@@ -497,7 +497,7 @@ class Cilialyzer():
         self.main_window = tk.Tk()
 
         # set the cilialyzer icon
-        self.main_window.iconphoto(False, tk.PhotoImage(file='../logo/logo.png'))
+        self.main_window.iconphoto(False, tk.PhotoImage(file='../images/logo/logo.png'))
 
         # Set the window title
         self.main_window.title("Cilialyzer")
@@ -552,7 +552,7 @@ class Cilialyzer():
         imgbw = 182  # button width for buttons containing images
 
         # In order to have more flexibility: add a "fakepixel" (transparent photo image)
-        self.fakepixel = ImageTk.PhotoImage(file=r"../icons/fakepixel.png")
+        self.fakepixel = ImageTk.PhotoImage(file=r"../images/icons/fakepixel.png")
 
         self.PIL_ImgSeq = LoadSequence.ImageSequence()
         # PIL_ImgSeq.directory -> contains path to selected image sequence

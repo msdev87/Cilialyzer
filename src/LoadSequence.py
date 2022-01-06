@@ -104,7 +104,7 @@ class ImageSequence:
         self.directory = './fakesequence'
 
         self.sequence  = [] # holds the PIL image sequence  
-        with open('../fakesequence/frame1.png', "rb") as f:
+        with open('../images/fakesequence/frame1.png', "rb") as f:
             fh = io.BytesIO(f.read())
             #Create a PIL image from the data                     
         img = Image.open(fh, mode="r")
