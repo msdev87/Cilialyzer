@@ -24,9 +24,6 @@ VALID_TYPES = (
     "png", "pbm", "pgm", "ppm", "psd", "tif", "tiff", "xbm", "xpm"
 )
 
-#p = Pool(processes = 10)
-
-
 
 def sort_list(l):
 
@@ -103,8 +100,6 @@ def GetMinMaxIntensity(self):
 		self.MaxIntensity = maxintensity
 
 
-
-
 def GammaScale(self):
     self.currentimg =\
                 ImageEnhance.Contrast(self.currentimg).enhance(self.contrast)
@@ -123,9 +118,6 @@ def bytescale(self):
     self.currentimg = Image.eval(self.currentimg,
             lambda xy: round((abs(xy - self.MinIntensity) /
                             float(self.MaxIntensity-self.MinIntensity)) * 255))
-
-    #print(self.currentimg)
-
 
 
 def ResizeCurrentImage(self):
@@ -158,8 +150,6 @@ class ImgSeqPlayer(object):
         self.frame = tk.Frame(master,takefocus=0)
         self.frame.place(in_=master, anchor="c", relx=.5, rely=.5)
         self.seqlength = seqlength
-        #self.subprocs = subprocs # Pool-object from multiprocessing module
-        #self.subproc_args = () # 
 
         w,h = PILseq[0].size
         # create progressbar 
@@ -588,12 +578,9 @@ class ImgSeqPlayer(object):
                 self.ROI[2] = int(round(x2/self.zoomfac))
                 self.ROI[3] = int(round(y2/self.zoomfac))
                 self.ROI = tuple(self.ROI)
-                #print self.ROI  
 
-                self.roiseq = [self.PILimgs[i].rotate(self.rotationangle).crop(self.ROI) for i in range(nimgs)]
-
-                #print "TEST self.roiseq" 
-                #print type(self.roiseq) 
+                self.roiseq = [self.PILimgs[i].rotate(self.rotationangle).\
+                                crop(self.ROI) for i in range(nimgs)]
 
                 # crop ROI/resfresh and finally, animate ROI! 
                 self.refreshing = 1
@@ -605,7 +592,6 @@ class ImgSeqPlayer(object):
                 self.stop = 0
                 self.refreshing = 0 # as refreshing ends here  
 
-
             # add mouse bindings here
 
             self.can.xview_moveto(0)
@@ -616,37 +602,21 @@ class ImgSeqPlayer(object):
             self.can.bind('<ButtonRelease-1>', on_mouse_up)
 
 
-        #print "type in flipROI"
-        #print type(self.roiseq) 
-
-
-
-
-
-
         if (self.selectroi == 2):
             def on_mouse_down(event):
-                self.stop = 2 
+                self.stop = 2
                 self.anchor = (self.can.canvasx(event.x), self.can.canvasy(event.y))
 
-                #print "\n"
-                #print "anchor"
-                #print self.anchor 
-                #print "\n"
-
-
                 self.item = None
-            
+
                 self.bbox = self.anchor + (self.can.canvasx(event.x)+5, self.can.canvasy(event.y)+5)
                 self.ROI = self.bbox
-    
-                
-                self.item = self.can.create_rectangle(self.bbox, fill="yellow")
-                
-                self.can.coords(self.item, *self.bbox)
-                
-                box = tuple((int(round(v)) for v in self.can.coords(self.item)))
 
+                self.item = self.can.create_rectangle(self.bbox, fill="yellow")
+
+                self.can.coords(self.item, *self.bbox)
+
+                box = tuple((int(round(v)) for v in self.can.coords(self.item)))
 
                 self.ROI = list(self.ROI)
                 # consider the zoomfactor 
@@ -654,12 +624,11 @@ class ImgSeqPlayer(object):
                 self.ROI[1] = int(round(self.ROI[1]/self.zoomfac))
                 self.ROI[2] = int(round(self.ROI[2]/self.zoomfac))
                 self.ROI[3] = int(round(self.ROI[3]/self.zoomfac))
-                self.ROI = tuple(self.ROI) 
-               
-                self.roiobj.anchor = self.anchor 
+                self.ROI = tuple(self.ROI)
+
+                self.roiobj.anchor = self.anchor
                 # Pixel got choosen -> plot! 
                 self.roiobj.pixelplots(self.roiseq)
-    
 
             # add mouse bindings here
 
@@ -667,10 +636,6 @@ class ImgSeqPlayer(object):
             self.can.yview_moveto(0)
 
             self.can.bind('<ButtonPress-1>', on_mouse_down)
-
-
-
-
 
         try:
             #print (time.time() - t0) * 1000.
@@ -685,19 +650,13 @@ class ImgSeqPlayer(object):
             if delay > 0:
                 time.sleep(delay)
                 #print "delay"
-                #print delay
+
         except:
             pass
-
-
-
 
         #Remove old image.
         if self.current_image:
             self.can.delete(self.current_image)
-
-
-
 
         # Create new image!
         t0 = time.time()
@@ -741,12 +700,9 @@ class ImgSeqPlayer(object):
         # rotate the image (only possible BEFORE ROI selection)  
         if (self.selectroi):
             self.currentimg = self.currentimg.rotate(self.rotationangle,expand=0)
-       
-
 
         # write the current image out as a png
         #self.currentimg.save("img" + str(self.index) + ".png", "PNG")
-
 
         self.current_photo = ImageTk.PhotoImage(self.currentimg)
         self.current_image = self.can.create_image(self.center,image=self.current_photo) # draw image! 

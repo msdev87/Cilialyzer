@@ -25,7 +25,7 @@ class Cilialyzer():
 
     """
     def resize(self, event):
-        
+
         print('window changed its size')
 
         # as soon as the window size is getting changed,
@@ -33,7 +33,7 @@ class Cilialyzer():
 
         self.main_window.update()
         self.mainframe.update()
-        
+
         winresize_delay = 1.0
         self.winresize_cnt += 1
 

@@ -35,6 +35,9 @@ class Toolbar:
         self.roiplayer.__init__(self.roitab, self.PIL_ImgSeq.directory, refresh,
             self.PIL_ImgSeq.sequence, self.PIL_ImgSeq.seqlength, self.roi,selectroi)
 
+        # make sure that the rotationangle is set to 0: 
+        self.roiplayer.rotationangle = 0.0
+
         #print('roiplayer id in Toolbar: ',id(self.roiplayer))
         self.roiplayer.animate()
 
