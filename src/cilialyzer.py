@@ -266,7 +266,7 @@ class Cilialyzer():
         result = self.pool.map(stabilize_proc.subproc,
                           [subarrays[i] for i in range(num_procs)])
 
-        self.pool.close()
+        #self.pool.close()
 
         # print(type(result))
         # print('length of list',len(result))
