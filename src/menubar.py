@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 
 class Menubar:
 
@@ -58,6 +59,56 @@ class Menubar:
         pass
 
 
+    def change_theme(self):
+        self.style.theme_use(self.selected_theme.get())
+
+
+    def configure(self):
+        """
+        Opens a toplevel window in which the appearance can be configured
+        """
+        self.cfg_win = tk.Toplevel(self.parent)
+        self.cfg_win.title('Configure Cilialyzer')
+
+        # open the toplevel window in the middle of the screen               
+        # get the screen dimensions first:                                   
+
+        sw = self.cfg_win.winfo_screenwidth()
+        sh = self.cfg_win.winfo_screenheight()
+
+        win_width = 450
+        win_height = 600
+
+        posx = int(0.5*sw - 0.5*win_width)
+        posy = int(0.5*sh - 0.5*win_height)
+
+        self.cfg_win.geometry("%dx%d+%d+%d" % (win_width,win_height,posx,posy))
+        self.cfg_win.update()
+
+        # add cfg_notebook 
+        self.cfg_nbook = tk.ttk.Notebook(self.cfg_win)
+        self.cfg_nbook.grid(row=0,column=0,padx=4,pady=4)
+
+        # add 'themes' tab 
+        self.themestab = tk.Frame(self.cfg_nbook,width=440,height=550)
+        self.cfg_nbook.add(self.themestab, text=' Theme ')
+
+        self.style = ttk.Style(self.parent)
+        # get available themes
+        self.themes = self.style.theme_names()
+        self.current_theme = self.style.theme_use()
+
+        # create radiobutton to switch between themes 
+
+        self.selected_theme = tk.StringVar()
+
+        for theme in self.themes:
+            rb = ttk.Radiobutton(self.themestab, text=theme, value=theme,
+                        variable=self.selected_theme, command=self.change_theme)
+            rb.grid()
+
+
+
     def __init__(self, parent):
 
         self.parent = parent
@@ -75,7 +126,8 @@ class Menubar:
         # create 'Appearance'-tab 
         self.mapp = tk.Menu(self.menubar)
         # create submenus
-        self.mapp.add_command(label="Configure...",font=self.myfont)
+        self.mapp.add_command(label="Configure...", command=self.configure,\
+                                font=self.myfont)
 
         # create 'Help'-tab 
         self.mhelp = tk.Menu(self.menubar)
