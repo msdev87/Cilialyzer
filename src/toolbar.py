@@ -4,6 +4,7 @@ from PIL import ImageTk
 import FlipbookROI
 import os
 import pathlib
+import sys
 
 class Toolbar:
 
@@ -18,7 +19,7 @@ class Toolbar:
         self.PIL_ImgSeq.load_imgs() # loads image sequence                             
         # PIL_ImgSeq.sequence[i] now holds the i-th frame (img format: 8 Bits, PIL)
 
-        avoid_troubles.clear_main(self.player,self.roiplayer,self.ptrackplayer)
+        avoid_troubles.clear_main(self.player, self.roiplayer, self.ptrackplayer)
 
         self.nbook.select(self.nbook.index(self.roitab))
         refresh = 0
@@ -38,7 +39,7 @@ class Toolbar:
         # make sure that the rotationangle is set to 0: 
         self.roiplayer.rotationangle = 0.0
 
-        #print('roiplayer id in Toolbar: ',id(self.roiplayer))
+        # print('roiplayer id in Toolbar: ',id(self.roiplayer))
         self.roiplayer.animate()
 
     def nextdirectory(self):
@@ -46,39 +47,23 @@ class Toolbar:
         avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
 
         # get a list of all subdirectories of the parent directory
-        directory = self.PIL_ImgSeq.directory
+        directory = os.path.abspath(self.PIL_ImgSeq.directory)
 
         parent_path = pathlib.Path(directory).parent
         parent_path = os.path.abspath(parent_path)
-        print('*****************************')
-        print(os.path.abspath(os.path.join(directory, os.pardir)))
-        print('*****************************')
 
         contents = os.listdir(parent_path)
-        print('parent_path:')
-        print(parent_path)
-        print('--------')
-
-
         for i in range(len(contents)):
-            contents[i] = os.path.abspath(os.path.join(parent_path, contents[i]))
+            #contents[i] = os.path.abspath(os.path.join(parent_path, contents[i]))
+            contents[i] = os.path.join(parent_path, contents[i])
 
-        print('contents again:')
-        print(contents)
-
-        subdirectories=[]
-
+        dirlist = []
         for item in contents:
             if os.path.isdir(item):
-                subdirectories.append(item)
+                dirlist.append(item)
 
+        subdirectories = dirlist
         subdirectories.sort()
-
-        print('test')
-        print(subdirectories)
-        print(directory)
-        print('--------------------')
-
 
         # find the next consecutive directory (relative to the cwd):
         ind=subdirectories.index(directory)
@@ -115,6 +100,10 @@ class Toolbar:
 
         self.roiplayer.__init__(self.roitab,self.PIL_ImgSeq.directory,refresh,
         self.PIL_ImgSeq.sequence,self.PIL_ImgSeq.seqlength,self.roi,selectroi)
+
+        # make sure that the rotationangle is set to 0:
+        self.roiplayer.rotationangle = 0.0
+
 
         # update label in statusbar:
         self.statusbar.update(self.PIL_ImgSeq)

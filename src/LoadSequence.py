@@ -1,6 +1,6 @@
 import os,io
 import numpy
-
+import sys
 
 
 if os.sys.version_info.major > 2:
@@ -90,7 +90,8 @@ def sort_list(l):
         l.insert(0, "%s%s.%s" % (basename[i],numbering[i],file_ending))
 
 	# TODO comment out next line as soon as safe 
-    print(l)
+    # print(l)
+
 
 class ImageSequence:
 
@@ -136,6 +137,8 @@ class ImageSequence:
 
         self.directory = askdirectory(title="Select Directory",
                                             initialdir=initdir)
+
+
         f = open('user_settings.dat','w')
         f.write(self.directory) # write choosen directory into file 'f' 
         f.close()
@@ -178,7 +181,7 @@ class ImageSequence:
 
         for filename in self.get_files():
 
-            print('filename: ',filename)
+            # print('filename: ',filename)
             #with open(filename, "rb") as f:
             #    #print(f)
             #    fh = io.BytesIO(f.read())
