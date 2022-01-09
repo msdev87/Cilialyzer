@@ -11,23 +11,39 @@ else:
     from tkinter import *
 
 import tkinter.ttk
+import scipy.optimize
+
+from scipy.ndimage import gaussian_filter
+
+
+def decay_func(x, a, b):
+    # f(x) = a * x^(-b)
+    return a * (x**(-b))
+
+def gauss_func(x,a,b,c):
+    # f(x) = a * exp( - (x-b)**2 / 2c**2)
+    return a * numpy.exp(-(x-b)**2 / (2*c**2))
+
+def fit_func(x, d1, d2, g1a, g1b, g1c, g2a, g2b, g2c):
+    return decay_func(x, d1, d2) + gauss_func(x, g1a, g1b, g1c) + gauss_func(x, g2a, g2b, g2c)
+
 
 
 class powerspec: 
 
     def __init__(self,parent,parentw,parenth):
 
-        self.spec = None    
-        self.freqs = None             
+        self.spec = None
+        self.freqs = None
         self.cbf_low = None # for peak selection (left limit)  
         self.cbf_high = None # right limit in peak selection 
-        self.cbflowind = None 
-        self.cbfhighind = None  
+        self.cbflowind = None
+        self.cbfhighind = None
         self.pwspecplot = None
-        self.parentw = parentw 
+        self.parentw = parentw
         self.parenth = parenth
         self.tkframe = Frame(parent,width=self.parentw,height=self.parenth)
-        
+
         #self.tkframe.pack(expand=1,fill=BOTH)
         self.tkframe.pack()
         self.tkframe.update() 
@@ -37,7 +53,7 @@ class powerspec:
 
 
 
-    def calc_powerspec(self,roiseq,FPS,parent):
+    def calc_powerspec(self,roiseq,FPS,parent,minscale,maxscale):
 
         # check whether the input data is adequately set:
         if (len(roiseq)) < 10:
@@ -141,9 +157,50 @@ class powerspec:
             labelpad=10
             fontsize=14
 
-            #powerspecplot.plot(self.freqs,self.spec,xlabel,ylabel,labelpad,fontsize) 
+            # self.pwspecplot.plot(self.freqs, self.spec, xlabel, ylabel, labelpad, fontsize)
 
+            # let us smooth the powerspectrum
+            self.spec = gaussian_filter(self.spec, sigma=1)
             self.pwspecplot.plot(self.freqs, self.spec, xlabel, ylabel, labelpad, fontsize)
+
+
+            # fit the powerspectrum  
+            y = self.spec
+            x = self.freqs
+
+
+            pars0 = [0.5, 0.5, 0.1, 7, 1, 0.1, 10, 1]
+
+            pars, cov = scipy.optimize.curve_fit(f=fit_func, xdata=x, ydata=y, p0=pars0, bounds=(0,30)) 
+            #yfit = decay_func(pars[0],pars[1])
+
+            """
+            pars holds the following fit parameters:
+            we fitted the function:
+            f(x) = a*x^(-b)+gauss1(h1,mu1,s1)+gauss2(h2,mu2,s2)+gauss3(h3,mu3,s3)
+            to the (slightly smoothed) power spectral density
+            """
+
+            # generate an automated suggestion for minscale and maxscale 
+            # 1. order the fitted gaussian according to their peak heights
+
+            peakheights = sorted([pars[2],pars[5]])
+            # get index of highest peak in pars:
+            pars = pars.tolist() # convert numpy array to list
+            h1_ind = pars.index(peakheights[-1])
+
+            h1  = pars[h1_ind]
+            mu1 = pars[h1_ind+1]
+            s1  = pars[h1_ind+2]
+
+
+            minscale.set(mu1-3*s1)
+            maxscale.set(mu1+3*s1)
+
+
+            # as soon as minscale and maxscale have been set correctly 
+            # --> determine CBF 
+            self.pwspecplot.get_cbf(float(minscale.get()), float(maxscale.get()), FPS)
 
 
 

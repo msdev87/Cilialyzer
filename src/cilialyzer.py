@@ -676,7 +676,7 @@ class Cilialyzer():
                                  height=int(round(0.65*self.nbookh)))
         self.pwspec1frame.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.4)
 
-        # Get Powerspec Button
+        # Powerspectrum-Button
         self.powerspectrum = Powerspec.powerspec(self.pwspec1frame, int(round(0.6*self.nbookw)),\
             int(round(0.6*self.nbookh)))
 
@@ -687,7 +687,7 @@ class Cilialyzer():
         self.minfreq.set(5)
         self.maxfreq.set(15)
 
-        # minscale and maxscale represent the sliders for the bandwith selection
+        # minscale and maxscale represent the sliders for the bandwidth selection
         self.minscale = tk.Scale(self.cbftab, from_=0.5, to=50,
                              orient=tk.HORIZONTAL, length=400,
                              resolution=0.2, variable=self.minfreq, command=self.peakselector)
@@ -699,7 +699,8 @@ class Cilialyzer():
 
         self.powerspecB=tk.Button(self.cbftab, text='Powerspectrum',\
             command=lambda: self.powerspectrum.calc_powerspec(self.roiplayer.roiseq,\
-        self.toolbar.fpscombo.get(),self.pwspec1frame), height=bh, width=bw)
+        self.toolbar.fpscombo.get(),self.pwspec1frame, self.minscale, 
+        self.maxscale), height=bh, width=bw)
         self.powerspecB.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.05)
 
         # get_cbf is defined in 'TkPowerspecPlot.py'
