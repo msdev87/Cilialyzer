@@ -35,10 +35,10 @@ class Menubar:
         self.textbox = tk.Text(self.about_window, height=5, width=400)
 
         text = """
-        The Cilialyzer software is an easy-to-use, open source application 
-        mainly intended for the clinical  assessment of the effectivity of the 
-        mucociliary clearance mechanism inferred from recordings taken by 
-        high-speed video microscopy 
+        The Cilialyzer software is an easy-to-use, open source application
+        mainly intended for the clinical  assessment of the effectivity of the
+        mucociliary clearance mechanism inferred from recordings taken by
+        high-speed video microscopy
         """
 
         self.textbox.pack()
@@ -143,7 +143,7 @@ class Menubar:
 
         # add menus to menubar: 
         self.menubar.add_cascade(menu=self.mfile,label="File ",font=self.myfont)
-        self.menubar.add_cascade(label=" Appearance ",font=self.myfont,menu=self.mapp)
+        self.menubar.add_cascade(label=" Settings ",font=self.myfont,menu=self.mapp)
         self.menubar.add_cascade(label=" Help ",font=self.myfont,menu=self.mhelp)
         self.menubar.add_cascade(label=" Exit ",font=self.myfont,menu=self.mexit)
 

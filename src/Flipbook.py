@@ -149,7 +149,7 @@ class ImgSeqPlayer(object):
         # create frame holding buttons: "pause, play, next, previous,.."
 
 
-        with open("../icons/prev2.png","rb") as f:
+        with open("../images/icons/prev2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         previcon = ImageTk.PhotoImage(img)
@@ -159,7 +159,7 @@ class ImgSeqPlayer(object):
         self.prevB.grid(row=1,column=0)
 
 
-        with open("../icons/pause2.png","rb") as f:
+        with open("../images/icons/pause2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         pauseicon = ImageTk.PhotoImage(img)   
@@ -169,7 +169,7 @@ class ImgSeqPlayer(object):
         self.pauseB.grid(row=1,column=2)
 
 
-        with open("../icons/play2.png","rb") as f:
+        with open("../images/icons/play2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         playicon = ImageTk.PhotoImage(img)    
@@ -180,7 +180,7 @@ class ImgSeqPlayer(object):
 
 
 
-        with open("../icons/stop2.png","rb") as f:
+        with open("../images/icons/stop2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         stopicon = ImageTk.PhotoImage(img)     
@@ -190,7 +190,7 @@ class ImgSeqPlayer(object):
         self.stopB.grid(row=1,column=3)
 
 
-        with open("../icons/next2.png","rb") as f:
+        with open("../images/icons/next2.png","rb") as f:
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         nexticon = ImageTk.PhotoImage(img)      

@@ -15,7 +15,6 @@ import scipy.optimize
 
 from scipy.ndimage import gaussian_filter
 
-
 def decay_func(x, a, b):
     # f(x) = a * x^(-b)
     return a * (x**(-b))
@@ -27,9 +26,7 @@ def gauss_func(x,a,b,c):
 def fit_func(x, d1, d2, g1a, g1b, g1c, g2a, g2b, g2c):
     return decay_func(x, d1, d2) + gauss_func(x, g1a, g1b, g1c) + gauss_func(x, g2a, g2b, g2c)
 
-
-
-class powerspec: 
+class powerspec:
 
     def __init__(self,parent,parentw,parenth):
 
@@ -51,8 +48,6 @@ class powerspec:
         self.pixelspectra = None
         self.pixelffts = None
 
-
-
     def calc_powerspec(self,roiseq,FPS,parent,minscale,maxscale):
 
         # check whether the input data is adequately set:
@@ -62,11 +57,11 @@ class powerspec:
         else:
 
             # rebuild the frame (deletes its content)  
-            self.tkframe.destroy() 
+            self.tkframe.destroy()
             self.tkframe = Frame(parent,width=self.parentw,height=self.parenth)
             #self.tkframe.pack(expand=1,fill=BOTH)
             self.tkframe.pack()
-            self.tkframe.update()  
+            self.tkframe.update()
             #print('newtest', self.tkframe.winfo_width())
             self.pwspecplot = TkPowerspecPlot.TkPowerspecPlot(self.tkframe)
 
@@ -77,27 +72,27 @@ class powerspec:
             nimgs = len(roiseq) # number of images   
 
             # initialize numpy float array, which will hold the image sequence  
-            array = numpy.zeros((int(nimgs),int(height),int(width)))  
+            array = numpy.zeros((int(nimgs),int(height),int(width)))
 
             #array = numpy.array(array,dtype=float) 
 
             for i in range(nimgs):
-                array[i,:,:] = numpy.array(roiseq[i])   
+                array[i,:,:] = numpy.array(roiseq[i])
 
             (nt,ni,nj) = numpy.shape(array)
 
-            print('shape of array: ',nt,ni,nj)
+            # print('shape of array: ',nt,ni,nj)
 
             # create a toplevel window to display the progress indicator
-	        # caution: the feedback to the frontend slows down the cbf calculation!
+            # caution: the feedback to the frontend slows down the cbf calculation!
             # ******************************************************************* #
             progresswin = Toplevel()
             progresswin.minsize(width=500,height=30)
-            progresswin.title("Powerspectrum in Progress, Please Wait...") 
+            progresswin.title("Powerspectrum in Progress, Please Wait...")
 
             # get the monitor dimensions:
             screenw = progresswin.winfo_screenwidth()
-            screenh = progresswin.winfo_screenheight()  
+            screenh = progresswin.winfo_screenheight()
 
             # place the progress indicator in the center of the screen 
             placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
@@ -112,7 +107,7 @@ class powerspec:
                 maximum=ni*nj,length=600,style="TProgressbar")
             pb.grid(row=1,column=0,pady=5)
             progress = 0
-            # ********************************************************************#
+            # **************************************************************** #
 
             # fast-fourier-transform along time axis (pixel-wise) 
 
@@ -193,15 +188,33 @@ class powerspec:
             mu1 = pars[h1_ind+1]
             s1  = pars[h1_ind+2]
 
-
             minscale.set(mu1-3*s1)
             maxscale.set(mu1+3*s1)
 
+            # last step to improve the cbf-peak-selection
+            # --> search the local minimum in self.spec around minscale, maxscale
+            # around +/- 0.7 Hz and redefine minscale, maxscale as the local minima
+            # freqs[i] = (i+1) * FPS / nimgs
+
+            # refine minscale
+            # search minimum of self.spec in [minscale-0.7,minscale+0.7]
+            ind1 = int( ((float(minscale.get())-1.2)*float(nimgs)/float(FPS))-1 )
+            ind2 = int( ((float(minscale.get())+1.2) * float(nimgs) / float(FPS)) - 1)
+
+
+
+            minscale.set( self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]) )[0][0])])
+
+
+            # refine maxscale
+            ind1 = int(((float(maxscale.get()) - 1.2) * float(nimgs) / float(FPS)) - 1)
+            ind2 = int(((float(maxscale.get()) + 1.2) * float(nimgs) / float(FPS)) - 1)
+
+            maxscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
 
             # as soon as minscale and maxscale have been set correctly 
             # --> determine CBF 
             self.pwspecplot.get_cbf(float(minscale.get()), float(maxscale.get()), FPS)
-
 
 
     def peakselection(self,powerspecplot):

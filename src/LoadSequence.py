@@ -130,7 +130,7 @@ class ImageSequence:
 
         try:
             # read file
-            f=open('user_settings.dat','r')
+            f=open('previous_directory.dat','r')
             initdir=f.read()
         except:
             initdir=os.getcwd()
@@ -139,7 +139,7 @@ class ImageSequence:
                                             initialdir=initdir)
 
 
-        f = open('user_settings.dat','w')
+        f = open('previous_directory.dat','w')
         f.write(self.directory) # write choosen directory into file 'f' 
         f.close()
 
@@ -268,7 +268,7 @@ class ImageSequence:
 
         try:
             # read file
-            f=open('user_settings.dat','r')
+            f=open('previous_directory.dat','r')
             initdir=f.read()
         except:
             initdir=os.getcwd()
@@ -276,7 +276,7 @@ class ImageSequence:
         self.videofile = askopenfilename(title="Select Video",
                                         initialdir=initdir)
 
-        f = open('user_settings.dat','w')
+        f = open('previous_directory.dat','w')
         f.write(os.path.split(self.videofile)[0])
 		# writes choosen directory (value of 'directory') into file 'f' 
         f.close()

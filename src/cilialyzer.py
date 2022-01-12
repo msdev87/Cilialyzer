@@ -369,7 +369,7 @@ class Cilialyzer():
             dynseq.spatiotempcorr(float(toolbar_object.fpscombo.get()), float(minscale.get()),
                                   float(maxscale.get()))
 
-        print("spatiotempcorr calculated")
+        # print("spatiotempcorr calculated")
         # print "spatiotempcorr calculated"
         refresh = 0
         corrplayer = Flipbook.ImgSeqPlayer(correlationtab, PIL_ImgSeq.directory,
@@ -382,7 +382,7 @@ class Cilialyzer():
         try:
             dynseq.kspec(float(toolbar_object.fpscombo.get()), float(minscale.get()), float(maxscale.get()), kplotframe)
         except NameError:
-            print("namerror")
+            # print("namerror")
             dynseq = DynamicFilter.DynFilter()
             dynseq.dyn_roiseq = roiplayer.roiseq
             dynseq.kspec(float(toolbar_object.fpscombo.get()), float(minscale.get()), float(maxscale.get()), kplotframe)
@@ -429,21 +429,21 @@ class Cilialyzer():
         """
 
         """
-         ______________________________________________________________________
-        ¦                                                                      ¦
-        ¦                              menubar                                 ¦
-        ¦______________________________________________________________________¦
-        ¦                                                                      ¦
-        ¦                      toolbar in toolbarframe                         ¦
-        ¦______________________________________________________________________¦
-        ¦                                                                      ¦
-        ¦                                                                      ¦
-        ¦                             mainframe                                ¦ 
-        ¦                                                                      ¦ 
-        ¦______________________________________________________________________¦
-        ¦                                                                      ¦
-        ¦                       statusbar in statusframe                       ¦
-        ¦______________________________________________________________________¦
+         _____________________________________________________________________
+        ¦                                                                     ¦
+        ¦                              menubar                                ¦
+        ¦_____________________________________________________________________¦
+        ¦                                                                     ¦
+        ¦                      toolbar in toolbarframe                        ¦
+        ¦_____________________________________________________________________¦
+        ¦                                                                     ¦
+        ¦                                                                     ¦
+        ¦                             mainframe                               ¦
+        ¦                                                                     ¦
+        ¦_____________________________________________________________________¦
+        ¦                                                                     ¦
+        ¦                       statusbar in statusframe                      ¦
+        ¦_____________________________________________________________________¦
         """
 
         # ******************************************************************************
