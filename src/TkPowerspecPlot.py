@@ -72,7 +72,7 @@ class TkPowerspecPlot:
 
 
 
-    def get_cbf(self,minf,maxf,FPS):
+    def get_cbf(self, minf, maxf, FPS):
 
         peakheight = max(self.yax[1:])
 
