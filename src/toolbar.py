@@ -6,6 +6,7 @@ import os
 import pathlib
 import sys
 
+
 class Toolbar:
 
     # creates the toolbarframe with its widgets
@@ -128,6 +129,7 @@ class Toolbar:
 
         # image-Button to select the directory holding the image sequence  
         self.diricon = ImageTk.PhotoImage(file=r"../images/icons/directory/newdir2.png")
+
         self.diriconB = tk.Button(self.toolbarframe,height=23,width=30,\
             borderwidth=0,command=self.selectdirectory,image=self.diricon)
         self.diriconB.grid(row=0,column=0,padx=5,pady=3,sticky='e')
@@ -163,5 +165,3 @@ class Toolbar:
         self.pixsizecombo.grid(row=0,column=6,padx=5,sticky='W')
         self.pixsizecombo.current(0)
         # ----------------------------------------------------------------------
-
-

@@ -537,7 +537,6 @@ class DynFilter:
         ax.set_ylabel("$\Delta$y [$\mu$m]",fontsize=16)
 
 
-
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
         cbar=fig.colorbar(la1,cax=cax)
