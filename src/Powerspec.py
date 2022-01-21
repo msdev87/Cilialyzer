@@ -163,8 +163,12 @@ class powerspec:
             y = self.spec
             x = self.freqs
 
-            # initial values for the fit parameters of the fit_func  
-            pars0 = [0.5, 0.5, 0.1, 7, 1, 0.1, 10, 1]
+            # ----- initial values for the fit parameters of the fit_func -----
+            
+
+            pars0 = [0.5, 0.5, 0.1, 7, 5, 0.1, 10, 5]
+
+            # -----------------------------------------------------------------
 
             pars, cov = scipy.optimize.curve_fit(f=fit_func, xdata=x, ydata=y, p0=pars0, bounds=(0,30))
 

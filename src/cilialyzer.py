@@ -611,7 +611,7 @@ class Cilialyzer():
         self.roi = RegionOfInterest.ROI(self.mainframe) # instantiate roi object
         self.roiB = tk.Button(self.roitab, text='Reset ROI', command=self.select_roi,
                           height=bh, width=16)
-        self.roiB.place(in_=self.roitab, anchor="c", relx=.07, rely=.17)
+        self.roiB.place(in_=self.roitab, anchor="c", relx=.07, rely=.22)
         # roi sequence (cropped PIL image sequence) available by attribute: "roi.roiseq"
 
         # initialize roiplayer
@@ -644,25 +644,21 @@ class Cilialyzer():
         self.toolbarF.grid(row=0, column=0, columnspan=1, rowspan=1, sticky='ew')
         # -------------------------------------------------------------------- #
 
-
-        # add 'Image Stabilization'-button
+        # --------------------- 'Image Stabilization'-button -------------------
         self.imageregB = tk.Button(self.roitab, text='Image Stabilization',
-                               command=self.image_stabilization, height=bh, width=16)
+            command=self.image_stabilization, height=bh, width=16)
         self.imageregB.place(in_=self.roitab, anchor="c", relx=.07, rely=.07)
+        # ----------------------------------------------------------------------
 
-
-        # motion extraction (see Puybareau et al. 2016) i.e. subtract the mean image
+        # motion extraction (Puybareau et al. 2016) i.e. subtract the mean image
         self.motionextractB = tk.Button(self.roitab, text='Subtract Mean',
             command=lambda: self.PIL_ImgSeq.extractmotion(), height=bh, width=16)
-        self.motionextractB.place(in_=self.roitab, anchor="c", relx=.07, rely=0.12)
-
+        self.motionextractB.place(in_=self.roitab, anchor="c", relx=.07, rely=0.17)
 
         # crop margins
         self.cropB = tk.Button(self.roitab, text='Crop Margins',
-                           command=lambda: self.roiplayer.crop_margins(), height=bh, width=16)
-        self.cropB.place(in_=self.roitab, anchor="c", relx=.07, rely=.22)
-
-
+            command=lambda: self.roiplayer.crop_margins(), height=bh, width=16)
+        self.cropB.place(in_=self.roitab, anchor="c", relx=.07, rely=.12)
 
         # *****************************************************************************#
         #                           CBF notebook-tab                                   #
@@ -885,20 +881,13 @@ class Cilialyzer():
 
         # ----------------------------------------------------------------------
 
-
-
-
-
-
         # each time the application's window size gets changed -> call 'resize'
         # self.main_window.bind( "<Configure>", self.resize)
 
 if __name__ == "__main__":
 
-    import multiprocessing
-
+    #import multiprocessing
     App = Cilialyzer()
-
     # -------------------------------------------------------------------------
     App.main_window.mainloop()  # loop and wait for events
     # -------------------------------------------------------------------------
