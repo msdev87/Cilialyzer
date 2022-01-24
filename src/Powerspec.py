@@ -164,9 +164,13 @@ class powerspec:
             x = self.freqs
 
             # ----- initial values for the fit parameters of the fit_func -----
-            
+            # the location of the maximum peak between 1 and 30 Hz
+            # serves as a first guess for the first gaussian CBF-peak
 
-            pars0 = [0.5, 0.5, 0.1, 7, 5, 0.1, 10, 5]
+            # serach location of max:
+
+
+            pars0 = [0.5, 0.5, 0.1, 3, 5, 0.1, 10, 5]
 
             # -----------------------------------------------------------------
 

@@ -10,14 +10,16 @@ if os.sys.version_info.major > 2:
 else:
     from tkinter import *
     from tkinter.filedialog import askdirectory
-    from tkinter.filedialog   import asksaveasfilename
+    from tkinter.filedialog import asksaveasfilename
 
 class ROI:
-    # class for ROI selection
-    def __init__(self,root):
+    """
+    Class for the Region of Interest (ROI) selection
+    """
 
+    def __init__(self, root):
         # tuple holding the edges of the ROI selection! 
-        self.ROI = (0,0,0,0)
+        self.ROI = (0, 0, 0, 0)
         self.root = root # Tk() root 
         self.roiseq = None # cropped image sequence
 
@@ -27,7 +29,7 @@ class ROI:
         self.bbox = None
         self.win = None # Toplevel() toplevel window  
 
-    def get_roi(self,PILSeq):
+    def get_roi(self, PILSeq):
 
         # get_roi gets executed when the button 'Get ROI' is getting clicked  
 

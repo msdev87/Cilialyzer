@@ -521,7 +521,8 @@ class ImgSeqPlayer(object):
                 self.bbox=self.anchor+ (self.can.canvasx(event.x), self.can.canvasy(event.y))
                 self.ROI = self.bbox
                 if self.item is None:
-                    self.item=self.can.create_rectangle(self.bbox,outline="yellow")
+                    self.item=self.can.create_rectangle(self.bbox,
+                        outline="yellow", width=3)
                 else:
                     self.can.coords(self.item, *self.bbox)
 
@@ -612,7 +613,8 @@ class ImgSeqPlayer(object):
                 self.bbox = self.anchor + (self.can.canvasx(event.x)+5, self.can.canvasy(event.y)+5)
                 self.ROI = self.bbox
 
-                self.item = self.can.create_rectangle(self.bbox, fill="yellow")
+                self.item = self.can.create_rectangle(self.bbox,
+                    fill="yellow", width=3)
 
                 self.can.coords(self.item, *self.bbox)
 
@@ -709,11 +711,11 @@ class ImgSeqPlayer(object):
 
         if (self.selectroi == 1):
             if (self.bbox is not None):
-                self.can.create_rectangle(self.bbox, outline="yellow")
+                self.can.create_rectangle(self.bbox, outline="yellow", width=3)
 
         if (self.selectroi == 2):
             if (self.bbox is not None):
-                self.can.create_rectangle(self.bbox, fill="yellow")
+                self.can.create_rectangle(self.bbox, fill="yellow", width=3)
 
         if (self.stop != 2):
             self.frame.after_idle(self.animate) # recalls self.animate  

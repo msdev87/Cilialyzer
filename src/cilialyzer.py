@@ -14,8 +14,10 @@ import activitymap
 import DynamicFilter
 import Flipbook
 import FlipbookPTrack
+import stabilize_proc
+from pystackreg import StackReg
 import multiprocessing
-
+import sys
 
 class Cilialyzer():
 
@@ -216,10 +218,6 @@ class Cilialyzer():
 
     def image_stabilization(self):
 
-        import stabilize_proc
-        from pystackreg import StackReg
-        import multiprocessing
-
         ################### new #############################################
         sr = StackReg(StackReg.RIGID_BODY)
 
@@ -235,26 +233,14 @@ class Cilialyzer():
         for i in range(nimgs):
             array[i, :, :] = numpy.array(self.roiplayer.roiseq[i])
 
-        # compute mean image:
+        # compute the mean image:
         meanimg = numpy.mean(array[0:int(nimgs / 10), :, :], axis=0)
 
-        """
-        # loop over all images
-        for i in range(nimgs):
-            #note that only every second image is registered (perf
-            if ((i % 2) == 0):
-                sr.register(meanimg,array[i,:,:])
-                # therefore, every second image is transformed as its 
-            array_stabilized[i,:,:] = sr.transform(array[i,:,:])
-
-            roiplayer.roiseq[i] = Image.fromarray(numpy.uint8(array_stabilized[i,:,:]))
-        """
-
-        num_procs = multiprocessing.cpu_count()
+        num_procs = multiprocessing.cpu_count()  # number of CPUs
         subarrays = []
         arrayslice = round(nimgs / num_procs)
 
-        # careful: remember python's array slicing:
+        # careful: remember Python's array slicing:
         # array[start:stop] delivers all elements from start to stop-1!
         for i in range(num_procs):
             if (i < num_procs - 1):
@@ -265,13 +251,6 @@ class Cilialyzer():
 
         result = self.pool.map(stabilize_proc.subproc,
                           [subarrays[i] for i in range(num_procs)])
-
-        #self.pool.close()
-
-        # print(type(result))
-        # print('length of list',len(result))
-        # print('type of first element: ',type(result[0]))
-        # print(result)
 
         # join the array slices together again
         # there are now 'num_procs' array slices, which have to be put together
@@ -287,8 +266,7 @@ class Cilialyzer():
 
         for i in range(nimgs):
             self.roiplayer.roiseq[i] = Image.fromarray(
-                numpy.uint8(array_stabilized[i,:,:]))
-
+                numpy.uint8(array_stabilized[i, :, :]))
 
     """
     def loadvideo():
@@ -598,8 +576,11 @@ class Cilialyzer():
 
         self.nbook.grid(row=1,column=0,columnspan=1,rowspan=1,padx=4,pady=4)
 
-        # if the clicked tab is not the current tab
-        # we need to stop all animations to avoid crashes of the frontend!
+        """
+        if the clicked tab is not the current tab, we need to stop all 
+        animations to avoid crashes of the frontend
+        self.switchtab prevents those crashes 
+        """
         self.nbook.bind('<ButtonPress-1>', self.switchtab)
 
         # ROI selection tab
@@ -609,10 +590,10 @@ class Cilialyzer():
 
         # ROI selection Button
         self.roi = RegionOfInterest.ROI(self.mainframe) # instantiate roi object
-        self.roiB = tk.Button(self.roitab, text='Reset ROI', command=self.select_roi,
-                          height=bh, width=16)
+        self.roiB = tk.Button(self.roitab, text='Reset ROI',
+            command=self.select_roi, height=bh, width=16)
         self.roiB.place(in_=self.roitab, anchor="c", relx=.07, rely=.22)
-        # roi sequence (cropped PIL image sequence) available by attribute: "roi.roiseq"
+        # roi-sequence (cropped PIL image sequence) available by "self.roi.roiseq"
 
         # initialize roiplayer
         self.roiplayer = FlipbookROI.ImgSeqPlayer(self.roitab,self.PIL_ImgSeq.directory,0,
@@ -652,7 +633,8 @@ class Cilialyzer():
 
         # motion extraction (Puybareau et al. 2016) i.e. subtract the mean image
         self.motionextractB = tk.Button(self.roitab, text='Subtract Mean',
-            command=lambda: self.PIL_ImgSeq.extractmotion(), height=bh, width=16)
+            command=lambda: self.PIL_ImgSeq.extractmotion(self.roiplayer.roiseq),
+            height=bh, width=16)
         self.motionextractB.place(in_=self.roitab, anchor="c", relx=.07, rely=0.17)
 
         # crop margins

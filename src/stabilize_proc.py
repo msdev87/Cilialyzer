@@ -9,7 +9,7 @@ def subproc(args):
     array = args[1]
 
     nimgs = array.shape[0]
-    print('nimgs: ',nimgs)
+    #print('nimgs: ',nimgs)
 
     array_stabilized = numpy.copy(array)
 
@@ -23,7 +23,7 @@ def subproc(args):
         # therefore, every second image is transformed as its predecessor
         array_stabilized[i,:,:] = sr.transform(array[i,:,:])
 
-    print(array_stabilized.shape[0])
+    #print(array_stabilized.shape[0])
 
     return array_stabilized
 

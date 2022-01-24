@@ -95,7 +95,7 @@ def sort_list(l):
 
 class ImageSequence:
 
-    # let the user set/choose the directory, 
+    # let the user set/choose the directory,
     # from which the image sequence will be loaded
 
     def __init__(self):
@@ -137,6 +137,8 @@ class ImageSequence:
 
         self.directory = askdirectory(title="Select Directory",
                                             initialdir=initdir)
+
+        print('self.directory: ',self.directory)
 
 
         f = open('previous_directory.dat','w')
@@ -384,29 +386,35 @@ class ImageSequence:
         #    mydict = imreg_dft.imreg.similarity(array[0,:,:],array[i,:,:])
         #    array[i,:,:] = mydict["timg"]
 
-
         for i in range(nimgs):
             self.sequence[i] = Image.fromarray(numpy.uint8(aligned[i,:,:]))
 
 
-    def extractmotion(self):
+    def extractmotion(self, roiseq):
+        """
+        this method subtracts the mean image in self.sequence, which contains
+        the whole field of view, or, if it has already been defined, it
+        subtracts the mean image from the roi-sequence (argument 'roiseq')
+        Note that subtracting the mean is equivalent to removing the
+        zero-frequency (static) contribution
+        """
 
-        # subtracts the mean image,
-		# which is equivalent to remove the zero-frequency contribution 
+        sequence = roiseq
 
-        firstimg = self.sequence[0] # first image of roi sequence  
+        firstimg = sequence[0] # first image of roi sequence
         width, height = firstimg.size # dimension of images 
-        nimgs = len(self.sequence) # number of images   
+        nimgs = len(sequence) # number of images
 
         # initialize numpy float array, which will hold the image sequence  
-        array = numpy.zeros((int(nimgs),int(height),int(width)),dtype=float)
-        sumimg = numpy.zeros((int(height),int(width)),dtype=float) # sum of imgs
+        array = numpy.zeros((int(nimgs), int(height), int(width)), dtype=float)
+        # sumimg: sum of images
+        sumimg = numpy.zeros((int(height), int(width)), dtype=float)
 
-        # PIL images -> numpy array 
+        # convert stack of PIL images to numpy array
         for i in range(nimgs):
-            array[i,:,:] = numpy.array(self.sequence[i])
+            array[i, :, :] = numpy.array(sequence[i])
 
-        # calc mean image 
+        # calculate the mean image
         for i in range(nimgs):
             sumimg = numpy.add(sumimg,array[i,:,:])
         meanimg = numpy.multiply(1.0/float(nimgs), sumimg)
@@ -429,7 +437,9 @@ class ImageSequence:
         #array = numpy.uint8(array) 
         #print(array[0,:,:])
         for i in range(nimgs):
-            self.sequence[i] = Image.fromarray(array[i,:,:])
+            img = Image.fromarray(array[i,:,:])
+            self.sequence[i] = img
+            roiseq[i] = img
 
 
     def wackeldackel(self):

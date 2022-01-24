@@ -13,7 +13,7 @@ class activitymap:
         self.map = None
         self.parentw = parentw 
         self.parenth = parenth
-        self.tkframe = Frame(parent,width=self.parentw,height=self.parenth) 
+        self.tkframe = Frame(parent, width=self.parentw, height=self.parenth)
         self.tkframe.pack()
 
         self.firstimg = None  
@@ -38,7 +38,6 @@ class activitymap:
         self.meantacorr = None # mean temporal autocorrelation
 
 
-
     def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum):
         """
         calculation of the activity map (spatially resolved CBF map)
@@ -59,7 +58,6 @@ class activitymap:
 
         # initialze the array holding the activity map
         self.freqmap = numpy.zeros((int(self.height), int(self.width)))
-
 
         self.tkframe.destroy()
         self.tkframe = Frame(parent, width=self.parentw, height=self.parenth)
@@ -94,7 +92,7 @@ class activitymap:
                 # (condition for invalidity: A_xy / A_bar < 0.15)  
 
                 # threshold in Ryser was set to 0.15 
-                threshold = 0.15
+                threshold = 0.25
 
                 A_xy = numpy.sum(self.spec[bot:top+1])
 
