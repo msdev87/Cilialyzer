@@ -2,7 +2,6 @@ import os,io
 import numpy
 import sys
 
-
 if os.sys.version_info.major > 2:
     from tkinter import *
     from tkinter.filedialog import askdirectory
@@ -124,7 +123,6 @@ class ImageSequence:
         self.fname = StringVar()  # feb 2021
         self.fname.set("No Directory Selected")
 
-
     def choose_directory(self):
     #def choose_directory(self,dirname,fname):
 
@@ -138,7 +136,7 @@ class ImageSequence:
         self.directory = askdirectory(title="Select Directory",
                                             initialdir=initdir)
 
-        print('self.directory: ',self.directory)
+        #print('self.directory: ',self.directory)
 
 
         f = open('previous_directory.dat','w')

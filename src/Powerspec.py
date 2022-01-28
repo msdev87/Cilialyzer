@@ -154,27 +154,35 @@ class powerspec:
 
             # self.pwspecplot.plot(self.freqs, self.spec, xlabel, ylabel, labelpad, fontsize)
 
-            # let us smooth the powerspectrum
+            # slightly smooth the powerspectrum
             self.spec = gaussian_filter(self.spec, sigma=1)
             self.pwspecplot.plot(self.freqs, self.spec, xlabel, ylabel, labelpad, fontsize)
-
 
             # fit the powerspectrum  
             y = self.spec
             x = self.freqs
 
             # ----- initial values for the fit parameters of the fit_func -----
-            # the location of the maximum peak between 1 and 30 Hz
+            # the location of the maximum peak 
             # serves as a first guess for the first gaussian CBF-peak
 
             # serach location of max:
+            maxloc = numpy.argmax(y)
 
+            a = 0.5
+            b = 0.5
+            h1 = 0.1
+            mu1 = x[maxloc]
+            s1 =  mu1/3.0
+            h2 = 0.7 * h1
+            mu2 = 1.8 * mu1
+            s2 = s1
 
-            pars0 = [0.5, 0.5, 0.1, 3, 5, 0.1, 10, 5]
+            pars0 = [a, b, h1, mu1, s1, h2, mu2, s2]
 
             # -----------------------------------------------------------------
 
-            pars, cov = scipy.optimize.curve_fit(f=fit_func, xdata=x, ydata=y, p0=pars0, bounds=(0,30))
+            pars, cov = scipy.optimize.curve_fit(f=fit_func, xdata=x, ydata=y, p0=pars0, bounds=(0,50))
 
             """
             pars holds the following fit parameters:
@@ -192,6 +200,9 @@ class powerspec:
             h1_ind = pars.index(peakheights[-1]) # higher peak
             h2_ind = pars.index(peakheights[0]) # lower peak
 
+            a = pars[0]
+            b = pars[1]
+
             h1  = pars[h1_ind]
             mu1 = pars[h1_ind+1]
             s1  = pars[h1_ind+2]
@@ -200,16 +211,20 @@ class powerspec:
             mu2 = pars[h2_ind+1]
             s2 = pars[h2_ind+2]
 
+            if (s1 < 0.2):
+                s1 = 0.2
+            if (s2 < 0.2):
+                s2 = 0.2
+
+
             print('-----------------------------------------------------------')
+            print('a: ',a)
+            print('b: ',b)
             print('mu1: ', mu1)
             print('mu2: ', mu2)
             print('s1: ',s1)
             print('s2: ',s2)
             print('-----------------------------------------------------------')
-
-
-            #minscale.set(mu1-3*s1)
-            #maxscale.set(mu1+3*s1)
 
             # check whether the second Gaussian is different from the first one
             # if yes --> take second Gaussian into account
@@ -240,13 +255,16 @@ class powerspec:
                     ind2 = int( round(((mu2-2*s2)*float(nimgs)/float(FPS))-1))
                     ind1 = max(ind1,0) # prevent negative indices
                     ind2 = max(ind2,1)
-                    minscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
+
+                    minscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
+                    #minscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
 
                     # set maxscale as local min in interval [m1+2*s1,mu1+4*s1]
                     ind1 = int(round(((mu1+2*s1)*float(nimgs)/float(FPS))-1))
                     ind2 = int(round(((mu1+4*s1)*float(nimgs)/float(FPS))-1))
 
-                    maxscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
+                    maxscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
+                    #maxscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
 
                 if (mu1 < mu2):
                     # set minscale as local min in interval [mu1-4s1,mu1-2s1]
@@ -257,35 +275,50 @@ class powerspec:
                     print('test')
                     print('ind1: ',ind1)
                     print('ind2: ',ind2)
-                    minscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
+
+                    minscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
+                    #minscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
 
                     # set maxscale as local min in interval [m2+2*s2,mu2+4*s2]
                     ind1 = int(round(((mu2+2*s2)*float(nimgs)/float(FPS))-1))
                     ind2 = int(round(((mu2+4*s2)*float(nimgs)/float(FPS))-1))
-                    maxscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
+
+                    maxscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
+                    #maxscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
             else:
 
                 # only first gaussian (dominant peak height) is taken into account
 
                 # set minscale as local min in interval [mu1-4s1,mu1-2s1]
                 ind1 = int(round(((mu1 - 4 * s1) * float(nimgs) / float(FPS)) - 1))
-                ind2 = int(round(((mu1 - 1 * s1) * float(nimgs) / float(FPS)) - 1))
+                ind2 = int(round(((mu1 - 2 * s1) * float(nimgs) / float(FPS)) - 1))
 
+                # the following lines ensure that the indices are not negative 
+                # and that the interval can not be empty  
                 ind1 = max(ind1, 0)
                 ind2 = max(ind2, 1)
 
                 print('-----------------------------------------------------------')
+                print('minscale')
                 print('ind1 ',ind1,' ind2 ',ind2)
+                print('freq[ind1] ', self.freqs[ind1],' freq[ind2] ',self.freqs[ind2])
                 print('-----------------------------------------------------------')
-                minscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
+
+
+                minscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
+                #minscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
 
                 # set maxscale as local min in interval [m1+2*s1,mu1+4*s1]
                 ind1 = int(round(((mu1 + 2 * s1) * float(nimgs) / float(FPS)) - 1))
                 ind2 = int(round(((mu1 + 4 * s1) * float(nimgs) / float(FPS)) - 1))
                 print('-----------------------------------------------------------')
+                print('maxscale')
                 print('ind1 ',ind1,' ind2 ',ind2)
+                print('freq[ind1] ',self.freqs[ind1],' freq[ind2] ',self.freqs[ind2])
                 print('-----------------------------------------------------------')
-                maxscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
+
+                maxscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
+                #maxscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
 
             # freqs[i] = (i+1) * FPS / nimgs
 
@@ -294,11 +327,11 @@ class powerspec:
             self.pwspecplot.get_cbf(float(minscale.get()), float(maxscale.get()), FPS)
 
             # plot the fit
-            x = numpy.array(range(1000))
-            x = numpy.divide(x,10)
-            y = fit_func(x, pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6], pars[7])
+            #x = numpy.array(range(1000))
+            #x = numpy.divide(x,10)
+            #y = fit_func(x, pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6], pars[7])
 
-            self.pwspecplot.axes.plot(x,y)
+            #self.pwspecplot.axes.plot(x,y)
 
 
     def peakselection(self,powerspecplot):

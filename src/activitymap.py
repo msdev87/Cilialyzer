@@ -11,31 +11,33 @@ class activitymap:
     def __init__(self, parent, parentw, parenth):
 
         self.map = None
-        self.parentw = parentw 
+        self.parentw = parentw
         self.parenth = parenth
         self.tkframe = Frame(parent, width=self.parentw, height=self.parenth)
-        self.tkframe.pack()
+        self.tkframe.place(in_=parent, anchor='c', relx=0.5, rely=0.5)
 
-        self.firstimg = None  
+        self.firstimg = None
         self.width = None
-        self.height = None  
-        self.nimgs = None  
+        self.height = None
+        self.nimgs = None
 
-        self.array = None  
+        self.array = None
 
-        self.spec = None 
-        self.freqs = None 
-        
-        self.freqmap = None  
+        self.spec = None
+        self.freqs = None
 
-        self.fig = None 
-        self.ax1 = None 
-        self.ax2 = None 
+        self.freqmap = None
+
+        self.fig = None
+        self.ax1 = None
+        self.ax2 = None
 
         self.canvas = None
         self.fps = None
 
         self.meantacorr = None # mean temporal autocorrelation
+
+        self.validpixels = None # mask containing the valid pixels
 
 
     def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum):
@@ -46,9 +48,9 @@ class activitymap:
         self.fps = FPS
 
         # initialize attributes
-        pwspecplot = powerspectrum.pwspecplot 
+        pwspecplot = powerspectrum.pwspecplot
 
-        self.firstimg = PILseq[0] 
+        self.firstimg = PILseq[0]
         self.width, self.height = self.firstimg.size # dimension of images 
         self.nimgs = len(PILseq) # number of images   
 
@@ -59,9 +61,14 @@ class activitymap:
         # initialze the array holding the activity map
         self.freqmap = numpy.zeros((int(self.height), int(self.width)))
 
+        # initialize the boolean mask providing info about each pixels validity
+        self.validpixels = numpy.zeros((int(self.height), int(self.width)))
+
+        # delete the priorly drawn activity map
         self.tkframe.destroy()
         self.tkframe = Frame(parent, width=self.parentw, height=self.parenth)
-        self.tkframe.pack()
+        self.tkframe.place(in_=parent, anchor='c', relx=0.5, rely=0.5)
+
 
         # fast-fourier-transform along time axis (pixel-wise) 
         # (nt,ni,nj) = numpy.shape(self.array)
@@ -108,20 +115,20 @@ class activitymap:
         # plot the activity map (self.freqmap)
         dpis = 150
 
-        figw = round(1.5*self.parentw / dpis)   
-        figh = round(self.parenth / dpis) 
-    
+        figw = round(1.5*self.parentw / dpis)
+        figh = round(self.parenth / dpis)
+
         self.fig, (self.ax1, self.ax2) = plt.subplots(ncols=2, figsize=(figw, figh), dpi=dpis)
-         
+
         # plot first image & overlay activity map  
-        
+
         self.canvas = FigureCanvasTkAgg(self.fig, self.tkframe)
-        
+
         #cmap = matplotlib.cm.jet
         #cmap.set_bad('white',1.)
 
         # plot the activity map 
-        
+
         # create an axes on the right side of ax. The width of cax will be 5%
         # of ax and the padding between cax and ax will be fixed at 0.05 inch.
 
@@ -141,8 +148,9 @@ class activitymap:
         self.fig.tight_layout()
 
         self.canvas.draw()
-        self.canvas.get_tk_widget().pack() 
-        self.canvas._tkcanvas.pack()
+        self.canvas.get_tk_widget().place(anchor='c', relx=0.5, rely=0.5)
+        self.canvas._tkcanvas.place(anchor='c', relx=0.5, rely=0.5)
+
 
     def freq_correlogram(self):
         """

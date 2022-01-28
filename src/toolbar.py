@@ -7,9 +7,67 @@ import pathlib
 import sys
 
 
-class Toolbar:
 
-    # creates the toolbarframe with its widgets
+def sort_list(l):
+    """
+    Mutates l, returns None.
+    l: list of filenames.
+
+    Sorts l alphabetically.
+	But fixes the fact that, alphabetically, '20' comes before '9'.
+
+    Example:
+        if l = ['10.png', '2.jpg']:
+            a simple l.sort() would make l = ['10.png', '2.jpg'],
+            but this function instead makes l = ['2.jpg', '10.png']
+    """
+
+    l.sort()
+
+    # our image sequences are named as follows: 
+    # base-name-numbering.ending 
+    # here is a concrete example: '30fps_RT_1_swirl_2018-12-21-151557-0467.tif'
+
+    # leading zeros may or may not be present! (both cases are handled) 
+
+    numbering, basename = [], []
+    i = 0
+    while i < len(l):
+        try:
+
+            fname = l[i]
+            s = fname.split(".")
+            file_ending = s[-1]
+
+            bla = s[0].split("-")
+            number = bla[-1]
+            numbering.append(number)
+
+            del_chars = len(file_ending) + 1 + len(number)
+            basename.append(fname[0:-del_chars])
+
+            l.pop(i) # pop removes the i-th element from list 'l'
+
+        except ValueError:
+            i += 1
+
+    for i in range(len(numbering)):
+        for n in range(i, len(numbering)):
+            if int(numbering[i]) < int(numbering[n]):
+                numbering[i], numbering[n] = numbering[n], numbering[i]
+                basename[i], basename[n] = basename[n], basename[i]
+
+    for i in range(len(numbering)):
+        l.insert(0, "%s%s.%s" % (basename[i],numbering[i],file_ending))
+
+	# TODO comment out next line as soon as safe 
+    # print(l)
+
+
+class Toolbar:
+    """
+    Creates the toolbarframe with its widgets
+    """
 
     def selectdirectory(self):
 
@@ -78,17 +136,16 @@ class Toolbar:
             next_directory = subdirectories[0]
 
         self.PIL_ImgSeq.directory = next_directory
+        # next line updates the label (displayed path to the new directory) 
         self.PIL_ImgSeq.dirname.set(next_directory)
+        # update the displayed filename of the first image
+        files = os.listdir(next_directory)
+        sort_list(files)
+        self.PIL_ImgSeq.fname.set(files[0])
 
-        f = open('user_settings.dat','w')
+        f = open('previous_directory.dat','w')
         f.write(next_directory) # write choosen directory into file 'f'   
         f.close()
-
-        # update the label, which displays the directory name:            
-        #self.dirname.set(self.directory)                                  
-
-        # update the name of the first image:                             
-        #f = os.listdir(self.directory)                                    
 
         self.PIL_ImgSeq.load_imgs() # loads image sequence                             
         # PIL_ImgSeq.sequence[i] now holds the i-th frame (img format: 8 Bits, PIL)
@@ -105,14 +162,14 @@ class Toolbar:
         # make sure that the rotationangle is set to 0:
         self.roiplayer.rotationangle = 0.0
 
-
         # update label in statusbar:
         self.statusbar.update(self.PIL_ImgSeq)
 
         #print('roiplayer id in Toolbar: ',id(self.roiplayer))
         self.roiplayer.animate()
 
-    def __init__(self, parent, player, roiplayer, ptrackplayer, PIL_ImgSeq, nbook, roitab, roi, toolbar_h, toolbar_w, statusbar):
+    def __init__(self, parent, player, roiplayer, ptrackplayer, PIL_ImgSeq,
+            nbook, roitab, roi, toolbar_h, toolbar_w, statusbar):
 
         self.player = player
         self.roiplayer = roiplayer
@@ -124,8 +181,8 @@ class Toolbar:
         self.statusbar = statusbar
 
         self.toolbarframe = tk.Frame(parent,width=toolbar_w,height=toolbar_h) # main frame containing the tools
-        print('test')
-        print(self.toolbarframe.winfo_screenwidth())
+        #print('test')
+        #print(self.toolbarframe.winfo_screenwidth())
 
         # image-Button to select the directory holding the image sequence  
         self.diricon = ImageTk.PhotoImage(file=r"../images/icons/directory/newdir2.png")
@@ -136,7 +193,8 @@ class Toolbar:
 
         # --------------------------------------------------------------------- 
         # image-Button 'next directory' to select the next subdirectory 
-        self.nextdiricon = ImageTk.PhotoImage(file=r"../images/icons/directory/nextdir.png")
+        self.nextdiricon = ImageTk.PhotoImage(
+            file=r"../images/icons/directory/nextdir.png")
 
         self.nextdiriconB = tk.Button(self.toolbarframe,height=23,width=30,\
             borderwidth=0,command=self.nextdirectory,image=self.nextdiricon)
