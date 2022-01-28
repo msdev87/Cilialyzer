@@ -590,7 +590,7 @@ class Cilialyzer():
 
         # ROI selection Button
         self.roi = RegionOfInterest.ROI(self.mainframe) # instantiate roi object
-        self.roiB = tk.Button(self.roitab, text='Reset ROI',
+        self.roiB = tk.Button(self.roitab, text='Reset',
             command=self.select_roi, height=bh, width=16)
         self.roiB.place(in_=self.roitab, anchor="c", relx=.07, rely=.22)
         # roi-sequence (cropped PIL image sequence) available by "self.roi.roiseq"
