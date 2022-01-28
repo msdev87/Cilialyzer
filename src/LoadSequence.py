@@ -436,7 +436,7 @@ class ImageSequence:
         #print(array[0,:,:])
         for i in range(nimgs):
             img = Image.fromarray(array[i,:,:])
-            self.sequence[i] = img
+            #self.sequence[i] = img
             roiseq[i] = img
 
 

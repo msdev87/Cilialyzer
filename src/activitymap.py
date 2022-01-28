@@ -115,10 +115,10 @@ class activitymap:
         # plot the activity map (self.freqmap)
         dpis = 150
 
-        figw = round(1.5*self.parentw / dpis)
+        figw = round(self.parentw / dpis)
         figh = round(self.parenth / dpis)
 
-        self.fig, (self.ax1, self.ax2) = plt.subplots(ncols=2, figsize=(figw, figh), dpi=dpis)
+        self.fig, (self.ax1, self.ax2) = plt.subplots(nrows=2, figsize=(figw, figh), dpi=dpis)
 
         # plot first image & overlay activity map  
 
@@ -135,13 +135,13 @@ class activitymap:
         divider = make_axes_locatable(self.ax1)
         cax = divider.append_axes("right", size="7%", pad=0.08)
         bla1=self.ax1.imshow(self.freqmap, alpha=1.0, cmap='coolwarm', interpolation='none')
-        self.ax1.set_title('Activity Map') 
+        self.ax1.set_title('Activity Map')
         self.fig.colorbar(bla1,cax=cax)
 
         divider = make_axes_locatable(self.ax2)
         cax = divider.append_axes("right", size="7%", pad=0.08)
         bla2=self.ax2.imshow(numpy.asarray(self.firstimg),cmap='gray',alpha=1.0)
-        self.ax2.set_title('Example Frame') 
+        self.ax2.set_title('Example Frame')
         self.fig.colorbar(bla2,cax=cax)
 
         # plots should not overlap
