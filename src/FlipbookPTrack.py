@@ -751,7 +751,7 @@ class ImgSeqPlayer(object):
                     self.ROI = self.bbox
 
                     # create rectangle (yellow border)
-                    self.item = self.can.create_rectangle(self.bbox, outline="red")
+                    self.item = self.can.create_rectangle(self.bbox, outline="red",width=3)
                     self.start_track = int(self.index)
 
                     # add mouse bindings here
@@ -850,7 +850,7 @@ class ImgSeqPlayer(object):
                     box = (x-bla,y-bla,x+bla,y+bla)
 
                     #print('drawing box of ',i,'-th particle') 
-                    self.can.create_rectangle(box,outline="yellow", width=2)
+                    self.can.create_rectangle(box,outline="green", width=3)
 
                 except ValueError:
                     # self.index was not in the list

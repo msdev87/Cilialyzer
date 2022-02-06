@@ -392,8 +392,8 @@ class Cilialyzer():
     #            compound=tk.RIGHT)
     # load_vidB.grid(row=2,column=0)
 
-    def frequency_correlation(self):
-        pass
+    #def frequency_correlation(self):
+    #    pass
 
     def tacorr(self):
         # calls temporal_autocorrelation
@@ -592,7 +592,7 @@ class Cilialyzer():
         self.roi = RegionOfInterest.ROI(self.mainframe) # instantiate roi object
         self.roiB = tk.Button(self.roitab, text='Reset',
             command=self.select_roi, height=bh, width=16)
-        self.roiB.place(in_=self.roitab, anchor="c", relx=.07, rely=.22)
+        self.roiB.place(in_=self.roitab, anchor="c", relx=.07, rely=.27)
         # roi-sequence (cropped PIL image sequence) available by "self.roi.roiseq"
 
         # initialize roiplayer
@@ -641,6 +641,14 @@ class Cilialyzer():
         self.cropB = tk.Button(self.roitab, text='Crop Margins',
             command=lambda: self.roiplayer.crop_margins(), height=bh, width=16)
         self.cropB.place(in_=self.roitab, anchor="c", relx=.07, rely=.12)
+
+
+        # denoise button 
+        self.denoiseB = tk.Button(self.roitab, text='Denoise',
+            command=lambda: self.PIL_ImgSeq.denoise(self.roiplayer.roiseq),
+            height=bh, width=16)
+        self.denoiseB.place(in_=self.roitab, anchor="c", relx=0.07, rely=0.22)
+
 
         # *****************************************************************************#
         #                           CBF notebook-tab                                   #
@@ -738,8 +746,14 @@ class Cilialyzer():
         self.freqcorrtab = tk.Frame(self.nbook)
         self.nbook.add(self.freqcorrtab, text='Frequency Correlation')
 
+        # add a frame to display the correlogram 
+        self.fcorrframe = tk.Frame(self.freqcorrtab,width=int(round(0.7*self.nbookw)),height=int(round(0.7*self.nbookh)))
+        self.fcorrframe.place(in_=self.freqcorrtab, anchor='c', relx=0.5, rely=0.5)
+
+
         self.freqcorrB = tk.Button(self.freqcorrtab, text='Frequency Correlation',
-            command=self.frequency_correlation(), height=bh, width=bw)
+            command=lambda: self.activity_map.frequency_correlogram(
+            self.fcorrframe, float(self.toolbar.pixsizecombo.get())), height=bh, width=bw)
         self.freqcorrB.place(in_=self.freqcorrtab, anchor='c', relx=0.5, rely=0.05)
         # **********************************************************************
 

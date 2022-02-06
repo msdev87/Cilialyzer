@@ -6,7 +6,7 @@ from bytescl import bytescl
 import sys
 import math
 import os
-import autocorrelaion_zeropadding
+import autocorrelation_zeropadding
 
 if os.sys.version_info.major > 2:
     from tkinter import *
@@ -175,7 +175,7 @@ class DynFilter:
                         # timeseries of pixel i,j
                         timeseries = array[:, i, j]
 
-                        acorr = autocorrelaion_zeropadding.acorr_zp(timeseries)
+                        acorr = autocorrelation_zeropadding.acorr_zp(timeseries)
 
                         # add zero-padding along time axis
                         #zs = numpy.zeros(len(timeseries), dtype=float)

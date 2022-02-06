@@ -6,6 +6,9 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+import autocorrelation_zeropadding
+
+
 class activitymap:
 
     def __init__(self, parent, parentw, parenth):
@@ -26,7 +29,7 @@ class activitymap:
         self.spec = None
         self.freqs = None
 
-        self.freqmap = None
+        self.freqmap = None 
 
         self.fig = None
         self.ax1 = None
@@ -37,7 +40,9 @@ class activitymap:
 
         self.meantacorr = None # mean temporal autocorrelation
 
-        self.validpixels = None # mask containing the valid pixels
+        self.validity_mask = None # mask containing the valid pixels
+
+        self.freq_acorr = None # autocorrelation of the activity map 
 
 
     def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum):
@@ -61,8 +66,8 @@ class activitymap:
         # initialze the array holding the activity map
         self.freqmap = numpy.zeros((int(self.height), int(self.width)))
 
-        # initialize the boolean mask providing info about each pixels validity
-        self.validpixels = numpy.zeros((int(self.height), int(self.width)))
+        # initialize the boolean mask indicating the validity of each pixel 
+        self.validity_mask = numpy.zeros((int(self.height), int(self.width)))
 
         # delete the priorly drawn activity map
         self.tkframe.destroy()
@@ -108,6 +113,9 @@ class activitymap:
                     # calculate the mean freq in freq band (weighted mean)
                     self.freqmap[i,j] = numpy.sum(numpy.multiply(self.freqs[bot:top+1],
                         self.spec[bot:top+1])) / numpy.sum(self.spec[bot:top+1])
+
+                    # validity-mask:
+                    self.validity_mask[i,j] = 1
                 else:
                     # invalid pixel 
                     self.freqmap[i,j] = numpy.nan
@@ -152,12 +160,51 @@ class activitymap:
         self.canvas._tkcanvas.place(anchor='c', relx=0.5, rely=0.5)
 
 
-    def freq_correlogram(self):
+    def frequency_correlogram(self, parent, pixsize):
         """
         Computes the autocorrelation of the activity map
         """
-        pass
+        print('frequency correlation gets computed...')
 
+        # we mainly need the validity_mask and the acitivity map freqmap
+        # 2D autocorrelation with zero-padding!
+
+        #activitymap = numpy.array(self.freqmap)
+        #mask = numpy.array(self.validity_mask)
+
+        if (self.freqmap is not None):
+            self.freq_acorr = autocorrelation_zeropadding.acorr2D_zp(self.freqmap,
+                self.validity_mask)
+
+
+        #print(self.freq_acorr)
+
+        #fig = plt.figure()
+        #plt.imshow(self.freq_acorr, alpha=1.0, cmap='gray', interpolation='none')
+        #plt.show()
+
+        dpi = 150
+
+        figw = round(self.parentw / dpi)
+        figh = round(self.parenth / dpi)
+
+        self.fig, self.ax = plt.subplots(nrows=1, figsize=(figw, figh), dpi=dpi)
+
+        # plot first image & overlay activity map  
+
+        self.canvas = FigureCanvasTkAgg(self.fig, parent)
+
+        divider = make_axes_locatable(self.ax)
+        cax = divider.append_axes("right", size="7%", pad=0.08)
+        bla=self.ax.imshow(self.freq_acorr, alpha=1.0, cmap='coolwarm', interpolation='none')
+        self.ax.set_title('Frequency autocorrelation')
+        self.fig.colorbar(bla,cax=cax)
+
+        self.fig.tight_layout()
+
+        self.canvas.draw()
+        self.canvas.get_tk_widget().place(anchor='c', relx=0.5, rely=0.5)
+        self.canvas._tkcanvas.place(anchor='c', relx=0.5, rely=0.5)
 
 
 

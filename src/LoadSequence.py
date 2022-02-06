@@ -2,6 +2,8 @@ import os,io
 import numpy
 import sys
 
+from PIL import ImageFilter
+
 if os.sys.version_info.major > 2:
     from tkinter import *
     from tkinter.filedialog import askdirectory
@@ -438,6 +440,37 @@ class ImageSequence:
             img = Image.fromarray(array[i,:,:])
             #self.sequence[i] = img
             roiseq[i] = img
+
+    def denoise(self, roiseq):
+
+        sequence = roiseq
+
+        #firstimg = sequence[0] # first image of roi sequence
+        #width, height = firstimg.size # dimension of images 
+        nimgs = len(sequence) # number of images
+
+        # initialize numpy float array, which will hold the image sequence  
+        #array = numpy.zeros((int(nimgs), int(height), int(width)), dtype=float)
+
+        # convert stack of PIL images to numpy array
+        #for i in range(nimgs):
+        #    array[i, :, :] = numpy.array(sequence[i])
+
+        # median filter  
+        for i in range(nimgs):
+            img = sequence[i]
+            roiseq[i] = img.filter(ImageFilter.MedianFilter(size=5))
+
+        #array = numpy.uint8(bytescl(array))
+
+        #for i in range(nimgs):
+        #    #img = Image.fromarray(array[i,:,:])
+        #    img = sequence[i]
+        #    roiseq[i] = img
+
+
+
+
 
 
     def wackeldackel(self):
