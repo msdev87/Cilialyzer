@@ -192,7 +192,7 @@ class activitymap:
         str3 = " Hz"
         xpos = 0.8
         ypos = 0.8
-        #self.ax1.text(xpos,ypos,str1+str2+str3,fontsize=12)
+        self.ax1.text(xpos,ypos,str1+str2+str3,fontsize=12)
 
         # plots should not overlap
         self.fig.tight_layout()
