@@ -156,6 +156,18 @@ class Cilialyzer():
             self.PIL_ImgSeq.seqlength, self.roi, selectroi)
         self.roiplayer.animate()
 
+
+    def export(self):
+        """
+        save self.roiplayer.roiseq (which is a PIL sequence) into a folder
+        """
+        self.PIL_ImgSeq.exportflag = True
+        #for i in range(self.roiplayer.seqlength):
+        #    self.roiplayer.roiseq[i].save("./sequence/img"+str(i)+".png","PNG") 
+
+
+
+
     # ------------------------- peakselector -----------------------------------
     def peakselector(self, event):
         """"
@@ -333,7 +345,7 @@ class Cilialyzer():
                 float(self.toolbar.pixsizecombo.get()))
     # --------------------------------------------------------------------------
 
-    def corrgram():
+    def corrgram(self):
 
         # calculate spatio-temporal autocorrelation
 
@@ -424,9 +436,9 @@ class Cilialyzer():
         ¦_____________________________________________________________________¦
         """
 
-        # ******************************************************************************
-        # ******************** Configuration of the main window ************************
-        # ******************************************************************************
+        # *************************************************************************
+        # *************** Configuration of the main window ************************
+        # *************************************************************************
 
         # Configure which tabs should be made available when launching the application
 
@@ -451,7 +463,7 @@ class Cilialyzer():
 
         self.DynamicFiltering_flag = True
 
-        self.SpatioTemporalCorrelogram_flag = False
+        self.SpatioTemporalCorrelogram_flag = True
 
         self.kSpectrum_flag = False
 
@@ -460,7 +472,9 @@ class Cilialyzer():
         resize_flag = False  # indicates whether the user resized the main window
 
         # ******************************************************************************
+ 
 
+       
         multiprocessing.freeze_support()
         ncpus = multiprocessing.cpu_count()
         if (ncpus > 1):
@@ -595,6 +609,11 @@ class Cilialyzer():
         self.roiB.place(in_=self.roitab, anchor="c", relx=.07, rely=.27)
         # roi-sequence (cropped PIL image sequence) available by "self.roi.roiseq"
 
+        # Export sequence Button 
+        self.exportB = tk.Button(self.roitab, text='Export sequence',
+            command=self.export, height=bh, width=16)
+        self.exportB.place(in_=self.roitab, anchor='c', relx=0.07,rely=0.32)
+
         # initialize roiplayer
         self.roiplayer = FlipbookROI.ImgSeqPlayer(self.roitab,self.PIL_ImgSeq.directory,0,
         self.PIL_ImgSeq.sequence,self.PIL_ImgSeq.seqlength,self.roi,1)
@@ -602,7 +621,6 @@ class Cilialyzer():
         self.roiplayer.stop=2
 
         # ----------------------- create the statusbar ------------------------
-
         self.statusbar_width = self.main_window.winfo_width()
 
         self.statusbar = statusbar.StatusBar(self.mainframe, self.statusbar_width,
@@ -674,11 +692,11 @@ class Cilialyzer():
         self.maxfreq.set(15)
 
         # minscale and maxscale represent the sliders for the bandwidth selection
-        self.minscale = tk.Scale(self.cbftab, from_=0.5, to=50,
+        self.minscale = tk.Scale(self.cbftab, from_=0.3, to=50,
                              orient=tk.HORIZONTAL, length=400,
                              resolution=0.2, variable=self.minfreq, command=self.peakselector)
         self.minscale.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.8)
-        self.maxscale = tk.Scale(self.cbftab, from_=0.5, to=50,
+        self.maxscale = tk.Scale(self.cbftab, from_=0.7, to=50,
                              orient=tk.HORIZONTAL, length=400,
                              resolution=0.2, variable=self.maxfreq, command=self.peakselector)
         self.maxscale.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.85)
@@ -729,13 +747,14 @@ class Cilialyzer():
         self.mapframe.update()
 
         self.activity_map = activitymap.activitymap(self.mapframe, \
-            int(round(0.8*self.nbookh)), int(round(0.8*self.nbookh))) # activity map object
+            int(round(0.8*self.nbookh)), int(round(1.2*self.nbookh)),
+            float(self.toolbar.pixsizecombo.get())) # activity map object
 
         self.activityB = tk.Button(self.activitytab, text='Activtiy Map',\
             command=lambda: self.activity_map.calc_activitymap(self.mapframe,\
             self.roiplayer.roiseq,float(self.toolbar.fpscombo.get()),\
             float(self.minscale.get()), float(self.maxscale.get()),\
-            self.powerspectrum), height=bh, width=bw)
+            self.powerspectrum, float(self.toolbar.pixsizecombo.get())), height=bh, width=bw)
         self.activityB.place(in_=self.activitytab, anchor='c', relx=0.5, rely=0.05)
 
         #**********************************************************************#
@@ -820,13 +839,12 @@ class Cilialyzer():
 
         # ****************** Spatio-Temporal Correlation ********************* #
         if (self.SpatioTemporalCorrelogram_flag):
-            correlationtab = tk.Frame(nbook,width=int(round(0.75*screenw)),height=int(round(0.8*screenh)))
-            nbook.add(correlationtab, text='Saptio-Temporal Correlation')
+            self.correlationtab = tk.Frame(self.nbook,width=int(round(0.75*self.nbookw)),height=int(round(0.8*self.nbookh)))
+            self.nbook.add(self.correlationtab, text='Saptio-Temporal Correlation')
 
-            corrB = tk.Button(correlationtab,text='Spatio-Temp. Correlogram',command=corrgram, height=bh, width=bw)
-            corrB.place(in_=correlationtab, anchor="c", relx=.5, rely=.05)
-        #*****************************************************************************#
-        
+            self.corrB = tk.Button(self.correlationtab,text='Spatio-Temp. Correlogram',command=self.corrgram, height=bh, width=bw)
+            self.corrB.place(in_=self.correlationtab, anchor="c", relx=.5, rely=.05)
+        #**********************************************************************#
 
 
         #**********************************************************************#

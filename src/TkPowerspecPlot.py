@@ -33,7 +33,7 @@ class TkPowerspecPlot:
         self.meancbf = None
         self.CBFtxt = None
 
-    def plot(self,xax,yax,xl='xlabel',yl='ylabel',lp=10,fs=12,xlims=(0.1,50)):
+    def plot(self,xax,yax,xl='xlabel',yl='ylabel',lp=10,fs=18,xlims=(0.1,50)):
 
         self.xlabel = xl
         self.ylabel = yl
@@ -110,17 +110,17 @@ class TkPowerspecPlot:
 
         self.meancbf = mean
 
-        xpos = 0.55
+        xpos = 0.42
         ypos = 0.82
 
         str1 = "CBF = "
         str2 = "$%.1f$" %mean
         str3 = "$\pm$"
-        str4 = "$%.1f$" %stddev
+        str4 = "$%.2f$" %stddev
         str5 = " [Hz]"
 
         if (self.CBFtxt is None):
-            self.CBFtxt = self.axes.text(xpos,ypos,str1+str2+str3+str4+str5,fontsize=14,transform=self.axes.transAxes)
+            self.CBFtxt = self.axes.text(xpos,ypos,str1+str2+str3+str4+str5,fontsize=18,transform=self.axes.transAxes)
         else:
             self.CBFtxt.set_text(str1+str2+str3+str4+str5)
         self.canvas.draw()

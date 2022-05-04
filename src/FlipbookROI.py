@@ -139,6 +139,8 @@ class ImgSeqPlayer(object):
     def __init__(self, master, directory, refreshing, PILseq, seqlength,
                 roiobj, selectroi):
 
+
+        self.exportflag = False
         self.roiseq = PILseq
         self.ROI = None
         self.anchor = None
@@ -704,7 +706,8 @@ class ImgSeqPlayer(object):
             self.currentimg = self.currentimg.rotate(self.rotationangle,expand=0)
 
         # write the current image out as a png
-        #self.currentimg.save("img" + str(self.index) + ".png", "PNG")
+        #if (self.exportflag):
+        #self.currentimg.save("./sequence/img" + str(self.index) + ".png", "PNG")
 
         self.current_photo = ImageTk.PhotoImage(self.currentimg)
         self.current_image = self.can.create_image(self.center,image=self.current_photo) # draw image! 

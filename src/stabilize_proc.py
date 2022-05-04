@@ -18,7 +18,7 @@ def subproc(args):
     # loop over all images                                           
     for i in range(nimgs):
         #note that only every second image is registered (performance)   
-        if ((i % 2) == 0):
+        if ((i % 1) == 0):
             sr.register(meanimg,array[i,:,:])
         # therefore, every second image is transformed as its predecessor
         array_stabilized[i,:,:] = sr.transform(array[i,:,:])

@@ -150,13 +150,17 @@ class powerspec:
             ylabel = 'Power Spectral Density'
             xlabel = 'Frequency [Hz]'
             labelpad=10
-            fontsize=14
+            fontsize=18
 
             # self.pwspecplot.plot(self.freqs, self.spec, xlabel, ylabel, labelpad, fontsize)
 
             # slightly smooth the powerspectrum
             self.spec = gaussian_filter(self.spec, sigma=1)
             self.pwspecplot.plot(self.freqs, self.spec, xlabel, ylabel, labelpad, fontsize)
+
+            # write powerspectrum and frequencies to file: 
+            numpy.savetxt('powerspectrum.dat', self.spec)
+            numpy.savetxt('frequencies.dat', self.freqs)
 
             # fit the powerspectrum  
             y = self.spec
@@ -372,11 +376,11 @@ class powerspec:
 
         plt.ion()
         plt.plot(self.freqs,self.spec, color='0.2',lw=2) 
-        plt.ylabel('Relative Power Spectral Density',labelpad=15,fontsize=14)
-        plt.xlabel('Frequency [Hz]',labelpad=8,fontsize=14)
+        plt.ylabel('Relative Power Spectral Density',labelpad=15,fontsize=18)
+        plt.xlabel('Frequency [Hz]',labelpad=8,fontsize=18)
         plt.xlim(0,50) 
-        plt.xticks(fontsize=14)
-        plt.yticks(fontsize=14)
+        plt.xticks(fontsize=18)
+        plt.yticks(fontsize=18)
         #plt.grid()
         #plt.tight_layout()
         plt.show()

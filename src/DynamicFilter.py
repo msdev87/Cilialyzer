@@ -218,31 +218,34 @@ class DynFilter:
 
             ax.set_ylim([-0.6, 1.05])
             ax.set_xlim([0, 1.4])
-            # ax.axvline(x=0.5 * wavelength, ymin=-0.55, ymax=0.95, linestyle='dashed', color='0.5')
-            # ax.axvline(x=-0.5 * wavelength, ymin=-0.55, ymax=0.95, linestyle='dashed', color='0.5')
 
-            # print the wavelength 'lambda'
-            # str1 = "$\lambda$ = "
-            # str2 = "$%.1f$" % wavelength
-            # str3 = " $\mu$m"
-            # xpos = 0.7 * wavelength
-            # ypos = 0.9
-            # ax.text(xpos, ypos, str1 + str2 + str3, fontsize=14)
+            print(numpy.absolute(self.meantacorr))
 
-            # ax.set_title('Mean Spatial Autocorrelation')
-            # divider = make_axes_locatable(ax)
-            # cax = divider.append_axes("right", size="5%", pad=0.05)
-            # fig.colorbar(la1,cax=cax)
+            # determine the correation time tau: 
+            tau = 1
+            while (numpy.absolute(self.meantacorr[-tau]) < math.exp(-2)):
+                tau = tau + 1
+
+            tau = nt/2 - tau
+
+
+            print('***********************')
+            print('tau: ', tau)
+
+            # tau in real units: 
+            tau = tau / float(self.fps) * 1000.0
+
+            ax.axvline(x=tau/1000.0, ymin=-0.3, ymax=0.8, linestyle='dashed', color='0.5')
+
+            str1 = r'$\tau$ = '
+            str2 = "$%.0f$" % tau
+            str3 = " ms"
+            xpos = 0.5
+            ypos = 0.9
+            ax.text(xpos, ypos, str1 + str2 + str3, fontsize=14)
 
             ax.set_xlabel("Time delay $\Delta$t [ms]", fontsize=16)
             ax.set_ylabel("Temporal autocorrelation", fontsize=16)
-
-
-
-
-
-
-
 
 
     def spatiotempcorr(self, fps, minf, maxf):
@@ -251,69 +254,66 @@ class DynFilter:
         nimgs = len(self.dyn_roiseq)
         firstimg = self.dyn_roiseq[0]
         width, height = firstimg.size
-        
+
         # corr: spatial correlogram 
         corr = numpy.zeros((height,width)) # 2x w,h -> zero-padding 
-        scorr = numpy.zeros((height,width))        
+        scorr = numpy.zeros((height,width))
 
         img1 = numpy.zeros((height,width))
         img2 = numpy.zeros((height,width))
-        
+
         # calc the cross-corr for pairs of images (img1 and img2) 
-	
+
         maxtimeshift = 10
 
         #self.corr_roiseq = numpy.zeros((maxtimeshift,2*height,2*width))
 
-        nrcorr = nimgs 
+        nrcorr = nimgs
 
         # loop over time and timeshifts 
-        for deltat in range(maxtimeshift): 
-            scorr[:,:] = 0.0 
+        for deltat in range(maxtimeshift):
+            scorr[:,:] = 0.0
             for t in range(nrcorr-maxtimeshift):
-   
+
                 # get image pair 
-                img1[0:height,0:width] = numpy.array(self.dyn_roiseq[t]) 
+                img1[0:height,0:width] = numpy.array(self.dyn_roiseq[t])
                 img2[0:height,0:width] = numpy.array(self.dyn_roiseq[t+deltat])
 
                 img1 = img1 - numpy.mean(img1[0:height,0:width])
-                img2 = img2 - numpy.mean(img2[0:height,0:width]) 
+                img2 = img2 - numpy.mean(img2[0:height,0:width])
 
                 # calc corr of img1 and img2 
-                fft1 = numpy.fft.fftn(img1) 
+                fft1 = numpy.fft.fftn(img1)
                 fft2 = numpy.fft.fftn(img2)
 
                 prod = numpy.multiply(fft1,numpy.conjugate(fft2)) / float(width*height)
-                #ifft = numpy.real(numpy.fft.ifftn(prod))
                 ifft = numpy.real(numpy.fft.ifftn(prod))
 
                 stdv1 = numpy.std(img1)
                 stdv2 = numpy.std(img2)
-        
+
                 #corr = numpy.absolute(numpy.subtract(ifft,(numpy.mean(img1) * numpy.mean(img2))))
                 corr = numpy.subtract(ifft,(numpy.mean(img1) * numpy.mean(img2)))
                 corr = corr / (stdv1 * stdv2)
                 #corr = corr + 1 
                 scorr = numpy.add(scorr,corr)#,numpy.absolute(corr)) 
 
-               	
             scorr = scorr / float(nrcorr)
             scorr = numpy.fft.fftshift(scorr)
             print("max scorr ", numpy.amax(scorr), " min scorr ", numpy.amin(scorr)) 
 
-            scorr = scorr + 1 
+            scorr = scorr + 1 # no negative values
             #scorr = (scorr - numpy.amin(scorr)) / (numpy.amax(scorr) - numpy.amin(scorr)) * 255.0 
             scorr = scorr * 127
 
             li = len(scorr[:,0])
-            lj = len(scorr[0,:]) 
+            lj = len(scorr[0,:])
             self.corr_roiseq.append(PIL.Image.fromarray(numpy.uint8(scorr[(round(li/2)-round(li/4)):(round(li/2)+round(li/4)),(round(lj/2)-round(lj/4)):(round(lj/2)+round(lj/4))])))
-        
 
 
-	
+
     def kspec(self,fps,minf,maxf,tkparent):
-        
+
         #print("start calc kxky")  
         nimgs = len(self.dyn_roiseq)
         firstimg = self.dyn_roiseq[0]
@@ -531,6 +531,11 @@ class DynFilter:
 
 
         la1 = ax.imshow(scorr,alpha=1.0,cmap='bwr',interpolation='none',extent=[xmin,xmax,ymin,ymax])
+
+
+        # write scorr to file: 
+        numpy.savetxt('meanspatialautocorr.dat', scorr)
+
 
         #ax.set_title('Mean Spatial Autocorrelation',fontsize=16)
         ax.set_xlabel("$\Delta$x [$\mu$m]",fontsize=16)
