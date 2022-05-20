@@ -257,8 +257,6 @@ class activitymap:
         numpy.savetxt('frequencycorrelogram.dat', self.freq_acorr)
 
 
-
-
         # Determine the frequency correlation length 
         # as the square root of all pixels > 1/e
         threshold = math.exp(-1)

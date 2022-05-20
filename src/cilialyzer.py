@@ -61,7 +61,7 @@ class Cilialyzer():
                 self.mainframe.destroy()
             except:
                 pass
-            
+
             self.__init__(True)
 
         else:
@@ -469,12 +469,12 @@ class Cilialyzer():
 
         self.SpatialAcorr_flag = True
 
+        self.WindowedAnalysis_flag = True
+
         resize_flag = False  # indicates whether the user resized the main window
 
         # ******************************************************************************
- 
 
-       
         multiprocessing.freeze_support()
         ncpus = multiprocessing.cpu_count()
         if (ncpus > 1):
@@ -591,9 +591,9 @@ class Cilialyzer():
         self.nbook.grid(row=1,column=0,columnspan=1,rowspan=1,padx=4,pady=4)
 
         """
-        if the clicked tab is not the current tab, we need to stop all 
+        if the clicked tab is not the current tab, we need to stop all
         animations to avoid crashes of the frontend
-        self.switchtab prevents those crashes 
+        self.switchtab prevents those crashes
         """
         self.nbook.bind('<ButtonPress-1>', self.switchtab)
 
@@ -846,9 +846,14 @@ class Cilialyzer():
             self.corrB.place(in_=self.correlationtab, anchor="c", relx=.5, rely=.05)
         #**********************************************************************#
 
+        # ******************** windowed analysis tab **************************
+        if (self.WindowedAnalysis_flag):
+            self.winanalysistab = tk.Frame(self.nbook,width=int(round(0.75*self.nbookw)),height=int(round(0.8*self.nbookh)))
+            self.nbook.add(self.winanalysistab, text='Windowed Analysis')
+        # *********************************************************************
 
         #**********************************************************************#
-        
+
         if (self.kSpectrum_flag):
             kspectab = tk.Frame(nbook,width=int(round(0.75*screenw)),\
             height=int(round(0.8*screenh)))

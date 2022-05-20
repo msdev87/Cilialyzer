@@ -66,7 +66,7 @@ def acorr_zp(signal):
 
 
 
-def acorr2D_zp(signal, mask):
+def acorr2D_zp(signal, mask=None):
     """
     computes the 2D autocorrelation of the input signal
 
@@ -84,12 +84,13 @@ def acorr2D_zp(signal, mask):
     # along the width and the height
     ni, nj = signal.shape
 
-    print('******************************************************************') 
-    print('******************************************************************')
-    print('ni1: ',ni,'nj1: ',nj)
-    print('******************************************************************')
-    print('******************************************************************')
+    #print('******************************************************************')
+    #print('ni1: ',ni,'nj1: ',nj)
+    #print('******************************************************************')
 
+    # if mask is None (default), we assume that all pixels in signal are valid: 
+    if mask is None:
+        mask = numpy.ones_like(signal)
 
     # make sure there are no nan-values:
     for i in range(ni):
@@ -105,14 +106,12 @@ def acorr2D_zp(signal, mask):
         signal = signal[:,0:nj-1]
         mask = mask[:,0:nj-1]
 
-    # the signal has now an even number of rows and columns 
+    # the signal (and the mask) has now an even number of rows and columns 
     ni, nj = signal.shape
 
-    print('******************************************************************') 
-    print('******************************************************************')
-    print('ni: ',ni,'nj: ',nj)
-    print('******************************************************************')
-    print('******************************************************************')
+    #print('******************************************************************')
+    #print('ni: ',ni,'nj: ',nj)
+    #print('******************************************************************')
 
     # Get the signal's mean (excluding missing values)
     mean = numpy.sum(numpy.multiply(signal, mask)) / numpy.sum(mask)
@@ -139,7 +138,6 @@ def acorr2D_zp(signal, mask):
     pseudo_autocovariance = numpy.real( numpy.fft.ifft2( 
         pseudo_powerSpectralDensity))
 
-
     # We repeat the same process (except for centering) on a masked_signal
     # in order to estimate the error made on the previous computation 
     # the mask_signal has as entries ones (for signal) and zeros (for no signal) 
@@ -161,18 +159,8 @@ def acorr2D_zp(signal, mask):
     autocovariance = numpy.fft.fftshift(autocovariance)
     autocovariance = autocovariance[int(ni/2):int(3*ni/2),int(nj/2):int(3*nj/2)]
 
-    print('done')
+    #print('done')
 
     return (autocovariance / variance)
-
-
-
-
-
-
-
-
-
-
 
 

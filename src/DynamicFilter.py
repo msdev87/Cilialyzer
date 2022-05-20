@@ -37,7 +37,7 @@ class DynFilter:
 
     def __init__(self):
 
-        self.dyn_roiseq = [] 
+        self.dyn_roiseq = []
         self.corr_roiseq = []
         self.tkframe = None
         self.profileframe = None
@@ -47,8 +47,7 @@ class DynFilter:
         self.kxky = None
         self.splitline = None
         self.pixelffts = []
-        self.fps = None  
-
+        self.fps = None
 
     def bandpass(self, PILseq, fps, minf, maxf,nharms):
 
@@ -67,7 +66,7 @@ class DynFilter:
         # create numpy array 'array' 
         array = numpy.zeros((int(nimgs),int(height),int(width)))
         for i in range(nimgs):
-            array[i,:,:] = numpy.array(PILseq[i])   
+            array[i,:,:] = numpy.array(PILseq[i])
         (nt,ni,nj) = numpy.shape(array)
 
         # determine the frequency band(s) to be filtered (consdier nrharms)
