@@ -32,6 +32,7 @@ numpy.set_printoptions(threshold=sys.maxsize)
 
 from scipy.optimize import curve_fit
 
+import multiprocessing
 
 class DynFilter:
 
@@ -48,6 +49,17 @@ class DynFilter:
         self.splitline = None
         self.pixelffts = []
         self.fps = None
+
+        # multiprocessing 
+        multiprocessing.freeze_support()
+        self.ncpus = multiprocessing.cpu_count()
+        if (self.ncpus > 1):
+            self.pool = multiprocessing.Pool(self.ncpus-1)
+        else:
+            self.pool = multiprocessing.Pool(self.ncpus)
+
+
+
 
     def bandpass(self, PILseq, fps, minf, maxf,nharms):
 
@@ -149,7 +161,7 @@ class DynFilter:
 
             firstimg = self.dyn_roiseq[0]  # first image of dyn roi sequence
             width, height = firstimg.size  # dimension of images
-            nimgs = len(self.dyn_roiseq)  # number of images
+            nimgs = len(self.dyn_roiseq)   # number of images
 
             # create numpy array from self.dyn_roiseq,
             # which holds the list of dynamically filtered PIL images
@@ -159,8 +171,8 @@ class DynFilter:
             for t in range(nt):
                 array[t, :, :] = numpy.array(self.dyn_roiseq[t])
 
-            # determine the temporal correlation function for each pixel,
-            # calculate the average and plot the average temporal autocorrelation
+            # determine the temporal autocorrelation function for each pixel,
+            # calculate the average and plot the average temp. autocorrelation
 
             self.meantacorr = numpy.zeros(int(nt/2))
             time = numpy.zeros(int(nt/2))
@@ -299,7 +311,7 @@ class DynFilter:
 
             scorr = scorr / float(nrcorr)
             scorr = numpy.fft.fftshift(scorr)
-            print("max scorr ", numpy.amax(scorr), " min scorr ", numpy.amin(scorr)) 
+            #print("max scorr ", numpy.amax(scorr), " min scorr ", numpy.amin(scorr)) 
 
             scorr = scorr + 1 # no negative values
             #scorr = (scorr - numpy.amin(scorr)) / (numpy.amax(scorr) - numpy.amin(scorr)) * 255.0 

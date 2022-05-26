@@ -374,14 +374,14 @@ class ImgSeqPlayer(object):
         #self.fpsframe.pack(side=tk.LEFT)
         self.fpsframe.grid(row=0,column=1,padx=3,pady=3)
 
-        self.radio_fps = [(" 10 FPS", 1),(" 20 FPS", 2), ("50 FPS", 3),
-        ("100 FPS", 4), ("200 FPS", 5), ("300 FPS",6)]
+        self.radio_fps = [("1 FPS",1), (" 10 FPS", 2),(" 20 FPS", 3), ("50 FPS", 4),
+        ("100 FPS", 5), ("200 FPS", 6), ("300 FPS",7)]
 
         if hasattr(self, 'fps'):
             pass
         else:
             self.fps = tk.StringVar()
-            self.fps.set(4) # initialize
+            self.fps.set(5) # initialize
 
         for text, mode in self.radio_fps:
             self.fpsB = tk.Radiobutton(self.fpsframe, text=text, variable=self.fps, value=mode,
@@ -777,12 +777,13 @@ class ImgSeqPlayer(object):
 
     def fps_button(self):
 
-        if (self.fps.get() == '1'): self.speed = 10
-        if (self.fps.get() == '2'): self.speed = 20
-        if (self.fps.get() == '3'): self.speed = 50
-        if (self.fps.get() == '4'): self.speed = 100
-        if (self.fps.get() == '5'): self.speed = 200
-        if (self.fps.get() == '6'): self.speed = 300
+        if (self.fps.get() == '1'): self.speed = 1
+        if (self.fps.get() == '2'): self.speed = 10
+        if (self.fps.get() == '3'): self.speed = 20
+        if (self.fps.get() == '4'): self.speed = 50
+        if (self.fps.get() == '5'): self.speed = 100
+        if (self.fps.get() == '6'): self.speed = 200
+        if (self.fps.get() == '7'): self.speed = 300
 
         #self.labeltext.set('playback speed [FPS]: ' + str(float(self.speed)))
 

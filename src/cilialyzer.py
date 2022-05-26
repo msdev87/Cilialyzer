@@ -18,6 +18,8 @@ import stabilize_proc
 from pystackreg import StackReg
 import multiprocessing
 import sys
+import spacetimecorr_zp
+
 
 class Cilialyzer():
 
@@ -345,26 +347,38 @@ class Cilialyzer():
                 float(self.toolbar.pixsizecombo.get()))
     # --------------------------------------------------------------------------
 
-    def corrgram(self):
+    # ------------------ space-time correlogram -------------------------------
+    def st_corrgram(self):
+        """
+        Computes the space-time correlogram for the dynamically filtered ROI
+        """
 
-        # calculate spatio-temporal autocorrelation
+        #try:
+            #dynseq.spatiotempcorr(float(toolbar_object.fpscombo.get()), float(minscale.get()),
+            #                      float(maxscale.get()))
 
-        try:
-            dynseq.spatiotempcorr(float(toolbar_object.fpscombo.get()), float(minscale.get()),
-                                  float(maxscale.get()))
+        self.dynseq.corr_roiseq=spacetimecorr_zp.stcorr(self.dynseq.dyn_roiseq)
+
+
+        """
         except NameError:
             print("namerror")
             dynseq = DynamicFilter.DynFilter()
             dynseq.dyn_roiseq = roiplayer.roiseq
             dynseq.spatiotempcorr(float(toolbar_object.fpscombo.get()), float(minscale.get()),
                                   float(maxscale.get()))
+        """
 
-        # print("spatiotempcorr calculated")
-        # print "spatiotempcorr calculated"
+        # replay the space-time correlogram:
+
         refresh = 0
-        corrplayer = Flipbook.ImgSeqPlayer(correlationtab, PIL_ImgSeq.directory,
-                                           refresh, dynseq.corr_roiseq, len(dynseq.corr_roiseq))
-        corrplayer.animate()
+        self.corrplayer = FlipbookROI.ImgSeqPlayer(self.correlationtab, '', 0, self.dynseq.corr_roiseq, len(self.dynseq.corr_roiseq), self.roi, 1)
+
+        #Flipbook.ImgSeqPlayer(self.correlationtab, self.PIL_ImgSeq.directory,
+        #        refresh, self.dynseq.corr_roiseq, len(self.dynseq.corr_roiseq))
+        self.corrplayer.animate()
+
+
 
     def kspec():
         # calculate the spatial power spectral density
@@ -600,7 +614,7 @@ class Cilialyzer():
         # ROI selection tab
         self.roitab = tk.Frame(self.nbook, width=int(round(0.9*self.nbookw)),
             height=int(round(0.95*self.nbookh)))
-        self.nbook.add(self.roitab, text='  ROI Selection  ')
+        self.nbook.add(self.roitab, text='  Preprocessing & CBP  ')
 
         # ROI selection Button
         self.roi = RegionOfInterest.ROI(self.mainframe) # instantiate roi object
@@ -833,23 +847,23 @@ class Cilialyzer():
             self.dynseq = DynamicFilter.DynFilter()
             self.dynfiltertab = tk.Frame(self.nbook, width=int(round(0.75*self.nbookw)),
                 height=int(round(0.8*self.nbookh)))
-            self.nbook.add(self.dynfiltertab, text='Dynamic Filtering')
+            self.nbook.add(self.dynfiltertab, text='  Dynamic Filtering  ')
         #**********************************************************************#
 
 
         # ****************** Spatio-Temporal Correlation ********************* #
         if (self.SpatioTemporalCorrelogram_flag):
-            self.correlationtab = tk.Frame(self.nbook,width=int(round(0.75*self.nbookw)),height=int(round(0.8*self.nbookh)))
-            self.nbook.add(self.correlationtab, text='Saptio-Temporal Correlation')
+            self.correlationtab = tk.Frame(self.nbook, width=int(round(0.75*self.nbookw)), height=int(round(0.8*self.nbookh)))
+            self.nbook.add(self.correlationtab, text='  Space-time Corr  ')
 
-            self.corrB = tk.Button(self.correlationtab,text='Spatio-Temp. Correlogram',command=self.corrgram, height=bh, width=bw)
+            self.corrB = tk.Button(self.correlationtab,text='Get Space-time Correlogram',command=self.st_corrgram, height=bh, width=bw)
             self.corrB.place(in_=self.correlationtab, anchor="c", relx=.5, rely=.05)
         #**********************************************************************#
 
-        # ******************** windowed analysis tab **************************
+        # ******************** Windowed analysis tab **************************
         if (self.WindowedAnalysis_flag):
             self.winanalysistab = tk.Frame(self.nbook,width=int(round(0.75*self.nbookw)),height=int(round(0.8*self.nbookh)))
-            self.nbook.add(self.winanalysistab, text='Windowed Analysis')
+            self.nbook.add(self.winanalysistab, text='  Windowed Analysis  ')
         # *********************************************************************
 
         #**********************************************************************#
