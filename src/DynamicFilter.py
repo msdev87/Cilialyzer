@@ -7,6 +7,8 @@ import sys
 import math
 import os
 import autocorrelation_zeropadding
+import temporal_autocorrelation2D
+
 
 if os.sys.version_info.major > 2:
     from tkinter import *
@@ -58,9 +60,6 @@ class DynFilter:
         else:
             self.pool = multiprocessing.Pool(self.ncpus)
 
-
-
-
     def bandpass(self, PILseq, fps, minf, maxf,nharms):
 
         # input: roiseq 
@@ -74,7 +73,6 @@ class DynFilter:
         width, height = firstimg.size # dimension of images 
         nimgs = len(PILseq) # number of images  
 
-
         # create numpy array 'array' 
         array = numpy.zeros((int(nimgs),int(height),int(width)))
         for i in range(nimgs):
@@ -83,7 +81,7 @@ class DynFilter:
 
         # determine the frequency band(s) to be filtered (consdier nrharms)
         # remove frequency if not contained in any band
-        
+
         filt = numpy.zeros(nt)
 
         # ---------- get indices of 'cbf band' -> keep fundamental freq --------
@@ -93,30 +91,29 @@ class DynFilter:
 
         # keep positive frquencies
         filt[minf1:maxf1+1] = 1.0 
-   
+
         # get corresponding negative frequencies:
         filt[-maxf1:-minf1+1] = 1.0
         # ---------------------------------------------------------------------- 
-
         # ------------------ keep second harmonic freq band --------------------
         if (nharms > 1):
 
             peakw = maxf - minf 
             peakf = minf + 0.5 * peakw  
-       
+
             sminf = 2.0 * peakf - 0.5 * peakw  
             smaxf = 2.0 * peakf + 0.5 * peakw  
 
             minf2 = int(round((float(nimgs)*sminf/float(fps))-1))
             maxf2 = int(round((float(nimgs)*smaxf/float(fps))-1))
-  
+
             filt[minf2:maxf2+1] = 1.0 
             # corr. negative freqs: 
             filt[-maxf2:-minf2+1] = 1.0  
 
         # ------------------ keep third harmonic freq band --------------------
         if (nharms > 2): 
-       
+
             tminf = 3.0 * peakf - 0.5 * peakw  
             tmaxf = 3.0 * peakf + 0.5 * peakw  
 
@@ -173,47 +170,44 @@ class DynFilter:
 
             # determine the temporal autocorrelation function for each pixel,
             # calculate the average and plot the average temp. autocorrelation
-
             self.meantacorr = numpy.zeros(int(nt/2))
-            time = numpy.zeros(int(nt/2))
 
+            # 'time' holds the elapsed time in real units
+            time = numpy.zeros(int(nt/2))
             time = numpy.divide(numpy.array(range(int(nt/2))),float(self.fps))
 
-            for i in range(ni):
-                for j in range(nj):
+            # array[t,i,j] needs to be split up for the multiprocessing
+            # splitting is done along dimension j:
+            subarrays = []
 
-                    if (not (numpy.isnan( frequencymap[i,j] ))):
-                        # timeseries of pixel i,j
-                        timeseries = array[:, i, j]
+            jend = len(array[0,0,:]) # number of elements along j
+            jsub = int(jend / (self.ncpus-1)) # we will start self.ncpus-1 processes
 
-                        acorr = autocorrelation_zeropadding.acorr_zp(timeseries)
+            mask = ~numpy.isnan(frequencymap)
+            # print(mask)
 
-                        # add zero-padding along time axis
-                        #zs = numpy.zeros(len(timeseries), dtype=float)
-                        #timeseries_zp = numpy.concatenate((timeseries, zs))
-                        #timeseries_zp = timeseries
+            # create list of subarrays
+            for i in range(self.ncpus-1):
 
-                        #fft = numpy.fft.fft(timeseries_zp)
-                        #prod = numpy.multiply(fft, numpy.conjugate(fft)) / float(2*nt)
-                        #ifft = numpy.real(numpy.fft.ifft(prod))
+                if (i < self.ncpus-2):
+                    array_slice = array[:,:,i*jsub:(i+1)*jsub]
+                else:
+                        array_slice = array[:,:,i*jsub:]
 
-                        #ifft = numpy.fft.fftshift(ifft)
-                        #ifft = ifft[0:nt] # keep only positive lags
+                # append tuple: slice & mask 
+                subarrays.append((array_slice, mask))
 
-                        #mu1 = numpy.mean(timeseries_zp)
-                        #mu2 = numpy.mean(timeseries_zp)
+            # get the average autocorrelation for each array-slice   
+            meanacorrs = self.pool.map(temporal_autocorrelation2D.avg_tacorr,
+                          [subarrays[i] for i in range(len(subarrays))])
 
-                        #std1 = numpy.std(timeseries_zp)
-                        #std2 = numpy.std(timeseries_zp)
+            # get average:
+            for i in range(len(subarrays)):
+                self.meantacorr = self.meantacorr + meanacorrs[i]
 
-                        #acorr = numpy.subtract(ifft, mu1*mu2)/(std1*std2)
-                        self.meantacorr = numpy.add(self.meantacorr, acorr)
-
-            # average acorr (subtract all invalid pixels)
-            self.meantacorr = self.meantacorr / (float(ni * nj) - numpy.sum(numpy.isnan(frequencymap)))
+            self.meantacorr = (1.0 / float(self.ncpus-1)) * self.meantacorr
 
             # plot the average temporal autocorrelation function
-
             fig = plt.figure(figsize=(7, 5), dpi=100)
             ax = fig.add_subplot(111)
 
