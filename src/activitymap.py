@@ -97,8 +97,8 @@ class activitymap:
             for j in range(nj):
 
                 self.spec = powerspectrum.pixelspectra[:,i,j]
-                self.spec = self.spec[1:round(nt/2)-1] 
-                self.spec = self.spec / numpy.sum(self.spec) 
+                self.spec = self.spec[1:round(nt/2)-1]
+                self.spec = self.spec / numpy.sum(self.spec)
 
                 # check the validity of each pixel: 
                 # according to the procedure of the 'integral spectral density' 
@@ -188,11 +188,23 @@ class activitymap:
         ssd = numpy.nanstd(arr)
 
         str1 = "CBF_SSD = "
-        str2 = "$%.2f$" %ssd
+        str2 = "$%.0f$" %ssd
         str3 = " Hz"
         xpos = 0.8
         ypos = 0.8
-        self.ax1.text(xpos,ypos,str1+str2+str3,fontsize=12)
+        self.ax1.text(xpos,ypos,str1+str2+str3,fontsize=10)
+
+        # display also the size of the 'active area'
+
+        activearea = numpy.sum(self.validity_mask) * (self.pixsize / 1000.0)**2
+
+        str1 = "Active area = "
+        str2 = "$%.2f$" %activearea
+        str3 = " $\mu$m$^2$"
+        xpos = 0
+        ypos = 0.8 * ymax
+        self.ax1.text(xpos,ypos,str1+str2+str3,fontsize=10)
+
 
         # plots should not overlap
         self.fig.tight_layout()
