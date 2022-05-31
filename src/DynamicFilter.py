@@ -51,6 +51,8 @@ class DynFilter:
         self.splitline = None
         self.pixelffts = []
         self.fps = None
+    
+        self.sclength = None # spatial correlation length
 
         # multiprocessing 
         multiprocessing.freeze_support()
@@ -741,6 +743,8 @@ class DynFilter:
             k=k+1
         # determine distance to correlation maximum (in real units) 
         xi = abs(dm - k) * 4 * wavelength / num
+
+        self.sclength = xi
         # print xi on plot:
         str1=r'$\xi$'
         str2=" = $%.1f$" %xi

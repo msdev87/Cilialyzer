@@ -19,7 +19,7 @@ from pystackreg import StackReg
 import multiprocessing
 import sys
 import spacetimecorr_zp
-
+import WindowedAnalysis
 
 class Cilialyzer():
 
@@ -377,6 +377,39 @@ class Cilialyzer():
         #Flipbook.ImgSeqPlayer(self.correlationtab, self.PIL_ImgSeq.directory,
         #        refresh, self.dynseq.corr_roiseq, len(self.dynseq.corr_roiseq))
         self.corrplayer.animate()
+
+
+
+    # ------------------------ windowed analysis ------------------------------
+    def winanalysis(self):
+        """
+        split the field of view into windows (regions) and analyze each region
+        separately. For each region a space-time correlogram is computed.
+        Its peak is then tracked to determine a region-specific wave speed.
+
+        The computation is done on the dynamically filtered image sequence.
+        """
+
+        # Parameters for the 'regionalized analysis':
+        # ------------------------------------------
+        # dynamically filtered ROI: self.dynseq.dyn_roiseq
+        # activitymap
+        # spatial corrlength
+        # pixelsize 
+        # FPS 
+
+        sclength = self.dynseq.sclength # spatial correlation length
+        pixelsize = float(self.toolbar.pixsizecombo.get())
+        fps = float(self.toolbar.fpscombo.get())
+
+        WindowedAnalysis.prepare_windows(self.dynseq.dyn_roiseq,
+            self.activity_map.freqmap, sclength, pixelsize, fps)
+
+    # -------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -864,6 +897,10 @@ class Cilialyzer():
         if (self.WindowedAnalysis_flag):
             self.winanalysistab = tk.Frame(self.nbook,width=int(round(0.75*self.nbookw)),height=int(round(0.8*self.nbookh)))
             self.nbook.add(self.winanalysistab, text='  Windowed Analysis  ')
+
+            self.winanalysisB = tk.Button(self.winanalysistab,
+                text='Analyze ROIs', command=self.winanalysis, height=bh, width=bw)
+            self.winanalysisB.place(in_=self.winanalysistab, anchor="c", relx=0.5, rely=0.5)
         # *********************************************************************
 
         #**********************************************************************#
