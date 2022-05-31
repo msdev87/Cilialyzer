@@ -197,10 +197,12 @@ class activitymap:
         # display also the size of the 'active area'
 
         activearea = numpy.sum(self.validity_mask) * (self.pixsize / 1000.0)**2
+        activearea = activearea / 1000.0 / 1000.0 # convert to square millim.
+
 
         str1 = "Active area = "
-        str2 = "$%.1f$" %activearea
-        str3 = " $\mu$m$^2$"
+        str2 = "$%.2f$" %activearea
+        str3 = " mm$^2$"
         xpos = 0
         ypos = 0.8 * ymax
         self.ax1.text(xpos,ypos,str1+str2+str3,fontsize=10)
