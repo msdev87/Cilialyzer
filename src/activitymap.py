@@ -188,7 +188,7 @@ class activitymap:
         ssd = numpy.nanstd(arr)
 
         str1 = "CBF_SSD = "
-        str2 = "$%.0f$" %ssd
+        str2 = "$%.2f$" %ssd
         str3 = " Hz"
         xpos = 0.8
         ypos = 0.8
@@ -199,7 +199,7 @@ class activitymap:
         activearea = numpy.sum(self.validity_mask) * (self.pixsize / 1000.0)**2
 
         str1 = "Active area = "
-        str2 = "$%.2f$" %activearea
+        str2 = "$%.1f$" %activearea
         str3 = " $\mu$m$^2$"
         xpos = 0
         ypos = 0.8 * ymax
