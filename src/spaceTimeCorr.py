@@ -23,13 +23,13 @@ from scipy.optimize import curve_fit
         + I := I[t,x,y]:  Is the video in array format
             - images of size 512x512 pixels
             - around 900 images 
-                   
+
         + fps:  is in dimension [s]
-        
+
         + pixelsize:  is in dimension [μm]
-        
+
         + maxCorrTime:  is maximal time-range over wich a correlogram will be drawn [s]
-        
+
         + vectorMagnification:  since the vectors are too small to be visible one can choose a magnification with which they are drawn
 
 ******************************************************'''
