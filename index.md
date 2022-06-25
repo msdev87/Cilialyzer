@@ -1,4 +1,4 @@
-## Welcome to the homepage of the Cilialyzer
+## Welcome to the Cilialyzer &nbsp; <img src="./logo.png" alt="drawing" width="35"/>  
 
 <!-- ## Welcome to GitHub Pages -->
 
