@@ -1,4 +1,4 @@
-## Cilialyzer 
+## Welcome to the homepage of the Cilialyzer
 
 <!-- ## Welcome to GitHub Pages -->
 
