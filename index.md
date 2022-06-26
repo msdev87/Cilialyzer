@@ -6,4 +6,4 @@
 <!-- <div align="center"> ... </div> -->
     
   
- <div align="center"> <a href="./download.md" >Download</a> </div> 
+ <div align="center"> <a href="./download.md" style="color:blue;font-size:30px;" >Download</a> </div> 
