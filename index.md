@@ -11,7 +11,7 @@
 </p>
 -->   
 
-<div align="center"> <a href="./download.md" style="font-size:30px;" >Download</a> </div> 
+<div align="center"> <a href="./download.html" style="font-size:30px;" >Download</a> </div> 
 
 
 
