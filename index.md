@@ -5,11 +5,11 @@
    
 <!-- <a href="{{ ./download.md }}" class="btn">Download</a> -->
 
+<!--
 <p align="center">
 [Download](./download.md)  [Tutorials](./tutorials.md) [Publications](publications.md) [Pinboard](./pinboard.md) 
 </p>
-   
+-->   
 
-<!--
-<div align="center"> <a href="./download.md" style="color:blue;font-size:30px;" >Download</a> </div> 
--->
+<div align="center"> <a href="./download.md" style="font-size:30px;" >Download</a> </div> 
+
