@@ -4,6 +4,10 @@
 
 
 <!-- <div align="center"> ... </div> -->
-    
-  
- <div align="center"> <a href="./download.md" style="color:blue;font-size:30px;" >Download</a> </div> 
+   
+[Download](./download.md)  [Tutorials](./tutorials.md) [Publications](publications.md) [Leave a comment](./blog.md) 
+
+
+<!--
+<div align="center"> <a href="./download.md" style="color:blue;font-size:30px;" >Download</a> </div> 
+-->
