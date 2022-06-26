@@ -3,11 +3,11 @@
 
 <!-- <div align="center"> ... </div> -->
    
-<a href="{{ ./download.md }}" class="btn">Download</a>
+<!-- <a href="{{ ./download.md }}" class="btn">Download</a> -->
 
-
+<p align="center">
 [Download](./download.md)  [Tutorials](./tutorials.md) [Publications](publications.md) [Pinboard](./pinboard.md) 
-
+</p>
    
 
 <!--
