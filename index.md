@@ -4,6 +4,6 @@
 
 
 <!-- <div align="center"> ... </div> -->
+    
   
-  [Download](./download.md)
-
+ <div align="center"> <a href="./download.md" >Download</a> </div> 
