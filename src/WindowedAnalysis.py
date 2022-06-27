@@ -7,6 +7,10 @@ import matplotlib.pyplot as plt
 import os
 from scipy.optimize import curve_fit
 import multiprocessing
+import spacetimecorr_zp
+import gaussian2Dfit
+
+
 
 """
 class WinAnalysis:
@@ -27,7 +31,7 @@ class WinAnalysis:
         self.activitymap = []
 """
 
-def analyse_window(array_list):
+def analyse_windows(array_list):
     """
     Analyses the list of windows it receives
     """
@@ -39,12 +43,28 @@ def analyse_window(array_list):
         # 'array' holds a single 'window' with indices t,i,j
         array = array_list[i]
 
+
+        print('**************************************************************')
+        print('**************************************************************')
+        print(array)
+        print('**************************************************************')
+        print('**************************************************************')
         # compute sptio-temporal cross-correlogram for 'array' 
+        stcorr = spacetimecorr_zp.stcorr(array)
 
         # peak tracking 
+        posx, posy, peakheight = gaussian2Dfit.fit(stcorr[0])
+
+        print('--------------------------------------------------------------')
+        print('--------------------------------------------------------------')
+        print('--------------------------------------------------------------')
+        print(posx,posy,peakheight)
+        print('--------------------------------------------------------------')
+        print('--------------------------------------------------------------')
+        print('--------------------------------------------------------------')
 
 
-    return 1
+    return (posx, posy, peakheight)
 
 
 
@@ -172,9 +192,8 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
         sublist = valid_wins[istart:istart+int(nwins_per_cpu[i-1])]
         valid_wins_ncpus.append(sublist)
 
-    result = pool.map(analyse_window,
+    result = pool.map(analyse_windows,
         [valid_wins_ncpus[i] for i in range(ncpus)])
-
 
 
 
