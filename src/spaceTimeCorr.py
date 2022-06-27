@@ -149,6 +149,7 @@ def R90(v):#rotates a 2D vector for 90 degrees
     return [-v[1], v[0]]
 
 # elliptic gaussian
+# TODO amplitude A muss nicht als fit-parameter übergeben werden
 def Gauss2D(x, y,  mu_x, mu_y,  sig_x, sig_y, A, rho):#mu = expected value, sig = standard deviation
     z = (x - mu_x)**2/ sig_x**2 - 2*rho*(x - mu_x)*(y - mu_y)/(sig_x*sig_y) + (y - mu_y)**2/ sig_y**2
     A = A*1/(2*math.pi*sig_x*sig_y*np.sqrt(1 - rho**2))
@@ -158,7 +159,7 @@ def _Gauss2D(M, *args):
         x, y = M
         arr = np.zeros(x.shape)
         for i in range(len(args)//6):
-           arr += Gauss2D(x, y, *args[i*6:i*6+6])
+           arr += Gauss2D(x, y, *args[i*6:i*6+6]) #TODO !!!!! WOZU?!! 
         return arr
 
 '''**************** Some helpers: *****************************
@@ -297,7 +298,9 @@ def where_is_my_Gaussian_maximum(corr1, snip):
     x, y = np.linspace(xmin, xmax, nx), np.linspace(ymin, ymax, ny)
     X, Y = np.meshgrid(x, y)
 
-    
+   
+    #TODO Initialisierung??
+
     guess_prms = [( 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9)] # Initial guesses to the fit parameters 
     bnds = (0,[75, 75, 75, 75, 75, 0.99, 75])#(mu_x, mu_y, sig_x, sig_y, A, rho, '**')
     

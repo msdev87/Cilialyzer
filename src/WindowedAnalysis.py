@@ -35,9 +35,13 @@ def analyse_window(array_list):
     nrwins = len(array_list)
 
     for i in range(nrwins):
+
+        # 'array' holds a single 'window' with indices t,i,j
         array = array_list[i]
 
         # compute sptio-temporal cross-correlogram for 'array' 
+
+        # peak tracking 
 
 
     return 1
@@ -47,8 +51,6 @@ def analyse_window(array_list):
 def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
     """
     Analyzes each window separately
-
-
 
 
         Parameters:
@@ -75,6 +77,8 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
     # i.e. each window measures: ( 2 x spatialcorrlength )**2
 
     winsize = int(2*sclength / pixsize * 1000) # side length of a window (in pixels)
+
+    print('winsize (in pixels): ', winsize)
 
     # Split up the dynamically filtered ROI-sequence 'array'
     # (note that the size of the ROI can vary)
@@ -116,7 +120,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
             spread_win = scbf_win / mcbf_win
 
             # check if the CBF-spread within the window is smaller than 
-            # half of the total CBF-spread: 
+            # 65% of the total CBF-spread: 
 
             if (spread_win < 0.65*spread_total):
                 mask[i,j] = True
@@ -170,19 +174,6 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
 
     result = pool.map(analyse_window,
         [valid_wins_ncpus[i] for i in range(ncpus)])
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

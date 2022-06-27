@@ -12,7 +12,7 @@ def stcorr(sequence, maxtimeshift=10):
     In the spatial domain, the Wiener-Khinchin theorem is used to comptue the
     cross-correlation between two images. Zero-padding (and its subsequent)
     correction is applied in the spatial domain. In the time-domain, the
-    time-shift is choosen explicitly.
+    time-shift is chosen explicitly.
 
         Parameters:
             sequence: holds the PIL images.
