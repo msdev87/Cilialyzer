@@ -1,1 +1,8 @@
 
+.site-title::before {
+	content: url("../../logo.png");
+	display: inline-block;
+	position: relative;
+	width: 37px;
+	top: 5px;
+}
