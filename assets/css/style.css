@@ -1,9 +1,9 @@
 ---
 ---
 
-@import "{{ site.theme }}";
+@import 'jekyll-theme-cayman';
 
-.site-title::before {
+.site-title::after {
 	content: url("../../logo.png");
 	display: inline-block;
 	position: relative;
