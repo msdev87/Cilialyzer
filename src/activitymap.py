@@ -256,6 +256,13 @@ class activitymap:
 
         self.canvas = FigureCanvasTkAgg(self.fig, parent)
 
+        print(' ------------------------------------------------------------ ')
+        print('check normalization of frequency corr')
+        print(numpy.max(self.freq_acorr))
+        print(' ------------------------------------------------------------ ')
+
+
+
         divider = make_axes_locatable(self.ax)
         cax = divider.append_axes("right", size="7%", pad=0.08)
         bla=self.ax.imshow(self.freq_acorr, alpha=1.0, cmap='coolwarm', interpolation='none',extent=[xmin,xmax,ymin,ymax])
@@ -269,6 +276,9 @@ class activitymap:
 
         # write freq correlogram to file:
         numpy.savetxt('frequencycorrelogram.dat', self.freq_acorr)
+
+
+
 
 
         # Determine the frequency correlation length 

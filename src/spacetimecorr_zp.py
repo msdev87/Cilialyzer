@@ -3,6 +3,7 @@ import crosscorrelation_zp
 import PIL
 import matplotlib.pyplot as plt
 import bytescl
+import sys 
 
 def stcorr(array, maxtimeshift=10):
     """
@@ -46,17 +47,22 @@ def stcorr(array, maxtimeshift=10):
 
             # compute spatial cross-correlation and sum up over all time steps
             cc = crosscorrelation_zp.ccorr2D_zp(img1, img2)
+            print('**check norm of cc**')
+            print(numpy.max(cc))
+            sys.exit()
+            print('**************')
+
             scc = scc + cc
 
         scc = (1.0 / (nimgs-maxtimeshift)) * scc # average 
 
-
         # at this stage 'scc' ranges from -1 to +1 
-        scc = numpy.absolute(scc)
-        scc = bytescl.bytescl(scc)
-
+        #scc = numpy.absolute(scc)
+        #scc = bytescl.bytescl(scc)
         # convert scc to a PIL image and append to space-time correlogram
         #stcorrgram.append(PIL.Image.fromarray(numpy.uint8(scc)))
+
+        # the returned scc (spatial cross-corr) ranges from -1 to +1 
         stcorrgram.append(scc)
 
     return stcorrgram

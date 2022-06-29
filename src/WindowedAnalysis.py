@@ -10,8 +10,6 @@ import multiprocessing
 import spacetimecorr_zp
 import gaussian2Dfit
 
-
-
 """
 class WinAnalysis:
 
@@ -43,28 +41,52 @@ def analyse_windows(array_list):
         # 'array' holds a single 'window' with indices t,i,j
         array = array_list[i]
 
+        #print('*************************************************************')
+        #print(array)
+        #print('*************************************************************')
 
-        print('**************************************************************')
-        print('**************************************************************')
-        print(array)
-        print('**************************************************************')
-        print('**************************************************************')
         # compute sptio-temporal cross-correlogram for 'array' 
         stcorr = spacetimecorr_zp.stcorr(array)
 
-        # peak tracking 
-        posx, posy, peakheight = gaussian2Dfit.fit(stcorr[0])
+        # peak tracking
+        n_timeshifts = len(stcorr)
 
-        print('--------------------------------------------------------------')
-        print('--------------------------------------------------------------')
-        print('--------------------------------------------------------------')
-        print(posx,posy,peakheight)
-        print('--------------------------------------------------------------')
-        print('--------------------------------------------------------------')
-        print('--------------------------------------------------------------')
+        peak_locs = numpy.zeros((n_timeshifts,2))
+        peak_heights = numpy.zeros(n_timeshifts)
+
+        for dt in range(n_timeshifts):
+
+            # we fit only the middle part of the cross-correlogram 
+            # i.e. the peak, which is characterized by the greatest values 
+            # therefore, we select only those values, which are 
+            # greater than 1/e from the cross-correlogram
+
+            print('--------------------------------------------------------------')
+            
+            print('max1 in stcorr: ', numpy.max(stcorr[dt]))
+            stcorr[dt] = numpy.subtract(stcorr[dt], 1./math.e)
+            NaN_inds = numpy.where(stcorr[dt] < 0)
+            stcorr[dt][NaN_inds] = 0. #float("NaN")
+
+            print('max2 in stcorr: ', numpy.max(stcorr[dt]))
+
+            sigma = numpy.zeros_like(stcorr[dt])
+            inds = numpy.where(stcorr[dt] > 0)
+            sigma[NaN_inds] = 1e6
+            sigma[inds] = 1.
 
 
-    return (posx, posy, peakheight)
+            posx, posy, peakh = gaussian2Dfit.fit(stcorr[dt], sigma)
+
+            #peak_locs[dt,:] = [posx,posy]
+            #peak_heights[dt] = peakheight
+
+            print('dt :', dt)
+            print(posx,posy,peakh)
+            print('--------------------------------------------------------------')
+
+
+    return (posx, posy, peakh)
 
 
 
@@ -166,7 +188,6 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
         ncpus = ncpus-1
     pool = multiprocessing.Pool(ncpus)
 
-
     # ncpus: number of processes we will start
     # nwins_per_cpu: number of windows, which we analyze per cpu
     nwins_per_cpu = numpy.zeros(ncpus)
@@ -195,12 +216,6 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
     result = pool.map(analyse_windows,
         [valid_wins_ncpus[i] for i in range(ncpus)])
 
-
-
-
-
-
-
-
-
+    # test
+    #res = analyse_windows(valid_wins_ncpus[0])
 

@@ -1,4 +1,5 @@
 import numpy
+import math
 
 def ccorr2D_zp(signal1, signal2, mask=None):
     """
@@ -96,7 +97,7 @@ def ccorr2D_zp(signal1, signal2, mask=None):
     # The "error" made can now be easily corrected by an element-wise division
     crosscovariance = pseudo_crosscovariance / mask_correction_factors
 
-    variance = crosscovariance.flat[0]
+    #variance = crosscovariance.flat[0]
 
     # fft-shift:
     crosscovariance = numpy.fft.fftshift(crosscovariance)
@@ -104,6 +105,10 @@ def ccorr2D_zp(signal1, signal2, mask=None):
 
     #print('done')
 
-    return (crosscovariance / variance)
+    var1 = numpy.var(centered_signal1)
+    var2 = numpy.var(centered_signal2)
+
+
+    return (crosscovariance / (math.sqrt(var1*var2)))
 
 
