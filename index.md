@@ -1,4 +1,3 @@
-## Bla 
 <!-- ## Welcome to GitHub Pages -->
 
 <div align="center"> 
