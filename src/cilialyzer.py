@@ -167,6 +167,8 @@ class Cilialyzer():
         #for i in range(self.roiplayer.seqlength):
         #    self.roiplayer.roiseq[i].save("./sequence/img"+str(i)+".png","PNG") 
 
+    def exportvideo(self):
+        pass
 
 
 
@@ -671,6 +673,12 @@ class Cilialyzer():
         self.exportB = tk.Button(self.roitab, text='Export sequence',
             command=self.export, height=bh, width=16)
         self.exportB.place(in_=self.roitab, anchor='c', relx=0.07,rely=0.32)
+
+        # Export video Button
+        self.exportvideoB = tk.Button(self.roitab, text='Export video',
+            command=self.exportvideo, height=bh, width=16)
+        self.exportvideoB.place(in_=self.roitab, anchor='c', relx=.07,rely=.37)
+
 
         # initialize roiplayer
         self.roiplayer = FlipbookROI.ImgSeqPlayer(self.roitab,self.PIL_ImgSeq.directory,0,
