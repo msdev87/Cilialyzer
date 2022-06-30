@@ -168,6 +168,11 @@ class Toolbar:
         #print('roiplayer id in Toolbar: ',id(self.roiplayer))
         self.roiplayer.animate()
 
+    def load_video(self):
+        pass
+
+
+
     def __init__(self, parent, player, roiplayer, ptrackplayer, PIL_ImgSeq,
             nbook, roitab, roi, toolbar_h, toolbar_w, statusbar):
 
@@ -187,18 +192,18 @@ class Toolbar:
         # image-Button to select the directory holding the image sequence  
         self.diricon = ImageTk.PhotoImage(file=r"../images/icons/directory/newdir2.png")
 
-        self.diriconB = tk.Button(self.toolbarframe,height=23,width=30,\
+        self.diriconB = tk.Button(self.toolbarframe,height=25,width=33,\
             borderwidth=0,command=self.selectdirectory,image=self.diricon)
-        self.diriconB.grid(row=0,column=0,padx=5,pady=3,sticky='e')
+        self.diriconB.grid(row=0,column=0,padx=7,pady=3,sticky='e')
 
         # --------------------------------------------------------------------- 
         # image-Button 'next directory' to select the next subdirectory 
         self.nextdiricon = ImageTk.PhotoImage(
             file=r"../images/icons/directory/nextdir.png")
 
-        self.nextdiriconB = tk.Button(self.toolbarframe,height=23,width=30,\
+        self.nextdiriconB = tk.Button(self.toolbarframe,height=25,width=33,\
             borderwidth=0,command=self.nextdirectory,image=self.nextdiricon)
-        self.nextdiriconB.grid(row=0,column=1,padx=5,pady=3,sticky='e')
+        self.nextdiriconB.grid(row=0,column=1,padx=7,pady=3,sticky='e')
 
         # Label Widget + Entry Widget for setting the recording speed [FPS] 
 
@@ -211,6 +216,19 @@ class Toolbar:
         self.fpscombo.current(0)
         self.fpscombo.grid(row=0,column=4,sticky='W')
         # --------------------------------------------------------------------- 
+
+
+        # ---------------------------------------------------------------------
+        # Add image Button 'load video' 
+        self.loadvideo_icon = ImageTk.PhotoImage(
+            file=r"../images/icons/newmovieicon.png")
+
+        self.loadvideoB = tk.Button(self.toolbarframe, height=25, width=30,
+            borderwidth=0,command=self.load_video,image=self.loadvideo_icon)
+        self.loadvideoB.grid(row=0, column=2, padx=7,pady=3,sticky='e')
+
+
+
 
         # ----------------------------------------------------------------------
         # Label and Entry Widget for setting the pixel size in [nm]                    

@@ -62,6 +62,11 @@ class Menubar:
     def change_theme(self):
         self.style.theme_use(self.selected_theme.get())
 
+    def apply_settings(self):
+        pass
+        #self.parent.__init__()
+        #self.cfg_win.destroy()
+        #self.cfg_win.update()
 
     def configure(self):
         """
@@ -86,11 +91,11 @@ class Menubar:
         self.cfg_win.update()
 
         # add cfg_notebook 
-        self.cfg_nbook = tk.ttk.Notebook(self.cfg_win)
+        self.cfg_nbook = tk.ttk.Notebook(self.cfg_win, width=440, height=550)
         self.cfg_nbook.grid(row=0,column=0,padx=4,pady=4)
 
         # add 'themes' tab 
-        self.themestab = tk.Frame(self.cfg_nbook,width=440,height=550)
+        self.themestab = tk.Frame(self.cfg_nbook,width=430,height=540)
         self.cfg_nbook.add(self.themestab, text=' Theme ')
 
         self.style = ttk.Style(self.parent)
@@ -108,11 +113,37 @@ class Menubar:
             rb.grid()
 
 
+        """
+        # add 'Available features'-tab    
+        self.availfeat_tab = tk.Frame(self.cfg_win, width=430, height=540)
+        self.cfg_nbook.add(self.availfeat_tab, text=' Select features ')
+
+        #self.ParticleTracking_flag = tk.IntVar()
+        # checkbuttons
+        self.ptrack_cb = tk.Checkbutton(self.availfeat_tab,\
+            text = "Particle tracking", variable = self.ParticleTracking_flag,\
+            onvalue = 1, offvalue = 0, height=2, width = 30)
+        self.ptrack_cb.place(in_=self.availfeat_tab, anchor="c", relx=.5, rely=.05)
+
+        # 'Apply' button 
+        self.applyB = tk.Button(self.availfeat_tab, text=' Apply ',
+            command=self.apply_settings, height=2, width=20)
+        self.applyB.place(in_=self.availfeat_tab, anchor="c", relx=.5, rely=.27)
+        """
+
+
 
     def __init__(self, parent):
 
         self.parent = parent
         self.myfont = ("TkDefaultFont", 10)
+
+        """
+        if hasattr(self, 'self.ParticleTracking_flag'):
+            pass
+        else:
+            self.ParticleTracking_flag = tk.IntVar()
+        """
 
         # create the menubar of parent tk-window
         self.menubar = tk.Menu(self.parent, bg='gray30', fg='gray95', font=self.myfont)

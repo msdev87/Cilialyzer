@@ -496,29 +496,35 @@ class Cilialyzer():
         self.ROISelection_flag = True
 
         # Tab to generate the (ROI-based) power spectral density [PSD]
-        self.CBF_flag = True
+        self.CBF_flag = None
 
         # Tab to generate the activity map (ROI-based, PSD-based)
-        self.ActivityMap_flag = True
+        self.ActivityMap_flag = None
 
         # Tab to analyze single pixels
-        self.SinglePixelAnalysis_flag = False
+        self.SinglePixelAnalysis_flag = None
 
-        self.MotionTracking_flag = False
+        self.MotionTracking_flag = None
 
-        self.ParticleTracking_flag = True
+        self.ParticleTracking_flag = None
 
-        self.DynamicFiltering_flag = True
+        self.DynamicFiltering_flag = None
 
-        self.SpatioTemporalCorrelogram_flag = True
+        self.SpatioTemporalCorrelogram_flag = None
 
-        self.kSpectrum_flag = False
+        self.kSpectrum_flag = None
 
         self.SpatialAcorr_flag = True
 
-        self.WindowedAnalysis_flag = True
+        self.WindowedAnalysis_flag = None
 
-        resize_flag = False  # indicates whether the user resized the main window
+        resize_flag = None  # indicates whether the user resized the main window
+
+        #self.flags = []
+        #self.flags.append(self.ROISelection_flag)
+        #self.flags.append(self.CBF_flag)
+        #self.flags.append(self.ActivityMap_flag)
+
 
         # ******************************************************************************
 
@@ -556,6 +562,11 @@ class Cilialyzer():
         # add the menubar (mbar) to the root window ('main_window'):
         mbar = menubar.Menubar(self.main_window)
         self.main_window.config(menu=mbar.menubar)
+
+
+        #self.ParticleTracking_flag = mbar.ParticleTracking_flag.get()
+        #self.flags = mbar.flags
+
 
         # make sure that the main window is resizable
         self.main_window.resizable(True, True)
@@ -750,7 +761,7 @@ class Cilialyzer():
 
         self.powerspecB=tk.Button(self.cbftab, text='Powerspectrum',\
             command=lambda: self.powerspectrum.calc_powerspec(self.roiplayer.roiseq,\
-        self.toolbar.fpscombo.get(),self.pwspec1frame, self.minscale, 
+        self.toolbar.fpscombo.get(),self.pwspec1frame, self.minscale,
         self.maxscale), height=bh, width=bw)
         self.powerspecB.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.05)
 
