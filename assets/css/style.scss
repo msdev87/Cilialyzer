@@ -1,1 +1,13 @@
 
+---
+---
+
+@import 'jekyll-theme-cayman';
+
+.site-title::after {
+	content: url("../../logo.png");
+	display: inline-block;
+	position: relative;
+	width: 37px;
+	top: 5px;
+}
