@@ -138,9 +138,6 @@ class ImageSequence:
         self.directory = askdirectory(title="Select Directory",
                                             initialdir=initdir)
 
-        #print('self.directory: ',self.directory)
-
-
         f = open('previous_directory.dat','w')
         f.write(self.directory) # write choosen directory into file 'f' 
         f.close()
@@ -190,13 +187,17 @@ class ImageSequence:
             ##Create a PIL image from the data
             img = Image.open(filename, mode="r")
 
-
             if (img.mode == "L"):
                 pass
+
+            elif(img.mode == "RGB"):
+                img=img.convert("L")
+
             else:
                 numpyimg = numpy.array(img)
                 numpyimg = numpyimg / 65536.0 * 255
                 numpyimg.astype(int)
+
                 img = Image.fromarray(numpyimg)
                 img = img.convert("L")  # convert to 8 Bit grayscale
 
@@ -266,7 +267,7 @@ class ImageSequence:
         firstimg = self.sequence[0]
         self.width, self.height = firstimg.size
 
-    def load_video(self,dirname,fps):
+    def video_to_sequence(self, fps):
 
         try:
             # read file
@@ -280,12 +281,11 @@ class ImageSequence:
 
         f = open('previous_directory.dat','w')
         f.write(os.path.split(self.videofile)[0])
-		# writes choosen directory (value of 'directory') into file 'f' 
+	# writes choosen directory (value of 'directory') into file 'f' 
         f.close()
 
         # update the label, which displays the directory name:
-        dirname.set(self.directory)
-
+        #dirname.set(self.directory)
 
         # unfortunately it seems to be a pain to install the videosequence module in windows 
         # lets open the video and iterate over the frames, convert to 8Bit,PIL
@@ -296,30 +296,27 @@ class ImageSequence:
         #        self.sequence.append(frame)  
         #        ni = ni + 1 
 
-
-
-
         # create a directory, which will hold the image sequence we will 
         # generate with ffmpeg, and set 'self.directory' to its corresponding path 
 
         self.directory =  self.videofile.split(".")[0]
         if os.path.exists(self.directory):
-            shutil.rmtree(self.directory)  
-        os.mkdir(self.directory) 
+            shutil.rmtree(self.directory)
+        os.mkdir(self.directory)
 
         # generate the image sequence in the just generated folder 
 
         #seqname = os.path.split(os.path.split(self.directory)[1])
 
-        subprocess.call(['ffmpeg','-i',self.videofile,'-r',fps,self.videofile.split(".")[0]+'/frame_%04d.png'])  
+        try:
+            subprocess.call(['ffmpeg', '-i', self.videofile, '-r', fps,\
+                self.videofile.split(".")[0]+'/frame-%04d.png'])
+        except:
+            tkinter.messagebox.showinfo("warning","Please check your ffmpeg installation!")
 
         #firstimg = self.sequence[0] 
         #self.width, self.height = firstimg.size
         #self.seqlength = ni 
-
-
-
-
 
     def removepattern(self):
         firstimg = self.sequence[0] # first image of roi sequence  
@@ -328,7 +325,7 @@ class ImageSequence:
 
         # initialize numpy float array, which will hold the image sequence  
         array = numpy.zeros((int(nimgs),int(height),int(width)),dtype=float)
-        
+
         sumimg = numpy.zeros((int(height),int(width)),dtype=float)
 
         # PIL images -> numpy array 

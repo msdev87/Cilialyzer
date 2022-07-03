@@ -20,6 +20,9 @@ import multiprocessing
 import sys
 import spacetimecorr_zp
 import WindowedAnalysis
+import cv2
+
+
 
 class Cilialyzer():
 
@@ -168,7 +171,34 @@ class Cilialyzer():
         #    self.roiplayer.roiseq[i].save("./sequence/img"+str(i)+".png","PNG") 
 
     def exportvideo(self):
-        pass
+        """
+        w, h = self.roiplayer.roiseq[0].size
+        fourcc = cv.VideoWriter_fourcc('m', 'p', '4', 'v')
+        writer = cv.VideoWriter('out', fourcc, fps, (w, h))
+
+        for frame in self.roiplayer.roiseq:
+            print('test')
+            writer.write(pil_to_cv(frame))
+
+        writer.release() 
+        """
+
+        img_array = []
+        for i in range(self.roiplayer.seqlength):
+            img = numpy.array(self.roiplayer.roiseq[i])
+            height, width = img.shape
+            size = (width,height)
+            img_array.append(img)
+
+        #fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        fourcc = cv2.VideoWriter_fourcc(*'h264')
+        out = cv2.VideoWriter('output.mp4',fourcc, 15, size)
+
+        for i in range(len(img_array)):
+            print('test')
+            print(img_array[i].shape)
+            out.write(img_array[i])
+        out.release()
 
 
 

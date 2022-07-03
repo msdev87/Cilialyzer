@@ -168,9 +168,28 @@ class Toolbar:
         #print('roiplayer id in Toolbar: ',id(self.roiplayer))
         self.roiplayer.animate()
 
-    def load_video(self):
-        pass
+    def read_video(self):
 
+        try:
+            self.PIL_ImgSeq.video_to_sequence(self.fpscombo.get())
+            self.PIL_ImgSeq.load_imgs()
+
+            avoid_troubles.clear_main(self.player,self.roiplayer,self.ptrackplayer)
+
+            self.nbook.select(self.nbook.index(self.roitab))
+            refresh = 0
+            selectroi = 1
+
+            self.roiplayer.__init__(self.roitab,self.PIL_ImgSeq.directory,refresh,
+            self.PIL_ImgSeq.sequence,self.PIL_ImgSeq.seqlength,self.roi,selectroi)
+
+            # make sure that the rotationangle is set to 0:
+            self.roiplayer.rotationangle = 0.0
+            self.roiplayer.animate()
+
+        except:
+            # in case ffmpeg is not installed 
+            pass
 
 
     def __init__(self, parent, player, roiplayer, ptrackplayer, PIL_ImgSeq,
@@ -224,7 +243,7 @@ class Toolbar:
             file=r"../images/icons/newmovieicon.png")
 
         self.loadvideoB = tk.Button(self.toolbarframe, height=25, width=30,
-            borderwidth=0,command=self.load_video,image=self.loadvideo_icon)
+            borderwidth=0,command=self.read_video,image=self.loadvideo_icon)
         self.loadvideoB.grid(row=0, column=2, padx=7,pady=3,sticky='e')
 
 

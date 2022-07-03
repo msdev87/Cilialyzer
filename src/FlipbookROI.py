@@ -80,24 +80,27 @@ def get_files(directory):
 
 def GetMinMaxIntensity(self):
 
-	# get the minimum and maximum value over of the first image 
-	# (avoiding byte-coded camera information)
+    # get the minimum and maximum value over of the first image 
+    # (avoiding byte-coded camera information)
 
-	pixls = self.PILimgs[0] # pixls = PIL image
-	w,h = pixls.size # width and height of image
+    pixls = self.PILimgs[0] # pixls = PIL image
+    w,h = pixls.size # width and height of image
 
-	# we crop the relevant part of the image 
-	# (in order to avoid byte-coded camera information at the border)  
-	pixbox = pixls.crop((4,4,int(w-4),int(h-4)))
-	pixlist = list(pixbox.getdata())
+    # we crop the relevant part of the image 
+    # (in order to avoid byte-coded camera information at the border)  
+    pixbox = pixls.crop((4,4,int(w-4),int(h-4)))
+    pixlist = list(pixbox.getdata())
 
-	maxintensity = max(pixlist)
-	minintensity = min(pixlist)
+    maxintensity = max(pixlist)
+    minintensity = min(pixlist)
 
-	if minintensity < self.MinIntensity:
-		self.MinIntensity = minintensity
-	if maxintensity > self.MaxIntensity:
-		self.MaxIntensity = maxintensity
+    print('minintensity :', minintensity)
+    print('self.MinIntensity :', self.MinIntensity)
+
+    if minintensity < self.MinIntensity:
+        self.MinIntensity = minintensity
+    if maxintensity > self.MaxIntensity:
+        self.MaxIntensity = maxintensity
 
 
 def GammaScale(self):
