@@ -8,6 +8,7 @@
 
 <br />
 <div align="center"> 
-   Get release-v1.0.0-91f24d4 (creation date: December 13 2021)
-   <a href="Cilialyzer-v1.0.0-91f24d4.zip" download="">Cilialyzer-v1.0.0-91f24d4.zip</a>
+   **Binary releases for Windows**
+   <br />
+   <a href="Cilialyzer-v1.0.0-91f24d4.zip" download="">Cilialyzer-v1.0.0-91f24d4.zip</a> (creation date: December 13 2021)
 </div> 
