@@ -6,3 +6,8 @@
    <a href="./publications.html" style="font-size:25px;font-weight:400;" >Publications</a> 
 </div> 
 
+<br />
+<div align="center"> 
+   Get release-v1.0.0-91f24d4 (creation date: December 13 2021)
+   <a href="Cilialyzer-v1.0.0-91f24d4.zip" download="">Cilialyzer-v1.0.0-91f24d4.zip</a>
+</div> 
