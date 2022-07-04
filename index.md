@@ -15,7 +15,11 @@ mucociliary activity in respiratory epithelial cells, which are derived from PCD
 
 <br />
 
-For **clinical PCD specialists**, it is recommended to [download](https://msdev87.github.io/Cilialyzer/download.html) a **compiled binary release**, which can be used out-of-the-box -- immediately after downloading.   
+For **clinical PCD specialists**, it is recommended to [**download a compiled binary release**](https://msdev87.github.io/Cilialyzer/download.html) , which can be used out-of-the-box – immediately after downloading.   
+
+<br />
+
+The Cilialyzer sotware has been fully developed in Python. Developers 
    
    
    
