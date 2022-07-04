@@ -8,5 +8,9 @@
 </div> 
 
 <div align="center"> 
-The <b>Cilialyzer<\b> is a freely available open-source software, which has been specifically designed to support and facilitate the analysis of the mucociliary activity in respiratory epithelial cells captured by high-speed video microscopy (HSVM). 
+   The <b>Cilialyzer<\b> is a freely available open-source software, which has been specifically designed to support and facilitate the analysis of mucociliary activity in respiratory epithelial cells, which are derived from PCD-suspects and captured by high-speed video microscopy (HSVM). 
 </div> 
+   
+   
+   
+   
