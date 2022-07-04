@@ -22,8 +22,6 @@ import spacetimecorr_zp
 import WindowedAnalysis
 import cv2
 
-
-
 class Cilialyzer():
 
     """
@@ -528,27 +526,31 @@ class Cilialyzer():
         self.ROISelection_flag = True
 
         # Tab to generate the (ROI-based) power spectral density [PSD]
-        self.CBF_flag = None
+        self.CBF_flag = True
 
         # Tab to generate the activity map (ROI-based, PSD-based)
-        self.ActivityMap_flag = None
+        self.ActivityMap_flag = True
 
         # Tab to analyze single pixels
-        self.SinglePixelAnalysis_flag = None
+        self.SinglePixelAnalysis_flag = False
 
-        self.MotionTracking_flag = None
+        self.MotionTracking_flag = False
 
-        self.ParticleTracking_flag = None
+        self.ParticleTracking_flag = True
 
-        self.DynamicFiltering_flag = None
+        self.DynamicFiltering_flag = False
 
-        self.SpatioTemporalCorrelogram_flag = None
+        self.SpatioTemporalCorrelogram_flag = False
 
-        self.kSpectrum_flag = None
+        self.kSpectrum_flag = False
 
-        self.SpatialAcorr_flag = True
+        self.SpatialAcorr_flag = False
 
-        self.WindowedAnalysis_flag = None
+        self.TempAcorr_flag = False
+
+        self.WindowedAnalysis_flag = False
+
+        
 
         resize_flag = None  # indicates whether the user resized the main window
 
@@ -740,19 +742,19 @@ class Cilialyzer():
         # -------------------------------------------------------------------- #
 
         # --------------------- 'Image Stabilization'-button -------------------
-        self.imageregB = tk.Button(self.roitab, text='Image Stabilization',
+        self.imageregB = tk.Button(self.roitab, text='Image stabilization',
             command=self.image_stabilization, height=bh, width=16)
         self.imageregB.place(in_=self.roitab, anchor="c", relx=.07, rely=.07)
         # ----------------------------------------------------------------------
 
         # motion extraction (Puybareau et al. 2016) i.e. subtract the mean image
-        self.motionextractB = tk.Button(self.roitab, text='Subtract Mean',
+        self.motionextractB = tk.Button(self.roitab, text='Subtract mean',
             command=lambda: self.PIL_ImgSeq.extractmotion(self.roiplayer.roiseq),
             height=bh, width=16)
         self.motionextractB.place(in_=self.roitab, anchor="c", relx=.07, rely=0.17)
 
         # crop margins
-        self.cropB = tk.Button(self.roitab, text='Crop Margins',
+        self.cropB = tk.Button(self.roitab, text='Crop margins',
             command=lambda: self.roiplayer.crop_margins(), height=bh, width=16)
         self.cropB.place(in_=self.roitab, anchor="c", relx=.07, rely=.12)
 
@@ -834,7 +836,7 @@ class Cilialyzer():
 
         self.activitytab = tk.Frame(self.nbook, width=int(round(0.9*self.nbookw)),\
             height=int(round(0.95*self.nbookh)))
-        self.nbook.add(self.activitytab, text='Activity Map')
+        self.nbook.add(self.activitytab, text='Activity map')
 
         self.mapframe = tk.Frame(self.activitytab, \
             width=int(round(0.8*self.nbookh)), height=int(round(0.8*self.nbookh)))
@@ -859,7 +861,7 @@ class Cilialyzer():
         # ******************** Frequency correlation tab ***********************
         # notebook tab to compute the correlation length in the activity map
         self.freqcorrtab = tk.Frame(self.nbook)
-        self.nbook.add(self.freqcorrtab, text='Frequency Correlation')
+        self.nbook.add(self.freqcorrtab, text='Frequency correlation')
 
         # add a frame to display the correlogram 
         self.fcorrframe = tk.Frame(self.freqcorrtab,width=int(round(0.7*self.nbookw)),height=int(round(0.7*self.nbookh)))
@@ -874,16 +876,17 @@ class Cilialyzer():
 
 
         # ****************** Temporal autocorrelation tab **********************
-        self.tacorrtab = tk.Frame(self.nbook)
-        self.nbook.add(self.tacorrtab, text='Temporal Autocorrelation')
+        if (self.TempAcorr_flag):
+            self.tacorrtab = tk.Frame(self.nbook)
+            self.nbook.add(self.tacorrtab, text='Temporal Autocorrelation')
 
-        self.tacorr_plotframe = tk.Frame(self.tacorrtab,
-            width=int(round(0.8*self.nbookh)), height=int(round(0.8*self.nbookh)))
-        self.tacorr_plotframe.place(in_=self.tacorrtab, anchor='c', relx=0.5, rely=0.55)
+            self.tacorr_plotframe = tk.Frame(self.tacorrtab,
+                width=int(round(0.8*self.nbookh)), height=int(round(0.8*self.nbookh)))
+            self.tacorr_plotframe.place(in_=self.tacorrtab, anchor='c', relx=0.5, rely=0.55)
 
-        self.tacorrB = tk.Button(self.tacorrtab, text='Temporal Autocorrelation',
-            command=lambda: self.tacorr(), height=bh, width=bw)
-        self.tacorrB.place(in_=self.tacorrtab, anchor='c', relx=0.5, rely=0.05)
+            self.tacorrB = tk.Button(self.tacorrtab, text='Temporal Autocorrelation',
+                command=lambda: self.tacorr(), height=bh, width=bw)
+            self.tacorrB.place(in_=self.tacorrtab, anchor='c', relx=0.5, rely=0.05)
         # **********************************************************************
 
 
@@ -914,7 +917,7 @@ class Cilialyzer():
         if (self.ParticleTracking_flag):
             self.ptracktab = tk.Frame(self.nbook, width=int(round(0.6*self.nbookw)),
                 height=int(round(0.6*self.nbookh)))
-            self.nbook.add(self.ptracktab, text='Particle Tracking')
+            self.nbook.add(self.ptracktab, text='Particle tracking')
 
             #print('ptracktab ',nbook.index(ptracktab))
 
@@ -984,19 +987,19 @@ class Cilialyzer():
                 height=int(round(0.95*self.nbookh)))
             self.nbook.add(self.mcorrtab, text=' Spatial Autocorrelation ')
 
-        self.mcorrB = tk.Button(self.mcorrtab, text='Mean Spatial Autocorrelation',
-            command=self.meanscorrgram, height=bh, width=bw)
-        self.mcorrB.place(in_=self.mcorrtab, anchor="c", relx=.5, rely=.05)
+            self.mcorrB = tk.Button(self.mcorrtab, text='Mean Spatial Autocorrelation',
+                command=self.meanscorrgram, height=bh, width=bw)
+            self.mcorrB.place(in_=self.mcorrtab, anchor="c", relx=.5, rely=.05)
 
-        # here we plot the mean spatial autocorrelation ('mscorr' = mean spatial correlation)  
-        self.mscorrplotframe = tk.Frame(self.mcorrtab, width=int(round(0.45*self.nbookw)),
-            height=int(round(0.6*self.nbookh)))
-        self.mscorrplotframe.place(in_=self.mcorrtab, anchor='c', relx=0.25, rely=0.5)
+            # here we plot the mean spatial autocorrelation ('mscorr' = mean spatial correlation)  
+            self.mscorrplotframe = tk.Frame(self.mcorrtab, width=int(round(0.45*self.nbookw)),
+                height=int(round(0.6*self.nbookh)))
+            self.mscorrplotframe.place(in_=self.mcorrtab, anchor='c', relx=0.25, rely=0.5)
 
-        # plot a profile along a selected line going through the center of the mean spatial acorr
-        self.mscorrprofileframe = tk.Frame(self.mcorrtab,
-            width=int(round(0.45*self.nbookw)),height=int(round(0.6*self.nbookh)))
-        self.mscorrprofileframe.place(in_=self.mcorrtab, anchor='c', relx=0.75, rely=0.5)
+            # plot a profile along a selected line going through the center of the mean spatial acorr
+            self.mscorrprofileframe = tk.Frame(self.mcorrtab,
+                width=int(round(0.45*self.nbookw)),height=int(round(0.6*self.nbookh)))
+            self.mscorrprofileframe.place(in_=self.mcorrtab, anchor='c', relx=0.75, rely=0.5)
 
         # ----------------------------------------------------------------------
 
