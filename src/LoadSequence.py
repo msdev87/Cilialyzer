@@ -33,6 +33,13 @@ from bytescl import bytescl
 import subprocess
 import shutil
 
+import time
+
+import threading
+
+
+
+
 VALID_TYPES = (
     "bmp", "dib", "dcx", "gif", "im", "jpg", "jpe", "jpeg", "pcd", "pcx",
     "png", "pbm", "pgm", "ppm", "psd", "tif", "tiff", "xbm", "xpm"
@@ -125,6 +132,10 @@ class ImageSequence:
         self.fname = StringVar()  # feb 2021
         self.fname.set("No Directory Selected")
 
+        self.busy_indicator = None
+        self.thread1 = None
+        self.busywin = None
+
     def choose_directory(self):
     #def choose_directory(self,dirname,fname):
 
@@ -213,6 +224,8 @@ class ImageSequence:
         # by calling get_images()
         # finally self.sequence[i] holds the i-th frame (8 Bit, PIL image) 
 
+        #print('starting to load images...')
+
         # if directory not selected yet: 
         if (self.directory==''):
             tkinter.messagebox.showinfo("Title","Please select directory first")
@@ -267,6 +280,11 @@ class ImageSequence:
         firstimg = self.sequence[0]
         self.width, self.height = firstimg.size
 
+
+    def splitvideo_ffmpeg(self, fps):
+        subprocess.call(['ffmpeg', '-i', self.videofile, '-r', fps, self.videofile.split(".")[0]+'/frame-%04d.png'])
+
+
     def video_to_sequence(self, fps):
 
         try:
@@ -276,8 +294,8 @@ class ImageSequence:
         except:
             initdir=os.getcwd()
 
-        self.videofile = askopenfilename(title="Select Video",
-                                        initialdir=initdir)
+        self.videofile = askopenfilename(title="Select Video",\
+            initialdir=initdir)
 
         f = open('previous_directory.dat','w')
         f.write(os.path.split(self.videofile)[0])
@@ -285,7 +303,7 @@ class ImageSequence:
         f.close()
 
         # update the label, which displays the directory name:
-        #dirname.set(self.directory)
+        # dirname.set(self.directory)
 
         # unfortunately it seems to be a pain to install the videosequence module in windows 
         # lets open the video and iterate over the frames, convert to 8Bit,PIL
@@ -308,15 +326,44 @@ class ImageSequence:
 
         #seqname = os.path.split(os.path.split(self.directory)[1])
 
+
+
+        # handle exception (ffmpeg might not be installed)
         try:
-            subprocess.call(['ffmpeg', '-i', self.videofile, '-r', fps,\
-                self.videofile.split(".")[0]+'/frame-%04d.png'])
+            # start thread, which splits the video file 
+            self.thread1=threading.Thread(target=self.splitvideo_ffmpeg, args=[fps])
+            self.thread1.start()
+
+            self.busywin = Toplevel()
+            self.busywin.minsize(width=500,height=20)
+            self.busywin.title("Operation in progress")
+            # get the monitor dimensions:
+            screenw = self.busywin.winfo_screenwidth()
+            screenh = self.busywin.winfo_screenheight()
+            # place the busy indicator in the center of the screen 
+            placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
+            self.busywin.geometry(placement)
+
+            # add text label
+            tl=Label(self.busywin,\
+                text=' Please wait, the video will be read in a moment ', font="TkDefaultFont 11")
+            tl.grid(row=0,column=0,pady=5)
+            self.busywin.columnconfigure(0, weight=1)
+            self.busywin.rowconfigure(0, weight=1)
+
+            tl.update()
+            self.busywin.update()
+
+            self.thread1.join()
+
+            self.busywin.destroy()
+
         except:
             tkinter.messagebox.showinfo("warning","Please check your ffmpeg installation!")
 
-        #firstimg = self.sequence[0] 
-        #self.width, self.height = firstimg.size
-        #self.seqlength = ni 
+
+
+
 
     def removepattern(self):
         firstimg = self.sequence[0] # first image of roi sequence  
@@ -343,7 +390,7 @@ class ImageSequence:
         # remove sensor pattern         
         for i in range(nimgs):
             array[i,:,:] = numpy.subtract(array[i,:,:], numpy.subtract(meanimg, gaussian_filter(array[i,:,:], sigma=1)))
-  
+
 
         array = numpy.uint8(bytescl(array))
         for i in range(nimgs):
