@@ -8,7 +8,7 @@
 
 <br />
 <div align="center"> 
-   **Binary releases for Windows**
+   <b>Binary releases for Windows<b/>
    <br />
    <a href="Cilialyzer-v1.0.0-91f24d4.zip" download="">Cilialyzer-v1.0.0-91f24d4.zip</a> (creation date: December 13 2021)
 </div> 
