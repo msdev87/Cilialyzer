@@ -21,7 +21,7 @@ import sys
 import spacetimecorr_zp
 import WindowedAnalysis
 import cv2
-
+import avoid_troubles
 class Cilialyzer():
 
     """
@@ -160,43 +160,44 @@ class Cilialyzer():
         self.roiplayer.animate()
 
 
-    def export(self):
-        """
-        save self.roiplayer.roiseq (which is a PIL sequence) into a folder
-        """
-        self.PIL_ImgSeq.exportflag = True
-        #for i in range(self.roiplayer.seqlength):
-        #    self.roiplayer.roiseq[i].save("./sequence/img"+str(i)+".png","PNG") 
+    #def export(self):
+    #    """
+    #    save self.roiplayer.roiseq (which is a PIL sequence) into a folder
+    #    """
+    #    self.PIL_ImgSeq.exportflag = True
+    #    #for i in range(self.roiplayer.seqlength):
+    #    #    self.roiplayer.roiseq[i].save("./sequence/img"+str(i)+".png","PNG") 
 
-    def exportvideo(self):
-        """
-        w, h = self.roiplayer.roiseq[0].size
-        fourcc = cv.VideoWriter_fourcc('m', 'p', '4', 'v')
-        writer = cv.VideoWriter('out', fourcc, fps, (w, h))
 
-        for frame in self.roiplayer.roiseq:
-            print('test')
-            writer.write(pil_to_cv(frame))
-
-        writer.release() 
-        """
-
-        img_array = []
-        for i in range(self.roiplayer.seqlength):
-            img = numpy.array(self.roiplayer.roiseq[i])
-            height, width = img.shape
-            size = (width,height)
-            img_array.append(img)
-
-        #fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        fourcc = cv2.VideoWriter_fourcc(*'h264')
-        out = cv2.VideoWriter('output.mp4',fourcc, 15, size)
-
-        for i in range(len(img_array)):
-            print('test')
-            print(img_array[i].shape)
-            out.write(img_array[i])
-        out.release()
+    #def exportvideo(self):
+    #    """
+    #    w, h = self.roiplayer.roiseq[0].size
+    #    fourcc = cv.VideoWriter_fourcc('m', 'p', '4', 'v')
+    #    writer = cv.VideoWriter('out', fourcc, fps, (w, h))
+    #
+    #    for frame in self.roiplayer.roiseq:
+    #        print('test')
+    #        writer.write(pil_to_cv(frame))
+    #
+    #    writer.release() 
+    #    """
+    #
+    #    img_array = []
+    #    for i in range(self.roiplayer.seqlength):
+    #        img = numpy.array(self.roiplayer.roiseq[i])
+    #        height, width = img.shape
+    #        size = (width,height)
+    #        img_array.append(img)
+    #
+    #    #fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    #    fourcc = cv2.VideoWriter_fourcc(*'h264')
+    #    out = cv2.VideoWriter('output.mp4',fourcc, 15, size)
+    #
+    #    for i in range(len(img_array)):
+    #        print('test')
+    #        print(img_array[i].shape)
+    #        out.write(img_array[i])
+    #    out.release()
 
 
 
@@ -262,7 +263,28 @@ class Cilialyzer():
 
     def image_stabilization(self):
 
-        ################### new #############################################
+        avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
+        # busy indicator
+        busywin = tk.Toplevel()
+        busywin.minsize(width=500,height=20)
+        busywin.title("Operation in progress")
+        # get the monitor dimensions:
+        screenw = busywin.winfo_screenwidth()
+        screenh = busywin.winfo_screenheight()
+        # place the busy indicator in the center of the screen 
+        placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
+        busywin.geometry(placement)
+        # add text label
+        tl=tk.Label(busywin,\
+        text=' Please wait, image stabilization in progress  ', font="TkDefaultFont 11")
+        tl.grid(row=0,column=0,pady=5)
+        busywin.columnconfigure(0, weight=1)
+        busywin.rowconfigure(0, weight=1)
+        tl.update()
+        busywin.update()
+
+
+
         sr = StackReg(StackReg.RIGID_BODY)
 
         firstimg = self.roiplayer.roiseq[0]  # first image of roi sequence
@@ -312,53 +334,8 @@ class Cilialyzer():
             self.roiplayer.roiseq[i] = Image.fromarray(
                 numpy.uint8(array_stabilized[i, :, :]))
 
-    """
-    def loadvideo():
-        # TODO : videos should be loadable as well (not only image sequences) 
-        global player, roiplayer
+        busywin.destroy()
 
-        try:
-            # avoid crash 
-            player.stop = 2
-        except NameError:
-            pass
-
-        try:
-            # avoid crash 
-            roiplayer.stop = 2
-        except NameError:
-            pass
-
-        PIL_ImgSeq.load_video(dirname, fpscombo.get())
-        PIL_ImgSeq.load_imgs()
-
-        try:
-            player.frame.destroy()
-        except NameError:
-            pass
-
-        try:
-            roiplayer.frame.destroy()
-        except NameError:
-            pass
-
-        # delete 'roiplayer' object
-        try:
-            del roiplayer
-        except NameError:
-            pass
-
-        # delete content of powerspec tab, before switching to animation 
-        powerspectrum.tkframe.destroy()
-
-        # switch to animation tab
-        nbook.select(0)
-        refresh = 0
-        player = Flipbook.ImgSeqPlayer(animationtab, PIL_ImgSeq.directory, \
-                                       refresh, PIL_ImgSeq.sequence, \
-                                       PIL_ImgSeq.seqlength)
-        player.animate()  # call method animate 
-    """
 
     # --------------------------------------------------------------------------
     def meanscorrgram(self):
@@ -698,19 +675,18 @@ class Cilialyzer():
         self.roi = RegionOfInterest.ROI(self.mainframe) # instantiate roi object
         self.roiB = tk.Button(self.roitab, text='Reset',
             command=self.select_roi, height=bh, width=16)
-        self.roiB.place(in_=self.roitab, anchor="c", relx=.07, rely=.27)
+        self.roiB.place(in_=self.roitab, anchor="c", relx=.07, rely=.22)
         # roi-sequence (cropped PIL image sequence) available by "self.roi.roiseq"
 
         # Export sequence Button 
-        self.exportB = tk.Button(self.roitab, text='Export sequence',
-            command=self.export, height=bh, width=16)
-        self.exportB.place(in_=self.roitab, anchor='c', relx=0.07,rely=0.32)
+        #self.exportB = tk.Button(self.roitab, text='Export sequence',
+        #    command=self.export, height=bh, width=16)
+        #self.exportB.place(in_=self.roitab, anchor='c', relx=0.07,rely=0.32)
 
         # Export video Button
-        self.exportvideoB = tk.Button(self.roitab, text='Export video',
-            command=self.exportvideo, height=bh, width=16)
-        self.exportvideoB.place(in_=self.roitab, anchor='c', relx=.07,rely=.37)
-
+        #self.exportvideoB = tk.Button(self.roitab, text='Export video',
+        #    command=self.exportvideo, height=bh, width=16)
+        #self.exportvideoB.place(in_=self.roitab, anchor='c', relx=.07,rely=.37)
 
         # initialize roiplayer
         self.roiplayer = FlipbookROI.ImgSeqPlayer(self.roitab,self.PIL_ImgSeq.directory,0,
@@ -760,10 +736,10 @@ class Cilialyzer():
 
 
         # denoise button 
-        self.denoiseB = tk.Button(self.roitab, text='Denoise',
-            command=lambda: self.PIL_ImgSeq.denoise(self.roiplayer.roiseq),
-            height=bh, width=16)
-        self.denoiseB.place(in_=self.roitab, anchor="c", relx=0.07, rely=0.22)
+        #self.denoiseB = tk.Button(self.roitab, text='Denoise',
+        #    command=lambda: self.PIL_ImgSeq.denoise(self.roiplayer.roiseq),
+        #    height=bh, width=16)
+        #self.denoiseB.place(in_=self.roitab, anchor="c", relx=0.07, rely=0.22)
 
 
         # *****************************************************************************#
