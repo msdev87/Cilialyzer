@@ -8,17 +8,18 @@
 </div> 
 
 <br />
-
 The **Cilialyzer** is a freely available open-source software specifically designed to support and facilitate the analysis of 
 mucociliary activity in respiratory epithelial cells, which are derived from PCD-suspects and captured by high-speed video microscopy (HSVM). 
 
 <br />
 
-For **clinical PCD specialists**, it is recommended to [**download a compiled binary release**](https://msdev87.github.io/Cilialyzer/download.html) , which can be used out-of-the-box – immediately after downloading.   
+For **clinical PCD specialists**, it is recommended to [**download a compiled binary release**](https://msdev87.github.io/Cilialyzer/download.html), 
+which can be used out-of-the-box – immediately after downloading.  
 
 <br />
 
-The Cilialyzer sotware has been fully developed in Python. Developers 
+The Cilialyzer sotware has been fully developed in Python. Its source code can be viewed and downloaded on 
+[**GitHub**](https://github.com/msdev87/Cilialyzer). 
    
    
    
