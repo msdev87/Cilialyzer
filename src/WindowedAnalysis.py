@@ -62,7 +62,7 @@ def analyse_windows(array_list):
             # greater than 1/e from the cross-correlogram
 
             print('--------------------------------------------------------------')
-            
+
             print('max1 in stcorr: ', numpy.max(stcorr[dt]))
             stcorr[dt] = numpy.subtract(stcorr[dt], 1./math.e)
             NaN_inds = numpy.where(stcorr[dt] < 0)

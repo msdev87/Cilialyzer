@@ -20,7 +20,7 @@ import multiprocessing
 import sys
 import spacetimecorr_zp
 import WindowedAnalysis
-import cv2
+#import cv2
 import avoid_troubles
 class Cilialyzer():
 
@@ -515,19 +515,19 @@ class Cilialyzer():
 
         self.ParticleTracking_flag = True
 
-        self.DynamicFiltering_flag = False
+        self.DynamicFiltering_flag = True
 
         self.SpatioTemporalCorrelogram_flag = False
 
         self.kSpectrum_flag = False
 
-        self.SpatialAcorr_flag = False
+        self.SpatialAcorr_flag = True
 
-        self.TempAcorr_flag = False
+        self.TempAcorr_flag = True
 
-        self.WindowedAnalysis_flag = False
+        self.WindowedAnalysis_flag = True
 
-        
+
 
         resize_flag = None  # indicates whether the user resized the main window
 
