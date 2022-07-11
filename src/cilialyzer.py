@@ -22,6 +22,7 @@ import spacetimecorr_zp
 import WindowedAnalysis
 #import cv2
 import avoid_troubles
+
 class Cilialyzer():
 
     """
@@ -469,7 +470,7 @@ class Cilialyzer():
     def __init__(self):
 
         """
-        constructor for the tkinter root window (main_window) with all its content
+        constructor for the tkinter root window (main_window) with all widgets
         """
 
         """
@@ -490,16 +491,13 @@ class Cilialyzer():
         ¦_____________________________________________________________________¦
         """
 
-        # *************************************************************************
-        # *************** Configuration of the main window ************************
-        # *************************************************************************
+        # *********************************************************************
+        # *************** Configuration of the main window ********************
+        # *********************************************************************
 
-        # Configure which tabs should be made available when launching the application
+        # Configure which tabs should be made available when launching the app  
 
-        # Tab to view the sequence
-        # AnimateSequence = True
-
-        # Tab to select a ROI
+        # Tab to view and preprocess the loaded image sequence
         self.ROISelection_flag = True
 
         # Tab to generate the (ROI-based) power spectral density [PSD]
@@ -537,7 +535,7 @@ class Cilialyzer():
         #self.flags.append(self.ActivityMap_flag)
 
 
-        # ******************************************************************************
+        # *********************************************************************
 
         multiprocessing.freeze_support()
         ncpus = multiprocessing.cpu_count()
@@ -553,7 +551,8 @@ class Cilialyzer():
         self.main_window = tk.Tk()
 
         # set the cilialyzer icon
-        self.main_window.iconphoto(False, tk.PhotoImage(file='../images/logo/logo.png'))
+        self.main_window.iconphoto(False,\
+            tk.PhotoImage(file='../images/logo/logo.png'))
 
         # Set the window title
         self.main_window.title("Cilialyzer")
@@ -562,7 +561,8 @@ class Cilialyzer():
         # set the font
         self.font = ("TkDefaultFont", 10)
 
-        # winfo_screenheight and _screenwidth deliver the display's pixel-resolution
+        # winfo_screenheight and _screenwidth 
+        # deliver the display's pixel-resolution
         self.main_window.geometry("%dx%d+%d+%d"%(
             self.main_window.winfo_screenwidth(),
             self.main_window.winfo_screenheight(), 0, 0))
@@ -574,10 +574,8 @@ class Cilialyzer():
         mbar = menubar.Menubar(self.main_window)
         self.main_window.config(menu=mbar.menubar)
 
-
         #self.ParticleTracking_flag = mbar.ParticleTracking_flag.get()
         #self.flags = mbar.flags
-
 
         # make sure that the main window is resizable
         self.main_window.resizable(True, True)
@@ -587,12 +585,12 @@ class Cilialyzer():
         self.mbar_height = self.main_window_h1 - self.main_window_h2
 
         # note that the upper left edge of the screen has the coordinates (0,0)
-        # the upper left edge of the main window gets created at the coordinates
-        # (offset,offset) [in pixels], where the upper left edge of the screen = (0,0)
+        # the upper left edge of the main window gets created at the 
+        # coordinates (offset,offset) [in pixels]
         offset = 0
 
-        # since there is usually a taskbar -> the main_window will be somewhat smaller
-        # than [ screenwidth x screenheight ]
+        # since there is usually a taskbar -> the main_window will be somewhat 
+        # smaller than [ screenwidth x screenheight ]
         # its actually generated dimensions (width x height) can be queried as:
         # main_window.winfo_height() and main_window.winfo_width()
 
@@ -612,7 +610,8 @@ class Cilialyzer():
         imgbh = 28   # button height for buttons containing images
         imgbw = 182  # button width for buttons containing images
 
-        # In order to have more flexibility: add a "fakepixel" (transparent photo image)
+        # In order to have more flexibility, 
+        # a "fakepixel" (transparent photo image) can be used 
         self.fakepixel = ImageTk.PhotoImage(file=r"../images/icons/fakepixel.png")
 
         self.PIL_ImgSeq = LoadSequence.ImageSequence()
@@ -622,9 +621,8 @@ class Cilialyzer():
         self.toolbar_height = 35
         self.statusbar_height = 55
 
-        #**********************************************************************#
+        #*********************************************************************#
         # the main features are provided by notebook-tabs
-        # available notebook tabs: animation, ROI selection, powerspec, ...
 
         # set zoomed state
         if (os.name == 'nt'):
@@ -653,7 +651,7 @@ class Cilialyzer():
                       - self.mbar_height - self.toolbar_height \
                       - self.statusbar_height
 
-        # create the notebook
+        # ----------------------- create the notebook -------------------------
         self.nbook = tkinter.ttk.Notebook(self.mainframe, width=self.nbookw,
             height=self.nbookh)
 
@@ -664,12 +662,13 @@ class Cilialyzer():
         animations to avoid crashes of the frontend
         self.switchtab prevents those crashes
         """
+
         self.nbook.bind('<ButtonPress-1>', self.switchtab)
 
         # ROI selection tab
         self.roitab = tk.Frame(self.nbook, width=int(round(0.9*self.nbookw)),
             height=int(round(0.95*self.nbookh)))
-        self.nbook.add(self.roitab, text='  Preprocessing & CBP  ')
+        self.nbook.add(self.roitab, text='  Preprocessing  ')
 
         # ROI selection Button
         self.roi = RegionOfInterest.ROI(self.mainframe) # instantiate roi object
@@ -854,7 +853,7 @@ class Cilialyzer():
         # ****************** Temporal autocorrelation tab **********************
         if (self.TempAcorr_flag):
             self.tacorrtab = tk.Frame(self.nbook)
-            self.nbook.add(self.tacorrtab, text='Temporal Autocorrelation')
+            self.nbook.add(self.tacorrtab, text='Temporal autocorrelation')
 
             self.tacorr_plotframe = tk.Frame(self.tacorrtab,
                 width=int(round(0.8*self.nbookh)), height=int(round(0.8*self.nbookh)))

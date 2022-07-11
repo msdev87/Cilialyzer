@@ -508,25 +508,25 @@ class ImgSeqPlayer(object):
                 command=self.fps_button)
             self.fpsB.pack(side=tk.BOTTOM)
 
-        # ----------------------------------------------------------------------
-        # *************** results frame at the right ***************************
-        # ----------------------------------------------------------------------
+        # ---------------------------------------------------------------------
+        # *************** results frame at the right **************************
+        # ---------------------------------------------------------------------
 
         # display the particle speed, radius, circ frequency
 
-        self.resultsframe = tk.LabelFrame(self.frame,takefocus=1,text='Results',
-            labelanchor='n',borderwidth=4,padx=0,pady=0,
-            font=("Helvetica", 11, "bold"), width=300, height=400)
-        self.resultsframe.grid(row=1,column=3,rowspan=3,padx=40,pady=7)
+        self.resultsframe = tk.LabelFrame(self.frame, takefocus=1,
+            text='Results', labelanchor='n', borderwidth=4, padx=0, pady=0,
+            font=("Helvetica", 11, "bold"), width=250, height=250)
+        self.resultsframe.grid(row=1, column=3, rowspan=3, padx=40, pady=7)
         self.resultsframe.grid_propagate(0)
 
         # pandas frame
-        #col_names = ["Radius [μm]","Speed [μm/s]","Omega [°/s]"]
+        # col_names = ["Radius [μm]","Speed [μm/s]","Omega [°/s]"]
         col_names =["Speed [μm/s]"]
         self.pandadf = pandas.DataFrame(columns = col_names)
         self.resultstable = Table(self.resultsframe, dataframe=self.pandadf,
-                showtoolbar=True, showstatusbar=True)
-        options = {'fontsize' : 12, 'floatprecision': 1}
+            showtoolbar=True, showstatusbar=True)
+        options = {'fontsize' : 11, 'floatprecision': 1}
         pandastable.config.apply_options(options, self.resultstable)
         self.resultstable.show()
 
