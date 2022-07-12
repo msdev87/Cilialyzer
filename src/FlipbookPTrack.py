@@ -206,7 +206,6 @@ class ImgSeqPlayer(object):
         self.track_cnt = 0
         self.start_track = 0
 
-
         self.selectroi = selectroi
 
         self.particle_coords = (None,None)
@@ -273,10 +272,10 @@ class ImgSeqPlayer(object):
         #    text='Extract Particles',command=self.extractparticles,image=fakepixel,compound=tk.LEFT)
         self.extractparticlesB.grid(row=0,column=1,padx=5)
 
-	# export trajectory button 
+        # export trajectory button 
         self.exportB =tk.Button(self.trackcframe,text='Export Trajectory',\
-                                          command=self.export_trajectory,width=20,height=1)
-        self.exportB.grid(row=1,column=1)
+            command=self.export_trajectory, width=20, height=1)
+        self.exportB.grid(row=1, column=1)
 
         # spinbox for the window size of the gaussian blur 
         gaussL=tk.Label(self.trackcframe, text="Gaussian: ", height=2,width=18) 
@@ -531,14 +530,37 @@ class ImgSeqPlayer(object):
         self.resultstable.show()
 
         # **********************************************************************
+        # display mean and SD of measured speed
+        self.msd_frame = tk.LabelFrame(self.frame, takefocus=1,
+            text='Mean & SD', labelanchor='n', borderwidth=4, padx=2, pady=2,
+            font=("Helvetica", 11, "bold"), width=250, height=70)
+        self.msd_frame.grid(row=4, column=3, padx=10, pady=10)
+
+        # label for 'Mean speed' 
+        mean_textlabel=tk.Label(self.msd_frame, text="Mean speed [μm/s]: ",\
+            anchor='e', font=("TkDefaultFont",10),width=22)
+        mean_textlabel.grid(row=0,column=0,padx=3,sticky='W')
+
+        self.meanspeed = tk.StringVar()
+        self.meanspeed.set(str(0))
+        mean_label=tk.Label(self.msd_frame, text=self.meanspeed,\
+            anchor='e', font=("TkDefaultFont",10),width=22)
+        mean_label.grid(row=0,column=1,padx=3,sticky='W')
+
+
+        # label for 'SD speed'
+        sd_label=tk.Label(self.msd_frame, text="SD speed [μm/s]: ",\
+            anchor='e', font=("TkDefaultFont",10),width=22)
+        sd_label.grid(row=1,column=0,padx=3,sticky='W')
+        # *********************************************************************
 
         # get image size 
 
-        #Scale image to the screen size while keeping aspect ratio.
-        #w = self.roi[2] - self.roi[0]
-        #h = self.roi[3] - self.roi[1]
+        # Scale image to the screen size while keeping aspect ratio.
+        # w = self.roi[2] - self.roi[0]
+        # h = self.roi[3] - self.roi[1]
 
-        w,h= PILseq[0].size
+        w,h = PILseq[0].size
 
         ctrl_height = 0
         add_width = 0
@@ -1008,7 +1030,7 @@ class ImgSeqPlayer(object):
         winsize = self.sboxsize
 
         # track particle until end of movie gets reached
-	# OR: until the particle reaches the edge of the images  
+        # OR: until the particle reaches the edge of the images  
         # this gets checked by the following conditions 
 
         if (((len(self.latesttrace)+self.start_track) < self.seqlength-5) and
@@ -1118,8 +1140,8 @@ class ImgSeqPlayer(object):
 
             self.resultstable.updateModel(pandastable.data.TableModel(self.pandadf))
             self.resultstable.redraw()
-            
-            
+
+
             print(pspeed)
 
             #print('---------------------- pandatable -------------------------')    
@@ -1156,6 +1178,11 @@ class ImgSeqPlayer(object):
 
             # now we can add trace_array to alltracesarray:
             self.alltracesarray.append(self.trace_array)
+
+            # update mean particle speed, which gets displayed
+            self.speedarray = numpy.array(self.pandadf['Speed [μm/s]'].tolist())
+            self.meanspeed.set(str(float(numpy.mean(self.speedarray))))
+            #self.meanspeed.set("{:.1f}".format(numpy.mean(self.speedarray)))
 
 
             """

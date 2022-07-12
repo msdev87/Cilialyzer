@@ -127,6 +127,13 @@ class Cilialyzer():
                 self.PIL_ImgSeq.directory, refresh, self.roiplayer.roiseq,
                 self.PIL_ImgSeq.seqlength, self.roi, selectroi,
                 float(self.toolbar.fpscombo.get()), float(self.toolbar.pixsizecombo.get()))
+
+            try:
+                self.toolbar.ptrackplayer = self.ptrackplayer
+            except NameError:
+                pass
+
+
             self.ptrackplayer.animate()
 
         if (self.DynamicFiltering_flag):

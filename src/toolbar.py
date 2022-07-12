@@ -236,7 +236,6 @@ class Toolbar:
         self.fpscombo.grid(row=0,column=4,sticky='W')
         # --------------------------------------------------------------------- 
 
-
         # ---------------------------------------------------------------------
         # Add image Button 'load video' 
         self.loadvideo_icon = ImageTk.PhotoImage(
@@ -245,9 +244,6 @@ class Toolbar:
         self.loadvideoB = tk.Button(self.toolbarframe, height=25, width=30,
             borderwidth=0,command=self.read_video,image=self.loadvideo_icon)
         self.loadvideoB.grid(row=0, column=2, padx=7,pady=3,sticky='e')
-
-
-
 
         # ----------------------------------------------------------------------
         # Label and Entry Widget for setting the pixel size in [nm]                    
