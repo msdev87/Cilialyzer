@@ -7,6 +7,7 @@ import numpy
 import tkinter.ttk
 import math
 import bytescl
+
 if os.sys.version_info.major > 2:
     from tkinter.filedialog import askdirectory
     import tkinter as tk

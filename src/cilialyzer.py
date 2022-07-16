@@ -72,6 +72,8 @@ class Cilialyzer():
             pass
         """
 
+
+
     def switchtab(self, event):
         # if tab is pressed (and pressed tab != active tab) then take precautions...
 
@@ -502,45 +504,44 @@ class Cilialyzer():
         # *************** Configuration of the main window ********************
         # *********************************************************************
 
-        # Configure which tabs should be made available when launching the app  
+        # read 'feature_flags.txt' 
+        # -> defines which tabs should be made available when launching the app  
+        with open('feature_flags.txt') as f:
+            fflags = f.readlines()
+            fflags = [line.rstrip() for line in fflags]
+
+        for i in range(len(fflags)):
+            print(fflags[i])
 
         # Tab to view and preprocess the loaded image sequence
-        self.ROISelection_flag = True
+        self.ROISelection_flag = bool(int(fflags[0]))
 
         # Tab to generate the (ROI-based) power spectral density [PSD]
-        self.CBF_flag = True
+        self.CBF_flag = bool(int(fflags[1]))
 
         # Tab to generate the activity map (ROI-based, PSD-based)
-        self.ActivityMap_flag = True
+        self.ActivityMap_flag = bool(int(fflags[2]))
 
         # Tab to analyze single pixels
-        self.SinglePixelAnalysis_flag = False
+        self.SinglePixelAnalysis_flag = bool(int(fflags[3]))
 
-        self.MotionTracking_flag = False
+        self.MotionTracking_flag = bool(int(fflags[4]))
 
-        self.ParticleTracking_flag = True
+        self.ParticleTracking_flag = bool(int(fflags[5]))
 
-        self.DynamicFiltering_flag = True
+        self.DynamicFiltering_flag = bool(int(fflags[6]))
 
-        self.SpatioTemporalCorrelogram_flag = False
+        self.SpatioTemporalCorrelogram_flag = bool(int(fflags[7]))
 
-        self.kSpectrum_flag = False
+        self.kSpectrum_flag = bool(int(fflags[8]))
 
-        self.SpatialAcorr_flag = True
+        self.SpatialAcorr_flag = bool(int(fflags[9]))
 
-        self.TempAcorr_flag = True
+        self.TempAcorr_flag = bool(int(fflags[10]))
 
-        self.WindowedAnalysis_flag = True
-
-
+        self.WindowedAnalysis_flag = bool(int(fflags[11]))
 
         resize_flag = None  # indicates whether the user resized the main window
-
-        #self.flags = []
-        #self.flags.append(self.ROISelection_flag)
-        #self.flags.append(self.CBF_flag)
-        #self.flags.append(self.ActivityMap_flag)
-
 
         # *********************************************************************
 
@@ -893,9 +894,8 @@ class Cilialyzer():
             pixelchoiceframe = tk.Frame(pixeltab,width=int(round(0.5*screenw)),height=int(round(0.7*screenh)))
             pixelchoiceframe.place(in_=pixeltab, anchor='c', relx=0.25,rely=0.55)
         #**************************************************************************** #
-        
 
-        # ************************* Particle Tracking ************************ #
+        # ************************ Particle Tracking ************************ #
         if (self.ParticleTracking_flag):
             self.ptracktab = tk.Frame(self.nbook, width=int(round(0.6*self.nbookw)),
                 height=int(round(0.6*self.nbookh)))
@@ -906,26 +906,24 @@ class Cilialyzer():
             # top left -> 'controls'
             self.trackcframe = tk.Frame(self.ptracktab, takefocus=0)
             self.trackcframe.place(in_=self.ptracktab, anchor="c")
-        #**********************************************************************#
+        #*********************************************************************#
 
-
-        # ********************** Dynamic Filtering *************************** #
+        # ********************** Dynamic Filtering ************************** #
         if (self.DynamicFiltering_flag):
             self.dynseq = DynamicFilter.DynFilter()
             self.dynfiltertab = tk.Frame(self.nbook, width=int(round(0.75*self.nbookw)),
                 height=int(round(0.8*self.nbookh)))
-            self.nbook.add(self.dynfiltertab, text='  Dynamic Filtering  ')
-        #**********************************************************************#
+            self.nbook.add(self.dynfiltertab, text='  Dynamic filtering  ')
+        #*********************************************************************#
 
-
-        # ****************** Spatio-Temporal Correlation ********************* #
+        # ****************** Spatio-Temporal Correlation ******************** #
         if (self.SpatioTemporalCorrelogram_flag):
             self.correlationtab = tk.Frame(self.nbook, width=int(round(0.75*self.nbookw)), height=int(round(0.8*self.nbookh)))
-            self.nbook.add(self.correlationtab, text='  Space-time Corr  ')
+            self.nbook.add(self.correlationtab, text='  Space-time corr  ')
 
             self.corrB = tk.Button(self.correlationtab,text='Get Space-time Correlogram',command=self.st_corrgram, height=bh, width=bw)
             self.corrB.place(in_=self.correlationtab, anchor="c", relx=.5, rely=.05)
-        #**********************************************************************#
+        #*********************************************************************#
 
         # ******************** Windowed analysis tab **************************
         if (self.WindowedAnalysis_flag):
@@ -937,15 +935,14 @@ class Cilialyzer():
             self.winanalysisB.place(in_=self.winanalysistab, anchor="c", relx=0.5, rely=0.5)
         # *********************************************************************
 
-        #**********************************************************************#
-
+        #*********************************************************************#
         if (self.kSpectrum_flag):
             kspectab = tk.Frame(nbook,width=int(round(0.75*screenw)),\
             height=int(round(0.8*screenh)))
-            nbook.add(kspectab, text='kSpec') 
+            nbook.add(kspectab, text='kSpec')
 
             kplotframe = tk.Frame(kspectab,width=int(round(0.6*screenw)),height=int(round(0.6*screenh)))
-            kplotframe.place(in_=kspectab, anchor='c', relx=0.5,rely=0.5)  
+            kplotframe.place(in_=kspectab, anchor='c', relx=0.5,rely=0.5)
 
             kspecB = tk.Button(kspectab,text='k spectrum',command=kspec, height=bh, width=bw)
             kspecB.place(in_=kspectab, anchor="c", relx=.5, rely=.05)
@@ -956,13 +953,11 @@ class Cilialyzer():
             splitlinescale = tk.Scale(kspectab, from_=0, to=180, orient=tk.HORIZONTAL,length=400,\
             resolution=1.0,variable=splitangle,command=splitkspec)
             splitlinescale.place(in_=kspectab,anchor='c', relx=0.5,rely=0.9)
-        #**********************************************************************#
-        
+        #*********************************************************************#
 
-
-        # ******************************************************************** #
+        # ******************************************************************* #
         #                    Spatial autocorrelation tab
-        # *********************************************************************#
+        # ********************************************************************#
 
         if (self.SpatialAcorr_flag):
             self.mcorrtab = tk.Frame(self.nbook, width=int(round(0.9*self.nbookw)),

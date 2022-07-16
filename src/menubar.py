@@ -63,6 +63,9 @@ class Menubar:
         self.style.theme_use(self.selected_theme.get())
 
     def apply_settings(self):
+        """
+        Save current settings to file and restart the Cilialyer
+        """
         pass
         #self.parent.__init__()
         #self.cfg_win.destroy()
@@ -112,25 +115,21 @@ class Menubar:
                         variable=self.selected_theme, command=self.change_theme)
             rb.grid()
 
-
-        """
-        # add 'Available features'-tab    
+        # add 'Available features'-tab
         self.availfeat_tab = tk.Frame(self.cfg_win, width=430, height=540)
         self.cfg_nbook.add(self.availfeat_tab, text=' Select features ')
 
         #self.ParticleTracking_flag = tk.IntVar()
         # checkbuttons
-        self.ptrack_cb = tk.Checkbutton(self.availfeat_tab,\
-            text = "Particle tracking", variable = self.ParticleTracking_flag,\
-            onvalue = 1, offvalue = 0, height=2, width = 30)
-        self.ptrack_cb.place(in_=self.availfeat_tab, anchor="c", relx=.5, rely=.05)
+        #self.ptrack_cb = tk.Checkbutton(self.availfeat_tab,\
+        #    text = "Particle tracking", variable = self.ParticleTracking_flag,\
+        #    onvalue = 1, offvalue = 0, height=2, width = 30)
+        #self.ptrack_cb.place(in_=self.availfeat_tab, anchor="c", relx=.5, rely=.05)
 
         # 'Apply' button 
         self.applyB = tk.Button(self.availfeat_tab, text=' Apply ',
-            command=self.apply_settings, height=2, width=20)
+            command=self.apply_settings, height=1, width=15)
         self.applyB.place(in_=self.availfeat_tab, anchor="c", relx=.5, rely=.27)
-        """
-
 
 
     def __init__(self, parent):
