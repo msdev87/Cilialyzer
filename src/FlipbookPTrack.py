@@ -543,16 +543,25 @@ class ImgSeqPlayer(object):
         mean_textlabel.grid(row=0,column=0,padx=3,sticky='W')
 
         self.meanspeed = tk.StringVar()
-        self.meanspeed.set(str(0))
-        mean_label=tk.Label(self.msd_frame, text=self.meanspeed,\
+        self.meanspeed.set(0)
+        self.mean_label=tk.Label(self.msd_frame, textvariable=self.meanspeed,\
             anchor='e', font=("TkDefaultFont",10),width=22)
-        mean_label.grid(row=0,column=1,padx=3,sticky='W')
-
+        self.mean_label.grid(row=0,column=1,padx=3,sticky='W')
 
         # label for 'SD speed'
-        sd_label=tk.Label(self.msd_frame, text="SD speed [μm/s]: ",\
+        sd_textlabel=tk.Label(self.msd_frame, text="SD speed [μm/s]: ",\
             anchor='e', font=("TkDefaultFont",10),width=22)
-        sd_label.grid(row=1,column=0,padx=3,sticky='W')
+        sd_textlabel.grid(row=1,column=0,padx=3,sticky='W')
+
+        self.sdspeed = tk.StringVar()
+        self.sdspeed.set(0)
+
+        self.sdlabel = tk.Label(self.msd_frame, textvariable=self.sdspeed,\
+            anchor='e', font=("TkDefaultFont",10),width=22)
+        self.sdlabel.grid(row=1,column=1,padx=3,sticky='W')
+
+
+
         # *********************************************************************
 
         # get image size 
@@ -1176,13 +1185,14 @@ class ImgSeqPlayer(object):
             #for t in range(t0):
             #    # determine for all t < t0 -> x(t),y(t)  
 
-
             # now we can add trace_array to alltracesarray:
             self.alltracesarray.append(self.trace_array)
 
             # update mean particle speed, which gets displayed
             self.speedarray = numpy.array(self.pandadf['Speed [μm/s]'].tolist())
             self.meanspeed.set(str(float(numpy.mean(self.speedarray))))
+            self.sdspeed.set(str(float(numpy.std(self.speedarray))))
+            self.frame.update_idletasks() # update window
             #self.meanspeed.set("{:.1f}".format(numpy.mean(self.speedarray)))
 
 
@@ -1259,6 +1269,14 @@ class ImgSeqPlayer(object):
 
         # continue tracking
         self.continuetracking()
+
+        # correct mean speed
+        self.speedarray = numpy.array(self.pandadf['Speed [μm/s]'].tolist())
+        self.meanspeed.set(str(float(numpy.mean(self.speedarray[0:-1]))))
+        self.sdspeed.set(str(float(numpy.std(self.speedarray[0:-1]))))
+        self.frame.update_idletasks() # update window
+
+
 
     def continuetracking(self):
         #print("continuetracking")
