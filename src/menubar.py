@@ -131,7 +131,14 @@ class Menubar:
         f.write(str(self.pixelsize_list[4])+"\n")
         f.close()
 
-        self.cfg_win.destroy()
+        MsgBox = tk.messagebox.askquestion ('Restart required',
+            'A restart of the Cilialyzer is required for your changes to take effect. Restart Cilialyzer now?',icon = 'question')
+
+        if (MsgBox == 'yes'):
+            self.cfg_win.destroy()
+            os.execl(sys.executable, sys.executable, *sys.argv)
+        else:
+            self.cfg_win.destroy()
 
 
     def configure(self):
