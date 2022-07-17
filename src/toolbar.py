@@ -5,7 +5,7 @@ import FlipbookROI
 import os
 import pathlib
 import sys
-
+import os.path
 
 
 def sort_list(l):
@@ -230,7 +230,27 @@ class Toolbar:
             anchor='e', font=("TkDefaultFont",10),width=22)
         fps_label.grid(row=0,column=3,padx=5,sticky='W')
 
-        fps_list = [300,200,120,100,30]
+        # read fps_defaults.txt (if it exists)
+        if (os.path.exists('fps_defaults.txt')):
+            with open('fps_defaults.txt') as f:
+                fps_defaults = f.readlines()
+                fps_defaults = [line.rstrip() for line in fps_defaults]
+                fps_list = fps_defaults
+        else:
+            fps_list = []
+
+        if (len(fps_list) < 5):
+            fps_list = [300, 200, 120, 100, 30]
+            if (os.path.exists('fps_defaults.txt')):
+                os.remove('fps_defaults.txt')
+            f = open('fps_defaults.txt','a')
+            f.write(str(fps_list[0])+"\n")
+            f.write(str(fps_list[1])+"\n")
+            f.write(str(fps_list[2])+"\n")
+            f.write(str(fps_list[3])+"\n")
+            f.write(str(fps_list[4])+"\n")
+            f.close()
+
         self.fpscombo = tk.ttk.Combobox(self.toolbarframe,values=fps_list,width=5)
         self.fpscombo.current(0)
         self.fpscombo.grid(row=0,column=4,sticky='W')
@@ -245,14 +265,39 @@ class Toolbar:
             borderwidth=0,command=self.read_video,image=self.loadvideo_icon)
         self.loadvideoB.grid(row=0, column=2, padx=7,pady=3,sticky='e')
 
-        # ----------------------------------------------------------------------
-        # Label and Entry Widget for setting the pixel size in [nm]                    
+        # ---------------------------------------------------------------------
+        # Add Label and Entry Widget for setting the pixel size in [nm]  
+
         pixsize_label=tk.Label(self.toolbarframe,text="Pixelsize [nm] :",\
             width=22,anchor='e',font=("TkDefaultFont",10))
         pixsize_label.grid(row=0,column=5,sticky='W')
 
-        pixsize_list = [1779, 345, 173, 86, 4500,1]
-        self.pixsizecombo = tk.ttk.Combobox(self.toolbarframe,values=pixsize_list,width=5)
+        # read pixelsize_defaults.txt (if it exists)
+        if (os.path.exists('pixelsize_defaults.txt')):
+            with open('pixelsize_defaults.txt') as f:
+                pixelsize_defaults = f.readlines()
+                pixelsize_defaults = [line.rstrip() for line in pixelsize_defaults]
+                pixelsize_list = pixelsize_defaults
+        else:
+            pixelsize_list = []
+
+        if (len(pixelsize_list) < 5):
+            pixelsize_list = [1779, 345, 173, 86, 1000]
+
+            if (os.path.exists('pixelsize_defaults.txt')):
+                os.remove('pixelsize_defaults.txt')
+            f = open('pixelsize_defaults.txt','a')
+            f.write(str(pixelsize_list[0])+"\n")
+            f.write(str(pixelsize_list[1])+"\n")
+            f.write(str(pixelsize_list[2])+"\n")
+            f.write(str(pixelsize_list[3])+"\n")
+            f.write(str(pixelsize_list[4])+"\n")
+            f.close()
+
+        self.pixsizecombo = tk.ttk.Combobox(self.toolbarframe,values=pixelsize_list,width=5)
         self.pixsizecombo.grid(row=0,column=6,padx=5,sticky='W')
         self.pixsizecombo.current(0)
-        # ----------------------------------------------------------------------
+        # ---------------------------------------------------------------------
+
+
+

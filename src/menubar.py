@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+import os
+import sys
 
 class Menubar:
 
@@ -62,14 +64,75 @@ class Menubar:
     def change_theme(self):
         self.style.theme_use(self.selected_theme.get())
 
+
+    def write_flags(self):
+        os.remove('feature_flags.txt')
+        f = open('feature_flags.txt','a')
+        f.write(str(int(self.ROISelection_flag))+"\n")
+        f.write(str(int(self.CBF_flag))+"\n")
+        f.write(str(int(self.ActivityMap_flag))+"\n")
+        f.write(str(int(self.SinglePixelAnalysis_flag))+"\n")
+        f.write(str(int(self.MotionTracking_flag))+"\n")
+        f.write(str(int(self.ParticleTracking_flag))+"\n")
+        f.write(str(int(self.DynamicFiltering_flag))+"\n")
+        f.write(str(int(self.SpatioTemporalCorrelogram_flag))+"\n")
+        f.write(str(int(self.kSpectrum_flag))+"\n")
+        f.write(str(int(self.SpatialAcorr_flag))+"\n")
+        f.write(str(int(self.TempAcorr_flag))+"\n")
+        f.write(str(int(self.WindowedAnalysis_flag))+"\n")
+        f.close()
+
+
+    def change_ptrackflag(self):
+        if (self.ParticleTracking_flag):
+            self.ParticleTracking_flag = 0
+            self.ptrackB['text'] = ' + Particle tracking   '
+        else:
+            self.ParticleTracking_flag = 1
+            self.ptrackB['text'] = ' - Particle tracking   ' 
+
+
     def apply_settings(self):
         """
         Save current settings to file and restart the Cilialyer
         """
-        pass
+        self.write_flags()
         #self.parent.__init__()
         #self.cfg_win.destroy()
         #self.cfg_win.update()
+
+        os.execl(sys.executable, os.path.abspath(__file__))
+
+
+    def save_defaults(self):
+        # save new defaults fps values
+        self.fps_list[0] = int(self.entry_fps.get())
+
+        if (os.path.exists('fps_defaults.txt')):
+            os.remove('fps_defaults.txt')
+        f = open('fps_defaults.txt','a')
+        f.write(str(self.fps_list[0])+"\n")
+        f.write(str(self.fps_list[1])+"\n")
+        f.write(str(self.fps_list[2])+"\n")
+        f.write(str(self.fps_list[3])+"\n")
+        f.write(str(self.fps_list[4])+"\n")
+        f.close()
+
+        # save new default pixelsize values
+        self.pixelsize_list[0] = int(self.entry_pixelsize.get())
+
+        if (os.path.exists('pixelsize_defaults.txt')):
+            os.remove('pixelsize_defaults.txt')
+        f = open('pixelsize_defaults.txt','a')
+        f.write(str(self.pixelsize_list[0])+"\n")
+        f.write(str(self.pixelsize_list[1])+"\n")
+        f.write(str(self.pixelsize_list[2])+"\n")
+        f.write(str(self.pixelsize_list[3])+"\n")
+        f.write(str(self.pixelsize_list[4])+"\n")
+        f.close()
+
+        self.cfg_win.destroy()
+
 
     def configure(self):
         """
@@ -115,34 +178,125 @@ class Menubar:
                         variable=self.selected_theme, command=self.change_theme)
             rb.grid()
 
+        # ------------------- available features tab --------------------------
         # add 'Available features'-tab
         self.availfeat_tab = tk.Frame(self.cfg_win, width=430, height=540)
         self.cfg_nbook.add(self.availfeat_tab, text=' Select features ')
 
-        #self.ParticleTracking_flag = tk.IntVar()
-        # checkbuttons
-        #self.ptrack_cb = tk.Checkbutton(self.availfeat_tab,\
-        #    text = "Particle tracking", variable = self.ParticleTracking_flag,\
-        #    onvalue = 1, offvalue = 0, height=2, width = 30)
-        #self.ptrack_cb.place(in_=self.availfeat_tab, anchor="c", relx=.5, rely=.05)
+        # read feature flags
+        with open('feature_flags.txt') as f:
+            fflags = f.readlines()
+            fflags = [line.rstrip() for line in fflags]
+
+        self.ROISelection_flag = bool(int(fflags[0]))
+        self.CBF_flag = bool(int(fflags[1]))
+        self.ActivityMap_flag = bool(int(fflags[2]))
+        self.SinglePixelAnalysis_flag = bool(int(fflags[3]))
+        self.MotionTracking_flag = bool(int(fflags[4]))
+        self.ParticleTracking_flag = bool(int(fflags[5]))
+        self.DynamicFiltering_flag = bool(int(fflags[6]))
+        self.SpatioTemporalCorrelogram_flag = bool(int(fflags[7]))
+        self.kSpectrum_flag = bool(int(fflags[8]))
+        self.SpatialAcorr_flag = bool(int(fflags[9]))
+        self.TempAcorr_flag = bool(int(fflags[10]))
+        self.WindowedAnalysis_flag = bool(int(fflags[11]))
+
+        # ---------- Button to remove/add particle tracking flag --------------
+        if (self.ParticleTracking_flag):
+            self.ptrackB = tk.Button(self.availfeat_tab, text=' - Particle tracking   ', command=self.change_ptrackflag, height=2, width=15)
+        else:
+            self.ptrackB = tk.Button(self.availfeat_tab,\
+            text=' + Particle tracking   ', command=self.change_ptrackflag,
+            height=1, width=15)
+        self.ptrackB.place(in_=self.availfeat_tab, anchor='c', relx=.5,rely=.2)
 
         # 'Apply' button 
         self.applyB = tk.Button(self.availfeat_tab, text=' Apply ',
             command=self.apply_settings, height=1, width=15)
         self.applyB.place(in_=self.availfeat_tab, anchor="c", relx=.5, rely=.27)
 
+        # ------------------------ Defaults tab ----------------------------
+        # add Defaults tab
+        self.defaults_tab = tk.Frame(self.cfg_win, width=430, height=540)
+        self.cfg_nbook.add(self.defaults_tab, text=' Defaults ')
+
+        # read fps_defaults.txt (if it exists)
+        if (os.path.exists('fps_defaults.txt')):
+            with open('fps_defaults.txt') as f:
+                fps_defaults = f.readlines()
+                fps_defaults = [line.rstrip() for line in fps_defaults]
+                self.fps_list = fps_defaults
+        else:
+            self.fps_list = []
+
+        if (len(self.fps_list) < 5):
+            self.fps_list = [300, 200, 120, 100, 30]
+            if (os.path.exists('fps_defaults.txt')):
+                os.remove('fps_defaults.txt')
+            f = open('fps_defaults.txt','a')
+            f.write(str(self.fps_list[0])+"\n")
+            f.write(str(self.fps_list[1])+"\n")
+            f.write(str(self.fps_list[2])+"\n")
+            f.write(str(self.fps_list[3])+"\n")
+            f.write(str(self.fps_list[4])+"\n")
+            f.close()
+
+        fps_label=tk.Label(self.defaults_tab, text=" Default FPS :",
+            anchor='e', font=("TkDefaultFont",10), width=22)
+        fps_label.place(in_=self.defaults_tab, anchor="c", relx=.25, rely=.1)
+
+        # add entry widget (to set default fps)
+        self.entry_fps = tk.Entry(self.defaults_tab, width=10)
+        self.entry_fps.place(in_=self.defaults_tab, anchor="c", relx=.6, rely=.1)
+        # display current default
+        self.entry_fps.insert(0, str(self.fps_list[0]))
+
+        # ------------- add label and entry to set new pixelsize -------------- 
+
+        pixelsize_label=tk.Label(self.defaults_tab,\
+            text=" Default Pixelsize [nm] :", anchor='e', font=("TkDefaultFont",10), width=22)
+        pixelsize_label.place(in_=self.defaults_tab, anchor="c", relx=.25, rely=.2)
+
+        # read pixelsize_defaults.txt (if it exists)
+        if (os.path.exists('pixelsize_defaults.txt')):
+            with open('pixelsize_defaults.txt') as f:
+                pixelsize_defaults = f.readlines()
+                pixelsize_defaults = [line.rstrip() for line in pixelsize_defaults]
+                self.pixelsize_list = pixelsize_defaults
+        else:
+            self.pixelsize_list = []
+
+        if (len(self.pixelsize_list) < 5):
+            self.pixelsize_list = [1779, 345, 173, 86, 1000]
+
+            if (os.path.exists('pixelsize_defaults.txt')):
+                os.remove('pixelsize_defaults.txt')
+            f = open('pixelsize_defaults.txt','a')
+            f.write(str(self.pixelsize_list[0])+"\n")
+            f.write(str(self.pixelsize_list[1])+"\n")
+            f.write(str(self.pixelsize_list[2])+"\n")
+            f.write(str(self.pixelsize_list[3])+"\n")
+            f.write(str(self.pixelsize_list[4])+"\n")
+            f.close()
+
+        # add entry widget (to set default pixelsize)
+        self.entry_pixelsize = tk.Entry(self.defaults_tab, width=10)
+        self.entry_pixelsize.place(in_=self.defaults_tab, anchor="c", relx=.6, rely=.2)
+        # display current default
+        self.entry_pixelsize.insert(0, str(self.pixelsize_list[0]))
+
+
+        # 'Save & Exit' button 
+        self.save_defaultsB = tk.Button(self.defaults_tab, text=' Save & Exit ',
+            command=self.save_defaults, height=1, width=15)
+        self.save_defaultsB.place(in_=self.defaults_tab, anchor="c", relx=.5, rely=.7)
+
+
 
     def __init__(self, parent):
 
         self.parent = parent
         self.myfont = ("TkDefaultFont", 10)
-
-        """
-        if hasattr(self, 'self.ParticleTracking_flag'):
-            pass
-        else:
-            self.ParticleTracking_flag = tk.IntVar()
-        """
 
         # create the menubar of parent tk-window
         self.menubar = tk.Menu(self.parent, bg='gray30', fg='gray95', font=self.myfont)

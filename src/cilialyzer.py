@@ -509,9 +509,31 @@ class Cilialyzer():
         with open('feature_flags.txt') as f:
             fflags = f.readlines()
             fflags = [line.rstrip() for line in fflags]
+        f.close()
 
-        for i in range(len(fflags)):
-            print(fflags[i])
+        # in case there is no appropriate feature_flags file 
+        # -> create a default feature_flags file 
+        if (len(fflags) < 12):
+            os.remove('feature_flags.txt')
+            f = open('feature_flags.txt','a')
+            f.write(str(int(True))+"\n")
+            f.write(str(int(True))+"\n")
+            f.write(str(int(True))+"\n")
+            f.write(str(int(False))+"\n")
+            f.write(str(int(False))+"\n")
+            f.write(str(int(True))+"\n")
+            f.write(str(int(True))+"\n")
+            f.write(str(int(True))+"\n")
+            f.write(str(int(False))+"\n")
+            f.write(str(int(True))+"\n")
+            f.write(str(int(True))+"\n")
+            f.write(str(int(True))+"\n")
+            f.close()
+
+            with open('feature_flags.txt') as f:
+                fflags = f.readlines()
+                fflags = [line.rstrip() for line in fflags]
+            f.close()
 
         # Tab to view and preprocess the loaded image sequence
         self.ROISelection_flag = bool(int(fflags[0]))
@@ -814,8 +836,8 @@ class Cilialyzer():
         # ----------------------------------------------------------------------
 
 
-        #**********************************************************************#
-        #************************** activity map tab **************************#
+        #*********************************************************************#
+        #************************* activity map tab **************************#
 
         self.activitytab = tk.Frame(self.nbook, width=int(round(0.9*self.nbookw)),\
             height=int(round(0.95*self.nbookh)))
