@@ -7,7 +7,6 @@ import pathlib
 import sys
 import os.path
 
-
 def sort_list(l):
     """
     Mutates l, returns None.
