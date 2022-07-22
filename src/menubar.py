@@ -217,6 +217,7 @@ class Menubar:
             height=1, width=15)
         self.ptrackB.place(in_=self.availfeat_tab, anchor='c', relx=.5,rely=.2)
 
+
         # 'Apply' button 
         self.applyB = tk.Button(self.availfeat_tab, text=' Apply ',
             command=self.apply_settings, height=1, width=15)
@@ -297,7 +298,6 @@ class Menubar:
         self.save_defaultsB = tk.Button(self.defaults_tab, text=' Save & Exit ',
             command=self.save_defaults, height=1, width=15)
         self.save_defaultsB.place(in_=self.defaults_tab, anchor="c", relx=.5, rely=.7)
-
 
 
     def __init__(self, parent):

@@ -427,9 +427,6 @@ class Cilialyzer():
 
 
 
-
-
-
     def kspec():
         # calculate the spatial power spectral density
         global dynseq

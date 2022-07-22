@@ -14,7 +14,7 @@ def gaussian(x, y, mx, my, sx, sy, rho):
 
     A = 1.0 / (2 * math.pi * sx * sy * math.sqrt(1.0 - rho**2))
 
-    return A * np.exp((-0.5*(1-rho**2)) * ( ((x-mx)/sx)**2 - 2*rho*(x-mx)*(y-my)/(sx*sy) - ((y-my)/sy)**2) )
+    return A * np.exp((-0.5/(1-rho**2)) * ( ((x-mx)/sx)**2 - (2*rho*(x-mx)*(y-my))/(sx*sy) + ((y-my)/sy)**2) )
 
 def _gaussian(M, *args):
     x, y = M

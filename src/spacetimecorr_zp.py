@@ -47,10 +47,10 @@ def stcorr(array, maxtimeshift=10):
 
             # compute spatial cross-correlation and sum up over all time steps
             cc = crosscorrelation_zp.ccorr2D_zp(img1, img2)
-            print('**check norm of cc**')
-            print(numpy.max(cc))
+            #print('**check norm of cc**')
+            #print(numpy.max(cc))
             #sys.exit()
-            print('**************')
+            #print('**************')
 
             scc = scc + cc
 

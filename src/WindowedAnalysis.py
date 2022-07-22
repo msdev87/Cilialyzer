@@ -36,6 +36,8 @@ def analyse_windows(array_list):
 
     nrwins = len(array_list)
 
+    peaks_list = []
+
     for i in range(nrwins):
 
         # 'array' holds a single 'window' with indices t,i,j
@@ -50,9 +52,8 @@ def analyse_windows(array_list):
 
         # peak tracking
         n_timeshifts = len(stcorr)
-
-        peak_locs = numpy.zeros((n_timeshifts,2))
-        peak_heights = numpy.zeros(n_timeshifts)
+        peaks = numpy.zeros((n_timeshifts,3)) # holds position (x,y) & height of peak
+        peaks[:,:] = numpy.nan
 
         for dt in range(n_timeshifts):
 
@@ -61,32 +62,39 @@ def analyse_windows(array_list):
             # therefore, we select only those values, which are 
             # greater than 1/e from the cross-correlogram
 
-            print('--------------------------------------------------------------')
+            # print('--------------------------------------------------------')
 
-            print('max1 in stcorr: ', numpy.max(stcorr[dt]))
-            stcorr[dt] = numpy.subtract(stcorr[dt], 1./math.e)
-            NaN_inds = numpy.where(stcorr[dt] < 0)
-            stcorr[dt][NaN_inds] = 0. #float("NaN")
+            if ( numpy.max(numpy.subtract(stcorr[dt], 1./math.e)) > 0):
 
-            print('max2 in stcorr: ', numpy.max(stcorr[dt]))
+                # print('max1 in stcorr: ', numpy.max(stcorr[dt]))
+                stcorr[dt] = numpy.subtract(stcorr[dt], 1./math.e)
+                NaN_inds = numpy.where(stcorr[dt] < 0)
+                stcorr[dt][NaN_inds] = 0. #float("NaN")
 
-            sigma = numpy.zeros_like(stcorr[dt])
-            inds = numpy.where(stcorr[dt] > 0)
-            sigma[NaN_inds] = 1e6
-            sigma[inds] = 1.
+                #print('max2 in stcorr: ', numpy.max(stcorr[dt]))
 
+                sigma = numpy.zeros_like(stcorr[dt]) # weights for Gaussian fit 
+                inds = numpy.where(stcorr[dt] > 0)
+                sigma[NaN_inds] = 1e7
+                sigma[inds] = 1.
 
-            posx, posy, peakh = gaussian2Dfit.fit(stcorr[dt], sigma)
+                # get position (x,y) and height of peak 
+                posx, posy, peakh = gaussian2Dfit.fit(stcorr[dt], sigma)
 
-            #peak_locs[dt,:] = [posx,posy]
-            #peak_heights[dt] = peakheight
+                peaks[dt,0] = posx
+                peaks[dt,1] = posy
+                peaks[dt,2] = peakh
 
-            print('dt :', dt)
-            print(posx,posy,peakh)
-            print('--------------------------------------------------------------')
+                #peak_locs[dt,:] = [posx, posy]
+                #peak_heights[dt] = peakheight
 
+                #print('dt :', dt)
+                #print(posx,posy,peakh)
+                #print('----------------------------------------------------')
 
-    return (posx, posy, peakh)
+        peaks_list.append(peaks)
+
+    return peaks_list
 
 
 
@@ -113,7 +121,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
 
     (nt,ni,nj) = numpy.shape(array)
 
-    print('nt:',nt, '  ni:',ni,'  nj:',nj)
+    #print('nt:',nt, '  ni:',ni,'  nj:',nj)
 
     # we choose the size of the windows based on the spatial correlation length
     # i.e. each window measures: ( 2 x spatialcorrlength )**2
@@ -189,7 +197,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
     pool = multiprocessing.Pool(ncpus)
 
     # ncpus: number of processes we will start
-    # nwins_per_cpu: number of windows, which we analyze per cpu
+    # nwins_per_cpu (list): number of windows, which we analyze per cpu
     nwins_per_cpu = numpy.zeros(ncpus)
     nwins_per_cpu[:] = int(n_valid / ncpus)
     nwins_per_cpu[-1] = n_valid - ((ncpus-1)*int(n_valid / ncpus))
@@ -216,6 +224,50 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
     result = pool.map(analyse_windows,
         [valid_wins_ncpus[i] for i in range(ncpus)])
 
-    # test
-    #res = analyse_windows(valid_wins_ncpus[0])
+    # result holds a list
+    #print('---------------------------------------------------------------')
+    #print(result)
+
+    # result hodls a list of a list of arrays 
+    # the arrays contain "peaks" with columns: (x, y, height) 
+    # the rows correspond to the timeshift 
+
+    speeds = numpy.zeros(n_valid)
+
+    counter = 0
+    for i in range(len(result)):
+        # loop over cpus
+        peak_list = result[i]
+
+        for j in range(len(peak_list)):
+            # loop over windows
+            peak = peak_list[j]
+
+
+            print(peak)
+
+            deltax = peak[1,0] - peak[0,0]
+            deltay = peak[1,1] - peak[0,1]
+
+            #print('deltax: ',deltax)
+            #print('deltay: ',deltay)
+
+            # distance in pixels between delta_t = 0 and delta_t = 1 
+            dist = math.sqrt(deltax**2 + deltay**2)
+            print('dist: ', dist)
+
+
+            print('pixsize: ', pixsize)
+            print('fps: ',fps)
+
+            dist = dist * pixsize / 1000.0 # distance in micrometers
+
+            speeds[counter] = dist * float(fps)
+            counter += 1
+
+
+    print(' ------------------------------------------------------------')
+    print(speeds)
+
+
 
