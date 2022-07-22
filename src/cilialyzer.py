@@ -347,7 +347,7 @@ class Cilialyzer():
         busywin.destroy()
 
 
-    # --------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     def meanscorrgram(self):
         """
         Computes the mean spatial autocorrelation
@@ -362,7 +362,7 @@ class Cilialyzer():
             self.dynseq.mscorr(float(self.toolbar.fpscombo.get()), float(self.minscale.get()),
                 float(self.maxscale.get()), self.mscorrplotframe, self.mscorrprofileframe,
                 float(self.toolbar.pixsizecombo.get()))
-    # --------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
 
     # ------------------ space-time correlogram -------------------------------
     def st_corrgram(self):

@@ -153,6 +153,15 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
     # valid_wins: list of valid windows
     valid_wins = []
 
+    # win_centers holds tupels (x,y center coordinates of each valid window)
+    win_centers =[]
+
+    # win_meancbf holds the mean cbf within each window (based on activity map)
+    win_meancbf = []
+
+    # win_angle holds the direction of the wave propagation
+    win_angle = []
+
     for i in range(int(ni/winsize)):
         for j in range(int(nj/winsize)):
 
@@ -177,6 +186,12 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
 
                 # add windowed array to valid_wins:
                 valid_wins.append(array[:,i1:i2,j1:j2])
+
+                # save center location of valid window
+                win_centers.append((0.5*(j1+j2),0.5*(i1+i2)))
+
+                # save mean cbf within valid window
+                win_meancbf.append(mcbf_win)
 
             else:
                 mask[i,j] = False
@@ -252,6 +267,8 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
             #print('deltax: ',deltax)
             #print('deltay: ',deltay)
 
+            win_angle.append(numpy.arctan2(deltay, deltax)/math.pi*180)
+
             # distance in pixels between delta_t = 0 and delta_t = 1 
             dist = math.sqrt(deltax**2 + deltay**2)
             print('dist: ', dist)
@@ -268,6 +285,25 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
 
     print(' ------------------------------------------------------------')
     print(speeds)
+
+
+    # let us write all the interesting information on the disk
+
+    # write center location (pixel units!) of each valid window out:
+    numpy.savetxt('./WindowedAnalysis_Results/win_centers_xy.dat', win_centers)
+
+    # write window-specific mean cbf to file:
+    numpy.savetxt('./WindowedAnalysis_Results/win_meancbf.dat', win_meancbf)
+
+    # write wave speed to file
+    numpy.savetxt('./WindowedAnalysis_Results/win_wavespeed.dat', speeds)
+
+    # write propagation angle to file
+    numpy.savetxt('./WindowedAnalysis_Results/win_waveangle.dat', win_angle)
+
+
+
+
 
 
 
