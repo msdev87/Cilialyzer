@@ -484,11 +484,9 @@ class DynFilter:
         # FOR TEST write scorr out for tests 
         #numpy.savetxt('scorr.dat',scorr)
 
-
-
         # 'scorr' holds now the two-dimensional mean spatial autocorrelation
-		# based on which we determine the metachronal wavelength 
-		# according to Ryser et al. 2007 
+	# based on which we determine the metachronal wavelength 
+	# according to Ryser et al. 2007 
 
         # the metachronal wavelength is characterized by the distance between 
         # the two minima in the mean spatial autocorrelation
@@ -507,7 +505,7 @@ class DynFilter:
 
         can = FigureCanvasTkAgg(fig, self.tkframe)
 
-		# only the center of scorr is interesting
+	# only the center of scorr is interesting
         # xs = round(nrows/2)-round(nrows/8)
         # xe = round(nrows/2)+round(nrows/8)
         # ys = round(ncols/2)-round(ncols/8)
@@ -518,12 +516,6 @@ class DynFilter:
         # ymin, ymax = -0.125*nrows*pixsize*0.001,0.125*nrows*pixsize*0.001
         # la1= ax.imshow(scorr[xs:xe,ys:ye],alpha=1.0,cmap='bwr',interpolation='none',
         # extent=[xmin,xmax,ymin,ymax])
-
-
-
-
-
-
 
 
         # 2D colormap of scorr
@@ -566,7 +558,7 @@ class DynFilter:
         # get the profile along the line, which is given by the connection 
         # of the maximum and minimum coordinates
 
-		# calculate the 2D distance matrix 'distmat' (in pixels)        
+	# calculate the 2D distance matrix 'distmat' (in pixels)        
         distmat = numpy.zeros(scorr.shape)
 
         for y in range(scorr.shape[0]):
@@ -662,7 +654,7 @@ class DynFilter:
         wavelength = wavelength_pix * pixsize * 0.001
 
         ax.plot([distmat_profile[0],distmat_profile[-1]],[0,0], color='black',linewidth=2.0)
- 
+
 
         ax.plot(distmat_profile,scorr_profile,linewidth=3,color='darkorange')
         ax.set_ylim([-0.6,1.05])

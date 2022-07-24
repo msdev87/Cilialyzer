@@ -72,8 +72,6 @@ class Cilialyzer():
             pass
         """
 
-
-
     def switchtab(self, event):
         # if tab is pressed (and pressed tab != active tab) then take precautions...
 

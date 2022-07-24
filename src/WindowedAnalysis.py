@@ -9,6 +9,8 @@ from scipy.optimize import curve_fit
 import multiprocessing
 import spacetimecorr_zp
 import gaussian2Dfit
+import windowed_wavelength
+
 
 """
 class WinAnalysis:
@@ -126,7 +128,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
     # we choose the size of the windows based on the spatial correlation length
     # i.e. each window measures: ( 2 x spatialcorrlength )**2
 
-    winsize = int(2*sclength / pixsize * 1000) # side length of a window (in pixels)
+    winsize = int(2.*sclength / pixsize * 1000) # side length of a window (in pixels)
 
     print('winsize (in pixels): ', winsize)
 
@@ -181,7 +183,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
             # check if the CBF-spread within the window is smaller than 
             # 65% of the total CBF-spread: 
 
-            if (spread_win < 0.65*spread_total):
+            if (spread_win < 0.8*spread_total):
                 mask[i,j] = True
 
                 # add windowed array to valid_wins:
@@ -302,8 +304,11 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
     numpy.savetxt('./WindowedAnalysis_Results/win_waveangle.dat', win_angle)
 
 
+    # get wavelengths within each valid window
+    wavelengths = numpy.zeros(n_valid)
 
-
-
+    for w in range(len(valid_wins)):
+        window = valid_wins[w]
+        wavelengts[w] = windowed_wavelength.get_wavelength(window)
 
 

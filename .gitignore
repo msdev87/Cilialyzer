@@ -10,4 +10,3 @@
 *.dat 
 .idea/*
 ./src/WindowedAnalysis_Results/*
-./src/WindowedAnalysis_Results
