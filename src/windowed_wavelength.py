@@ -1,14 +1,15 @@
 import numpy
+import math
 
-def get_wavelength(array):
+def get_wavelength(array, pixsize):
     # input: dynamically filtered sequence of images (window)
     # return: wavelength
 
     # input array indices: array[time, row, column]
 
     nimgs = len(array[:,0,0])
-    firstimg = array[:,0,0]
-    width, height = firstimg.size
+    firstimg = array[0,:,:]
+    width, height = firstimg.shape
 
     # corr: spatial correlogram 
     corr = numpy.zeros((height,width))
@@ -55,6 +56,14 @@ def get_wavelength(array):
 
     nrows = len(scorr[:,0]) # number of rows
     ncols = len(scorr[0,:]) # number of columns
+
+
+    # get the location of the extrema in scorr (in pixel coordinates) 
+    maxy, maxx = numpy.unravel_index(numpy.argmax(scorr,axis=None),scorr.shape)
+    miny, minx = numpy.unravel_index(numpy.argmin(scorr,axis=None),scorr.shape)
+
+
+
 
     # calculate the 2D distance matrix 'distmat' (in pixels)        
     distmat = numpy.zeros(scorr.shape)

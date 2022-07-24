@@ -309,6 +309,10 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
 
     for w in range(len(valid_wins)):
         window = valid_wins[w]
-        wavelengts[w] = windowed_wavelength.get_wavelength(window)
+        wavelengths[w] = windowed_wavelength.get_wavelength(window,pixsize)
+
+    numpy.savetxt('./WindowedAnalysis_Results/win_wavelength.dat', wavelengths)
+
+
 
 
