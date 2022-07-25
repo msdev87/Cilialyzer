@@ -183,7 +183,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
             # check if the CBF-spread within the window is smaller than 
             # 65% of the total CBF-spread: 
 
-            if (spread_win < 0.8*spread_total):
+            if (spread_win < 0.666*spread_total):
                 mask[i,j] = True
 
                 # add windowed array to valid_wins:
