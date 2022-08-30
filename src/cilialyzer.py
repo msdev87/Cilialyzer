@@ -417,13 +417,11 @@ class Cilialyzer():
         pixelsize = float(self.toolbar.pixsizecombo.get())
         fps = float(self.toolbar.fpscombo.get())
 
-        WindowedAnalysis.prepare_windows(self.dynseq.dyn_roiseq,
-            self.activity_map.freqmap, sclength, pixelsize, fps)
+        WindowedAnalysis.prepare_windows(
+            self.dynseq.dyn_roiseq, self.activity_map.freqmap, sclength,
+            pixelsize, fps, self.winresults)
 
     # -------------------------------------------------------------------------
-
-
-
 
     def kspec():
         # calculate the spatial power spectral density
@@ -950,6 +948,10 @@ class Cilialyzer():
             self.winanalysisB = tk.Button(self.winanalysistab,
                 text='Analyze ROIs', command=self.winanalysis, height=bh, width=bw)
             self.winanalysisB.place(in_=self.winanalysistab, anchor="c", relx=0.5, rely=0.5)
+
+            # add results frame
+            self.winresults = WindowedAnalysis.results(self.winanalysistab)
+
         # *********************************************************************
 
         #*********************************************************************#

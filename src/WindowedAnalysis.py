@@ -10,6 +10,8 @@ import multiprocessing
 import spacetimecorr_zp
 import gaussian2Dfit
 import windowed_wavelength
+import tkinter as tk
+#import termplotlib as tpl
 
 
 """
@@ -100,7 +102,7 @@ def analyse_windows(array_list):
 
 
 
-def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
+def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     """
     Analyzes each window separately
 
@@ -128,7 +130,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
     # we choose the size of the windows based on the spatial correlation length
     # i.e. each window measures: ( 2 x spatialcorrlength )**2
 
-    winsize = int(2.*sclength / pixsize * 1000) # side length of a window (in pixels)
+    winsize = int(3*sclength / pixsize * 1000) # side length of a window (in pixels)
 
     print('winsize (in pixels): ', winsize)
 
@@ -149,8 +151,13 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
     # get the standard deviation of the cbf based on the activity map:
     scbf_total = numpy.nanstd(activitymap)
 
+
+    # scaled activitymap (mean = 0, stddev = 1) 
+    activity_scaled = numpy.subtract(activitymap, mcbf_total)
+    activity_scaled = activity_scaled / scbf_total
+
     # use the ratio of the stddev to the mean cbf as a measure for spread:
-    spread_total = scbf_total / mcbf_total
+    spread_total = scbf_total #/ mcbf_total
 
     # valid_wins: list of valid windows
     valid_wins = []
@@ -162,7 +169,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
     win_meancbf = []
 
     # win_angle holds the direction of the wave propagation
-    win_angle = []
+    # win_angle = []
 
     for i in range(int(ni/winsize)):
         for j in range(int(nj/winsize)):
@@ -178,12 +185,26 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
             mcbf_win = numpy.nanmean(activitymap[i1:i2,j1:j2])
             scbf_win = numpy.nanstd(activitymap[i1:i2,j1:j2])
 
-            spread_win = scbf_win / mcbf_win
+            #spread_win = scbf_win / mcbf_win
+
+            #spread_win = numpy.nanstd(activity_scaled[i1:i2,j1:j2])
+    
+            #print('spread_win: ', spread_win)
 
             # check if the CBF-spread within the window is smaller than 
             # 65% of the total CBF-spread: 
 
-            if (spread_win < 0.666*spread_total):
+            print('10th percentile in window: ', numpy.nanpercentile(activity_scaled[i1:i2,j1:j2],10))
+
+            percentile1 = numpy.nanpercentile(activity_scaled[i1:i2,j1:j2], 10)
+            percentile2 = numpy.nanpercentile(activity_scaled[i1:i2,j1:j2], 90)
+
+            spread_win = percentile2 - percentile1
+
+            print('spread_win: ', spread_win)
+
+
+            if (spread_win < 2.0): #*spread_total):
                 mask[i,j] = True
 
                 # add windowed array to valid_wins:
@@ -245,11 +266,13 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
     #print('---------------------------------------------------------------')
     #print(result)
 
-    # result hodls a list of a list of arrays 
+    # result holds a list of a list of arrays 
     # the arrays contain "peaks" with columns: (x, y, height) 
     # the rows correspond to the timeshift 
 
     speeds = numpy.zeros(n_valid)
+    cctimes = numpy.zeros(n_valid)
+    wave_directions = numpy.zeros(n_valid)
 
     counter = 0
     for i in range(len(result)):
@@ -260,21 +283,40 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
             # loop over windows
             peak = peak_list[j]
 
+            
+            # -----------------------------------------------------------------
+            # examine how peak shifts with increasing time delay
+            # plot distance vs. time delay
+            shifted_dists = []
+            c = 0
+            while (~numpy.isnan(peak[c+1,0])):
+                dx = peak[c+1,0] - peak[c,0]
+                dy = peak[c+1,1] - peak[c,1]
+                ds = math.sqrt(dx**2 + dy**2)
+                shifted_dists.append(ds)
+                c = c+1
 
+            print(shifted_dists)
+            # -----------------------------------------------------------------
+            
+
+
+            print(' -------------------- peak start -------------------------')
             print(peak)
-
+            print(' --------------------- peak end --------------------------')
             deltax = peak[1,0] - peak[0,0]
             deltay = peak[1,1] - peak[0,1]
+
 
             #print('deltax: ',deltax)
             #print('deltay: ',deltay)
 
-            win_angle.append(numpy.arctan2(deltay, deltax)/math.pi*180)
+            wave_directions[counter] = numpy.arctan2(deltay, deltax)
+
 
             # distance in pixels between delta_t = 0 and delta_t = 1 
             dist = math.sqrt(deltax**2 + deltay**2)
             print('dist: ', dist)
-
 
             print('pixsize: ', pixsize)
             print('fps: ',fps)
@@ -282,10 +324,19 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
             dist = dist * pixsize / 1000.0 # distance in micrometers
 
             speeds[counter] = dist * float(fps)
+
+            # determine cross-correlation time
+            # first occurence in first column in peak determines cctime
+            bla = numpy.argwhere(numpy.isnan(peak[:,0]))
+            if (len(bla) > 0):
+                cctimes[counter] = min(bla)[0]
+            else:
+                cctimes[counter] = len(peak[:,0])
+
             counter += 1
 
-
     print(' ------------------------------------------------------------')
+    print('speeds')
     print(speeds)
 
 
@@ -301,8 +352,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
     numpy.savetxt('./WindowedAnalysis_Results/win_wavespeed.dat', speeds)
 
     # write propagation angle to file
-    numpy.savetxt('./WindowedAnalysis_Results/win_waveangle.dat', win_angle)
-
+    # numpy.savetxt('./WindowedAnalysis_Results/win_waveangle.dat', win_angle)
 
     # get wavelengths within each valid window
     wavelengths = numpy.zeros(n_valid)
@@ -312,6 +362,137 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps):
         wavelengths[w] = windowed_wavelength.get_wavelength(window,pixsize)
 
     numpy.savetxt('./WindowedAnalysis_Results/win_wavelength.dat', wavelengths)
+
+
+    # -------------------------------------------------------------------------
+    # print the most important observable values on the tkiner notebook tab
+    # -------------------------------------------------------------------------
+
+
+    # ----------------------- average wave speed ------------------------------
+    n_speeds = numpy.count_nonzero(~numpy.isnan(speeds))
+
+    avg_speed = 0.
+    for i in range(n_speeds):
+        avg_speed += speeds[i]
+    avg_speed = avg_speed / float(n_speeds)
+
+    # display average wave speed:
+    winresults.mean_wspeed.set(round(avg_speed,2))
+    # -------------------------------------------------------------------------
+
+
+    # ------------------------- SD of wave speed ------------------------------
+    sd_wave_speed = numpy.nanstd(speeds)
+
+    # display standard deviation of the wave speed:
+    winresults.sd_wspeed.set(round(sd_wave_speed,2))
+    # -------------------------------------------------------------------------
+
+
+    # --------------------- average cross-correlation time --------------------
+    winresults.cctime.set(round(1000*numpy.average(cctimes) / float(fps),0))
+    # -------------------------------------------------------------------------
+
+
+    # ---------------------------- wave disorder ------------------------------
+    # consider each wave propagation direction as a vector of length 1 
+    # get the length of the average vector R 
+    # 1-R finally represents the wave disorder
+    print('------------------ wave directions -------------------- ')
+    print(wave_directions / math.pi * 180)
+
+    avg_sin = numpy.average(numpy.sin(wave_directions))
+    avg_cos = numpy.average(numpy.cos(wave_directions))
+    winresults.wdisorder.set( round((1 - math.sqrt(avg_sin**2 + avg_cos**2)),2))
+    # -------------------------------------------------------------------------
+
+
+class results:
+
+    def __init__(self, parent):
+
+        self.parent_tktab = parent
+
+        # ------- preparing the frames to display the mean wave speed ---------
+
+        # text label displaying "Mean wave speed" 
+        self.mean_wspeed_label = tk.Label(self.parent_tktab,
+            text="Mean wave speed [μm/s]: ", anchor='e',
+            font=("TkDefaultFont",12),width=30)
+        self.mean_wspeed_label.place(in_=self.parent_tktab,
+            anchor="c", relx=0.35, rely=0.7)
+
+        # label to display the numeric value of the mean wave speed: 
+        self.mean_wspeed = tk.StringVar()
+        self.mean_wspeed.set(0)
+        self.mean_wspeed_display = tk.Label(self.parent_tktab,
+            textvariable=self.mean_wspeed, anchor='w',
+            font=("TkDefaultFont",12), width=10)
+        self.mean_wspeed_display.place(in_=self.parent_tktab, anchor="c",
+                relx=0.65, rely=0.7)
+
+
+        # ----- preparing the frames to display the SD of the wave speed ------
+
+        # text label displaying "SD wave speed" 
+        self.sd_wspeed_label = tk.Label(self.parent_tktab,
+            text="SD wave speed [μm/s]: ", anchor='e',
+            font=("TkDefaultFont",12), width=30)
+        self.sd_wspeed_label.place(in_=self.parent_tktab,
+            anchor="c", relx=0.35, rely=0.75)
+
+        # label to display the numeric value of the mean wave speed:
+        self.sd_wspeed = tk.StringVar()
+        self.sd_wspeed.set(0)
+        self.sd_wspeed_display = tk.Label(self.parent_tktab,
+            textvariable=self.sd_wspeed, anchor='w',
+            font=("TkDefaultFont",12), width=10)
+        self.sd_wspeed_display.place(in_=self.parent_tktab, anchor="c",
+                relx=0.65, rely=0.75)
+
+        # ---- preparing the frames to display the avg cross-corr time -------
+
+        # text label displaying the "average cross-corr time" 
+        self.cctime_label = tk.Label(self.parent_tktab,
+            text="Average cross-correlation time [ms]: ", anchor='e',
+            font=("TkDefaultFont",12), width=30)
+        self.cctime_label.place(in_=self.parent_tktab,
+            anchor="c", relx=0.35, rely=0.8)
+
+        # label to display the numeric value of the average cctime 
+        self.cctime = tk.StringVar()
+        self.cctime.set(0)
+        self.cctime_display = tk.Label(self.parent_tktab,
+            textvariable=self.cctime, anchor='w',
+            font=("TkDefaultFont",12), width=10)
+        self.cctime_display.place(in_=self.parent_tktab, anchor="c",
+                relx=0.65, rely=0.8)
+
+        # ------ preparing the frames to display the "wave disorder" ---------
+
+        # text label displaying the "wave disorder" 
+        self.wdisorder_label = tk.Label(self.parent_tktab,
+            text="Wave disorder: ", anchor='e',
+            font=("TkDefaultFont",12), width=30)
+        self.wdisorder_label.place(in_=self.parent_tktab,
+            anchor="c", relx=0.35, rely=0.85)
+
+        # label to display the numeric value of the wave disorder 
+        self.wdisorder = tk.StringVar()
+        self.wdisorder.set(0)
+        self.wdisorder_display = tk.Label(self.parent_tktab,
+            textvariable=self.wdisorder, anchor='w',
+            font=("TkDefaultFont",12), width=10)
+        self.wdisorder_display.place(in_=self.parent_tktab, anchor="c",
+                relx=0.65, rely=0.85)
+
+
+
+
+
+
+
 
 
 

@@ -167,68 +167,12 @@ class Menubar:
         self.cfg_nbook = tk.ttk.Notebook(self.cfg_win, width=440, height=550)
         self.cfg_nbook.grid(row=0,column=0,padx=4,pady=4)
 
-        # add 'themes' tab 
-        self.themestab = tk.Frame(self.cfg_nbook,width=430,height=540)
-        self.cfg_nbook.add(self.themestab, text=' Theme ')
-
-        self.style = ttk.Style(self.parent)
-        # get available themes
-        self.themes = self.style.theme_names()
-        self.current_theme = self.style.theme_use()
-
-        # create radiobutton to switch between themes 
-
-        self.selected_theme = tk.StringVar()
-
-        for theme in self.themes:
-            rb = ttk.Radiobutton(self.themestab, text=theme, value=theme,
-                        variable=self.selected_theme, command=self.change_theme)
-            rb.grid()
-
-        # ------------------- available features tab --------------------------
-        # add 'Available features'-tab
-        self.availfeat_tab = tk.Frame(self.cfg_win, width=430, height=540)
-        self.cfg_nbook.add(self.availfeat_tab, text=' Select features ')
-
-        # read feature flags
-        with open('feature_flags.txt') as f:
-            fflags = f.readlines()
-            fflags = [line.rstrip() for line in fflags]
-
-        self.ROISelection_flag = bool(int(fflags[0]))
-        self.CBF_flag = bool(int(fflags[1]))
-        self.ActivityMap_flag = bool(int(fflags[2]))
-        self.SinglePixelAnalysis_flag = bool(int(fflags[3]))
-        self.MotionTracking_flag = bool(int(fflags[4]))
-        self.ParticleTracking_flag = bool(int(fflags[5]))
-        self.DynamicFiltering_flag = bool(int(fflags[6]))
-        self.SpatioTemporalCorrelogram_flag = bool(int(fflags[7]))
-        self.kSpectrum_flag = bool(int(fflags[8]))
-        self.SpatialAcorr_flag = bool(int(fflags[9]))
-        self.TempAcorr_flag = bool(int(fflags[10]))
-        self.WindowedAnalysis_flag = bool(int(fflags[11]))
-
-        # ---------- Button to remove/add particle tracking flag --------------
-        if (self.ParticleTracking_flag):
-            self.ptrackB = tk.Button(self.availfeat_tab, text=' - Particle tracking   ', command=self.change_ptrackflag, height=2, width=15)
-        else:
-            self.ptrackB = tk.Button(self.availfeat_tab,\
-            text=' + Particle tracking   ', command=self.change_ptrackflag,
-            height=1, width=15)
-        self.ptrackB.place(in_=self.availfeat_tab, anchor='c', relx=.5,rely=.2)
-
-
-        # 'Apply' button 
-        self.applyB = tk.Button(self.availfeat_tab, text=' Apply ',
-            command=self.apply_settings, height=1, width=15)
-        self.applyB.place(in_=self.availfeat_tab, anchor="c", relx=.5, rely=.27)
-
         # ------------------------ Defaults tab ----------------------------
         # add Defaults tab
         self.defaults_tab = tk.Frame(self.cfg_win, width=430, height=540)
-        self.cfg_nbook.add(self.defaults_tab, text=' Defaults ')
+        self.cfg_nbook.add(self.defaults_tab, text=' Default FPS ')
 
-        # read fps_defaults.txt (if it exists)
+        # read file fps_defaults.txt (if it exists)
         if (os.path.exists('fps_defaults.txt')):
             with open('fps_defaults.txt') as f:
                 fps_defaults = f.readlines()
@@ -298,6 +242,68 @@ class Menubar:
         self.save_defaultsB = tk.Button(self.defaults_tab, text=' Save & Exit ',
             command=self.save_defaults, height=1, width=15)
         self.save_defaultsB.place(in_=self.defaults_tab, anchor="c", relx=.5, rely=.7)
+
+
+
+
+        # -------------------- Theme tab --------------------------------------
+        # add 'themes' tab 
+        self.themestab = tk.Frame(self.cfg_nbook,width=430,height=540)
+        self.cfg_nbook.add(self.themestab, text=' Theme ')
+
+        self.style = ttk.Style(self.parent)
+        # get available themes
+        self.themes = self.style.theme_names()
+        self.current_theme = self.style.theme_use()
+
+        # create radiobutton to switch between themes 
+
+        self.selected_theme = tk.StringVar()
+
+        for theme in self.themes:
+            rb = ttk.Radiobutton(self.themestab, text=theme, value=theme,
+                        variable=self.selected_theme, command=self.change_theme)
+            rb.grid()
+
+        # ------------------- available features tab --------------------------
+        # add 'Available features'-tab
+        self.availfeat_tab = tk.Frame(self.cfg_win, width=430, height=540)
+        self.cfg_nbook.add(self.availfeat_tab, text=' Select features ')
+
+        # read feature flags
+        with open('feature_flags.txt') as f:
+            fflags = f.readlines()
+            fflags = [line.rstrip() for line in fflags]
+
+        self.ROISelection_flag = bool(int(fflags[0]))
+        self.CBF_flag = bool(int(fflags[1]))
+        self.ActivityMap_flag = bool(int(fflags[2]))
+        self.SinglePixelAnalysis_flag = bool(int(fflags[3]))
+        self.MotionTracking_flag = bool(int(fflags[4]))
+        self.ParticleTracking_flag = bool(int(fflags[5]))
+        self.DynamicFiltering_flag = bool(int(fflags[6]))
+        self.SpatioTemporalCorrelogram_flag = bool(int(fflags[7]))
+        self.kSpectrum_flag = bool(int(fflags[8]))
+        self.SpatialAcorr_flag = bool(int(fflags[9]))
+        self.TempAcorr_flag = bool(int(fflags[10]))
+        self.WindowedAnalysis_flag = bool(int(fflags[11]))
+
+        # ---------- Button to remove/add particle tracking flag --------------
+        if (self.ParticleTracking_flag):
+            self.ptrackB = tk.Button(self.availfeat_tab, text=' - Particle tracking   ', command=self.change_ptrackflag, height=2, width=15)
+        else:
+            self.ptrackB = tk.Button(self.availfeat_tab,\
+            text=' + Particle tracking   ', command=self.change_ptrackflag,
+            height=1, width=15)
+        self.ptrackB.place(in_=self.availfeat_tab, anchor='c', relx=.5,rely=.2)
+
+
+        # 'Apply' button 
+        self.applyB = tk.Button(self.availfeat_tab, text=' Apply ',
+            command=self.apply_settings, height=1, width=15)
+        self.applyB.place(in_=self.availfeat_tab, anchor="c", relx=.5, rely=.27)
+
+
 
 
     def __init__(self, parent):

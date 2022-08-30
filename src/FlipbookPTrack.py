@@ -530,7 +530,7 @@ class ImgSeqPlayer(object):
         pandastable.config.apply_options(options, self.resultstable)
         self.resultstable.show()
 
-        # **********************************************************************
+        # *********************************************************************
         # display mean and SD of measured speed
         self.msd_frame = tk.LabelFrame(self.frame, takefocus=1,
             text='Mean & SD', labelanchor='n', borderwidth=4, padx=2, pady=2,
