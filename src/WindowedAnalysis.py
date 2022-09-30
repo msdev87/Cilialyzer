@@ -128,9 +128,9 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     #print('nt:',nt, '  ni:',ni,'  nj:',nj)
 
     # we choose the size of the windows based on the spatial correlation length
-    # i.e. each window measures: ( 2 x spatialcorrlength )**2
+    # i.e. each window measures: ( 3 x spatialcorrlength )**2
 
-    winsize = int(3*sclength / pixsize * 1000) # side length of a window (in pixels)
+    winsize = int(3.0*sclength / pixsize * 1000) # side length of a window (in pixels)
 
     print('winsize (in pixels): ', winsize)
 
@@ -287,19 +287,16 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             # -----------------------------------------------------------------
             # examine how peak shifts with increasing time delay
             # plot distance vs. time delay
-            shifted_dists = []
-            c = 0
-            while (~numpy.isnan(peak[c+1,0])):
-                dx = peak[c+1,0] - peak[c,0]
-                dy = peak[c+1,1] - peak[c,1]
-                ds = math.sqrt(dx**2 + dy**2)
-                shifted_dists.append(ds)
-                c = c+1
-
-            print(shifted_dists)
+            # shifted_dists = []
+            # c = 0
+            # while (~numpy.isnan(peak[c+1,0])):
+            #    dx = peak[c+1,0] - peak[c,0]
+            #    dy = peak[c+1,1] - peak[c,1]
+            #    ds = math.sqrt(dx**2 + dy**2)
+            #    shifted_dists.append(ds)
+            #    c = c+1
+            # print(shifted_dists)
             # -----------------------------------------------------------------
-            
-
 
             print(' -------------------- peak start -------------------------')
             print(peak)
@@ -307,12 +304,10 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             deltax = peak[1,0] - peak[0,0]
             deltay = peak[1,1] - peak[0,1]
 
-
             #print('deltax: ',deltax)
             #print('deltay: ',deltay)
 
             wave_directions[counter] = numpy.arctan2(deltay, deltax)
-
 
             # distance in pixels between delta_t = 0 and delta_t = 1 
             dist = math.sqrt(deltax**2 + deltay**2)
@@ -331,7 +326,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             if (len(bla) > 0):
                 cctimes[counter] = min(bla)[0]
             else:
-                cctimes[counter] = len(peak[:,0])
+                cctimes[counter] = len(peak[:,0]) - 1
 
             counter += 1
 
@@ -352,7 +347,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     numpy.savetxt('./WindowedAnalysis_Results/win_wavespeed.dat', speeds)
 
     # write propagation angle to file
-    # numpy.savetxt('./WindowedAnalysis_Results/win_waveangle.dat', win_angle)
+    numpy.savetxt('./WindowedAnalysis_Results/win_waveangle.dat', wave_directions) 
 
     # get wavelengths within each valid window
     wavelengths = numpy.zeros(n_valid)
@@ -362,6 +357,14 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
         wavelengths[w] = windowed_wavelength.get_wavelength(window,pixsize)
 
     numpy.savetxt('./WindowedAnalysis_Results/win_wavelength.dat', wavelengths)
+
+    print('---------------------- wavelengths -------------------------------')
+    print(wavelengths)
+    print('------------------------------------------------------------------')
+
+
+
+    print('average wavelength: ', numpy.average(wavelengths))
 
 
     # -------------------------------------------------------------------------

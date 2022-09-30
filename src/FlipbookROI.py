@@ -825,14 +825,14 @@ class ImgSeqPlayer(object):
 
         self.refreshing = 1
         self.frame.destroy()
-        self.selectroi = 0
+        self.selectroi = 1
         self.__init__(self.master, self.directory,self.refreshing,self.roiseq,self.seqlength,self.roiobj,self.selectroi)
         self.stop = 0
         self.refreshing = 0 # as refreshing ends here                   
         self.animate()
- 
 
-        #pass
+
+
 
 
 

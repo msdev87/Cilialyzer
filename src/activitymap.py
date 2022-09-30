@@ -106,7 +106,7 @@ class activitymap:
                 # (condition for invalidity: A_xy / A_bar < 0.15)  
 
                 # threshold in Ryser was set to 0.15 
-                threshold = 0.05
+                threshold = 0.10
 
                 A_xy = numpy.sum(self.spec[bot:top+1])
 

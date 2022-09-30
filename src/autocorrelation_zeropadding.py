@@ -84,15 +84,15 @@ def acorr2D_zp(signal, mask=None):
     # along the width and the height
     ni, nj = signal.shape
 
-    #print('******************************************************************')
+    #print('*****************************************************************')
     #print('ni1: ',ni,'nj1: ',nj)
-    #print('******************************************************************')
+    #print('*****************************************************************')
 
     # if mask is None (default), we assume that all pixels in signal are valid: 
     if mask is None:
         mask = numpy.ones_like(signal)
 
-    # make sure there are no nan-values:
+    # make sure there are no nan-values (missing numbers are set to zero)
     for i in range(ni):
         for j in range(nj):
             if (not mask[i,j]):
