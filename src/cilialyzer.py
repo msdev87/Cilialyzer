@@ -504,6 +504,7 @@ class Cilialyzer():
             fflags = [line.rstrip() for line in fflags]
         f.close()
 
+        # ---------------------------------------------------------------------
         # in case there is no appropriate feature_flags file 
         # -> create a default feature_flags file 
         if (len(fflags) < 12):
@@ -527,6 +528,8 @@ class Cilialyzer():
                 fflags = f.readlines()
                 fflags = [line.rstrip() for line in fflags]
             f.close()
+        # ---------------------------------------------------------------------
+
 
         # Tab to view and preprocess the loaded image sequence
         self.ROISelection_flag = bool(int(fflags[0]))
