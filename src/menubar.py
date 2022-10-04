@@ -82,22 +82,45 @@ class Menubar:
         f.write(str(int(self.WindowedAnalysis_flag))+"\n")
         f.close()
 
-
     def change_ptrackflag(self):
         if (self.ParticleTracking_flag):
             self.ParticleTracking_flag = 0
-            self.ptrackB['text'] = ' + Particle tracking   '
+            self.ptrackB['text'] = ' - Particle tracking   '
         else:
             self.ParticleTracking_flag = 1
-            self.ptrackB['text'] = ' - Particle tracking   '
+            self.ptrackB['text'] = ' + Particle tracking   '
 
+    def change_tacorrflag(self):
+        if (self.TempAcorr_flag):
+            self.TempAcorr_flag = 0
+            self.tacorrB['text'] = ' - Temporal autocorrelation   '
+        else:
+            self.TempAcorr_flag = 1
+            self.tacorrB['text'] = ' + Temporal autocorrelation   '
 
+    def change_dfflag(self):
+        if (self.DynamicFiltering_flag):
+            self.DynamicFiltering_flag = 0
+            self.dfB['text'] = ' - Dynamic filtering   '
+        else:
+            self.DynamicFiltering_flag = 1
+            self.dfB['text'] = ' + Dynamic filtering   '
 
+    def change_sacorrflag(self):
+        if (self.SpatialAcorr_flag):
+            self.SpatialAcorr_flag = 0
+            self.sacorrB['text'] = ' - Spatial autocorrelation   '
+        else:
+            self.SpatialAcorr_flag = 1
+            self.sacorrB['text'] = ' + Spatial autocorrelation   '
 
-
-
-
-
+    def change_waflag(self):
+        if (self.WindowedAnalysis_flag):
+            self.WindowedAnalysis_flag = 0
+            self.waB['text'] = ' - Windowed analysis   '
+        else:
+            self.WindowedAnalysis_flag = 1
+            self.waB['text'] = ' + Windowed analysis   '
 
 
     def apply_settings(self):
@@ -105,11 +128,16 @@ class Menubar:
         Save current settings to file and restart the Cilialyer
         """
         self.write_flags()
-        #self.parent.__init__()
-        #self.cfg_win.destroy()
-        #self.cfg_win.update()
 
-        os.execl(sys.executable, os.path.abspath(__file__))
+        MsgBox = tk.messagebox.askquestion ('Restart required',
+        'A restart of Cilialyzer is required for your changes to take effect. Restart Cilialyzer now?',icon = 'question')
+
+        if (MsgBox == 'yes'):
+            self.cfg_win.destroy()
+            os.execl(sys.executable, sys.executable, *sys.argv)
+        else:
+            self.cfg_win.destroy()
+
 
     def save_defaults(self):
         # save new defaults fps values
@@ -263,7 +291,7 @@ class Menubar:
         self.entry_fps4.insert(0, str(self.fps_list[4]))
 
         # 'Save & Exit' button 
-        self.save_defaultsB = tk.Button(self.FPSdefaults_tab, text=' Save & Exit ',
+        self.save_defaultsB = tk.Button(self.FPSdefaults_tab, text=' Apply ',
             command=self.save_defaults, height=1, width=15)
         self.save_defaultsB.place(in_=self.FPSdefaults_tab, anchor="c", relx=.5, rely=.7)
 
@@ -334,7 +362,7 @@ class Menubar:
         self.entry_pixelsize4.insert(0, str(self.pixelsize_list[4]))
 
         # 'Save & Exit' button 
-        self.save_defaultpsB = tk.Button(self.psdefaults_tab, text=' Save & Exit ',
+        self.save_defaultpsB = tk.Button(self.psdefaults_tab, text=' Apply ',
             command=self.save_defaults, height=1, width=15)
         self.save_defaultpsB.place(in_=self.psdefaults_tab, anchor="c", relx=.5, rely=.7)
         # ---------------------------------------------------------------------
@@ -362,21 +390,65 @@ class Menubar:
         self.TempAcorr_flag = bool(int(fflags[10]))
         self.WindowedAnalysis_flag = bool(int(fflags[11]))
 
-        # ---------- Button to remove/add particle tracking flag --------------
+        # ---------- Button to remove/add particle tracking tab ---------------
         if (self.ParticleTracking_flag):
-            self.ptrackB = tk.Button(self.availfeat_tab, text=' - Particle tracking   ', command=self.change_ptrackflag, height=2, width=15)
+            self.ptrackB = tk.Button(self.availfeat_tab,
+                text=' + Particle tracking   ',
+                command=self.change_ptrackflag, height=1, width=20)
         else:
             self.ptrackB = tk.Button(self.availfeat_tab,\
-            text=' + Particle tracking   ', command=self.change_ptrackflag,
-            height=1, width=15)
+            text=' - Particle tracking   ', command=self.change_ptrackflag,
+            height=1, width=20)
         self.ptrackB.place(in_=self.availfeat_tab, anchor='c', relx=.5,rely=.2)
-
-
-        # 'Apply' button 
+        # ---------------------------------------------------------------------
+        # --------- Button to remove/add TempAcorr tab ----------------------- 
+        if (self.TempAcorr_flag):
+            self.tacorrB = tk.Button(self.availfeat_tab,
+                text=' + Temporal autocorrelation   ',
+                command=self.change_tacorrflag, height=1, width=20)
+        else:
+            self.tacorrB = tk.Button(self.availfeat_tab,\
+                text=' - Temporal autocorrelation   ',\
+                command=self.change_tacorrflag, height=1, width=20)
+        self.tacorrB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.3)
+        # ---------------------------------------------------------------------
+        # ------- Button to remove/add Dyn. filtering tab ---------------------  
+        if (self.DynamicFiltering_flag):
+            self.dfB = tk.Button(self.availfeat_tab, text=' + Dynamic filtering   ',
+            command=self.change_dfflag, height=1, width=20)
+        else:
+            self.dfB = tk.Button(self.availfeat_tab,\
+                text=' - Dynamic filtering   ',\
+                command=self.change_dfflag, height=1, width=20)
+        self.dfB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.4)
+        # ---------------------------------------------------------------------
+        # --------------- Button to remove/add spatial acorr tab --------------
+        if (self.SpatialAcorr_flag):
+            self.sacorrB = tk.Button(self.availfeat_tab,
+                text=' + Spatial autocorrelogram   ',
+                command=self.change_sacorrflag, height=1, width=20)
+        else:
+            self.sacorrB = tk.Button(self.availfeat_tab,\
+                text=' - Spatial autocorrelogram   ',\
+                command=self.change_sacorrflag, height=1, width=20)
+        self.sacorrB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.5)
+        # ---------------------------------------------------------------------
+        # ------------- Button to remove/add windowed analysis ----------------
+        if (self.WindowedAnalysis_flag):
+            self.waB = tk.Button(self.availfeat_tab,
+                text=' + Windowed analysis   ',
+                command=self.change_waflag, height=1, width=20)
+        else:
+            self.waB = tk.Button(self.availfeat_tab,\
+                text=' - Windowed analysis   ',\
+                command=self.change_waflag, height=1, width=20)
+        self.waB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.6)
+        # ---------------------------------------------------------------------
+        # ------------------------- 'Apply' button ----------------------------
         self.applyB = tk.Button(self.availfeat_tab, text=' Apply ',
-            command=self.apply_settings, height=1, width=15)
-        self.applyB.place(in_=self.availfeat_tab, anchor="c", relx=.5, rely=.27)
-
+            command=self.apply_settings, height=1, width=20)
+        self.applyB.place(in_=self.availfeat_tab, anchor="c", relx=.5, rely=.85)
+        # ---------------------------------------------------------------------
 
 
 

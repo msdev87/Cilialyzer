@@ -291,8 +291,6 @@ class Cilialyzer():
         tl.update()
         busywin.update()
 
-
-
         sr = StackReg(StackReg.RIGID_BODY)
 
         firstimg = self.roiplayer.roiseq[0]  # first image of roi sequence
@@ -499,16 +497,25 @@ class Cilialyzer():
 
         # read 'feature_flags.txt' 
         # -> defines which tabs should be made available when launching the app  
-        with open('feature_flags.txt') as f:
-            fflags = f.readlines()
-            fflags = [line.rstrip() for line in fflags]
-        f.close()
+
+        fflags=[]
+
+        try:
+            with open('feature_flags.txt') as f:
+                fflags = f.readlines()
+                fflags = [line.rstrip() for line in fflags]
+            f.close()
+        except:
+            pass
 
         # ---------------------------------------------------------------------
         # in case there is no appropriate feature_flags file 
         # -> create a default feature_flags file 
         if (len(fflags) < 12):
-            os.remove('feature_flags.txt')
+            try:
+                os.remove('feature_flags.txt')
+            except:
+                pass
             f = open('feature_flags.txt','a')
             f.write(str(int(True))+"\n")
             f.write(str(int(True))+"\n")
@@ -516,12 +523,12 @@ class Cilialyzer():
             f.write(str(int(False))+"\n")
             f.write(str(int(False))+"\n")
             f.write(str(int(True))+"\n")
-            f.write(str(int(True))+"\n")
-            f.write(str(int(True))+"\n")
             f.write(str(int(False))+"\n")
-            f.write(str(int(True))+"\n")
-            f.write(str(int(True))+"\n")
-            f.write(str(int(True))+"\n")
+            f.write(str(int(False))+"\n")
+            f.write(str(int(False))+"\n")
+            f.write(str(int(False))+"\n")
+            f.write(str(int(False))+"\n")
+            f.write(str(int(False))+"\n")
             f.close()
 
             with open('feature_flags.txt') as f:
