@@ -6,7 +6,10 @@
    <a href="./publications.html" style="font-size:25px;font-weight:600;" >Publications</a> 
 </div> 
 
-Coming soon...
+Martin Schneiter, Stefan A. Tschanz, Loretta Müller, Martin Frenz, 2022, 
+"The Cilialyzer -- a freely available open-source software
+for a standardised identification of impaired mucociliary
+activity facilitating the diagnostic testing for PCD", preprint
 
-<embed src="https://msdev87.github.io/Cilialyzer_manuscript.pdf" type="application/pdf" />
 
+<a href="Cilialyzer_manuscript.pdf">Get PDF</a>
