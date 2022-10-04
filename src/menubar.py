@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 import os
 import sys
+import webbrowser
+
 
 class Menubar:
 
@@ -23,8 +25,8 @@ class Menubar:
         sw = self.about_window.winfo_screenwidth()
         sh = self.about_window.winfo_screenheight()
 
-        win_width = 600
-        win_height = 450
+        win_width = 500
+        win_height = 500
 
         posx = int(0.5*sw - 0.5*win_width)
         posy = int(0.5*sh - 0.5*win_height)
@@ -33,18 +35,30 @@ class Menubar:
             win_width, win_height, posx, posy))
         self.about_window.update()
 
+        # display logo in about window
+
+
+
         # text in about window
-        self.textbox = tk.Text(self.about_window, height=5, width=400)
+        self.textbox = tk.Text(self.about_window, height=10, width=win_width-20)
 
         text = """
-        The Cilialyzer software is an easy-to-use, open source application
-        mainly intended for the clinical  assessment of the effectivity of the
-        mucociliary clearance mechanism inferred from recordings taken by
-        high-speed video microscopy
-        """
 
+        Cilialyzer is a freely available, easy-to-use open-source application 
+        specifically designed to support and improve the analysis
+        of digital recordings showing the mucociliary activity
+        of respiratory epithelial cells captured by high-speed video microscopy.
+
+
+        Cilialyzer is distributed under the terms of the MIT license.
+
+        """
         self.textbox.pack()
         self.textbox.insert(tk.END, text)
+
+    def launch_website(self):
+        webbrowser.open('https://msdev87.github.io/Cilialyzer')
+
 
 
     def link_tutorials(self):
@@ -510,9 +524,11 @@ class Menubar:
         # create 'Help'-tab 
         self.mhelp = tk.Menu(self.menubar)
 
-        self.mhelp.add_command(label='Documentation', command=self.open_doc)
-        self.mhelp.add_command(label='Watch tutorial videos',
-                               command=self.link_tutorials)
+        #self.mhelp.add_command(label='Documentation', command=self.open_doc)
+        #self.mhelp.add_command(label='Watch tutorial videos',
+        #                       command=self.link_tutorials)
+        self.mhelp.add_command(label='Launch Cilialyzer website',
+                command=self.launch_website)
         self.mhelp.add_command(label='About',
                                command=self.about_info, font=self.myfont)
 
