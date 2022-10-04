@@ -7,3 +7,6 @@
 </div> 
 
 Coming soon...
+
+<embed src="https://msdev87.github.io/Cilialyzer_manuscript.pdf" type="application/pdf" />
+
