@@ -20,8 +20,11 @@ import multiprocessing
 import sys
 import spacetimecorr_zp
 import WindowedAnalysis
+import OpticalFlow
 #import cv2
 import avoid_troubles
+import PIL
+
 
 class Cilialyzer():
 
@@ -370,7 +373,31 @@ class Cilialyzer():
             #dynseq.spatiotempcorr(float(toolbar_object.fpscombo.get()), float(minscale.get()),
             #                      float(maxscale.get()))
 
-        self.dynseq.corr_roiseq=spacetimecorr_zp.stcorr(self.dynseq.dyn_roiseq)
+
+        firstimg = self.dynseq.dyn_roiseq[0] # first image of roi sequence  
+        width, height = firstimg.size # dimension of images 
+        nimgs = len(self.dynseq.dyn_roiseq) # number of images  
+
+        # create numpy array 'array' 
+        array = numpy.zeros((int(nimgs),int(height),int(width)))
+        for i in range(nimgs):
+            array[i,:,:] = numpy.array(self.dynseq.dyn_roiseq[i])
+        (nt,ni,nj) = numpy.shape(array)
+
+
+        array=spacetimecorr_zp.stcorr(array)
+
+        print('------- nimgs: ', nimgs)
+        print(type(array))
+
+
+        # create PIL sequence from numpy array!
+        for i in range(len(array)):
+            arr = (array[i]+1.0)*127.0
+            self.dynseq.corr_roiseq.append(PIL.Image.fromarray(numpy.uint8(arr)))
+            print(numpy.max(arr))
+            print(numpy.min(arr))
+
 
 
         """
@@ -385,6 +412,7 @@ class Cilialyzer():
         # replay the space-time correlogram:
 
         refresh = 0
+
         self.corrplayer = FlipbookROI.ImgSeqPlayer(self.correlationtab, '', 0, self.dynseq.corr_roiseq, len(self.dynseq.corr_roiseq), self.roi, 1)
 
         #Flipbook.ImgSeqPlayer(self.correlationtab, self.PIL_ImgSeq.directory,
@@ -420,6 +448,25 @@ class Cilialyzer():
             pixelsize, fps, self.winresults)
 
     # -------------------------------------------------------------------------
+
+    # --------------------- computation of the optical flow field -------------
+    def compute_opticalflow(self):
+        """
+        compute the optical flow by local correlations
+        """
+
+        OpticalFlow.get_opticalflow(self.dynseq.dyn_roiseq,
+            float(self.toolbar.pixsizecombo.get()),
+            fps = float(self.toolbar.fpscombo.get()))
+
+
+
+
+
+    # -------------------------------------------------------------------------
+
+
+
 
     def kspec():
         # calculate the spatial power spectral density
@@ -565,6 +612,8 @@ class Cilialyzer():
         self.TempAcorr_flag = bool(int(fflags[10]))
 
         self.WindowedAnalysis_flag = bool(int(fflags[11]))
+
+        self.opticalflow_flag = 1
 
         resize_flag = None  # indicates whether the user resized the main window
 
@@ -798,11 +847,11 @@ class Cilialyzer():
         self.maxfreq.set(15)
 
         # minscale and maxscale represent the sliders for the bandwidth selection
-        self.minscale = tk.Scale(self.cbftab, from_=0.3, to=50,
+        self.minscale = tk.Scale(self.cbftab, from_=0.3, to=150,
                              orient=tk.HORIZONTAL, length=400,
                              resolution=0.2, variable=self.minfreq, command=self.peakselector)
         self.minscale.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.8)
-        self.maxscale = tk.Scale(self.cbftab, from_=0.7, to=50,
+        self.maxscale = tk.Scale(self.cbftab, from_=0.7, to=150,
                              orient=tk.HORIZONTAL, length=400,
                              resolution=0.2, variable=self.maxfreq, command=self.peakselector)
         self.maxscale.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.85)
@@ -1008,6 +1057,38 @@ class Cilialyzer():
             self.mscorrprofileframe.place(in_=self.mcorrtab, anchor='c', relx=0.75, rely=0.5)
 
         # ----------------------------------------------------------------------
+
+        # *********************************************************************
+        # optical flow tab
+        # *********************************************************************
+        if (self.opticalflow_flag):
+
+            self.opticalflowtab = tk.Frame(self.nbook, width=int(round(0.9*self.nbookw)),
+                height=int(round(0.95*self.nbookh)))
+            self.nbook.add(self.opticalflowtab, text=' Optical flow ')
+
+            self.opticalflowB = tk.Button(self.opticalflowtab,
+                text='Compute optical flow', command=self.compute_opticalflow, height=bh, width=bw)
+            self.opticalflowB.place(in_=self.opticalflowtab, anchor="c", relx=0.5, rely=0.5)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         # each time the application's window size gets changed -> call 'resize'
         # self.main_window.bind( "<Configure>", self.resize)

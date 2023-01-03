@@ -106,7 +106,7 @@ class activitymap:
                 # (condition for invalidity: A_xy / A_bar < 0.15)  
 
                 # threshold in Ryser was set to 0.15 
-                threshold = 0.10
+                threshold = 0.2
 
                 A_xy = numpy.sum(self.spec[bot:top+1])
 
@@ -164,6 +164,7 @@ class activitymap:
         self.fig.colorbar(bla1,cax=cax,label='Frequency [Hz]')
 
         # write activity map to file:
+        print('shape of activitymap: ', self.freqmap.shape)
         numpy.savetxt('activitymap.dat', self.freqmap)
 
 
@@ -187,25 +188,31 @@ class activitymap:
 
         ssd = numpy.nanstd(arr)
 
+        """
         str1 = "CBF_SSD = "
         str2 = "$%.2f$" %ssd
         str3 = " Hz"
         xpos = 0.8
         ypos = 0.8
         self.ax1.text(xpos,ypos,str1+str2+str3,fontsize=10)
+        """
+
 
         # display also the size of the 'active area'
 
         activearea = numpy.sum(self.validity_mask) * (self.pixsize / 1000.0)**2
         activearea = activearea / 1000.0 / 1000.0 # convert to square millim.
 
-
+        """
         str1 = "Active area = "
         str2 = "$%.2f$" %activearea
         str3 = " mm$^2$"
         xpos = 0
         ypos = 0.8 * ymax
         self.ax1.text(xpos,ypos,str1+str2+str3,fontsize=10)
+        """
+
+
 
 
         # plots should not overlap

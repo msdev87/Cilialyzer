@@ -12,7 +12,7 @@ import gaussian2Dfit
 import windowed_wavelength
 import tkinter as tk
 #import termplotlib as tpl
-
+import crosscorrelation_zp
 
 """
 class WinAnalysis:
@@ -204,7 +204,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             print('spread_win: ', spread_win)
 
 
-            if (spread_win < 2.0): #*spread_total):
+            if (spread_win < 3): #*spread_total):
                 mask[i,j] = True
 
                 # add windowed array to valid_wins:
