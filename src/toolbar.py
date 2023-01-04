@@ -6,6 +6,9 @@ import os
 import pathlib
 import sys
 import os.path
+import numpy
+import cv2
+
 
 def sort_list(l):
     """
@@ -169,6 +172,7 @@ class Toolbar:
 
     def read_video(self):
 
+        """"
         try:
             self.PIL_ImgSeq.video_to_sequence(self.fpscombo.get())
             self.PIL_ImgSeq.load_imgs()
@@ -187,8 +191,24 @@ class Toolbar:
             self.roiplayer.animate()
 
         except:
-            # in case ffmpeg is not installed 
+            # in case ffmpeg is not installed --> use opencv2 
             pass
+
+        """
+        self.PIL_ImgSeq.load_video(self.fpscombo.get())
+
+        avoid_troubles.clear_main(self.player,self.roiplayer,self.ptrackplayer)
+
+        self.nbook.select(self.nbook.index(self.roitab))
+        refresh = 0
+        selectroi = 1
+
+        self.roiplayer.__init__(self.roitab,self.PIL_ImgSeq.directory,refresh,
+        self.PIL_ImgSeq.sequence,self.PIL_ImgSeq.seqlength,self.roi,selectroi)
+
+        # make sure that the rotationangle is set to 0:
+        self.roiplayer.rotationangle = 0.0
+        self.roiplayer.animate()
 
 
     def __init__(self, parent, player, roiplayer, ptrackplayer, PIL_ImgSeq,

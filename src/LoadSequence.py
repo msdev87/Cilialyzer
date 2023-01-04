@@ -1,7 +1,7 @@
 import os,io
 import numpy
 import sys
-
+import cv2
 from PIL import ImageFilter
 
 if os.sys.version_info.major > 2:
@@ -285,7 +285,12 @@ class ImageSequence:
         subprocess.call(['ffmpeg', '-i', self.videofile, '-r', fps, self.videofile.split(".")[0]+'/frame-%04d.png'])
 
 
+
+
     def video_to_sequence(self, fps):
+        """
+        ffmpeg gets used to convert the selected video to a sequence
+        """
 
         try:
             # read file
@@ -360,6 +365,63 @@ class ImageSequence:
 
         except:
             tkinter.messagebox.showinfo("warning","Please check your ffmpeg installation!")
+
+
+
+    def load_video(self, fps):
+        """
+        Convert the selected video (avi, mpeg, ...) to an image sequence
+        """
+
+        # try to set 'initdir' to the most recently selected directory
+        try:
+            f=open('previous_directory.dat','r')
+            initdir=f.read()
+        except:
+            initdir=os.getcwd()
+
+        # self.videofile holds the path to the selected video 
+        self.videofile = askopenfilename(title="Select Video",\
+            initialdir=initdir)
+
+        f = open('previous_directory.dat','w')
+        f.write(os.path.split(self.videofile)[0])
+	# writes choosen directory (value of 'directory') into file 'f' 
+        f.close()
+
+        cap = cv2.VideoCapture(self.videofile)
+        nframes = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fwidth = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        fheight = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+        self.width = fwidth
+        self.height = fheight
+
+        nparray = numpy.zeros((int(nframes), int(fheight), int(fwidth), 3), dtype=float)
+
+        fc = 0
+        ret = True
+
+        while ((fc < nframes) and ret):
+            ret, nparray[fc] = cap.read()
+            fc += 1
+
+        cap.release()
+
+
+        # reset image sequence before loading a newly choosen sequence 
+        if (len(self.sequence) != 0):
+            self.sequence = []
+
+        # average over RGB and convert the monochromatic frames to PIL sequence
+        for i in range(nframes):
+            frame = (nparray[i,:,:,0] + nparray[i,:,:,1] + nparray[i,:,:,2])/3.0
+            self.sequence.append(Image.fromarray(numpy.uint8(frame)))
+
+        # self.sequence holds now the image sequence 
+
+
+
 
 
 
