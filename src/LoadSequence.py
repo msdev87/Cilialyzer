@@ -370,7 +370,7 @@ class ImageSequence:
 
     def load_video(self, fps):
         """
-        Convert the selected video (avi, mpeg, ...) to an image sequence
+        Convert the selected video (avi, mpeg, ...) to a PIL image sequence
         """
 
         # try to set 'initdir' to the most recently selected directory
@@ -389,11 +389,35 @@ class ImageSequence:
 	# writes choosen directory (value of 'directory') into file 'f' 
         f.close()
 
+
+        # ---------------------------------------------------------------------
+        # indicate busy status
+        # ---------------------------------------------------------------------
+        busywin = tkinter.Toplevel()
+        busywin.minsize(width=500,height=20)
+        busywin.title("Operation in progress")
+        # get the monitor dimensions:
+        screenw = busywin.winfo_screenwidth()
+        screenh = busywin.winfo_screenheight()
+        # place the busy indicator in the center of the screen 
+        placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
+        busywin.geometry(placement)
+        # add text label
+        tl=tkinter.Label(busywin,\
+        text=' Please wait, the video is being loaded... ', font="TkDefaultFont 11")
+        tl.grid(row=0,column=0,pady=5)
+        busywin.columnconfigure(0, weight=1)
+        busywin.rowconfigure(0, weight=1)
+        tl.update()
+        busywin.update()
+        # ---------------------------------------------------------------------
+
         cap = cv2.VideoCapture(self.videofile)
         nframes = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         fwidth = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         fheight = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
+        self.seqlength = nframes
         self.width = fwidth
         self.height = fheight
 
@@ -408,7 +432,6 @@ class ImageSequence:
 
         cap.release()
 
-
         # reset image sequence before loading a newly choosen sequence 
         if (len(self.sequence) != 0):
             self.sequence = []
@@ -419,6 +442,9 @@ class ImageSequence:
             self.sequence.append(Image.fromarray(numpy.uint8(frame)))
 
         # self.sequence holds now the image sequence 
+
+        # destroy busywin as soon as video has been loaded
+        busywin.destroy()
 
 
 

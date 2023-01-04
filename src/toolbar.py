@@ -171,8 +171,17 @@ class Toolbar:
         self.roiplayer.animate()
 
     def read_video(self):
+        """
+        This function loads videos in most common video formats (without ffmpeg)
+        """
 
         """"
+        #######################################################################
+        # ---------------------------------------------------------------------
+        # The following lines are obsolete
+        # The code has been rewritten so that videos can also be read without
+        # the help of ffmpeg
+        # ---------------------------------------------------------------------
         try:
             self.PIL_ImgSeq.video_to_sequence(self.fpscombo.get())
             self.PIL_ImgSeq.load_imgs()
@@ -191,12 +200,16 @@ class Toolbar:
             self.roiplayer.animate()
 
         except:
-            # in case ffmpeg is not installed --> use opencv2 
+            # in case ffmpeg is not installed --> use opencv2
             pass
-
+        #######################################################################
         """
+
+        avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
+
         self.PIL_ImgSeq.load_video(self.fpscombo.get())
 
+        # display video
         avoid_troubles.clear_main(self.player,self.roiplayer,self.ptrackplayer)
 
         self.nbook.select(self.nbook.index(self.roitab))
@@ -209,6 +222,11 @@ class Toolbar:
         # make sure that the rotationangle is set to 0:
         self.roiplayer.rotationangle = 0.0
         self.roiplayer.animate()
+
+
+
+
+
 
 
     def __init__(self, parent, player, roiplayer, ptrackplayer, PIL_ImgSeq,
