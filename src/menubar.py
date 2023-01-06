@@ -94,6 +94,7 @@ class Menubar:
         f.write(str(int(self.SpatialAcorr_flag))+"\n")
         f.write(str(int(self.TempAcorr_flag))+"\n")
         f.write(str(int(self.WindowedAnalysis_flag))+"\n")
+        f.write(str(int(self.opticalflow_flag))+"\n")
         f.close()
 
     def change_ptrackflag(self):
@@ -127,6 +128,24 @@ class Menubar:
         else:
             self.SpatialAcorr_flag = 1
             self.sacorrB['text'] = ' + Spatial autocorrelation   '
+
+    def change_stcorrflag(self):
+        if (self.SpatioTemporalCorrelogram_flag):
+            self.SpatioTemporalCorrelogram_flag = 0
+            self.stcorrB['text'] = ' - Space-time correlation   '
+        else:
+            self.SpatioTemporalCorrelogram_flag = 1
+            self.stcorrB['text'] = ' + Space-time correlation   '
+
+    def change_offlag(self):
+        if (self.opticalflow_flag):
+            self.opticalflow_flag = 0
+            self.ofB['text'] = ' - Optical flow   '
+        else:
+            self.opticalflow_flag = 1
+            self.ofB['text'] = ' + Optical flow   '
+
+
 
     def change_waflag(self):
         if (self.WindowedAnalysis_flag):
@@ -403,6 +422,7 @@ class Menubar:
         self.SpatialAcorr_flag = bool(int(fflags[9]))
         self.TempAcorr_flag = bool(int(fflags[10]))
         self.WindowedAnalysis_flag = bool(int(fflags[11]))
+        self.opticalflow_flag = bool(int(fflags[12]))
 
         # ---------- Button to remove/add particle tracking tab ---------------
         if (self.ParticleTracking_flag):
@@ -413,7 +433,7 @@ class Menubar:
             self.ptrackB = tk.Button(self.availfeat_tab,\
             text=' - Particle tracking   ', command=self.change_ptrackflag,
             height=1, width=20)
-        self.ptrackB.place(in_=self.availfeat_tab, anchor='c', relx=.5,rely=.2)
+        self.ptrackB.place(in_=self.availfeat_tab, anchor='c', relx=.5,rely=.07)
         # ---------------------------------------------------------------------
         # --------- Button to remove/add TempAcorr tab ----------------------- 
         if (self.TempAcorr_flag):
@@ -424,7 +444,7 @@ class Menubar:
             self.tacorrB = tk.Button(self.availfeat_tab,\
                 text=' - Temporal autocorrelation   ',\
                 command=self.change_tacorrflag, height=1, width=20)
-        self.tacorrB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.3)
+        self.tacorrB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.14)
         # ---------------------------------------------------------------------
         # ------- Button to remove/add Dyn. filtering tab ---------------------  
         if (self.DynamicFiltering_flag):
@@ -434,7 +454,7 @@ class Menubar:
             self.dfB = tk.Button(self.availfeat_tab,\
                 text=' - Dynamic filtering   ',\
                 command=self.change_dfflag, height=1, width=20)
-        self.dfB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.4)
+        self.dfB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.21)
         # ---------------------------------------------------------------------
         # --------------- Button to remove/add spatial acorr tab --------------
         if (self.SpatialAcorr_flag):
@@ -445,8 +465,31 @@ class Menubar:
             self.sacorrB = tk.Button(self.availfeat_tab,\
                 text=' - Spatial autocorrelogram   ',\
                 command=self.change_sacorrflag, height=1, width=20)
-        self.sacorrB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.5)
+        self.sacorrB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.28)
         # ---------------------------------------------------------------------
+        # ----------- Button to remove/add Space-time corr tab  ---------------
+        if (self.SpatioTemporalCorrelogram_flag):
+            self.stcorrB = tk.Button(self.availfeat_tab,
+                text=' + Space-time correlation   ',
+                command=self.change_stcorrflag, height=1, width=20)
+        else:
+            self.stcorrB = tk.Button(self.availfeat_tab,\
+                text=' - Space-time correlation   ',\
+                command=self.change_stcorrflag, height=1, width=20)
+        self.stcorrB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.35)
+        # ---------------------------------------------------------------------
+        # ------------- Button to remove/add optical flow tab  ----------------
+        if (self.opticalflow_flag):
+            self.ofB = tk.Button(self.availfeat_tab,
+                text=' + Optical flow   ',
+                command=self.change_offlag, height=1, width=20)
+        else:
+            self.ofB = tk.Button(self.availfeat_tab,\
+                text=' - Optical flow   ',\
+                command=self.change_offlag, height=1, width=20)
+        self.ofB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.42)
+        # ---------------------------------------------------------------------
+
         # ------------- Button to remove/add windowed analysis ----------------
         if (self.WindowedAnalysis_flag):
             self.waB = tk.Button(self.availfeat_tab,
@@ -456,8 +499,9 @@ class Menubar:
             self.waB = tk.Button(self.availfeat_tab,\
                 text=' - Windowed analysis   ',\
                 command=self.change_waflag, height=1, width=20)
-        self.waB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.6)
+        self.waB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.49)
         # ---------------------------------------------------------------------
+
         # ------------------------- 'Apply' button ----------------------------
         self.applyB = tk.Button(self.availfeat_tab, text=' Apply ',
             command=self.apply_settings, height=1, width=20)

@@ -558,7 +558,7 @@ class Cilialyzer():
         # ---------------------------------------------------------------------
         # in case there is no appropriate feature_flags file 
         # -> create a default feature_flags file 
-        if (len(fflags) < 12):
+        if (len(fflags) < 13):
             try:
                 os.remove('feature_flags.txt')
             except:
@@ -570,6 +570,7 @@ class Cilialyzer():
             f.write(str(int(False))+"\n")
             f.write(str(int(False))+"\n")
             f.write(str(int(True))+"\n")
+            f.write(str(int(False))+"\n")
             f.write(str(int(False))+"\n")
             f.write(str(int(False))+"\n")
             f.write(str(int(False))+"\n")
@@ -613,7 +614,8 @@ class Cilialyzer():
 
         self.WindowedAnalysis_flag = bool(int(fflags[11]))
 
-        self.opticalflow_flag = 1
+        self.opticalflow_flag = bool(int(fflags[12]))
+
 
         resize_flag = None  # indicates whether the user resized the main window
 
