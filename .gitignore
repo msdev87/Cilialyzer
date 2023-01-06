@@ -11,4 +11,4 @@
 .idea/*
 ./src/WindowedAnalysis_Results/*
 ./src/Data/*
-./src/Data
+./src/Data/
