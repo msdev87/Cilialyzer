@@ -46,7 +46,8 @@ class activitymap:
 
         self.pixsize = pixsize
 
-    def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum, pixsize):
+
+    def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum, pixsize, threshold):
         """
         calculation of the activity map (spatially resolved CBF map)
         """
@@ -106,7 +107,7 @@ class activitymap:
                 # (condition for invalidity: A_xy / A_bar < 0.15)  
 
                 # threshold in Ryser was set to 0.15 
-                threshold = 0.2
+                #threshold = 0.2
 
                 A_xy = numpy.sum(self.spec[bot:top+1])
 
@@ -212,9 +213,6 @@ class activitymap:
         self.ax1.text(xpos,ypos,str1+str2+str3,fontsize=10)
         """
 
-
-
-
         # plots should not overlap
         self.fig.tight_layout()
 
@@ -268,8 +266,6 @@ class activitymap:
         print(numpy.max(self.freq_acorr))
         print(' ------------------------------------------------------------ ')
 
-
-
         divider = make_axes_locatable(self.ax)
         cax = divider.append_axes("right", size="7%", pad=0.08)
         bla=self.ax.imshow(self.freq_acorr, alpha=1.0, cmap='coolwarm', interpolation='none',extent=[xmin,xmax,ymin,ymax])
@@ -283,9 +279,6 @@ class activitymap:
 
         # write freq correlogram to file:
         numpy.savetxt('frequencycorrelogram.dat', self.freq_acorr)
-
-
-
 
 
         # Determine the frequency correlation length 

@@ -271,6 +271,27 @@ class Cilialyzer():
             self.powerspectrum.pwspecplot.canvas.draw()
     # ----------------------- end of peakselector ------------------------------
 
+    def set_threshold(self, event):
+        """
+        This function gets executed if the user changes the threshold,
+        which is used to calculate the activity map
+        """
+        self.activity_map.calc_activitymap(self.mapframe,\
+            self.roiplayer.roiseq,float(self.toolbar.fpscombo.get()),\
+            float(self.minscale.get()), float(self.maxscale.get()),\
+            self.powerspectrum, float(self.toolbar.pixsizecombo.get()), float(self.activity_threshold.get()))
+
+        # write threshold to file
+        try:
+            os.remove('validity_threshold.txt')
+        except:
+            pass
+        f = open('validity_threshold.txt','a')
+        f.write(str(float(self.activity_threshold.get()))+"\n")
+        f.close()
+
+
+
 
     def image_stabilization(self):
 
@@ -903,6 +924,25 @@ class Cilialyzer():
 
         self.mapframe.update()
 
+        # read validity threshold (to generate activity map) from file:
+        try:
+            with open('validity_threshold.txt') as f:
+                th = f.readline()
+            f.close()
+        except:
+            # no file found -> write file
+            th = 0.2
+            try:
+                os.remove('validity_threshold.txt')
+            except:
+                pass
+            f = open('validity_threshold.txt','a')
+            f.write(str(th)+"\n")
+            f.close()
+
+        self.threshold = tk.IntVar()
+        self.threshold.set(th)
+
         self.activity_map = activitymap.activitymap(self.mapframe, \
             int(round(0.8*self.nbookh)), int(round(1.2*self.nbookh)),
             float(self.toolbar.pixsizecombo.get())) # activity map object
@@ -911,8 +951,18 @@ class Cilialyzer():
             command=lambda: self.activity_map.calc_activitymap(self.mapframe,\
             self.roiplayer.roiseq,float(self.toolbar.fpscombo.get()),\
             float(self.minscale.get()), float(self.maxscale.get()),\
-            self.powerspectrum, float(self.toolbar.pixsizecombo.get())), height=bh, width=bw)
+            self.powerspectrum, float(self.toolbar.pixsizecombo.get()), float(self.activity_threshold.get())), height=bh, width=bw)
         self.activityB.place(in_=self.activitytab, anchor='c', relx=0.5, rely=0.05)
+
+        # add a scroll bar to set the threshold
+        # ---------------------------------------------------------------------
+        self.activity_threshold = tk.Scale(self.activitytab, from_=0.05, to=0.5,
+            orient=tk.VERTICAL, length=400, resolution=0.01,
+            variable=self.threshold, command=self.set_threshold)
+        self.activity_threshold.place(in_=self.activitytab, anchor='c', relx=0.1, rely=0.5)
+        # ---------------------------------------------------------------------
+
+
 
         #**********************************************************************#
 
