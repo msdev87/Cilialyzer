@@ -271,15 +271,15 @@ class Cilialyzer():
             self.powerspectrum.pwspecplot.canvas.draw()
     # ----------------------- end of peakselector ------------------------------
 
-    def set_threshold(self, event):
+    def set_threshold(self):
         """
         This function gets executed if the user changes the threshold,
         which is used to calculate the activity map
         """
-        self.activity_map.calc_activitymap(self.mapframe,\
-            self.roiplayer.roiseq,float(self.toolbar.fpscombo.get()),\
-            float(self.minscale.get()), float(self.maxscale.get()),\
-            self.powerspectrum, float(self.toolbar.pixsizecombo.get()), float(self.activity_threshold.get()))
+        #self.activity_map.calc_activitymap(self.mapframe,\
+        #    self.roiplayer.roiseq,float(self.toolbar.fpscombo.get()),\
+        #    float(self.minscale.get()), float(self.maxscale.get()),\
+        #    self.powerspectrum, float(self.toolbar.pixsizecombo.get()), float(self.activity_threshold.get()))
 
         # write threshold to file
         try:
@@ -940,8 +940,8 @@ class Cilialyzer():
             f.write(str(th)+"\n")
             f.close()
 
-        self.threshold = tk.IntVar()
-        self.threshold.set(th)
+        self.threshold = th
+
 
         self.activity_map = activitymap.activitymap(self.mapframe, \
             int(round(0.8*self.nbookh)), int(round(1.2*self.nbookh)),
@@ -954,12 +954,40 @@ class Cilialyzer():
             self.powerspectrum, float(self.toolbar.pixsizecombo.get()), float(self.activity_threshold.get())), height=bh, width=bw)
         self.activityB.place(in_=self.activitytab, anchor='c', relx=0.5, rely=0.05)
 
-        # add a scroll bar to set the threshold
+        # spinbox to set the threshold
         # ---------------------------------------------------------------------
-        self.activity_threshold = tk.Scale(self.activitytab, from_=0.05, to=0.5,
-            orient=tk.VERTICAL, length=400, resolution=0.01,
-            variable=self.threshold, command=self.set_threshold)
-        self.activity_threshold.place(in_=self.activitytab, anchor='c', relx=0.1, rely=0.5)
+        #self.activity_threshold = tk.Scale(self.activitytab, from_=0.0, to=0.5,
+        #    orient=tk.VERTICAL, length=400, resolution=0.01,
+        #    variable=self.threshold, command=self.set_threshold)
+        #self.activity_threshold.place(in_=self.activitytab, anchor='c', relx=0.1, rely=0.5) 
+
+        if hasattr(self, 'threshold'):
+            pass
+        else:
+            # set init
+            self.threshold = 0.2
+
+        self.thframe=tk.Label(self.activitytab)
+        self.thframe.place(in_=self.activitytab, anchor='c', relx=0.1, rely=0.5)
+
+        self.thresholdL=tk.Label(self.thframe, text="Activity threshold: ", height=2,width=18)
+        self.thresholdL.grid(row=0,column=0,columnspan=1)
+
+        self.textvar = tk.StringVar()
+
+        self.textvar.set(str(self.threshold))
+
+        # spinbox 
+        self.activity_threshold = tk.Spinbox(self.thframe, textvariable=self.textvar, from_=0, to=0.5, increment=0.01,\
+            command=self.set_threshold,width=5)
+        self.activity_threshold.grid(row=0,column=1,columnspan=1)
+        #self.activity_threshold.delete(0, "end")
+        #self.activity_threshold.insert(0,0)
+        # ----------------------------------------------------------------------
+
+        # ---------------------------------------------------------------------
+        # Display active area (absolute size) and percentage 
+
         # ---------------------------------------------------------------------
 
 
