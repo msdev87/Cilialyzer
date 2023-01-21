@@ -236,40 +236,43 @@ class Cilialyzer():
 
         self.powerspectrum.pwspecplot.canvas.draw()
 
-        # --------- shade the second and third harmonic (if selected) ----------
-        if (int(self.nrharmscombo.get()) > 1):
-            fpeakw = maxf - minf
-            fpeak = minf + 0.5 * fpeakw
-            secondpeakf = 2.0 * fpeak
-            secondminf = secondpeakf - 0.5 * fpeakw
-            secondmaxf = secondpeakf + 0.5 * fpeakw
 
-            maxind = numpy.sum(
-                (numpy.array(self.powerspectrum.freqs) <= secondmaxf).astype(int))
-            minind = numpy.sum(
-                (numpy.array(self.powerspectrum.freqs) <= secondminf).astype(int))
-            self.powerspectrum.pwspecplot.axes.fill_between(
-                self.powerspectrum.freqs[minind:maxind + 1],
-                self.powerspectrum.spec[minind:maxind + 1], facecolor='gray', alpha=0.4)
 
-            self.powerspectrum.pwspecplot.canvas.draw()
+        if (self.DynamicFiltering_flag):
+            # --------- shade the second and third harmonic (if selected) ----------
+            if (int(self.nrharmscombo.get()) > 1):
+                fpeakw = maxf - minf
+                fpeak = minf + 0.5 * fpeakw
+                secondpeakf = 2.0 * fpeak
+                secondminf = secondpeakf - 0.5 * fpeakw
+                secondmaxf = secondpeakf + 0.5 * fpeakw
 
-        if (int(self.nrharmscombo.get()) > 2):
-            thrdpeakf = 3.0 * fpeak
-            thrdminf = thrdpeakf - 0.5 * fpeakw
-            thrdmaxf = thrdpeakf + 0.5 * fpeakw
+                maxind = numpy.sum(
+                    (numpy.array(self.powerspectrum.freqs) <= secondmaxf).astype(int))
+                minind = numpy.sum(
+                    (numpy.array(self.powerspectrum.freqs) <= secondminf).astype(int))
+                self.powerspectrum.pwspecplot.axes.fill_between(
+                    self.powerspectrum.freqs[minind:maxind + 1],
+                    self.powerspectrum.spec[minind:maxind + 1], facecolor='gray', alpha=0.4)
 
-            maxind = numpy.sum(
-                (numpy.array(self.powerspectrum.freqs) <= thrdmaxf).astype(int))
-            minind = numpy.sum(
-                (numpy.array(self.powerspectrum.freqs) <= thrdminf).astype(int))
-            self.powerspectrum.pwspecplot.axes.fill_between(
-                self.powerspectrum.freqs[minind:maxind + 1],
-                self.powerspectrum.spec[minind:maxind + 1], facecolor='gray',
-                alpha=0.4)
+                self.powerspectrum.pwspecplot.canvas.draw()
 
-            self.powerspectrum.pwspecplot.canvas.draw()
-    # ----------------------- end of peakselector ------------------------------
+            if (int(self.nrharmscombo.get()) > 2):
+                thrdpeakf = 3.0 * fpeak
+                thrdminf = thrdpeakf - 0.5 * fpeakw
+                thrdmaxf = thrdpeakf + 0.5 * fpeakw
+
+                maxind = numpy.sum(
+                    (numpy.array(self.powerspectrum.freqs) <= thrdmaxf).astype(int))
+                minind = numpy.sum(
+                    (numpy.array(self.powerspectrum.freqs) <= thrdminf).astype(int))
+                self.powerspectrum.pwspecplot.axes.fill_between(
+                    self.powerspectrum.freqs[minind:maxind + 1],
+                    self.powerspectrum.spec[minind:maxind + 1], facecolor='gray',
+                    alpha=0.4)
+
+                self.powerspectrum.pwspecplot.canvas.draw()
+        # ----------------------- end of peakselector ------------------------------
 
     def set_threshold(self):
         """
@@ -942,10 +945,12 @@ class Cilialyzer():
 
         self.threshold = th
 
+        self.active_percentage = tk.StringVar()
+        self.active_area = tk.StringVar()
 
         self.activity_map = activitymap.activitymap(self.mapframe, \
             int(round(0.8*self.nbookh)), int(round(1.2*self.nbookh)),
-            float(self.toolbar.pixsizecombo.get())) # activity map object
+            float(self.toolbar.pixsizecombo.get()), self.active_percentage, self.active_area) # activity map object
 
         self.activityB = tk.Button(self.activitytab, text='Activtiy Map',\
             command=lambda: self.activity_map.calc_activitymap(self.mapframe,\
@@ -968,7 +973,7 @@ class Cilialyzer():
             self.threshold = 0.2
 
         self.thframe=tk.Label(self.activitytab)
-        self.thframe.place(in_=self.activitytab, anchor='c', relx=0.1, rely=0.5)
+        self.thframe.place(in_=self.activitytab, anchor='c', relx=0.3, rely=0.1)
 
         self.thresholdL=tk.Label(self.thframe, text="Activity threshold: ", height=2,width=18)
         self.thresholdL.grid(row=0,column=0,columnspan=1)
@@ -988,6 +993,17 @@ class Cilialyzer():
         # ---------------------------------------------------------------------
         # Display active area (absolute size) and percentage 
 
+        self.active_percentageL=tk.Label(self.activitytab, text="Active percentage [%]: ", height=2,width=20)
+        self.active_percentageL.place(in_=self.activitytab, anchor='c', relx=0.5, rely=0.1)
+
+        self.active_areaL=tk.Label(self.activitytab, text='Active area [mm\u00B2]: ', height=2,width=18)
+        self.active_areaL.place(in_=self.activitytab, anchor='c', relx=0.7, rely=0.1)
+
+        self.activep_resL = tk.Label(self.activitytab, textvariable=self.active_percentage, height=2, width=6)
+        self.activep_resL.place(in_=self.activitytab, anchor='c', relx=0.57, rely=0.1)
+
+        self.activea_resL = tk.Label(self.activitytab, textvariable=self.active_area, height=2, width=9)
+        self.activea_resL.place(in_=self.activitytab, anchor='c', relx=0.77, rely=0.1)
         # ---------------------------------------------------------------------
 
 

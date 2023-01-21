@@ -11,7 +11,7 @@ import math
 
 class activitymap:
 
-    def __init__(self, parent, parentw, parenth, pixsize):
+    def __init__(self, parent, parentw, parenth, pixsize, active_percentage, active_area):
 
         self.map = None
         self.parentw = parentw
@@ -45,6 +45,9 @@ class activitymap:
         self.freq_acorr = None # autocorrelation of the activity map 
 
         self.pixsize = pixsize
+
+        self.active_percentage = active_percentage
+        self.active_area = active_area
 
 
     def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum, pixsize, threshold):
@@ -203,6 +206,15 @@ class activitymap:
 
         activearea = numpy.sum(self.validity_mask) * (self.pixsize / 1000.0)**2
         activearea = activearea / 1000.0 / 1000.0 # convert to square millim.
+
+
+        bla = '%.6f' %activearea
+        self.active_area.set(bla)
+
+        # active percentage (nr of active pixels : nr of pixels in activitymap)
+        percentage = numpy.sum(self.validity_mask) / self.freqmap.size * 100
+        bla = '%.2f' %percentage
+        self.active_percentage.set(bla)
 
         """
         str1 = "Active area = "
