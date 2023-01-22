@@ -14,9 +14,12 @@
 
 <br />
 <div align="center">      
-   <a href="Cilialyzer-v1.1.1-048a3b.zip" download="">Cilialyzer-v1.1.1-048a3b.zip</a> (creation date: October 4, 2022)
+   <a href="Cilialyzer-v1.2.0-67303f.zip" download="Cilialyzer-v1.2.0-67303f.zip"></a> (creation date: January 22, 2022)
 </div> 
 
+<div align="center">      
+   <a href="Cilialyzer-v1.1.1-048a3b.zip" download="">Cilialyzer-v1.1.1-048a3b.zip</a> (creation date: October 4, 2022)
+</div> 
 
 <div align="center">      
    <a href="Cilialyzer-v1.0.0-91f24d4.zip" download="">Cilialyzer-v1.0.0-91f24d4.zip</a> (creation date: December 13, 2021)
