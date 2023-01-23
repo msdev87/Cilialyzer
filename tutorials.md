@@ -5,10 +5,11 @@
    <a href="./pinboard.html" style="font-size:25px;font-weight:400;"     >Pinboard</a>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
    <a href="./publications.html" style="font-size:25px;font-weight:400;" >Publications</a> 
 </div> 
-
-
-
-
-
+<br>
+<div align="center"> 
+The following tutorial videos explain how to install and use the Cilialyzer. <br>
+It is recommended to watch the videos from top to bottom.
+</div> 
+<br>
 https://user-images.githubusercontent.com/72008170/213941541-fbb9244c-08ef-417f-a6b5-6095ce7a727a.mp4
 
