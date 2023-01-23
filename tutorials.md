@@ -11,9 +11,18 @@ The following tutorial videos explain how to install and use the Cilialyzer. <br
 It is recommended to watch the videos from top to bottom.
 </div> 
 <br>
-
 <video src="https://user-images.githubusercontent.com/72008170/213941541-fbb9244c-08ef-417f-a6b5-6095ce7a727a.mp4" controls="controls" style="max-width: 730px;">
 </video>
+<br>
+
+
+<video src="https://user-images.githubusercontent.com/72008170/214152848-242b57c4-d3ce-42e4-90fc-50e2bdafa195.mp4" controls="controls" style="max-width: 730px;">
+</video>
+
+
+
+
+
 
 
 <!--
