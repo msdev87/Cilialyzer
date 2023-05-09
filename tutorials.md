@@ -26,7 +26,7 @@ It is recommended to watch the videos from top to bottom.
 <video src="https://user-images.githubusercontent.com/72008170/215483589-d5e1f4d6-272f-42b1-a255-ff6913081004.mp4" controls="controls" style="max-width: 730px;">
 </video>
 
-<video src="https://github.com/msdev87/Cilialyzer/assets/72008170/bb87c8c5-3568-4698-9142-04d9a887df06.mp4" controls="controls" style="max-width: 730px;">
+<video src="https://github.com/msdev87/Cilialyzer/assets/72008170/bb87c8c5-3568-4698-9142-04d9a887df06" controls="controls" style="max-width: 600px;">
 </video>
 
 
