@@ -25,7 +25,6 @@ import OpticalFlow
 import avoid_troubles
 import PIL
 
-
 class Cilialyzer():
 
     """
@@ -298,6 +297,9 @@ class Cilialyzer():
 
     def image_stabilization(self):
 
+
+
+
         avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
         # busy indicator
         busywin = tk.Toplevel()
@@ -332,6 +334,12 @@ class Cilialyzer():
         for i in range(nimgs):
             array[i, :, :] = numpy.array(self.roiplayer.roiseq[i])
 
+
+        print('----- check1 for nan values ------')
+        print(numpy.sum(numpy.isnan(array)))
+
+
+
         # compute the mean image:
         meanimg = numpy.mean(array[0:int(nimgs / 10), :, :], axis=0)
 
@@ -362,6 +370,12 @@ class Cilialyzer():
             else:
                 array_stabilized[i * arrayslice:nimgs, :, :] = result[
                     num_procs - 1]
+
+
+        print('----- check2 for nan values ------')
+        print(numpy.sum(numpy.isnan(array_stabilized)))
+
+
 
         for i in range(nimgs):
             self.roiplayer.roiseq[i] = Image.fromarray(

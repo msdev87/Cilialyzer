@@ -263,7 +263,7 @@ class ImgSeqPlayer(object):
                 pass
             else:
                 self.var = tk.StringVar()
-                self.var.set(2) # initialize zoom to 100% 
+                self.var.set(1) # initialize zoom to 100% 
 
         for text, mode in self.zooom:
             self.zoomB = tk.Radiobutton(self.zoomframe, text=text, variable=self.var,

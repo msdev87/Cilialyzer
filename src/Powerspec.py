@@ -378,7 +378,7 @@ class powerspec:
         plt.plot(self.freqs,self.spec, color='0.2',lw=2) 
         plt.ylabel('Relative Power Spectral Density',labelpad=15,fontsize=18)
         plt.xlabel('Frequency [Hz]',labelpad=8,fontsize=18)
-        plt.xlim(0,50) 
+        plt.xlim(0,150) 
         plt.xticks(fontsize=18)
         plt.yticks(fontsize=18)
         #plt.grid()

@@ -296,8 +296,13 @@ class activitymap:
         # Determine the frequency correlation length 
         # as the square root of all pixels > 1/e
         threshold = math.exp(-1)
-        area = numpy.sum(self.freq_acorr > threshold)
+        area = numpy.sum(self.freq_acorr >= threshold)
         xi = math.sqrt(area) * self.pixsize / 1000.0
+
+        print('**************************************************************')
+        print('Frequency correlation length:  ',xi)
+        print('**************************************************************')
+
 
 
         str1 = r'$\xi_f$'
