@@ -465,7 +465,6 @@ class Cilialyzer():
         split the field of view into windows (regions) and analyze each region
         separately. For each region a space-time correlogram is computed.
         Its peak is then tracked to determine a region-specific wave speed.
-
         The computation is done on the dynamically filtered image sequence.
         """
 
@@ -481,9 +480,24 @@ class Cilialyzer():
         pixelsize = float(self.toolbar.pixsizecombo.get())
         fps = float(self.toolbar.fpscombo.get())
 
-        WindowedAnalysis.prepare_windows(
-            self.dynseq.dyn_roiseq, self.activity_map.freqmap, sclength,
-            pixelsize, fps, self.winresults)
+        try:
+            if (len(self.dynseq.dyn_roiseq) > 0):
+
+                WindowedAnalysis.prepare_windows(
+                    self.dynseq.dyn_roiseq, self.activity_map.freqmap, sclength,
+                    pixelsize, fps, self.winresults)
+        except:
+            tk.messagebox("Warning", "Dynamically filtered video needed")
+
+
+        try:
+            if (sclength > 0):
+                WindowedAnalysis.prepare_windows(
+                    self.dynseq.dyn_roiseq, self.activity_map.freqmap, sclength,
+                    pixelsize, fps, self.winresults)
+        except:
+            tk.messagebox("Warning", "Spatial correlation length needs to be\
+                computed first")
 
     # -------------------------------------------------------------------------
 
@@ -863,9 +877,9 @@ class Cilialyzer():
         #self.denoiseB.place(in_=self.roitab, anchor="c", relx=0.07, rely=0.22)
 
 
-        # *****************************************************************************#
-        #                           CBF notebook-tab                                   #
-        # *****************************************************************************#
+        # ********************************************************************#
+        #                      CBF notebook-tab                               #
+        # ********************************************************************#
 
         self.cbftab = tk.Frame(self.nbook,width=int(round(0.9*self.nbookw)),
                            height=int(round(0.95*self.nbookh)))
