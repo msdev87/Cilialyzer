@@ -292,13 +292,7 @@ class Cilialyzer():
         f.write(str(float(self.activity_threshold.get()))+"\n")
         f.close()
 
-
-
-
     def image_stabilization(self):
-
-
-
 
         avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
         # busy indicator
@@ -334,16 +328,17 @@ class Cilialyzer():
         for i in range(nimgs):
             array[i, :, :] = numpy.array(self.roiplayer.roiseq[i])
 
-
         print('----- check1 for nan values ------')
         print(numpy.sum(numpy.isnan(array)))
-
-
 
         # compute the mean image:
         meanimg = numpy.mean(array[0:int(nimgs / 10), :, :], axis=0)
 
-        num_procs = multiprocessing.cpu_count()  # number of CPUs
+        f = open('cores_default.txt', 'r')
+        ncores = int(f.read())
+        f.close()
+
+        num_procs = ncores  # number of cores to be used 
         subarrays = []
         arrayslice = round(nimgs / num_procs)
 
@@ -371,11 +366,8 @@ class Cilialyzer():
                 array_stabilized[i * arrayslice:nimgs, :, :] = result[
                     num_procs - 1]
 
-
         print('----- check2 for nan values ------')
         print(numpy.sum(numpy.isnan(array_stabilized)))
-
-
 
         for i in range(nimgs):
             self.roiplayer.roiseq[i] = Image.fromarray(
@@ -674,7 +666,8 @@ class Cilialyzer():
         # *********************************************************************
 
         multiprocessing.freeze_support()
-        ncpus = multiprocessing.cpu_count()
+        ncpus = multiprocessing.cpu_count() # number of available cpu cores
+
         if (ncpus > 1):
             self.pool = multiprocessing.Pool(ncpus-1)
         else:

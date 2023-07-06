@@ -3,7 +3,7 @@ from tkinter import ttk
 import os
 import sys
 import webbrowser
-
+import multiprocessing
 
 class Menubar:
 
@@ -207,6 +207,13 @@ class Menubar:
         f.write(str(self.pixelsize_list[4])+"\n")
         f.close()
 
+        # save default of number of cores to be used:
+        if (os.path.exists('cores_default.txt')):
+            os.remove('cores_default.txt')
+        f = open('cores_default.txt','a')
+        f.write(str(self.entry_nc.get()))
+        f.close()
+
         MsgBox = tk.messagebox.askquestion ('Restart required',
             'A restart of the Cilialyzer is required for your changes to take effect. Restart Cilialyzer now?',icon = 'question')
 
@@ -216,11 +223,13 @@ class Menubar:
         else:
             self.cfg_win.destroy()
 
-
     def configure(self):
         """
         Opens a toplevel window in which the appearance can be configured
         """
+
+        print('Entering configure')
+
         self.cfg_win = tk.Toplevel(self.parent)
         self.cfg_win.title('Configure Cilialyzer')
 
@@ -230,7 +239,7 @@ class Menubar:
         sw = self.cfg_win.winfo_screenwidth()
         sh = self.cfg_win.winfo_screenheight()
 
-        win_width = 450
+        win_width = 650
         win_height = 600
 
         posx = int(0.5*sw - 0.5*win_width)
@@ -240,18 +249,18 @@ class Menubar:
         self.cfg_win.update()
 
         # add cfg_notebook 
-        self.cfg_nbook = tk.ttk.Notebook(self.cfg_win, width=440, height=550)
+        self.cfg_nbook = tk.ttk.Notebook(self.cfg_win, width=win_width-10, height=550)
         self.cfg_nbook.grid(row=0,column=0,padx=4,pady=4)
 
         # ---------------------- FPS defaults tab -----------------------------
         # add FPS Defaults tab
-        self.FPSdefaults_tab = tk.Frame(self.cfg_win, width=430, height=540)
+        self.FPSdefaults_tab = tk.Frame(self.cfg_win, width=win_width-10, height=540)
         self.cfg_nbook.add(self.FPSdefaults_tab, text=' FPS defaults ')
         # ---------------------------------------------------------------------
 
         # -------------------- Pixelsize defaults tab -------------------------
         # add pixelsize defaults tab
-        self.psdefaults_tab = tk.Frame(self.cfg_win, width=430, height=540)
+        self.psdefaults_tab = tk.Frame(self.cfg_win, width=win_width-10, height=540)
         self.cfg_nbook.add(self.psdefaults_tab, text=' Pixelsize defaults ')
         # ---------------------------------------------------------------------
 
@@ -400,9 +409,49 @@ class Menubar:
         self.save_defaultpsB.place(in_=self.psdefaults_tab, anchor="c", relx=.5, rely=.7)
         # ---------------------------------------------------------------------
 
+        # -------------------- Other settings tab ----------------------------- 
+        self.multiprocessing_tab=tk.Frame(self.cfg_win, width=win_width-10, height=540)
+        self.cfg_nbook.add(self.multiprocessing_tab, text=' Multiprocessing ')
+
+        # available cores 
+        ncores = multiprocessing.cpu_count()
+        ncores_init = ncores-1
+
+        # check whether 'cores_default.txt' exists: 
+        if (os.path.exists('cores_default.txt')):
+            # if it exists, read value and check whether the value makes sense
+            f = open('cores_default.txt', 'r')
+            nc = int(f.read())
+            if ((nc > 0) and (nc <= ncores-1)):
+                # value makes sense
+                ncores_init = nc
+            else:
+                # strange value, rewrite default 
+                os.remove('cores_default.txt')
+                f = open('cores_default.txt','a')
+                f.write(str(ncores_init))
+            f.close()
+        else:
+            f = open('cores_default.txt','a')
+            f.write(str(ncores_init))
+
+        # State number of avialable cores in label: 
+        ncores_label=tk.Label(self.multiprocessing_tab,text=\
+            'Please specify how many CPU cores (out of '+ str(ncores) +') can be used by Cilialyzer : ',\
+            anchor="e",width=60)
+        ncores_label.place(in_=self.multiprocessing_tab,anchor="c",relx=.4,rely=.4)
+
+        self.entry_nc = tk.Entry(self.multiprocessing_tab, width=10)
+        self.entry_nc.place(in_=self.multiprocessing_tab, anchor="c", relx=.9, rely=.4)
+        self.entry_nc.insert(0, ncores_init)
+        # ---------------------------------------------------------------------
+
+
+
+
         # ------------------- available features tab --------------------------
         # add 'Available features'-tab
-        self.availfeat_tab = tk.Frame(self.cfg_win, width=430, height=540)
+        self.availfeat_tab = tk.Frame(self.cfg_win, width=win_width-10, height=540)
         self.cfg_nbook.add(self.availfeat_tab, text=' Select features ')
 
         # read feature flags
@@ -526,7 +575,7 @@ class Menubar:
 
         # -------------------- Theme tab --------------------------------------
         # add 'themes' tab 
-        self.themestab = tk.Frame(self.cfg_nbook,width=430,height=540)
+        self.themestab = tk.Frame(self.cfg_nbook,width=win_width-10,height=540)
         self.cfg_nbook.add(self.themestab, text=' Theme ')
 
         self.style = ttk.Style(self.parent)
