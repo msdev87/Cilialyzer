@@ -155,6 +155,8 @@ class Menubar:
         """
         Save current settings to file and restart the Cilialyer
         """
+        self.save_defaults()
+
         self.write_flags()
 
         MsgBox = tk.messagebox.askquestion ('Restart required',
@@ -202,11 +204,20 @@ class Menubar:
         f.write(str(self.pixelsize_list[4])+"\n")
         f.close()
 
+
+
         # save default of number of cores to be used:
         if (os.path.exists('cores_default.txt')):
             os.remove('cores_default.txt')
         f = open('cores_default.txt','a')
         f.write(str(self.entry_nc.get()))
+        f.close()
+
+        # save self.skipframe 
+        if (os.path.exists('skipframe_default.txt')):
+            os.remove('skipframe_default.txt')
+        f = open('skipframe_default.txt','a')
+        f.write(str(self.skipframecombo.get()))
         f.close()
 
         MsgBox = tk.messagebox.askquestion ('Restart required',
@@ -430,15 +441,54 @@ class Menubar:
             f = open('cores_default.txt','a')
             f.write(str(ncores_init))
 
+        self.miscframe1 = tk.LabelFrame(self.misc_tab, text=' Image stabilization settings ',\
+            labelanchor='n', borderwidth=4, padx=0, pady=0,relief=tk.RIDGE,font=("Helvetica", 11, "bold"))
+        self.miscframe1.grid(row=0,column=0,padx=15,pady=15)
+
         # State number of avialable cores in label: 
-        ncores_label=tk.Label(self.misc_tab,text=\
+        self.ncores_label=tk.Label(self.miscframe1,text=\
             'Please specify how many CPU cores (out of '+ str(ncores) +') can be used by Cilialyzer : ',\
             anchor="e",width=60)
-        ncores_label.place(in_=self.misc_tab,anchor="e",relx=.8,rely=.4)
+        self.ncores_label.grid(row=0, column=0,padx=3,pady=5)
+        #place(in_=self.miscframe1,anchor="e",relx=.8,rely=.4)
 
-        self.entry_nc = tk.Entry(self.misc_tab, width=5)
-        self.entry_nc.place(in_=self.misc_tab, anchor="c", relx=.85, rely=.4)
+        self.entry_nc = tk.Entry(self.miscframe1, width=5)
+        self.entry_nc.grid(row=0, column=1, padx=3, pady=5)
+        #place(in_=self.miscframe1, anchor="c", relx=.85, rely=.4)
         self.entry_nc.insert(0, ncores_init)
+
+        # --------------------------------------------------------------------
+        # The user can choose how many frames can be skipped in the image 
+        # stabilization process (to speed up the computation)
+
+        skipframe_list = [0,1,2,3]
+
+        # get the default from file for self.skipframe 
+
+        # check whether 'skipframe_default.txt' exists: 
+        if (os.path.exists('skipframe_default.txt')):
+            # if it exists, read value 
+            f = open('skipframe_default.txt', 'r')
+            try:
+                self.skipframe = int(f.read())
+                f.close()
+            except:
+                self.skipframe = 1
+                f.close()
+        else:
+            self.skipframe = 1
+            f = open('skipframe_default.txt','a')
+            f.write(str(self.skipframe))
+
+        self.skipframe_label=tk.Label(self.miscframe1,text=\
+            'Specify how many frames can be skipped during video stabilization: ',\
+            anchor="e",width=60)
+        self.skipframe_label.grid(row=1, column=0,padx=3,pady=5)
+
+        self.skipframecombo = tk.ttk.Combobox(self.miscframe1,values=skipframe_list,width=5)
+        self.skipframecombo.grid(row=1,column=1,padx=3,pady=5)
+        self.skipframecombo.current(self.skipframe)
+
         # ---------------------------------------------------------------------
 
 

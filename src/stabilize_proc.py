@@ -7,7 +7,7 @@ def subproc(args):
 
     meanimg = args[0]
     array = args[1]
-    #frameskip = args[2]
+    skipframe = args[2] # number of frames to be skipped
 
     nimgs = array.shape[0]
     #print('nimgs: ',nimgs)
@@ -18,10 +18,11 @@ def subproc(args):
 
     # loop over all images                                           
     for i in range(nimgs):
-        # note that only every second image is registered (performance)   
-        if ((i % 1) == 0):
+        # note that only every x-th image is registered (performance)  
+        # where x is given by 'skipframe'
+        if ((i % skipframe) == 0):
             sr.register(meanimg,array[i,:,:])
-        # therefore, every second image is transformed as its predecessor
+        # every other images are transformed as its predecessor(s)
         array_stabilized[i,:,:] = sr.transform(array[i,:,:])
 
     #print(array_stabilized.shape[0])

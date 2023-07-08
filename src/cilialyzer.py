@@ -338,18 +338,23 @@ class Cilialyzer():
         ncores = int(f.read())
         f.close()
 
-        num_procs = ncores  # number of cores to be used 
+        num_procs = ncores  # read the number of cores to be used from file 
         subarrays = []
         arrayslice = round(nimgs / num_procs)
+
+        # read n of frames to be skipped in stabilization from file:
+        f = open('skipframe_default.txt','r')
+        skipframe = int(f.read())
+        f.close()
 
         # careful: remember Python's array slicing:
         # array[start:stop] delivers all elements from start to stop-1!
         for i in range(num_procs):
             if (i < num_procs - 1):
                 subarrays.append(
-                    (meanimg, array[i * arrayslice:(i + 1) * arrayslice, :, :]))
+                    (meanimg, array[i * arrayslice:(i + 1) * arrayslice, :, :],skipframe))
         else:
-            subarrays.append((meanimg, array[i * arrayslice:nimgs, :, :]))
+            subarrays.append((meanimg, array[i * arrayslice:nimgs, :, :],skipframe))
 
         result = self.pool.map(stabilize_proc.subproc,
                           [subarrays[i] for i in range(num_procs)])
