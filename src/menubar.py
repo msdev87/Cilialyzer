@@ -59,8 +59,6 @@ class Menubar:
     def launch_website(self):
         webbrowser.open('https://msdev87.github.io/Cilialyzer')
 
-
-
     def link_tutorials(self):
         """
         opens the link to the tutorials in the default webbrowser
@@ -145,8 +143,6 @@ class Menubar:
             self.opticalflow_flag = 1
             self.ofB['text'] = ' + Optical flow   '
 
-
-
     def change_waflag(self):
         if (self.WindowedAnalysis_flag):
             self.WindowedAnalysis_flag = 0
@@ -154,7 +150,6 @@ class Menubar:
         else:
             self.WindowedAnalysis_flag = 1
             self.waB['text'] = ' + Windowed analysis   '
-
 
     def apply_settings(self):
         """
@@ -249,18 +244,18 @@ class Menubar:
         self.cfg_win.update()
 
         # add cfg_notebook 
-        self.cfg_nbook = tk.ttk.Notebook(self.cfg_win, width=win_width-10, height=550)
+        self.cfg_nbook = tk.ttk.Notebook(self.cfg_win, width=win_width-10, height=win_height-70)
         self.cfg_nbook.grid(row=0,column=0,padx=4,pady=4)
 
         # ---------------------- FPS defaults tab -----------------------------
         # add FPS Defaults tab
-        self.FPSdefaults_tab = tk.Frame(self.cfg_win, width=win_width-10, height=540)
+        self.FPSdefaults_tab = tk.Frame(self.cfg_win, width=win_width-10, height=win_height-70)
         self.cfg_nbook.add(self.FPSdefaults_tab, text=' FPS defaults ')
         # ---------------------------------------------------------------------
 
         # -------------------- Pixelsize defaults tab -------------------------
         # add pixelsize defaults tab
-        self.psdefaults_tab = tk.Frame(self.cfg_win, width=win_width-10, height=540)
+        self.psdefaults_tab = tk.Frame(self.cfg_win, width=win_width-10, height=win_height-70)
         self.cfg_nbook.add(self.psdefaults_tab, text=' Pixelsize defaults ')
         # ---------------------------------------------------------------------
 
@@ -333,9 +328,9 @@ class Menubar:
         self.entry_fps4.insert(0, str(self.fps_list[4]))
 
         # 'Save & Exit' button 
-        self.save_defaultsB = tk.Button(self.FPSdefaults_tab, text=' Apply ',
-            command=self.save_defaults, height=1, width=15)
-        self.save_defaultsB.place(in_=self.FPSdefaults_tab, anchor="c", relx=.5, rely=.7)
+        #self.save_defaultsB = tk.Button(self.FPSdefaults_tab, text=' Apply ',
+        #    command=self.save_defaults, height=1, width=15)
+        #self.save_defaultsB.place(in_=self.FPSdefaults_tab, anchor="c", relx=.5, rely=.7)
 
         # ------------------- Pixelsize defaults tab -------------------------- 
 
@@ -404,14 +399,14 @@ class Menubar:
         self.entry_pixelsize4.insert(0, str(self.pixelsize_list[4]))
 
         # 'Save & Exit' button 
-        self.save_defaultpsB = tk.Button(self.psdefaults_tab, text=' Apply ',
-            command=self.save_defaults, height=1, width=15)
-        self.save_defaultpsB.place(in_=self.psdefaults_tab, anchor="c", relx=.5, rely=.7)
+        #self.save_defaultpsB = tk.Button(self.psdefaults_tab, text=' Apply ',
+        #    command=self.save_defaults, height=1, width=15)
+        #self.save_defaultpsB.place(in_=self.psdefaults_tab, anchor="c", relx=.5, rely=.7)
         # ---------------------------------------------------------------------
 
-        # -------------------- Other settings tab ----------------------------- 
-        self.multiprocessing_tab=tk.Frame(self.cfg_win, width=win_width-10, height=540)
-        self.cfg_nbook.add(self.multiprocessing_tab, text=' Multiprocessing ')
+        # -------------------- Miscellaneous settings tab ----------------------------- 
+        self.misc_tab=tk.Frame(self.cfg_win, width=win_width-10, height=win_height-70)
+        self.cfg_nbook.add(self.misc_tab, text=' Miscellaneous ')
 
         # available cores 
         ncores = multiprocessing.cpu_count()
@@ -436,13 +431,13 @@ class Menubar:
             f.write(str(ncores_init))
 
         # State number of avialable cores in label: 
-        ncores_label=tk.Label(self.multiprocessing_tab,text=\
+        ncores_label=tk.Label(self.misc_tab,text=\
             'Please specify how many CPU cores (out of '+ str(ncores) +') can be used by Cilialyzer : ',\
             anchor="e",width=60)
-        ncores_label.place(in_=self.multiprocessing_tab,anchor="c",relx=.4,rely=.4)
+        ncores_label.place(in_=self.misc_tab,anchor="e",relx=.8,rely=.4)
 
-        self.entry_nc = tk.Entry(self.multiprocessing_tab, width=10)
-        self.entry_nc.place(in_=self.multiprocessing_tab, anchor="c", relx=.9, rely=.4)
+        self.entry_nc = tk.Entry(self.misc_tab, width=5)
+        self.entry_nc.place(in_=self.misc_tab, anchor="c", relx=.85, rely=.4)
         self.entry_nc.insert(0, ncores_init)
         # ---------------------------------------------------------------------
 
@@ -451,7 +446,7 @@ class Menubar:
 
         # ------------------- available features tab --------------------------
         # add 'Available features'-tab
-        self.availfeat_tab = tk.Frame(self.cfg_win, width=win_width-10, height=540)
+        self.availfeat_tab = tk.Frame(self.cfg_win, width=win_width-10, height=win_height-70)
         self.cfg_nbook.add(self.availfeat_tab, text=' Select features ')
 
         # read feature flags
@@ -552,9 +547,10 @@ class Menubar:
         # ---------------------------------------------------------------------
 
         # ------------------------- 'Apply' button ----------------------------
-        self.applyB = tk.Button(self.availfeat_tab, text=' Apply ',
-            command=self.apply_settings, height=1, width=20)
-        self.applyB.place(in_=self.availfeat_tab, anchor="c", relx=.5, rely=.85)
+        # The apply button saves all the new settings and restarts Cilialyzer
+        self.applyB = tk.Button(self.cfg_win, text=' Apply ',
+            command=self.apply_settings, height=1, width=20,bg='gray65')
+        self.applyB.grid(row=1,column=0, padx=4,pady=3)
         # ---------------------------------------------------------------------
 
 
@@ -575,7 +571,7 @@ class Menubar:
 
         # -------------------- Theme tab --------------------------------------
         # add 'themes' tab 
-        self.themestab = tk.Frame(self.cfg_nbook,width=win_width-10,height=540)
+        self.themestab = tk.Frame(self.cfg_nbook,width=win_width-10,height=win_height-70)
         self.cfg_nbook.add(self.themestab, text=' Theme ')
 
         self.style = ttk.Style(self.parent)
