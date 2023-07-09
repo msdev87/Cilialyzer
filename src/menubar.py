@@ -294,48 +294,63 @@ class Menubar:
             f.close()
 
         # -------------- FPS defaults (label and entry widgets) ---------------
-        # create text and entry widget for FPS-list 
-        fps0_label=tk.Label(self.FPSdefaults_tab, text=" Default FPS :",
-            anchor='e', font=("TkDefaultFont",10), width=22)
-        fps0_label.place(in_=self.FPSdefaults_tab, anchor="c", relx=.25, rely=.2)
+        # create text and entry widget for FPS-list
+
+        self.fps_frame = tk.LabelFrame(self.FPSdefaults_tab, text=' Set list of default FPS values ',\
+            labelanchor='nw', borderwidth=2, padx=10, pady=10,relief=tk.RIDGE,font=("Helvetica", 11, "bold"))
+        self.fps_frame.grid(row=0,column=0,padx=15,pady=15)
+
+        fps0_label=tk.Label(self.fps_frame, text=" Default FPS :",
+            anchor='e', font=("TkDefaultFont",10), width=14)
+        fps0_label.grid(row=0,column=0,padx=10,pady=5)
+        #place(in_=self.fps_frame, anchor="c", relx=.25, rely=.2)
 
         # add entry widget (to set default fps)
-        self.entry_fps0 = tk.Entry(self.FPSdefaults_tab, width=10)
-        self.entry_fps0.place(in_=self.FPSdefaults_tab, anchor="c", relx=.6, rely=.2)
+        self.entry_fps0 = tk.Entry(self.fps_frame, width=5)
+        #self.entry_fps0.place(in_=self.fps_frame, anchor="c", relx=.6, rely=.2)
+        self.entry_fps0.grid(row=0,column=1,padx=10,pady=5)
         # display current default
         self.entry_fps0.insert(0, str(self.fps_list[0]))
 
         # create text widgets for FPS dropdown list
-        fps1_label=tk.Label(self.FPSdefaults_tab, text=" 1. Optional FPS :",
-            anchor='e', font=("TkDefaultFont",10), width=22)
-        fps1_label.place(in_=self.FPSdefaults_tab, anchor="c", relx=.25, rely=.3)
+        fps1_label=tk.Label(self.fps_frame, text=" 1. Optional FPS :",
+            anchor='e', font=("TkDefaultFont",10), width=14)
+        fps1_label.grid(row=1,column=0,padx=10,pady=5)
+        #place(in_=self.fps_frame, anchor="c", relx=.25, rely=.3)
 
-        fps2_label=tk.Label(self.FPSdefaults_tab, text=" 2. Optional FPS :",
-            anchor='e', font=("TkDefaultFont",10), width=22)
-        fps2_label.place(in_=self.FPSdefaults_tab, anchor="c", relx=.25, rely=.35)
+        fps2_label=tk.Label(self.fps_frame, text=" 2. Optional FPS :",
+            anchor='e', font=("TkDefaultFont",10), width=14)
+        fps2_label.grid(row=2,column=0,padx=10,pady=5)
+        #place(in_=self.fps_frame, anchor="c", relx=.25, rely=.35)
 
-        fps3_label=tk.Label(self.FPSdefaults_tab, text=" 3. Optional FPS :",
-            anchor='e', font=("TkDefaultFont",10), width=22)
-        fps3_label.place(in_=self.FPSdefaults_tab, anchor="c", relx=.25, rely=.4)
+        fps3_label=tk.Label(self.fps_frame, text=" 3. Optional FPS :",
+            anchor='e', font=("TkDefaultFont",10), width=14)
+        fps3_label.grid(row=3, column=0,padx=10,pady=5)
+        #place(in_=self.fps_frame, anchor="c", relx=.25, rely=.4)
 
-        fps4_label=tk.Label(self.FPSdefaults_tab, text=" 4. Optional FPS :",
-            anchor='e', font=("TkDefaultFont",10), width=22)
-        fps4_label.place(in_=self.FPSdefaults_tab, anchor="c", relx=.25, rely=.45)
+        fps4_label=tk.Label(self.fps_frame, text=" 4. Optional FPS :",
+            anchor='e', font=("TkDefaultFont",10), width=14)
+        fps4_label.grid(row=4, column=0,padx=10,pady=5)
+        #place(in_=self.fps_frame, anchor="c", relx=.25, rely=.45)
 
-        self.entry_fps1 = tk.Entry(self.FPSdefaults_tab, width=10)
-        self.entry_fps1.place(in_=self.FPSdefaults_tab, anchor="c", relx=.6, rely=.3)
+        self.entry_fps1 = tk.Entry(self.fps_frame, width=5)
+        self.entry_fps1.grid(row=1,column=1,padx=10,pady=5)
+        #place(in_=self.fps_frame, anchor="c", relx=.6, rely=.3)
         self.entry_fps1.insert(0, str(self.fps_list[1]))
 
-        self.entry_fps2 = tk.Entry(self.FPSdefaults_tab, width=10)
-        self.entry_fps2.place(in_=self.FPSdefaults_tab, anchor="c", relx=.6, rely=.35)
+        self.entry_fps2 = tk.Entry(self.fps_frame, width=5)
+        self.entry_fps2.grid(row=2, column=1,padx=10,pady=5)
+        #place(in_=self.fps_frame, anchor="c", relx=.6, rely=.35)
         self.entry_fps2.insert(0, str(self.fps_list[2]))
 
-        self.entry_fps3 = tk.Entry(self.FPSdefaults_tab, width=10)
-        self.entry_fps3.place(in_=self.FPSdefaults_tab, anchor="c", relx=.6, rely=.4)
+        self.entry_fps3 = tk.Entry(self.fps_frame, width=5)
+        self.entry_fps3.grid(row=3, column=1,padx=10,pady=5)
+        #place(in_=self.fps_frame, anchor="c", relx=.6, rely=.4)
         self.entry_fps3.insert(0, str(self.fps_list[3]))
 
-        self.entry_fps4 = tk.Entry(self.FPSdefaults_tab, width=10)
-        self.entry_fps4.place(in_=self.FPSdefaults_tab, anchor="c", relx=.6, rely=.45)
+        self.entry_fps4 = tk.Entry(self.fps_frame, width=5)
+        self.entry_fps4.grid(row=4, column=1,padx=10,pady=5)
+        #place(in_=self.fps_frame, anchor="c", relx=.6, rely=.45)
         self.entry_fps4.insert(0, str(self.fps_list[4]))
 
         # 'Save & Exit' button 
@@ -345,25 +360,29 @@ class Menubar:
 
         # ------------------- Pixelsize defaults tab -------------------------- 
 
-        pixelsize0_label=tk.Label(self.psdefaults_tab,\
+        self.ps_frame = tk.LabelFrame(self.psdefaults_tab, text=' Set list of default pixelsizes ',\
+            labelanchor='nw', borderwidth=2, padx=10, pady=10,relief=tk.RIDGE,font=("Helvetica", 11, "bold"))
+        self.ps_frame.grid(row=0,column=0,padx=15,pady=15)
+
+        pixelsize0_label=tk.Label(self.ps_frame,\
             text=" Default pixelsize [nm] :", anchor='e', font=("TkDefaultFont",10), width=22)
-        pixelsize0_label.place(in_=self.psdefaults_tab, anchor="c", relx=.25, rely=.2)
+        pixelsize0_label.grid(row=0,column=0,padx=10,pady=5)
 
-        pixelsize1_label=tk.Label(self.psdefaults_tab,\
+        pixelsize1_label=tk.Label(self.ps_frame,\
             text=" 1. Optional pixelsize [nm] :", anchor='e', font=("TkDefaultFont",10), width=22)
-        pixelsize1_label.place(in_=self.psdefaults_tab, anchor="c", relx=.25, rely=.3)
+        pixelsize1_label.grid(row=1,column=0,padx=10,pady=5)
 
-        pixelsize2_label=tk.Label(self.psdefaults_tab,\
+        pixelsize2_label=tk.Label(self.ps_frame,\
             text=" 2. Optional pixelsize [nm] :", anchor='e', font=("TkDefaultFont",10), width=22)
-        pixelsize2_label.place(in_=self.psdefaults_tab, anchor="c", relx=.25, rely=.35)
+        pixelsize2_label.grid(row=2,column=0,padx=10,pady=5)
 
-        pixelsize3_label=tk.Label(self.psdefaults_tab,\
+        pixelsize3_label=tk.Label(self.ps_frame,\
             text=" 3. Optional pixelsize [nm] :", anchor='e', font=("TkDefaultFont",10), width=22)
-        pixelsize3_label.place(in_=self.psdefaults_tab, anchor="c", relx=.25, rely=.4)
+        pixelsize3_label.grid(row=3,column=0,padx=10,pady=5)
 
-        pixelsize4_label=tk.Label(self.psdefaults_tab,\
+        pixelsize4_label=tk.Label(self.ps_frame,\
             text=" 4. Optional pixelsize [nm] :", anchor='e', font=("TkDefaultFont",10), width=22)
-        pixelsize4_label.place(in_=self.psdefaults_tab, anchor="c", relx=.25, rely=.45)
+        pixelsize4_label.grid(row=4,column=0,padx=10,pady=5)
 
         # read pixelsize_defaults.txt (if it exists)
         if (os.path.exists('pixelsize_defaults.txt')):
@@ -387,26 +406,26 @@ class Menubar:
             f.write(str(self.pixelsize_list[4])+"\n")
             f.close()
 
+
         # add entry widget (to set default pixelsize)
-        self.entry_pixelsize0 = tk.Entry(self.psdefaults_tab, width=10)
-        self.entry_pixelsize0.place(in_=self.psdefaults_tab, anchor="c", relx=.6, rely=.2)
-        # display current default
+        self.entry_pixelsize0 = tk.Entry(self.ps_frame, width=5)
+        self.entry_pixelsize0.grid(row=0,column=1,padx=10,pady=5)
         self.entry_pixelsize0.insert(0, str(self.pixelsize_list[0]))
 
-        self.entry_pixelsize1 = tk.Entry(self.psdefaults_tab, width=10)
-        self.entry_pixelsize1.place(in_=self.psdefaults_tab, anchor="c", relx=.6, rely=.3)
+        self.entry_pixelsize1 = tk.Entry(self.ps_frame, width=5)
+        self.entry_pixelsize1.grid(row=1,column=1,padx=10,pady=5)
         self.entry_pixelsize1.insert(0, str(self.pixelsize_list[1]))
 
-        self.entry_pixelsize2 = tk.Entry(self.psdefaults_tab, width=10)
-        self.entry_pixelsize2.place(in_=self.psdefaults_tab, anchor="c", relx=.6, rely=.35)
+        self.entry_pixelsize2 = tk.Entry(self.ps_frame, width=5)
+        self.entry_pixelsize2.grid(row=2,column=1,padx=10,pady=5)
         self.entry_pixelsize2.insert(0, str(self.pixelsize_list[2]))
 
-        self.entry_pixelsize3 = tk.Entry(self.psdefaults_tab, width=10)
-        self.entry_pixelsize3.place(in_=self.psdefaults_tab, anchor="c", relx=.6, rely=.4)
+        self.entry_pixelsize3 = tk.Entry(self.ps_frame, width=5)
+        self.entry_pixelsize3.grid(row=3,column=1,padx=10,pady=5)
         self.entry_pixelsize3.insert(0, str(self.pixelsize_list[3]))
 
-        self.entry_pixelsize4 = tk.Entry(self.psdefaults_tab, width=10)
-        self.entry_pixelsize4.place(in_=self.psdefaults_tab, anchor="c", relx=.6, rely=.45)
+        self.entry_pixelsize4 = tk.Entry(self.ps_frame, width=5)
+        self.entry_pixelsize4.grid(row=4,column=1,padx=10,pady=5)
         self.entry_pixelsize4.insert(0, str(self.pixelsize_list[4]))
 
         # 'Save & Exit' button 
@@ -442,18 +461,18 @@ class Menubar:
             f.write(str(ncores_init))
 
         self.miscframe1 = tk.LabelFrame(self.misc_tab, text=' Image stabilization settings ',\
-            labelanchor='n', borderwidth=4, padx=0, pady=0,relief=tk.RIDGE,font=("Helvetica", 11, "bold"))
+            labelanchor='nw', borderwidth=2, padx=0, pady=0,relief=tk.RIDGE,font=("Helvetica", 11, "bold"))
         self.miscframe1.grid(row=0,column=0,padx=15,pady=15)
 
         # State number of avialable cores in label: 
         self.ncores_label=tk.Label(self.miscframe1,text=\
             'Please specify how many CPU cores (out of '+ str(ncores) +') can be used by Cilialyzer : ',\
             anchor="e",width=60)
-        self.ncores_label.grid(row=0, column=0,padx=3,pady=5)
+        self.ncores_label.grid(row=0, column=0,padx=10,pady=5)
         #place(in_=self.miscframe1,anchor="e",relx=.8,rely=.4)
 
         self.entry_nc = tk.Entry(self.miscframe1, width=5)
-        self.entry_nc.grid(row=0, column=1, padx=3, pady=5)
+        self.entry_nc.grid(row=0, column=1, padx=10, pady=5)
         #place(in_=self.miscframe1, anchor="c", relx=.85, rely=.4)
         self.entry_nc.insert(0, ncores_init)
 
@@ -483,10 +502,10 @@ class Menubar:
         self.skipframe_label=tk.Label(self.miscframe1,text=\
             'Specify how many frames can be skipped during video stabilization: ',\
             anchor="e",width=60)
-        self.skipframe_label.grid(row=1, column=0,padx=3,pady=5)
+        self.skipframe_label.grid(row=1, column=0,padx=10,pady=5)
 
-        self.skipframecombo = tk.ttk.Combobox(self.miscframe1,values=skipframe_list,width=5)
-        self.skipframecombo.grid(row=1,column=1,padx=3,pady=5)
+        self.skipframecombo = tk.ttk.Combobox(self.miscframe1,values=skipframe_list,width=4)
+        self.skipframecombo.grid(row=1,column=1,padx=10,pady=5)
         self.skipframecombo.current(self.skipframe)
 
         # ---------------------------------------------------------------------
