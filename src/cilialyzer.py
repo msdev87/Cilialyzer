@@ -31,6 +31,9 @@ class Cilialyzer():
     This class establishes the tkinter root window with all its content
     """
 
+
+
+
     """
     def resize(self, event):
 
@@ -73,6 +76,7 @@ class Cilialyzer():
         else:
             pass
         """
+
 
     def switchtab(self, event):
         # if tab is pressed (and pressed tab != active tab) then take precautions...
@@ -562,6 +566,8 @@ class Cilialyzer():
         # calls temporal_autocorrelation
         self.dynseq.temporal_autocorrelation(self.tacorr_plotframe,
             self.activity_map.freqmap)
+
+
 
     def __init__(self):
 
@@ -1192,23 +1198,6 @@ class Cilialyzer():
             self.opticalflowB = tk.Button(self.opticalflowtab,
                 text='Compute optical flow', command=self.compute_opticalflow, height=bh, width=bw)
             self.opticalflowB.place(in_=self.opticalflowtab, anchor="c", relx=0.5, rely=0.5)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

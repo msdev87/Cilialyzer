@@ -72,12 +72,11 @@ class Menubar:
         # webbrowser.open_new(r'./Doc/help.pdf')
         pass
 
-
     def change_theme(self):
         self.style.theme_use(self.selected_theme.get())
 
-
     def write_flags(self):
+        print('this is a test, Cilialyzer writes flags now')
         os.remove('feature_flags.txt')
         f = open('feature_flags.txt','a')
         f.write(str(int(self.ROISelection_flag))+"\n")
@@ -155,9 +154,10 @@ class Menubar:
         """
         Save current settings to file and restart the Cilialyer
         """
-        self.save_defaults()
 
         self.write_flags()
+
+        self.save_defaults()
 
         MsgBox = tk.messagebox.askquestion ('Restart required',
         'A restart of Cilialyzer is required for your changes to take effect. Restart Cilialyzer now?',icon = 'question')
@@ -170,6 +170,8 @@ class Menubar:
 
 
     def save_defaults(self):
+        #print('entering save_defaults')
+
         # save new defaults fps values
         self.fps_list[0] = int(self.entry_fps0.get())
         self.fps_list[1] = int(self.entry_fps1.get())
@@ -204,8 +206,6 @@ class Menubar:
         f.write(str(self.pixelsize_list[4])+"\n")
         f.close()
 
-
-
         # save default of number of cores to be used:
         if (os.path.exists('cores_default.txt')):
             os.remove('cores_default.txt')
@@ -234,7 +234,7 @@ class Menubar:
         Opens a toplevel window in which the appearance can be configured
         """
 
-        print('Entering configure')
+        #print('Entering configure')
 
         self.cfg_win = tk.Toplevel(self.parent)
         self.cfg_win.title('Configure Cilialyzer')

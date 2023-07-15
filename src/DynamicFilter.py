@@ -51,7 +51,7 @@ class DynFilter:
         self.splitline = None
         self.pixelffts = []
         self.fps = None
-    
+
         self.sclength = None # spatial correlation length
 
         # multiprocessing 
@@ -62,7 +62,7 @@ class DynFilter:
         else:
             self.pool = multiprocessing.Pool(self.ncpus)
 
-    def bandpass(self, PILseq, fps, minf, maxf,nharms):
+    def bandpass(self, PILseq, fps, minf, maxf, nharms):
 
         # input: roiseq 
         # output: dynamically filtered roiseq 
