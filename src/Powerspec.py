@@ -40,6 +40,8 @@ class powerspec:
         self.parentw = parentw
         self.parenth = parenth
         self.tkframe = Frame(parent,width=self.parentw,height=self.parenth)
+        self.parent = parent
+
 
         #self.tkframe.pack(expand=1,fill=BOTH)
         self.tkframe.pack()
@@ -220,7 +222,6 @@ class powerspec:
             if (s2 < 0.2):
                 s2 = 0.2
 
-
             print('-----------------------------------------------------------')
             print('a: ',a)
             print('b: ',b)
@@ -308,7 +309,6 @@ class powerspec:
                 print('freq[ind1] ', self.freqs[ind1],' freq[ind2] ',self.freqs[ind2])
                 print('-----------------------------------------------------------')
 
-
                 minscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
                 #minscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
 
@@ -339,56 +339,68 @@ class powerspec:
 
 
     def peakselection(self,powerspecplot):
- 
+
         # plot the powerspectrum 
-        fig = plt.figure() 
+        fig = plt.figure()
         ax = fig.add_subplot(111)
 
         plt.title("Select Left Limit of Peak")
-        
+
         # note that line is a Line2D object (matplotlib) 
         line, = ax.plot([], [])
-        lx = []  
+        lx = []
 
         def onclick(event):
             if event.inaxes!=line.axes: return
 
             if (len(lx) ==1):
-                lx.append(event.xdata)  
+                lx.append(event.xdata)
                 plt.axvline(float(lx[0]),color='r')
-                plt.axvline(float(lx[1]),color='r') 
+                plt.axvline(float(lx[1]),color='r')
                 line.figure.canvas.draw()
                 self.cbf_low = lx[0]
-                self.cbf_high = lx[1] 
-                time.sleep(1)  
-                plt.close(fig)  
-                
+                self.cbf_high = lx[1]
+                time.sleep(1)
+                plt.close(fig)
 
             if (len(lx) == 0):
-                lx.append(event.xdata)  
-                line.set_data([lx[0],lx[0]], [numpy.float(0),numpy.float(1)]) 
+                lx.append(event.xdata)
+                line.set_data([lx[0],lx[0]], [numpy.float(0),numpy.float(1)])
                 line.set_color('r')
                 plt.axvline(float(lx[0]),color='r')
                 plt.title("Select Right Limit of Peak")
-                line.figure.canvas.draw()            
+                line.figure.canvas.draw()
 
         cid = line.figure.canvas.mpl_connect('button_press_event', onclick)
 
         plt.ion()
-        plt.plot(self.freqs,self.spec, color='0.2',lw=2) 
+        plt.plot(self.freqs,self.spec, color='0.2',lw=2)
         plt.ylabel('Relative Power Spectral Density',labelpad=15,fontsize=18)
         plt.xlabel('Frequency [Hz]',labelpad=8,fontsize=18)
-        plt.xlim(0,150) 
+        plt.xlim(0,150)
         plt.xticks(fontsize=18)
         plt.yticks(fontsize=18)
         #plt.grid()
         #plt.tight_layout()
         plt.show()
 
-        
-        plt.waitforbuttonpress()  
-        plt.waitforbuttonpress()  
-      
+        plt.waitforbuttonpress()
+        plt.waitforbuttonpress()
+
+    def delete_content(self):
+        """
+        Method to remove the content getting displayed in the CBF-tab
+        """
+        # rebuild the frame (delete its content)  
+        self.tkframe.destroy()
+        self.tkframe = Frame(self.parent,width=self.parentw,height=self.parenth)
+
+        self.tkframe.pack()
+        self.tkframe.update()
+
+
+
+
 
 
 
@@ -477,5 +489,4 @@ class powerspec:
 #        #plt.show()
 #        plt.savefig('powerspec.png', bbox_inches = 'tight') 
 #        plt.close(fig) 
-
 

@@ -406,7 +406,6 @@ class Menubar:
             f.write(str(self.pixelsize_list[4])+"\n")
             f.close()
 
-
         # add entry widget (to set default pixelsize)
         self.entry_pixelsize0 = tk.Entry(self.ps_frame, width=5)
         self.entry_pixelsize0.grid(row=0,column=1,padx=10,pady=5)
@@ -656,7 +655,6 @@ class Menubar:
             rb = ttk.Radiobutton(self.themestab, text=theme, value=theme,
                         variable=self.selected_theme, command=self.change_theme)
             rb.grid()
-
 
 
     def __init__(self, parent):

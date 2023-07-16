@@ -75,6 +75,11 @@ class Toolbar:
 
         avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
 
+
+        # delete displayed content in CBF tab: 
+        self.powerspec.delete_content()
+
+
         # ask the user to set a new directory and load the images                 
         self.PIL_ImgSeq.choose_directory()
         self.PIL_ImgSeq.load_imgs() # loads image sequence                             
@@ -226,11 +231,8 @@ class Toolbar:
 
 
 
-
-
-
     def __init__(self, parent, player, roiplayer, ptrackplayer, PIL_ImgSeq,
-            nbook, roitab, roi, toolbar_h, toolbar_w, statusbar):
+            nbook, roitab, roi, toolbar_h, toolbar_w, statusbar, powerspec):
 
         self.player = player
         self.roiplayer = roiplayer
@@ -240,6 +242,12 @@ class Toolbar:
         self.roitab = roitab
         self.roi = roi
         self.statusbar = statusbar
+
+        # Here we bind powerspec referring to Powerspec.powerspec object
+        # When opening/jumping new directory or selecting a new video, 
+        # its delete_content method will be called to remove displayed content
+        self.powerspec = powerspec
+
 
         self.toolbarframe = tk.Frame(parent,width=toolbar_w,height=toolbar_h) # main frame containing the tools
         #print('test')

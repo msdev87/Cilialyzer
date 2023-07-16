@@ -844,18 +844,6 @@ class Cilialyzer():
         #statusF.grid_columnconfigure(0,weight=1)
         #print('width statusbar frame: ',statusF.winfo_width())
         #----------------------------------------------------------------------#
-
-
-        # ---------------------- create the toolbar ---------------------------#
-        self.toolbar = toolbar.Toolbar(self.mainframe, self.player,
-                                   self.roiplayer, self.ptrackplayer,
-                                   self.PIL_ImgSeq, self.nbook, self.roitab,
-                                   self.roi, self.toolbar_height,
-                                   self.nbookw, self.statusbar)
-        self.toolbarF = self.toolbar.toolbarframe
-        self.toolbarF.grid(row=0, column=0, columnspan=1, rowspan=1, sticky='ew')
-        # -------------------------------------------------------------------- #
-
         # --------------------- 'Image Stabilization'-button -------------------
         self.imageregB = tk.Button(self.roitab, text='Image stabilization',
             command=self.image_stabilization, height=bh, width=16)
@@ -896,6 +884,25 @@ class Cilialyzer():
         # Powerspectrum-Button
         self.powerspectrum = Powerspec.powerspec(self.pwspec1frame, int(round(0.6*self.nbookw)),\
             int(round(0.6*self.nbookh)))
+
+
+        # ---------------------- create the toolbar --------------------------#
+        self.toolbar = toolbar.Toolbar(self.mainframe, self.player,
+                                   self.roiplayer, self.ptrackplayer,
+                                   self.PIL_ImgSeq, self.nbook, self.roitab,
+                                   self.roi, self.toolbar_height,
+                                   self.nbookw, self.statusbar,self.powerspectrum)
+
+        self.toolbarF = self.toolbar.toolbarframe
+        self.toolbarF.grid(row=0, column=0, columnspan=1, rowspan=1, sticky='ew')
+        # ------------------------------------------------------------------- #
+
+
+
+
+
+
+
 
         # minfreq and maxfreq represent the lower and the upper limit
         # of the selected frequency bandwidth when determining the CBF
@@ -1203,6 +1210,22 @@ class Cilialyzer():
 
         # each time the application's window size gets changed -> call 'resize'
         # self.main_window.bind( "<Configure>", self.resize)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
 
