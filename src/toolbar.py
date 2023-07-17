@@ -112,6 +112,10 @@ class Toolbar:
 
         avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
 
+        # delete displayed content in CBF tab: 
+        self.powerspec.delete_content()
+
+
         # get a list of all subdirectories of the parent directory
         directory = os.path.abspath(self.PIL_ImgSeq.directory)
 
@@ -212,6 +216,10 @@ class Toolbar:
 
         avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
 
+        # delete displayed content in CBF tab: 
+        self.powerspec.delete_content()
+
+
         self.PIL_ImgSeq.load_video(self.fpscombo.get())
 
         # display video
@@ -227,8 +235,6 @@ class Toolbar:
         # make sure that the rotationangle is set to 0:
         self.roiplayer.rotationangle = 0.0
         self.roiplayer.animate()
-
-
 
 
     def __init__(self, parent, player, roiplayer, ptrackplayer, PIL_ImgSeq,

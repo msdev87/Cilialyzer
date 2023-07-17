@@ -399,12 +399,6 @@ class powerspec:
         self.tkframe.update()
 
 
-
-
-
-
-
-
 #    def get_cbf(self,nimgs,FPS): 
 #        
 #        peakheight = max(self.spec) 
