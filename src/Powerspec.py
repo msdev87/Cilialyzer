@@ -152,7 +152,7 @@ class powerspec:
             ylabel = 'Power Spectral Density'
             xlabel = 'Frequency [Hz]'
             labelpad=10
-            fontsize=18
+            fontsize=15
 
             # self.pwspecplot.plot(self.freqs, self.spec, xlabel, ylabel, labelpad, fontsize)
 
@@ -375,11 +375,11 @@ class powerspec:
 
         plt.ion()
         plt.plot(self.freqs,self.spec, color='0.2',lw=2)
-        plt.ylabel('Relative Power Spectral Density',labelpad=15,fontsize=18)
-        plt.xlabel('Frequency [Hz]',labelpad=8,fontsize=18)
+        plt.ylabel('Relative Power Spectral Density',labelpad=15,fontsize=15)
+        plt.xlabel('Frequency [Hz]',labelpad=8,fontsize=15)
         plt.xlim(0,150)
-        plt.xticks(fontsize=18)
-        plt.yticks(fontsize=18)
+        plt.xticks(fontsize=15)
+        plt.yticks(fontsize=15)
         #plt.grid()
         #plt.tight_layout()
         plt.show()

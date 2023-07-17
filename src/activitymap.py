@@ -141,7 +141,7 @@ class activitymap:
                     self.freqmap[i,j] = numpy.nan
 
         # plot the activity map (self.freqmap)
-        dpis = 150
+        dpis = 120
 
         figw = round(self.parentw / dpis)
         figh = round(self.parenth / dpis)
@@ -276,7 +276,7 @@ class activitymap:
         #plt.imshow(self.freq_acorr, alpha=1.0, cmap='gray', interpolation='none')
         #plt.show()
 
-        dpi = 150
+        dpi = 120
 
         figw = round(self.parentw / dpi)
         figh = round(self.parenth / dpi)
@@ -324,7 +324,7 @@ class activitymap:
         ypos = 3
         self.ax.text(xpos,ypos,str1+str2+str3,fontsize=10)
 
-        self.fcfig.tight_layout(pad=3)
+        self.fcfig.tight_layout(pad=1.5)
 
         self.canvas.draw()
         self.canvas.get_tk_widget().place(anchor='c', relx=0.5, rely=0.5)
