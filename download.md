@@ -14,7 +14,7 @@
 
 <br />
 <div align="center">      
-   <a href="https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.2.0-67303f" download="">Cilialyzer-v1.2.0-67303f</a> (creation date: January 22, 2022)
+   <a href="https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.2.0-67303f" download="">Cilialyzer-v1.2.0-67303f</a> (creation date: January 22, 2023)
 </div> 
 
 <!--
