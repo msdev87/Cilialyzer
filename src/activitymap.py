@@ -18,6 +18,8 @@ class activitymap:
         self.parenth = parenth
         self.tkframe = Frame(parent, width=self.parentw, height=self.parenth)
         self.tkframe.place(in_=parent, anchor='c', relx=0.5, rely=0.5)
+        self.parent=parent
+
 
         self.firstimg = None
         self.width = None
@@ -303,15 +305,12 @@ class activitymap:
         print('Frequency correlation length:  ',xi)
         print('**************************************************************')
 
-
-
         str1 = r'$\xi_f$'
         str2 = " = $%.2f$" %xi
         str3 = " $\mu$m"
         xpos = -70
         ypos = 100
         self.ax.text(xpos,ypos,str1+str2+str3,fontsize=12)
-
 
         self.fig.tight_layout()
 
@@ -320,7 +319,6 @@ class activitymap:
         self.canvas._tkcanvas.place(anchor='c', relx=0.5, rely=0.5)
 
         # print('frequency correlation length: ',xi)
-
 
         #fig = plt.figure()
         #ax = plt.axes(projection='3d')
@@ -332,9 +330,14 @@ class activitymap:
         #ax.plot_surface(X,Y,self.freq_acorr) 
         #plt.show()
 
+    def delete_content(self):
+        """
+        Deletes the displayed content in the activitmap tab & the freqcorr tab
+        """
 
-
-
-
-
-
+        self.tkframe.destroy()
+        self.tkframe = Frame(self.parent, width=self.parentw, height=self.parenth)
+        self.tkframe.place(in_=self.parent, anchor='c', relx=0.5, rely=0.5)
+        self.tkframe.update()
+        self.active_area.set('')
+        self.active_percentage.set('')

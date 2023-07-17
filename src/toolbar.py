@@ -79,6 +79,8 @@ class Toolbar:
         # delete displayed content in CBF tab: 
         self.powerspec.delete_content()
 
+        # delete displayed content in activity tab:
+        self.activitymap.delete_content()
 
         # ask the user to set a new directory and load the images                 
         self.PIL_ImgSeq.choose_directory()
@@ -238,7 +240,7 @@ class Toolbar:
 
 
     def __init__(self, parent, player, roiplayer, ptrackplayer, PIL_ImgSeq,
-            nbook, roitab, roi, toolbar_h, toolbar_w, statusbar, powerspec):
+            nbook, roitab, roi, toolbar_h, toolbar_w, statusbar, powerspec,activitymap):
 
         self.player = player
         self.roiplayer = roiplayer
@@ -248,6 +250,9 @@ class Toolbar:
         self.roitab = roitab
         self.roi = roi
         self.statusbar = statusbar
+
+        self.activitymap = activitymap
+
 
         # Here we bind powerspec referring to Powerspec.powerspec object
         # When opening/jumping new directory or selecting a new video, 

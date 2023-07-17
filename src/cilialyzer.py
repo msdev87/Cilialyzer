@@ -885,13 +885,17 @@ class Cilialyzer():
         self.powerspectrum = Powerspec.powerspec(self.pwspec1frame, int(round(0.6*self.nbookw)),\
             int(round(0.6*self.nbookh)))
 
+        # ----------- See below for remaining CBF notebook tab widgets --------
 
+
+
+        self.activity_map = None
         # ---------------------- create the toolbar --------------------------#
         self.toolbar = toolbar.Toolbar(self.mainframe, self.player,
                                    self.roiplayer, self.ptrackplayer,
                                    self.PIL_ImgSeq, self.nbook, self.roitab,
                                    self.roi, self.toolbar_height,
-                                   self.nbookw, self.statusbar,self.powerspectrum)
+                                   self.nbookw, self.statusbar,self.powerspectrum, self.activity_map)
 
         self.toolbarF = self.toolbar.toolbarframe
         self.toolbarF.grid(row=0, column=0, columnspan=1, rowspan=1, sticky='ew')
@@ -901,56 +905,6 @@ class Cilialyzer():
 
 
 
-
-
-
-        # minfreq and maxfreq represent the lower and the upper limit
-        # of the selected frequency bandwidth when determining the CBF
-        self.minfreq = tk.IntVar()
-        self.maxfreq = tk.IntVar()
-        self.minfreq.set(5)
-        self.maxfreq.set(15)
-
-        # minscale and maxscale represent the sliders for the bandwidth selection
-        self.minscale = tk.Scale(self.cbftab, from_=0.3, to=150,
-                             orient=tk.HORIZONTAL, length=400,
-                             resolution=0.2, variable=self.minfreq, command=self.peakselector)
-        self.minscale.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.8)
-        self.maxscale = tk.Scale(self.cbftab, from_=0.7, to=150,
-                             orient=tk.HORIZONTAL, length=400,
-                             resolution=0.2, variable=self.maxfreq, command=self.peakselector)
-        self.maxscale.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.85)
-
-        self.powerspecB=tk.Button(self.cbftab, text='Powerspectrum',\
-            command=lambda: self.powerspectrum.calc_powerspec(self.roiplayer.roiseq,\
-        self.toolbar.fpscombo.get(),self.pwspec1frame, self.minscale,
-        self.maxscale), height=bh, width=bw)
-        self.powerspecB.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.05)
-
-        # get_cbf is defined in 'TkPowerspecPlot.py'
-
-        self.cbfB = tk.Button(self.cbftab,text='Determine CBF',command=lambda: \
-            self.powerspectrum.pwspecplot.get_cbf(float(self.minscale.get()),\
-            float(self.maxscale.get()),self.toolbar.fpscombo.get()), height=bh, width=bw)
-        self.cbfB.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.92)
-
-        # self.powerspectrum.spec : holds the spectrum
-        # selfpowerspectrum.freqs : holds the corresponding frequencies
-
-        # ------------------------------------------------------------------------------
-        # add a combobox in which the user is supposed to specify the
-        # number of harmonics, the default is 2
-        # Label and Entry Widget for specifying the number of visible harmonics
-        if (self.DynamicFiltering_flag):
-            self.nrharms_label=tk.Label(self.cbftab, text="Number of Harmonics :",width=22,anchor='e',\
-            font=("Helvetica",11))
-            self.nrharms_label.place(in_=self.cbftab, anchor='c', relx=0.75, rely=0.15)
-
-            self.nrharms_list = [1,2,3]
-            self.nrharmscombo = tkinter.ttk.Combobox(self.cbftab,values=self.nrharms_list,width=5)
-            self.nrharmscombo.place(in_=self.cbftab, anchor='c', relx=0.85, rely=0.15)
-            self.nrharmscombo.current(0)
-        # ----------------------------------------------------------------------
 
 
         #*********************************************************************#
@@ -990,6 +944,11 @@ class Cilialyzer():
         self.activity_map = activitymap.activitymap(self.mapframe, \
             int(round(0.8*self.nbookh)), int(round(1.2*self.nbookh)),
             float(self.toolbar.pixsizecombo.get()), self.active_percentage, self.active_area) # activity map object
+
+
+        # initialize activitymap in toolbar object:
+        self.toolbar.activitymap = self.activity_map
+
 
         self.activityB = tk.Button(self.activitytab, text='Activtiy Map',\
             command=lambda: self.activity_map.calc_activitymap(self.mapframe,\
@@ -1047,6 +1006,62 @@ class Cilialyzer():
 
 
 
+
+
+
+
+
+
+
+
+        # ----------------- Remaining CBF notebook tab widgets ----------------
+        # minfreq and maxfreq represent the lower and the upper limit
+        # of the selected frequency bandwidth when determining the CBF
+        self.minfreq = tk.IntVar()
+        self.maxfreq = tk.IntVar()
+        self.minfreq.set(5)
+        self.maxfreq.set(15)
+
+        # minscale and maxscale represent the sliders for the bandwidth selection
+        self.minscale = tk.Scale(self.cbftab, from_=0.3, to=150,
+                             orient=tk.HORIZONTAL, length=400,
+                             resolution=0.2, variable=self.minfreq, command=self.peakselector)
+        self.minscale.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.8)
+        self.maxscale = tk.Scale(self.cbftab, from_=0.7, to=150,
+                             orient=tk.HORIZONTAL, length=400,
+                             resolution=0.2, variable=self.maxfreq, command=self.peakselector)
+        self.maxscale.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.85)
+
+        self.powerspecB=tk.Button(self.cbftab, text='Powerspectrum',\
+            command=lambda: self.powerspectrum.calc_powerspec(self.roiplayer.roiseq,\
+        self.toolbar.fpscombo.get(),self.pwspec1frame, self.minscale,
+        self.maxscale), height=bh, width=bw)
+        self.powerspecB.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.05)
+
+        # get_cbf is defined in 'TkPowerspecPlot.py'
+
+        self.cbfB = tk.Button(self.cbftab,text='Determine CBF',command=lambda: \
+            self.powerspectrum.pwspecplot.get_cbf(float(self.minscale.get()),\
+            float(self.maxscale.get()),self.toolbar.fpscombo.get()), height=bh, width=bw)
+        self.cbfB.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.92)
+
+        # self.powerspectrum.spec : holds the spectrum
+        # selfpowerspectrum.freqs : holds the corresponding frequencies
+
+        # ------------------------------------------------------------------------------
+        # add a combobox in which the user is supposed to specify the
+        # number of harmonics, the default is 2
+        # Label and Entry Widget for specifying the number of visible harmonics
+        if (self.DynamicFiltering_flag):
+            self.nrharms_label=tk.Label(self.cbftab, text="Number of Harmonics :",width=22,anchor='e',\
+            font=("Helvetica",11))
+            self.nrharms_label.place(in_=self.cbftab, anchor='c', relx=0.75, rely=0.15)
+
+            self.nrharms_list = [1,2,3]
+            self.nrharmscombo = tkinter.ttk.Combobox(self.cbftab,values=self.nrharms_list,width=5)
+            self.nrharmscombo.place(in_=self.cbftab, anchor='c', relx=0.85, rely=0.15)
+            self.nrharmscombo.current(0)
+        # ----------------------------------------------------------------------
         #**********************************************************************#
 
 
