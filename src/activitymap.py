@@ -11,7 +11,7 @@ import math
 
 class activitymap:
 
-    def __init__(self, parent, parentw, parenth, pixsize, active_percentage, active_area):
+    def __init__(self, parent, parentw, parenth, pixsize, active_percentage, active_area, fcparentframe):
 
         self.map = None
         self.parentw = parentw
@@ -19,6 +19,12 @@ class activitymap:
         self.tkframe = Frame(parent, width=self.parentw, height=self.parenth)
         self.tkframe.place(in_=parent, anchor='c', relx=0.5, rely=0.5)
         self.parent=parent
+
+
+
+        self.fcparentframe = fcparentframe
+        self.fc_tkframe = None
+
 
 
         self.firstimg = None
@@ -32,6 +38,8 @@ class activitymap:
         self.freqs = None
 
         self.freqmap = None
+
+        self.fcfig = None # figure belonging to frequency corr plot
 
         self.fig = None
         self.ax1 = None
@@ -50,6 +58,10 @@ class activitymap:
 
         self.active_percentage = active_percentage
         self.active_area = active_area
+
+
+
+
 
 
     def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum, pixsize, threshold):
@@ -269,11 +281,11 @@ class activitymap:
         figw = round(self.parentw / dpi)
         figh = round(self.parenth / dpi)
 
-        self.fig, self.ax = plt.subplots(nrows=1, figsize=(figw-1, figh-1), dpi=dpi)
+        self.fcfig, self.ax = plt.subplots(nrows=1, figsize=(figw-1, figh-1), dpi=dpi)
 
         # plot first image & overlay activity map  
 
-        self.canvas = FigureCanvasTkAgg(self.fig, parent)
+        self.canvas = FigureCanvasTkAgg(self.fcfig, parent)
 
         print(' ------------------------------------------------------------ ')
         print('check normalization of frequency corr')
@@ -288,7 +300,7 @@ class activitymap:
         self.ax.set_xlabel("$\Delta$x [$\mu$m]",labelpad=0)
         self.ax.set_ylabel("$\Delta$y [$\mu$m]",labelpad=-4)
 
-        self.fig.colorbar(bla,cax=cax,label="C($\Delta$x,$\Delta$y)")
+        self.fcfig.colorbar(bla,cax=cax,label="C($\Delta$x,$\Delta$y)")
 
 
         # write freq correlogram to file:
@@ -308,11 +320,11 @@ class activitymap:
         str1 = r'$\xi_f$'
         str2 = " = $%.2f$" %xi
         str3 = " $\mu$m"
-        xpos = -70
-        ypos = 100
-        self.ax.text(xpos,ypos,str1+str2+str3,fontsize=12)
+        xpos = -3
+        ypos = 3
+        self.ax.text(xpos,ypos,str1+str2+str3,fontsize=10)
 
-        self.fig.tight_layout()
+        self.fcfig.tight_layout(pad=3)
 
         self.canvas.draw()
         self.canvas.get_tk_widget().place(anchor='c', relx=0.5, rely=0.5)
@@ -335,9 +347,22 @@ class activitymap:
         Deletes the displayed content in the activitmap tab & the freqcorr tab
         """
 
+        # Delete all displayed content in acitivity map tab:
         self.tkframe.destroy()
         self.tkframe = Frame(self.parent, width=self.parentw, height=self.parenth)
         self.tkframe.place(in_=self.parent, anchor='c', relx=0.5, rely=0.5)
         self.tkframe.update()
         self.active_area.set('')
         self.active_percentage.set('')
+
+        # Delete all displayed content fcorr tab
+        self.fc_tkframe.destroy()
+        self.fc_tkframe = Frame(self.fcparentframe, width=self.parentw, height=self.parenth)
+        self.fc_tkframe.place(in_=self.fcparentframe, anchor='c', relx=0.5, rely=0.5)
+        self.fc_tkframe.update()
+
+
+
+
+
+

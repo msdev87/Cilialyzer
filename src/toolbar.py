@@ -76,11 +76,19 @@ class Toolbar:
         avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
 
 
-        # delete displayed content in CBF tab: 
-        self.powerspec.delete_content()
+        # delete displayed content in CBF tab:
+        try:
+            self.powerspec.delete_content()
+        except:
+            pass
 
         # delete displayed content in activity tab:
+
+
         self.activitymap.delete_content()
+
+
+
 
         # ask the user to set a new directory and load the images                 
         self.PIL_ImgSeq.choose_directory()
@@ -116,6 +124,10 @@ class Toolbar:
 
         # delete displayed content in CBF tab: 
         self.powerspec.delete_content()
+
+        # delete displayed content in activity tab:
+        self.activitymap.delete_content()
+
 
 
         # get a list of all subdirectories of the parent directory
@@ -220,6 +232,10 @@ class Toolbar:
 
         # delete displayed content in CBF tab: 
         self.powerspec.delete_content()
+
+        # delete displayed content in activity tab:
+        self.activitymap.delete_content()
+
 
 
         self.PIL_ImgSeq.load_video(self.fpscombo.get())

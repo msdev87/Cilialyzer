@@ -917,8 +917,10 @@ class Cilialyzer():
         self.mapframe = tk.Frame(self.activitytab, \
             width=int(round(0.8*self.nbookh)), height=int(round(0.8*self.nbookh)))
         self.mapframe.place(in_=self.activitytab, anchor='c', relx=0.5, rely=0.55)
-
         self.mapframe.update()
+
+        self.fcorrframe = None
+
 
         # read validity threshold (to generate activity map) from file:
         try:
@@ -943,7 +945,7 @@ class Cilialyzer():
 
         self.activity_map = activitymap.activitymap(self.mapframe, \
             int(round(0.8*self.nbookh)), int(round(1.2*self.nbookh)),
-            float(self.toolbar.pixsizecombo.get()), self.active_percentage, self.active_area) # activity map object
+            float(self.toolbar.pixsizecombo.get()), self.active_percentage, self.active_area, self.fcorrframe) # activity map object
 
 
         # initialize activitymap in toolbar object:
@@ -1075,10 +1077,31 @@ class Cilialyzer():
         self.fcorrframe.place(in_=self.freqcorrtab, anchor='c', relx=0.5, rely=0.5)
 
 
+        self.activity_map.fc_tkframe = tk.Frame(self.fcorrframe, width=int(round(0.7*self.nbookw)),height=int(round(0.7*self.nbookh)))
+        self.activity_map.fc_tkframe.place(in_=self.fcorrframe, anchor='c', relx=0.5, rely=0.5)
+
+        self.activity_map.fcparentframe = self.fcorrframe
+
+        # update activitymap in toolbar object:
+        self.toolbar.activitymap = self.activity_map
+
+
+
+
         self.freqcorrB = tk.Button(self.freqcorrtab, text='Frequency Correlation',
             command=lambda: self.activity_map.frequency_correlogram(
             self.fcorrframe, float(self.toolbar.pixsizecombo.get())), height=bh, width=bw)
         self.freqcorrB.place(in_=self.freqcorrtab, anchor='c', relx=0.5, rely=0.05)
+
+
+        tk.Frame(self.activitytab, \
+            width=int(round(0.8*self.nbookh)), height=int(round(0.8*self.nbookh)))
+        self.mapframe.place(in_=self.activitytab, anchor='c', relx=0.5, rely=0.55)
+
+        self.mapframe.update()
+
+
+
         # **********************************************************************
 
 
