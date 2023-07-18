@@ -7,10 +7,11 @@
 </div> 
 
 
+<br />
 <div align="center"> 
    <b> Download the most recent binary releases for Windows </b>
 </div>
-
+<br />
 
 <br />
 <div align="center">      
