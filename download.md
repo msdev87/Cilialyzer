@@ -7,7 +7,9 @@
 </div> 
 
 
-
+<div align="center"> 
+   <b> Download the most recent binary releases for Windows </b>
+</div>
 
 
 <br />
@@ -15,17 +17,7 @@
    <a href="https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.2.1-b3098cb" download="">Cilialyzer-v1.2.0-67303f</a> (creation date: January 22, 2023)
 </div> 
 <br />
-<div align="center"> 
-   <b> Download the most recent binary releases for Windows </b>
-</div>
 
-
-
-
-<br />
-<div align="center">    
-   <a href="https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.2.1-2184ed" download="">Cilialyzer-v1.2.1-2184ed</a> (creation date: July 18, 2023)
-</div> 
 
 
 
