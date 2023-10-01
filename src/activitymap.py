@@ -121,7 +121,6 @@ class activitymap:
                 # (condition for invalidity: A_xy / A_bar < 0.15)  
 
                 # threshold in Ryser was set to 0.15 
-                #threshold = 0.2
 
                 A_xy = numpy.sum(self.spec[bot:top+1])
 
@@ -136,6 +135,24 @@ class activitymap:
                 else:
                     # invalid pixel 
                     self.freqmap[i,j] = numpy.nan
+
+
+                # For a valid pixel, we furthermore demand that the peak 
+                # frequency lies in the CBF-band
+
+                # get location of peak within each pixel
+                maxind=numpy.argmax(self.spec)
+
+                if (maxind.size > 1):
+                    maxind=maxind[0]
+
+                if ((maxind >= bot) and (maxind <= top)):
+                    self.validity_mask[i,j]=1
+                else:
+                    self.freqmap[i,j]=numpy.nan
+
+
+
 
         # plot the activity map (self.freqmap)
         dpis = 120

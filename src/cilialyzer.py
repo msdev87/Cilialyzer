@@ -24,6 +24,8 @@ import OpticalFlow
 #import cv2
 import avoid_troubles
 import PIL
+import Batchanalysis
+
 
 class Cilialyzer():
 
@@ -508,11 +510,10 @@ class Cilialyzer():
             float(self.toolbar.pixsizecombo.get()),
             fps = float(self.toolbar.fpscombo.get()))
 
-
-
-
-
     # -------------------------------------------------------------------------
+    def batchv1(self):
+        Batchanalysis.process()
+
 
 
 
@@ -1241,15 +1242,19 @@ class Cilialyzer():
             self.opticalflowB.place(in_=self.opticalflowtab, anchor="c", relx=0.5, rely=0.5)
 
 
-
         # each time the application's window size gets changed -> call 'resize'
         # self.main_window.bind( "<Configure>", self.resize)
 
+        # *********************************************************************
+        # Automatic 1
+        # *********************************************************************
+        self.autotab1 = tk.Frame(self.nbook, width=int(round(0.9*self.nbookw)),
+            height=int(round(0.95*self.nbookh)))
+        self.nbook.add(self.autotab1, text=' Batch processing v1 ')
 
-
-
-
-
+        self.autoB1 = tk.Button(self.autotab1, text='Process video batch',
+            command=self.batchv1, height=bh, width=bw)
+        self.autoB1.place(in_=self.autotab1, anchor="c", relx=0.5, rely=0.5)
 
 
 
