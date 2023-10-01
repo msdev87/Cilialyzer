@@ -3,7 +3,7 @@ import crosscorrelation_zp
 import PIL
 import matplotlib.pyplot as plt
 import bytescl
-import sys 
+import sys
 
 def stcorr(array, maxtimeshift=14):
     """
@@ -23,7 +23,6 @@ def stcorr(array, maxtimeshift=14):
     """
 
     stcorrgram = []
-
 
     nimgs = array.shape[0]
     width, height = array.shape[2], array.shape[1]

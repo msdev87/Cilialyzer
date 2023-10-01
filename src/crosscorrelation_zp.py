@@ -19,9 +19,9 @@ def ccorr2D_zp(signal1, signal2, mask=None):
     # along the width and the height
     ni, nj = signal1.shape
 
-    #print('******************************************************************')
+    #print('*****************************************************************')
     #print('ni1: ',ni,'nj1: ',nj)
-    #print('******************************************************************')
+    #print('*****************************************************************')
 
     # if mask is None (default), we assume that all pixels in signal are valid: 
     if mask is None:
@@ -48,9 +48,9 @@ def ccorr2D_zp(signal1, signal2, mask=None):
     # the signal (and the mask) has now an even number of rows and columns 
     ni, nj = signal1.shape
 
-    #print('******************************************************************')
+    #print('*****************************************************************')
     #print('ni: ',ni,'nj: ',nj)
-    #print('******************************************************************')
+    #print('*****************************************************************')
 
     # Get the signals' mean (excluding missing values)
     mean1 = numpy.sum(numpy.multiply(signal1, mask)) / numpy.sum(mask)
@@ -93,7 +93,6 @@ def ccorr2D_zp(signal1, signal2, mask=None):
     mask_correction_factors = numpy.real(numpy.fft.ifft2( numpy.multiply(
         fft_masked_signal, numpy.conjugate(fft_masked_signal))))
 
-
     # The "error" made can now be easily corrected by an element-wise division
     crosscovariance = pseudo_crosscovariance / mask_correction_factors
 
@@ -108,7 +107,5 @@ def ccorr2D_zp(signal1, signal2, mask=None):
     var1 = numpy.var(centered_signal1)
     var2 = numpy.var(centered_signal2)
 
-
     return (crosscovariance / (math.sqrt(var1*var2)))
-
 

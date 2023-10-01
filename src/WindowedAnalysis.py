@@ -52,7 +52,7 @@ def analyse_windows(array_list):
         #print('*************************************************************')
 
         # compute sptio-temporal cross-correlogram for 'array' 
-        stcorr = spacetimecorr_zp.stcorr(array)
+        stcorr = spacetimecorr_zp.stcorr(array,maxtimeshift=2)
 
         # peak tracking
         n_timeshifts = len(stcorr)
@@ -130,7 +130,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     # we choose the size of the windows based on the spatial correlation length
     # i.e. each window measures: ( 3 x spatialcorrlength )**2
 
-    winsize = int(3.0*sclength / pixsize * 1000) # side length of a window (in pixels)
+    winsize = int(3*sclength / pixsize * 1000) # side length of a window (in pixels)
 
     print('winsize (in pixels): ', winsize)
 
@@ -150,7 +150,6 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     mcbf_total = numpy.nanmean(activitymap)
     # get the standard deviation of the cbf based on the activity map:
     scbf_total = numpy.nanstd(activitymap)
-
 
     # scaled activitymap (mean = 0, stddev = 1) 
     activity_scaled = numpy.subtract(activitymap, mcbf_total)
@@ -188,7 +187,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             #spread_win = scbf_win / mcbf_win
 
             #spread_win = numpy.nanstd(activity_scaled[i1:i2,j1:j2])
-    
+
             #print('spread_win: ', spread_win)
 
             # check if the CBF-spread within the window is smaller than 
@@ -202,7 +201,6 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             spread_win = percentile2 - percentile1
 
             print('spread_win: ', spread_win)
-
 
             if (spread_win < 2): #*spread_total):
                 mask[i,j] = True
@@ -218,6 +216,19 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
             else:
                 mask[i,j] = False
+                # !!!!!!!!!!!!!!!!!!!! TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+                mask[i,j] = True
+
+                # add windowed array to valid_wins:
+                valid_wins.append(array[:,i1:i2,j1:j2])
+
+                # save center location of valid window
+                win_centers.append((0.5*(j1+j2),0.5*(i1+i2)))
+
+                # save mean cbf within valid window
+                win_meancbf.append(mcbf_win)
+
+                #!!!!!!!!!!!!!!!!!!!!! TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 
     print(mask)
 
@@ -256,7 +267,10 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
         else:
             istart = 0
 
-        sublist = valid_wins[istart:istart+int(nwins_per_cpu[i-1])]
+        sublist = valid_wins[istart:istart+int(nwins_per_cpu[i])]
+        print('len of sublist:', len(sublist))
+
+
         valid_wins_ncpus.append(sublist)
 
     result = pool.map(analyse_windows,
@@ -283,7 +297,6 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             # loop over windows
             peak = peak_list[j]
 
-            
             # -----------------------------------------------------------------
             # examine how peak shifts with increasing time delay
             # plot distance vs. time delay
@@ -298,11 +311,31 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             # print(shifted_dists)
             # -----------------------------------------------------------------
 
-            print(' -------------------- peak start -------------------------')
+            print(' ------------------- peak start -------------------------')
             print(peak)
-            print(' --------------------- peak end --------------------------')
-            deltax = peak[1,0] - peak[0,0]
-            deltay = peak[1,1] - peak[0,1]
+            print(' -------------------- peak end --------------------------')
+
+            # This is an important note, please read carefully!
+            # The space-time correlation C(dx,dy,dt) reprsents the convolution 
+            # of I(x,y,t) and I(x+dx,y+dy,t+dt). It is important to note that 
+            # the second frame is shifted in space and time simultaneously. 
+            # Therefore the displacement of the peak in the 
+            # correlogram is given by (-deltax, -deltay) 
+            # NOT (deltax, deltay) 
+
+            deltax = -(peak[1,0] - peak[0,0]) # see above comment
+            deltay = -(peak[1,1] - peak[0,1]) # see above comment 
+
+            # Note: at this moment (deltax, deltay) corresponds to the movement 
+            # of the correlation peak (within delta t) in 'image coordinates'. 
+            # A POSITIVE deltay therefore means a vector pointing DOWN, which 
+            # corresponds to the orientation of how the video is displayed 
+
+            # However arctan2(y,x) calculates the arctan of y/x 
+            # therefore we perform a mirroring around the x-axis 
+            # in order to being able to use arctan2 to determine the angles
+
+            deltay = -deltay
 
             #print('deltax: ',deltax)
             #print('deltay: ',deltay)
@@ -311,10 +344,10 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
             # distance in pixels between delta_t = 0 and delta_t = 1 
             dist = math.sqrt(deltax**2 + deltay**2)
-            print('dist: ', dist)
+            # print('dist: ', dist)
 
-            print('pixsize: ', pixsize)
-            print('fps: ',fps)
+            # print('pixsize: ', pixsize)
+            # print('fps: ',fps)
 
             dist = dist * pixsize / 1000.0 # distance in micrometers
 
@@ -330,9 +363,9 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
             counter += 1
 
-    print(' ------------------------------------------------------------')
-    print('speeds')
-    print(speeds)
+    #print(' ------------------------------------------------------------')
+    #print('speeds')
+    #print(speeds)
 
 
     # let us write all the interesting information on the disk
@@ -347,7 +380,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     numpy.savetxt('./WindowedAnalysis_Results/win_wavespeed.dat', speeds)
 
     # write propagation angle to file
-    numpy.savetxt('./WindowedAnalysis_Results/win_waveangle.dat', wave_directions) 
+    numpy.savetxt('./WindowedAnalysis_Results/win_waveangle.dat', wave_directions)
 
     # get wavelengths within each valid window
     wavelengths = numpy.zeros(n_valid)
@@ -358,9 +391,9 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
     numpy.savetxt('./WindowedAnalysis_Results/win_wavelength.dat', wavelengths)
 
-    print('---------------------- wavelengths -------------------------------')
-    print(wavelengths)
-    print('------------------------------------------------------------------')
+    #print('---------------------- wavelengths -------------------------------')
+    #print(wavelengths)
+    #print('------------------------------------------------------------------')
 
 
 

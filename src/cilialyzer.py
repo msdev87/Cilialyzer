@@ -31,9 +31,6 @@ class Cilialyzer():
     This class establishes the tkinter root window with all its content
     """
 
-
-
-
     """
     def resize(self, event):
 
@@ -490,7 +487,6 @@ class Cilialyzer():
         except:
             tk.messagebox("Warning", "Dynamically filtered video needed")
 
-
         try:
             if (sclength > 0):
                 WindowedAnalysis.prepare_windows(
@@ -861,13 +857,13 @@ class Cilialyzer():
             command=lambda: self.roiplayer.crop_margins(), height=bh, width=16)
         self.cropB.place(in_=self.roitab, anchor="c", relx=.07, rely=.12)
 
-
+        """
         # denoise button 
-        #self.denoiseB = tk.Button(self.roitab, text='Denoise',
-        #    command=lambda: self.PIL_ImgSeq.denoise(self.roiplayer.roiseq),
-        #    height=bh, width=16)
-        #self.denoiseB.place(in_=self.roitab, anchor="c", relx=0.07, rely=0.22)
-
+        self.denoiseB = tk.Button(self.roitab, text='Denoise',
+            command=lambda: self.PIL_ImgSeq.denoise(self.roiplayer.roiseq),
+            height=bh, width=16)
+        self.denoiseB.place(in_=self.roitab, anchor="c", relx=0.07, rely=0.5)
+        """
 
         # ********************************************************************#
         #                      CBF notebook-tab                               #

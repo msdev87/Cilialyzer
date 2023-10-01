@@ -1,14 +1,13 @@
 import numpy
-
+from scipy.ndimage import gaussian_filter
+from PIL import Image, ImageTk, ImageEnhance
+from bytescl import bytescl
 """
 Input: 3D array (stack of images)
-
-bandpass filter in all 3 dimensions (space and time)
-
 Output: denoised image sequence
 """
 
-def denoise(PILseq, fps, pixsize):
+def denoise(PILseq):
 
     firstimg = PILseq[0] # first image of roi sequence  
     width, height = firstimg.size # dimension of images 
@@ -16,16 +15,28 @@ def denoise(PILseq, fps, pixsize):
 
     # create numpy array 'array' 
     array = numpy.zeros((int(nimgs),int(height),int(width)))
+
     for i in range(nimgs):
         array[i,:,:] = numpy.array(PILseq[i])
     (nt,ni,nj) = numpy.shape(array)
 
-    filtering = numpy.zeros((nt,ni,nj))
+    """
+    # Gaussian blur in space                                        
+    for i in range(nimgs):
+        array[i,:,:] = gaussian_filter(array[i,:,:],sigma=0.5)
 
-    # define the bandpass filter 'filtering'
+    # Gaussian blur in time                                         
+    for w in range(width):
+        for h in range(height):
+            array[:,h,w] = gaussian_filter(array[:,h,w],sigma=0.5)
+            array = numpy.uint8(bytescl(array))
+    """
 
-    # space-domaing filtering: get rid of Nyquist frequency in kx and ky
+    array = gaussian_filter(array,sigma=0.5)
+    array = numpy.uint8(bytescl(array))
 
-
+    for i in range(nimgs):
+        img = Image.fromarray(array[i,:,:])
+        PILseq[i] = img
 
 

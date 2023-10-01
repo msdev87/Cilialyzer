@@ -9,6 +9,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import autocorrelation_zeropadding
 import math
 
+import denoising
+
 class activitymap:
 
     def __init__(self, parent, parentw, parenth, pixsize, active_percentage, active_area, fcparentframe):
@@ -20,12 +22,8 @@ class activitymap:
         self.tkframe.place(in_=parent, anchor='c', relx=0.5, rely=0.5)
         self.parent=parent
 
-
-
         self.fcparentframe = fcparentframe
         self.fc_tkframe = None
-
-
 
         self.firstimg = None
         self.width = None
@@ -60,14 +58,13 @@ class activitymap:
         self.active_area = active_area
 
 
-
-
-
-
     def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum, pixsize, threshold):
         """
         calculation of the activity map (spatially resolved CBF map)
         """
+
+        # Before computing the activity map, we slightly denoise the video:
+        denoising.denoise(PILseq)
 
         self.pixsize = pixsize
         self.fps = FPS

@@ -12,7 +12,6 @@ import crosscorrelation_zp
 
 import matplotlib.pyplot as plt
 
-
 def get_opticalflow(PILseq, pixsize, fps):
 
     firstimg = PILseq[0] # first image of roi sequence  
@@ -40,13 +39,11 @@ def get_opticalflow(PILseq, pixsize, fps):
 
     speed_matrix = numpy.zeros_like(optical_flow) # optical flow speed
 
-
-
     # we do not determine the optical flow at the margins 
     # (therefore we skip pixels having i=0 , i=1, j=0 or j=1)
     # the window size needs to be chosen to an even number (nr of pixels) 
 
-    wsize = 7
+    wsize = 9
 
     for t in range(nt):
         cnt = 0
@@ -78,9 +75,14 @@ def get_opticalflow(PILseq, pixsize, fps):
                 except:
                     posx, posy, peakh = float(wsize), float(wsize), 0.5
 
-                # displacement of the peak: 
-                u_arr[cnt] = posx - wsize
-                v_arr[cnt] = posy - wsize
+                # displacement of the peak:
+                u = posx - wsize
+                v = posy - wsize
+
+                # note that from the crosscorrelation, we get -u and -v 
+                # (as the second image provided to crosscorris shifted in time)
+                u_arr[cnt] = -u
+                v_arr[cnt] = -v
                 x_arr[cnt] = j+0.5
                 y_arr[cnt] = i+0.5
 
@@ -97,11 +99,11 @@ def get_opticalflow(PILseq, pixsize, fps):
         #plt.savefig('opticalflow.png')
 
         # write optical flow to disk:
-        numpy.savetxt('./OpticalFlow_23rdNov2022_12_50x/opticalflow_ws'+str(int(wsize))+'_xpos_'+str(t)+'.dat',x_arr)
-        numpy.savetxt('./OpticalFlow_23rdNov2022_12_50x/opticalflow_ws'+str(int(wsize))+'_ypos_'+str(t)+'.dat',y_arr)
-        numpy.savetxt('./OpticalFlow_23rdNov2022_12_50x/opticalflow_ws'+str(int(wsize))+'_v_'+str(t)+'.dat',v_arr)
-        numpy.savetxt('./OpticalFlow_23rdNov2022_12_50x/opticalflow_ws'+str(int(wsize))+'_u_'+str(t)+'.dat',u_arr)
-        numpy.savetxt('./OpticalFlow_23rdNov2022_12_50x/opticalflow_ws'+str(int(wsize))+'_speed_'+str(t)+'.dat',speed_matrix)
+        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_4T20x/opticalflow_ws'+str(int(wsize))+'_xpos_'+str(t)+'.dat',x_arr)
+        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_4T20x/opticalflow_ws'+str(int(wsize))+'_ypos_'+str(t)+'.dat',y_arr)
+        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_4T20x/opticalflow_ws'+str(int(wsize))+'_v_'+str(t)+'.dat',v_arr)
+        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_4T20x/opticalflow_ws'+str(int(wsize))+'_u_'+str(t)+'.dat',u_arr)
+        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_4T20x/opticalflow_ws'+str(int(wsize))+'_speed_'+str(t)+'.dat',speed_matrix)
 
 
 
