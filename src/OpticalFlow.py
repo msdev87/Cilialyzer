@@ -26,13 +26,20 @@ def get_opticalflow(PILseq, pixsize, fps):
 
     (nt,ni,nj) = numpy.shape(array)
 
-    print('nt:',nt, '  ni:',ni,'  nj:',nj)
+    #print('nt:',nt, '  ni:',ni,'  nj:',nj)
 
-    optical_flow = numpy.zeros_like(array[0,:,:])
-    x_arr = numpy.zeros((ni*nj))
-    y_arr = numpy.zeros((ni*nj))
-    u_arr = numpy.zeros((ni*nj))
-    v_arr = numpy.zeros((ni*nj))
+    wsize = 7
+
+    li = len(range(wsize, int(ni)-wsize))
+    lj = len(range(wsize,int(nj)-wsize))
+
+    optical_flow = numpy.zeros((li,lj))
+    x_arr = numpy.zeros((li*lj))
+    y_arr = numpy.zeros((li*lj))
+    u_arr = numpy.zeros((li*lj))
+    v_arr = numpy.zeros((li*lj))
+
+    print('li',li,'lj',lj)
 
     u_matrix = numpy.zeros_like(optical_flow)
     v_matrix = numpy.zeros_like(optical_flow)
@@ -42,8 +49,6 @@ def get_opticalflow(PILseq, pixsize, fps):
     # we do not determine the optical flow at the margins 
     # (therefore we skip pixels having i=0 , i=1, j=0 or j=1)
     # the window size needs to be chosen to an even number (nr of pixels) 
-
-    wsize = 9
 
     for t in range(nt):
         cnt = 0
@@ -83,13 +88,13 @@ def get_opticalflow(PILseq, pixsize, fps):
                 # (as the second image provided to crosscorris shifted in time)
                 u_arr[cnt] = -u
                 v_arr[cnt] = -v
-                x_arr[cnt] = j+0.5
-                y_arr[cnt] = i+0.5
+                x_arr[cnt] = j+0.5-wsize
+                y_arr[cnt] = i+0.5-wsize
 
-                u_matrix[i,j] = u_arr[cnt]
-                v_matrix[i,j] = v_arr[cnt]
+                u_matrix[i-wsize,j-wsize] = u_arr[cnt] * pixsize * fps * 0.001
+                v_matrix[i-wsize,j-wsize] = v_arr[cnt] * pixsize * fps * 0.001
 
-                speed_matrix[i,j] = math.sqrt((u_arr[cnt]**2) + (v_arr[cnt]**2))
+                speed_matrix[i-wsize,j-wsize] = math.sqrt((u_arr[cnt]**2) + (v_arr[cnt]**2)) * pixsize * fps * 0.001
 
                 cnt = cnt + 1
 
@@ -99,12 +104,11 @@ def get_opticalflow(PILseq, pixsize, fps):
         #plt.savefig('opticalflow.png')
 
         # write optical flow to disk:
-        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_4T20x/opticalflow_ws'+str(int(wsize))+'_xpos_'+str(t)+'.dat',x_arr)
-        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_4T20x/opticalflow_ws'+str(int(wsize))+'_ypos_'+str(t)+'.dat',y_arr)
-        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_4T20x/opticalflow_ws'+str(int(wsize))+'_v_'+str(t)+'.dat',v_arr)
-        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_4T20x/opticalflow_ws'+str(int(wsize))+'_u_'+str(t)+'.dat',u_arr)
-        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_4T20x/opticalflow_ws'+str(int(wsize))+'_speed_'+str(t)+'.dat',speed_matrix)
-
+        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_9T20x/opticalflow_ws'+str(int(wsize))+'_xpos_'+str(t)+'.dat',x_arr)
+        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_9T20x/opticalflow_ws'+str(int(wsize))+'_ypos_'+str(t)+'.dat',y_arr)
+        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_9T20x/opticalflow_ws'+str(int(wsize))+'_v_'+str(t)+'.dat',v_arr)
+        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_9T20x/opticalflow_ws'+str(int(wsize))+'_u_'+str(t)+'.dat',u_arr)
+        numpy.savetxt('./Data/OpticalFlow_27thFeb2023_9T20x/opticalflow_ws'+str(int(wsize))+'_speed_'+str(t)+'.dat',speed_matrix)
 
 
         """
@@ -142,5 +146,3 @@ def get_opticalflow(PILseq, pixsize, fps):
         plt.imshow(numpy.sqrt(numpy.absolute(autocorr)))
         plt.savefig('autocorr'+string(t)+'.png')
         """
-
-
