@@ -1,5 +1,5 @@
 import numpy
-import math
+from math import sqrt
 
 def ccorr2D_zp(signal1, signal2, mask=None):
     """
@@ -102,10 +102,8 @@ def ccorr2D_zp(signal1, signal2, mask=None):
     crosscovariance = numpy.fft.fftshift(crosscovariance)
     crosscovariance = crosscovariance[int(ni/2):int(3*ni/2),int(nj/2):int(3*nj/2)]
 
-    #print('done')
-
     var1 = numpy.var(centered_signal1)
     var2 = numpy.var(centered_signal2)
 
-    return (crosscovariance / (math.sqrt(var1*var2)))
+    return (crosscovariance / (sqrt(var1*var2)))
 

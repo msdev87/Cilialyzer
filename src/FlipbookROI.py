@@ -120,7 +120,7 @@ def bytescale(self):
     # lambda function performs the byte-scaling (contrast enhancement)  
     self.currentimg = Image.eval(self.currentimg,
             lambda xy: round((abs(xy - self.MinIntensity) /
-                            float(self.MaxIntensity-self.MinIntensity)) * 255))
+                            float(self.MaxIntensity-self.MinIntensity)) * 255.0))
 
 
 def ResizeCurrentImage(self):

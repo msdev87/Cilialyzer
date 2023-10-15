@@ -26,7 +26,6 @@ import avoid_troubles
 import PIL
 import Batchanalysis
 
-
 class Cilialyzer():
 
     """
@@ -813,6 +812,10 @@ class Cilialyzer():
             command=self.select_roi, height=bh, width=16)
         self.roiB.place(in_=self.roitab, anchor="c", relx=.07, rely=.22)
         # roi-sequence (cropped PIL image sequence) available by "self.roi.roiseq"
+
+        self.binB = tk.Button(self.roitab, text='Binning 2x2',
+                command=lambda: self.PIL_ImgSeq.binning(self.roiplayer.roiseq), height=bh, width=16)
+        self.binB.place(in_=self.roitab, anchor="c", relx=0.07, rely=0.27)
 
         # Export sequence Button 
         #self.exportB = tk.Button(self.roitab, text='Export sequence',

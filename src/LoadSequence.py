@@ -573,6 +573,40 @@ class ImageSequence:
             #self.sequence[i] = img
             roiseq[i] = img
 
+    def binning(self, roiseq):
+
+        firstimg = roiseq[0] # first image of roi sequence
+        width, height = firstimg.size # dimension of images 
+        nimgs = len(roiseq) # number of images
+
+        # initialize numpy float array, which will hold the image sequence  
+        array = numpy.zeros((int(nimgs), int(height), int(width)), dtype=float)
+
+        # convert stack of PIL images to numpy array
+        for i in range(nimgs):
+            array[i, :, :] = numpy.array(roiseq[i])
+
+        w=int(width/2)
+        h=int(height/2)
+        binned = numpy.zeros((nimgs,h,w))
+        for t in range(nimgs):
+            print(t)
+            for i in range(h):
+                for j in range(w):
+                    iinds=[2*i,2*i,1+2*i,1+2*i]
+                    jinds=[2*j,1+2*j,2*j,1+2*j]
+                    tinds=[t,t,t,t]
+                    inds = [tinds,iinds,jinds]
+                    binned[t,i,j] = numpy.mean([array[t,2*i,2*j],array[t,2*i,1+2*j],array[t,1+2*i,2*j],array[t,1+2*i,1+2*j]])
+
+        # convert numpy array back to PIL sequence
+        for i in range(nimgs):
+            roiseq[i] = Image.fromarray(numpy.uint8(binned[i,:,:]))
+
+
+
+
+
 
 
     def denoise(self, roiseq):

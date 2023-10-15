@@ -1,4 +1,4 @@
-import numpy
+from numpy import copy
 from pystackreg import StackReg
 
 def subproc(args):
@@ -12,7 +12,7 @@ def subproc(args):
     nimgs = array.shape[0]
     #print('nimgs: ',nimgs)
 
-    array_stabilized = numpy.copy(array)
+    array_stabilized = copy(array)
 
     sr = StackReg(StackReg.RIGID_BODY)
 
