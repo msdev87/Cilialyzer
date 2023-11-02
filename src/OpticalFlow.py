@@ -30,36 +30,36 @@ def get_opticalflow(PILseq, pixsize, fps):
 
     #print('nt:',nt, '  ni:',ni,'  nj:',nj)
 
-    wsize = 7
+    #wsize = 7
 
-    li = len(range(wsize, int(ni)-wsize))
-    lj = len(range(wsize,int(nj)-wsize))
-
-    optical_flow = numpy.zeros((li,lj))
-    x_arr = numpy.zeros((li*lj))
-    y_arr = numpy.zeros((li*lj))
-    u_arr = numpy.zeros((li*lj))
-    v_arr = numpy.zeros((li*lj))
+    #li = len(range(wsize, int(ni)-wsize))
+    #lj = len(range(wsize,int(nj)-wsize))
+    #optical_flow = numpy.zeros((li,lj))
+    #x_arr = numpy.zeros((li*lj))
+    #y_arr = numpy.zeros((li*lj))
+    #u_arr = numpy.zeros((li*lj))
+    #v_arr = numpy.zeros((li*lj))
 
     #print('li',li,'lj',lj)
 
-    u_matrix = numpy.zeros_like(optical_flow)
-    v_matrix = numpy.zeros_like(optical_flow)
+    #u_matrix = numpy.zeros_like(optical_flow)
+    #v_matrix = numpy.zeros_like(optical_flow)
 
-    speed_matrix = numpy.zeros_like(optical_flow) # optical flow speed
+    #speed_matrix = numpy.zeros_like(optical_flow) # optical flow speed
 
     # we do not determine the optical flow at the margins 
     # (therefore we skip pixels having i=0 , i=1, j=0 or j=1)
     # the window size needs to be chosen to an even number (nr of pixels) 
 
     # start nrproc processes 
-    nrproc = 5
+    nrproc = 10
     arguments=[]
-    flist1=[]
-    flist2=[]
-    tlist =[]
-    steps = 10 # number of optical flow fields calculated per process 
+
+    steps = 15 # number of optical flow fields calculated per process 
     for k in range(nrproc):
+        flist1=[]
+        flist2=[]
+        tlist=[]
         for s in range(steps):
             flist1.append(array[nrproc*s+k,:,:])
             flist2.append(array[nrproc*s+k+1,:,:])

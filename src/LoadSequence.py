@@ -580,8 +580,15 @@ class ImageSequence:
         nimgs = len(roiseq) # number of images
 
         # initialize numpy float array, which will hold the image sequence  
-        array = numpy.zeros((int(nimgs), int(height), int(width)), dtype=float)
+        # array = numpy.zeros((int(nimgs), int(height), int(width)), dtype=float)
 
+        for i in range(nimgs):
+            roiseq[i] = roiseq[i].resize((width//2,height//2),
+                resample=Image.BICUBIC)
+
+
+
+        """
         # convert stack of PIL images to numpy array
         for i in range(nimgs):
             array[i, :, :] = numpy.array(roiseq[i])
@@ -602,7 +609,7 @@ class ImageSequence:
         # convert numpy array back to PIL sequence
         for i in range(nimgs):
             roiseq[i] = Image.fromarray(numpy.uint8(binned[i,:,:]))
-
+        """
 
 
 

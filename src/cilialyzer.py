@@ -947,10 +947,8 @@ class Cilialyzer():
             int(round(0.8*self.nbookh)), int(round(1.2*self.nbookh)),
             float(self.toolbar.pixsizecombo.get()), self.active_percentage, self.active_area, self.fcorrframe) # activity map object
 
-
         # initialize activitymap in toolbar object:
         self.toolbar.activitymap = self.activity_map
-
 
         self.activityB = tk.Button(self.activitytab, text='Activtiy Map',\
             command=lambda: self.activity_map.calc_activitymap(self.mapframe,\

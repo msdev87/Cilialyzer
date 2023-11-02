@@ -91,7 +91,6 @@ class activitymap:
         self.tkframe = Frame(parent, width=self.parentw, height=self.parenth)
         self.tkframe.place(in_=parent, anchor='c', relx=0.5, rely=0.5)
 
-
         # fast-fourier-transform along time axis (pixel-wise) 
         # (nt,ni,nj) = numpy.shape(self.array)
         (nt, ni, nj) = numpy.shape(powerspectrum.pixelspectra)
@@ -150,9 +149,6 @@ class activitymap:
                     self.validity_mask[i,j]=1
                 else:
                     self.freqmap[i,j]=numpy.nan
-
-
-
 
         # plot the activity map (self.freqmap)
         dpis = 120

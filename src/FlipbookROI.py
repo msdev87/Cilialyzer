@@ -9,7 +9,6 @@ import math
 import multiprocessing
 #from multiprocessing import Pool
 
-
 if os.sys.version_info.major > 2:
     from tkinter.filedialog import askdirectory
     import tkinter as tk
@@ -102,7 +101,6 @@ def GetMinMaxIntensity(self):
     if maxintensity > self.MaxIntensity:
         self.MaxIntensity = maxintensity
 
-
 def GammaScale(self):
     self.currentimg =\
                 ImageEnhance.Contrast(self.currentimg).enhance(self.contrast)
@@ -122,13 +120,11 @@ def bytescale(self):
             lambda xy: round((abs(xy - self.MinIntensity) /
                             float(self.MaxIntensity-self.MinIntensity)) * 255.0))
 
-
 def ResizeCurrentImage(self):
 
     w,h = self.currentimg.size
     scale = min((self.screen[0]/float(w), self.screen[1]/float(h)))
     self.currentimg=self.currentimg.resize((int(w*scale), int(h*scale)))
-
 
 class ImgSeqPlayer(object):
 
@@ -790,29 +786,24 @@ class ImgSeqPlayer(object):
 
         #self.labeltext.set('playback speed [FPS]: ' + str(float(self.speed)))
 
-
     def decrease_fps(self):
         """ Increase time between screen redraws. """
         self.speed -= 1
 
         self.labeltext.set('playback speed [FPS]: ' + str(float(self.speed)))
 
-
     def zero_fps(self):
         """ Increase time between screen redraws. """ 
         self.stop = 1
-        
+
     def escape(self):
-        self.stop = 2 
+        self.stop = 2
 
     def next_image(self):
         self.index = (self.index + 1)%(len(self.PILimgs))
 
     def previous_image(self):
         self.index = (self.index - 1)%(len(self.PILimgs))
-
-
-
 
     def crop_margins(self):
         # crop margins
@@ -821,7 +812,7 @@ class ImgSeqPlayer(object):
         w,h = self.roiseq[0].size
 
         for i in range(self.seqlength):
-            self.roiseq[i] = self.roiseq[i].crop((5,5,w-5,h-5)) 
+            self.roiseq[i] = self.roiseq[i].crop((5,5,w-5,h-5))
 
         self.refreshing = 1
         self.frame.destroy()
@@ -830,33 +821,6 @@ class ImgSeqPlayer(object):
         self.stop = 0
         self.refreshing = 0 # as refreshing ends here                   
         self.animate()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
