@@ -921,7 +921,6 @@ class Cilialyzer():
 
         self.fcorrframe = None
 
-
         # read validity threshold (to generate activity map) from file:
         try:
             with open('validity_threshold.txt') as f:
@@ -981,7 +980,7 @@ class Cilialyzer():
         self.textvar.set(str(self.threshold))
 
         # spinbox 
-        self.activity_threshold = tk.Spinbox(self.thframe, textvariable=self.textvar, from_=0, to=0.5, increment=0.01,\
+        self.activity_threshold = tk.Spinbox(self.thframe, textvariable=self.textvar, from_=0, to=0.9, increment=0.01,\
             command=self.set_threshold,width=5)
         self.activity_threshold.grid(row=0,column=1,columnspan=1)
         #self.activity_threshold.delete(0, "end")

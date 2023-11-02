@@ -57,15 +57,10 @@ class activitymap:
         self.active_percentage = active_percentage
         self.active_area = active_area
 
-
     def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum, pixsize, threshold):
         """
         calculation of the activity map (spatially resolved CBF map)
         """
-
-        # Before computing the activity map, we slightly denoise the video:
-        denoising.denoise(PILseq)
-
         self.pixsize = pixsize
         self.fps = FPS
 
@@ -76,15 +71,11 @@ class activitymap:
         self.width, self.height = self.firstimg.size # dimension of images 
         self.nimgs = len(PILseq) # number of images   
 
-        #self.array = numpy.zeros((int(self.nimgs),int(self.height),int(self.width)))
-        #for i in range(self.nimgs): 
-        #    self.array[i,:,:] = numpy.array(PILseq[i]) # array holds image intensties 
-
-        # initialze the array holding the activity map
+        # initialze the array, which will contain the activity map
         self.freqmap = numpy.zeros((int(self.height), int(self.width)))
 
         # initialize the boolean mask indicating the validity of each pixel 
-        self.validity_mask = numpy.zeros((int(self.height), int(self.width)))
+        self.validity_mask = numpy.ones((int(self.height), int(self.width)))
 
         # delete the priorly drawn activity map
         self.tkframe.destroy()
@@ -119,8 +110,6 @@ class activitymap:
                 # presented in Ryser et al. 2007
                 # (condition for invalidity: A_xy / A_bar < 0.15)  
 
-                # threshold in Ryser was set to 0.15 
-
                 A_xy = numpy.sum(self.spec[bot:top+1])
 
                 if (A_xy > threshold * A_bar):
@@ -128,27 +117,26 @@ class activitymap:
                     # calculate the mean freq in freq band (weighted mean)
                     self.freqmap[i,j] = numpy.sum(numpy.multiply(self.freqs[bot:top+1],
                         self.spec[bot:top+1])) / numpy.sum(self.spec[bot:top+1])
-
-                    # validity-mask:
-                    self.validity_mask[i,j] = 1
                 else:
-                    # invalid pixel 
+                    # mark pixel as invalid
                     self.freqmap[i,j] = numpy.nan
-
+                    self.validity_mask[i,j] = 0
 
                 # For a valid pixel, we furthermore demand that the peak 
-                # frequency lies in the CBF-band
+                # frequency lies within the CBF-band
 
-                # get location of peak within each pixel
+                # get location of peak frequency for each pixel
                 maxind=numpy.argmax(self.spec)
 
                 if (maxind.size > 1):
                     maxind=maxind[0]
 
                 if ((maxind >= bot) and (maxind <= top)):
-                    self.validity_mask[i,j]=1
+                    # pixel fullfills the criterium - nothing to do
+                    pass
                 else:
-                    self.freqmap[i,j]=numpy.nan
+                    self.freqmap[i,j] = numpy.nan
+                    self.validity_mask[i,j] = 0
 
         # plot the activity map (self.freqmap)
         dpis = 120
@@ -225,12 +213,9 @@ class activitymap:
         self.ax1.text(xpos,ypos,str1+str2+str3,fontsize=10)
         """
 
-
-        # display also the size of the 'active area'
-
+        # Display the size of the 'active area'
         activearea = numpy.sum(self.validity_mask) * (self.pixsize / 1000.0)**2
         activearea = activearea / 1000.0 / 1000.0 # convert to square millim.
-
 
         bla = '%.6f' %activearea
         self.active_area.set(bla)

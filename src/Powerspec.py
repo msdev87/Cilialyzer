@@ -2,6 +2,7 @@ import numpy
 import matplotlib.pyplot as plt
 import time
 import math
+from scipy.ndimage import gaussian_filter
 
 import TkPowerspecPlot
 import os
@@ -67,8 +68,7 @@ class powerspec:
             #print('newtest', self.tkframe.winfo_width())
             self.pwspecplot = TkPowerspecPlot.TkPowerspecPlot(self.tkframe)
 
-            #print "type"
-            #print type(roiseq) 
+
             firstimg = roiseq[0] # first image of roi sequence  
             width, height = firstimg.size # dimension of images 
             nimgs = len(roiseq) # number of images   
@@ -76,10 +76,8 @@ class powerspec:
             # initialize numpy float array, which will hold the image sequence  
             array = numpy.zeros((int(nimgs),int(height),int(width)))
 
-            #array = numpy.array(array,dtype=float) 
-
             for i in range(nimgs):
-                array[i,:,:] = numpy.array(roiseq[i])
+                array[i,:,:] = gaussian_filter(numpy.array(roiseq[i]),sigma=0.5)
 
             (nt,ni,nj) = numpy.shape(array)
 

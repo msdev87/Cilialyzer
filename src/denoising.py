@@ -21,18 +21,20 @@ def denoise(PILseq):
     (nt,ni,nj) = numpy.shape(array)
 
     """
-    # Gaussian blur in space                                        
+    # Gaussian blur in space
     for i in range(nimgs):
         array[i,:,:] = gaussian_filter(array[i,:,:],sigma=0.5)
 
-    # Gaussian blur in time                                         
+    # Gaussian blur in time
     for w in range(width):
         for h in range(height):
             array[:,h,w] = gaussian_filter(array[:,h,w],sigma=0.5)
             array = numpy.uint8(bytescl(array))
     """
 
+    #array = gaussian_filter(array,sigma=0.5)
     array = gaussian_filter(array,sigma=0.5)
+
     array = numpy.uint8(bytescl(array))
 
     for i in range(nimgs):
