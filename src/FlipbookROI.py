@@ -594,6 +594,8 @@ class ImgSeqPlayer(object):
                 self.stop = 0
                 self.refreshing = 0 # as refreshing ends here  
 
+                self.rotationangle = 0.0
+
             # add mouse bindings here
 
             self.can.xview_moveto(0)
