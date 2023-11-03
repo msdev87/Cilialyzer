@@ -37,9 +37,6 @@ import time
 
 import threading
 
-
-
-
 VALID_TYPES = (
     "bmp", "dib", "dcx", "gif", "im", "jpg", "jpe", "jpeg", "pcd", "pcx",
     "png", "pbm", "pgm", "ppm", "psd", "tif", "tiff", "xbm", "xpm"
@@ -162,7 +159,6 @@ class ImageSequence:
         #self.fname = self.fname.set(f[0])
         self.fname.set(f[0])
 
-
     def get_files(self):
         """
         directory: str, directory to search for files.
@@ -177,7 +173,6 @@ class ImageSequence:
         sort_list(files)
 
         return (self.directory+"/"+f for f in files)
-
 
     def get_images(self):
 
@@ -285,8 +280,6 @@ class ImageSequence:
         subprocess.call(['ffmpeg', '-i', self.videofile, '-r', fps, self.videofile.split(".")[0]+'/frame-%04d.png'])
 
 
-
-
     def video_to_sequence(self, fps):
         """
         ffmpeg gets used to convert the selected video to a sequence
@@ -330,8 +323,6 @@ class ImageSequence:
         # generate the image sequence in the just generated folder 
 
         #seqname = os.path.split(os.path.split(self.directory)[1])
-
-
 
         # handle exception (ffmpeg might not be installed)
         try:

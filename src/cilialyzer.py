@@ -237,8 +237,6 @@ class Cilialyzer():
 
         self.powerspectrum.pwspecplot.canvas.draw()
 
-
-
         if (self.DynamicFiltering_flag):
             # --------- shade the second and third harmonic (if selected) ----------
             if (int(self.nrharmscombo.get()) > 1):

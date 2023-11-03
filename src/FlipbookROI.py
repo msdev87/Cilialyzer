@@ -587,7 +587,7 @@ class ImgSeqPlayer(object):
                 # crop ROI/resfresh and finally, animate ROI! 
                 self.refreshing = 1
                 self.frame.destroy()
-                self.selectroi = 0
+                self.selectroi = 1
                 self.stop = 2
                 self.__init__(self.master, self.directory,self.refreshing,self.roiseq,self.seqlength,self.roiobj,self.selectroi)
                 self.animate()
