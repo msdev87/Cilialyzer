@@ -366,17 +366,30 @@ class Cilialyzer():
         for i in range(num_procs):
             if (i < num_procs - 1):
                 array_stabilized[i * arrayslice:(i + 1) * arrayslice, :, :] = \
-                result[i]
+                result[i][0]
             else:
                 array_stabilized[i * arrayslice:nimgs, :, :] = result[
-                    num_procs - 1]
+                    num_procs - 1][0]
+
+
 
         print('----- check2 for nan values ------')
         print(numpy.sum(numpy.isnan(array_stabilized)))
 
+
+        croppix=0
+        for i in range(ncores):
+            if (result[i][1] > croppix):
+                croppix = result[i][1]
+
+
+
+        #croppix = max(result[:][1])
+        #croppix=10 
+
         for i in range(nimgs):
             self.roiplayer.roiseq[i] = Image.fromarray(
-                numpy.uint8(array_stabilized[i, :, :]))
+                    numpy.uint8(array_stabilized[i, croppix:height-croppix, croppix:width-croppix]))
 
         busywin.destroy()
 
