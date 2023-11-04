@@ -25,7 +25,7 @@ def subproc(args):
 
     sr = StackReg(StackReg.RIGID_BODY)
 
-    maxdiff=0.0 # maximum transformation
+    maxdiff=0.0 # maximum difference between transformed images
 
     # loop over all images                                           
     for i in range(nimgs):
@@ -41,10 +41,8 @@ def subproc(args):
         if (numpy.sum(numpy.absolute(dummy - sr.transform(dummy))) > maxdiff):
             maxdiff=numpy.sum(numpy.absolute(dummy - sr.transform(dummy)))
 
-
-    #TODO check for negative values in stabilized array 
-
-
+    # Check for negative values in stabilized array and set them to zero 
+    array_stabilized[numpy.argwhere(array_stabilized < 0)] = 0
 
     h = array_stabilized.shape[1]
     w = array_stabilized.shape[2]
@@ -54,7 +52,13 @@ def subproc(args):
     else:
         croppix = int(maxdiff // w + 5)
 
-    #print(array_stabilized.shape[0])
+    # Reduce the intensity of highly scattering structures by slightly 
+    # croping distribution of the intensity (2% from dark and bright side)
+    cut1 = numpy.percentile(array_stabilized, 0.5)
+    cut2 = numpy.percentile(array_stabilized, 99.5)
+
+    array_stabilized[array_stabilized < cut1] = cut1
+    array_stabilized[array_stabilized > cut2] = cut2
 
     return (array_stabilized, croppix)
 
