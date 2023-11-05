@@ -7,17 +7,10 @@
 </div> 
 
 
-
 <br />
-<br />
-<div align="center"> 
-   <font size="+2">
-   <b> Download the most recent binary releases for Windows </b>
-   </font>
-</div>
 <br />
 
-General comment on Cilialyzer releases: 
+<b>General comment on Cilialyzer releases:</b>  <br />
 Please note that the Cilialyzer is currently undergoing further development. 
 Unfortunately, the software still crashes occasionally. We will take care of these (in)stability problems in the next few weeks and release a considerably more stable version
 by the beginning of 2024. 
@@ -27,12 +20,18 @@ We recommend to run the Cilialyzer from the Python environment. However, the cle
 is to run it within the Python environment installed on a machine running Ubuntu Linux.  
 
 Should you encounter any technical problems, should you be interested in collaborating, or should you simply like to give us a feedback, you are very welcome to contact us by e-mail: 
-martin.schneiter@unibe.ch. 
+martin.schneiter@gmx.ch. 
 We would be happy to keep our users up-to-date and notify them by e-mail as soon as a new version of Cilialyzer has been made available. 
-And we would like to learn more about who is using our software for what purpose. 
-We would therefore very appreciate to receive a short notification by e-mail to the above address.
+And finally, we would also like to learn more about who is using our software for what purpose. 
+We would therefore very much appreciate to receive your short notification by e-mail to the above address.
 
-
+<br />
+<div align="center"> 
+   <font size="+2">
+   <b> Download the most recent binary releases for Windows below: </b>
+   </font>
+</div>
+<br />
 <br />
 <div align="center">
    <b>
@@ -41,11 +40,34 @@ We would therefore very appreciate to receive a short notification by e-mail to 
 </div> 
 <br />
 
+<b>List of most important changes made to version 1.2.0:</b>  <br />
 
-<br />
-<div align="center">      
+<b> Acitivity map:</b>  <br />
+The calculation of the activity map has been heavily revised. 
+The current calculation correlates now well with our visual assessment of the proportion of active cilia. 
+We will provide here a link to a report of the newly implemented algorithm. 
+
+<b> Pixel Binning: </b>  <br />
+A 'Pixel Binning' button has been added to the ROI-selection tab. If pressed, a 2x2 pixel binning (cubic interpolation) is performed. 
+Please note that it may make sense to perform a pixel binning, as many calculations are time-consuming and/or memory-intensive. 
+
+<b> Image stabilization: </b>  <br />
+In most cases it should no longer be necessary to manually crop the video after performing an image stabilization, as the video gets now cropped automatically after having been stabilized. 
+
+<b> ROI-selection: </b>  <br />
+A region of interest can now be selected repeatedly. 
+
+<b> Image rotation: </b>  <br />
+Bug considering the image rotation has now been solved. (After having been rotated, the video does now actually remain rotated.) 
+
+
+
+____________________________________________________________________________________________________________
+
+Cilialyzer version 1.2.0 was described in our first publication on Cilialyzer (<a href="./publications.md" style="font-size:25px;font-weight:400;"       >Download publication</a>).
+
+<br />   
    <a href="https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.2.1-b3098cb" download="">Cilialyzer-v1.2.1-b3098cb</a> (creation date: July 18, 2023)
-</div> 
 <br />
 
 
