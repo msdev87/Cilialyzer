@@ -26,7 +26,6 @@ And finally, we would also like to learn more about who is using our software fo
 We would therefore very much appreciate to receive your short notification by e-mail to the above address.
 
 <br />
-<br />
 <div align="center"> 
    <font size="+2">
    <b> Download the most recent binary releases for Windows below: </b>
