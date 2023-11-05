@@ -26,18 +26,19 @@ And finally, we would also like to learn more about who is using our software fo
 We would therefore very much appreciate to receive your short notification by e-mail to the above address.
 
 <br />
+<br />
 <div align="center"> 
    <font size="+2">
    <b> Download the most recent binary releases for Windows below: </b>
    </font>
 </div>
 <br />
-<br />
 <div align="center">
    <b>
    <font size="10"> <a href="https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.3.0-46218df" download="">Cilialyzer-v1.3.0-46218df</a> (creation date: November 5, 2023) </font>
    </b>
 </div> 
+<br />
 <br />
 
 <b>List of most important changes made to version 1.2.0:</b>  <br />
