@@ -77,7 +77,14 @@ class powerspec:
             array = numpy.zeros((int(nimgs),int(height),int(width)))
 
             for i in range(nimgs):
-                array[i,:,:] = gaussian_filter(numpy.array(roiseq[i]),sigma=0.5)
+                array[i,:,:] = gaussian_filter(numpy.array(roiseq[i]),sigma=0.75)
+
+
+            # slight gaussian smoothing along time axis:
+            for i in range(height):
+                for j in range(width):
+                    array[:,i,j] = gaussian_filter(array[:,i,j], sigma=0.75)
+
 
             (nt,ni,nj) = numpy.shape(array)
 

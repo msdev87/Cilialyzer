@@ -275,10 +275,8 @@ class ImageSequence:
         firstimg = self.sequence[0]
         self.width, self.height = firstimg.size
 
-
     def splitvideo_ffmpeg(self, fps):
         subprocess.call(['ffmpeg', '-i', self.videofile, '-r', fps, self.videofile.split(".")[0]+'/frame-%04d.png'])
-
 
     def video_to_sequence(self, fps):
         """

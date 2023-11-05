@@ -21,7 +21,7 @@ import sys
 import spacetimecorr_zp
 import WindowedAnalysis
 import OpticalFlow
-#import cv2
+import cv2
 import avoid_troubles
 import PIL
 import Batchanalysis
@@ -186,25 +186,25 @@ class Cilialyzer():
     #    w, h = self.roiplayer.roiseq[0].size
     #    fourcc = cv.VideoWriter_fourcc('m', 'p', '4', 'v')
     #    writer = cv.VideoWriter('out', fourcc, fps, (w, h))
-    #
+
     #    for frame in self.roiplayer.roiseq:
     #        print('test')
     #        writer.write(pil_to_cv(frame))
-    #
+
     #    writer.release() 
     #    """
-    #
+
     #    img_array = []
     #    for i in range(self.roiplayer.seqlength):
     #        img = numpy.array(self.roiplayer.roiseq[i])
     #        height, width = img.shape
     #        size = (width,height)
     #        img_array.append(img)
-    #
+
     #    #fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     #    fourcc = cv2.VideoWriter_fourcc(*'h264')
     #    out = cv2.VideoWriter('output.mp4',fourcc, 15, size)
-    #
+
     #    for i in range(len(img_array)):
     #        print('test')
     #        print(img_array[i].shape)
@@ -836,7 +836,7 @@ class Cilialyzer():
         # Export video Button
         #self.exportvideoB = tk.Button(self.roitab, text='Export video',
         #    command=self.exportvideo, height=bh, width=16)
-        #self.exportvideoB.place(in_=self.roitab, anchor='c', relx=.07,rely=.37)
+        #self.exportvideoB.place(in_=self.roitab, anchor='c', relx=.07,rely=.5)
 
         # initialize roiplayer
         self.roiplayer = FlipbookROI.ImgSeqPlayer(self.roitab,self.PIL_ImgSeq.directory,0,
