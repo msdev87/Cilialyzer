@@ -35,7 +35,7 @@ We would therefore very much appreciate to receive your short notification by e-
 <br />
 <div align="center">
    <b>
-   <font size="10"> <a href="https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.3.0-46218df" download="">Cilialyzer-v1.3.0-46218df</a> (creation date: November 5, 2023) </font>
+   <font size="6"> <a href="https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.3.0-46218df" download="">Cilialyzer-v1.3.0-46218df</a> (creation date: November 5, 2023) </font>
    </b>
 </div> 
 <br />
@@ -65,7 +65,7 @@ Bug considering the image rotation has now been solved. (After having been rotat
 
 ____________________________________________________________________________________________________________
 
-Cilialyzer version 1.2.0 was described in our first publication on Cilialyzer (<a href="./publications.md" style="font-size:25px;font-weight:400;"       >Download publication</a>).
+Cilialyzer version 1.2.0 was described in our first publication on Cilialyzer (<a href="./publications.md">Download publication</a>).
 
 <br />   
    <a href="https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.2.1-b3098cb" download="">Cilialyzer-v1.2.1-b3098cb</a> (creation date: July 18, 2023)
