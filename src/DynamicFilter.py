@@ -131,7 +131,7 @@ class DynFilter:
         #print(filt)
 
         # dynamic filtering for each pixel separately! (in time domain)   
-       
+
         # loop over pixels (spatial domain)  
         # apply bandpass (along time axis!) for pixel after pixel
 
@@ -147,9 +147,15 @@ class DynFilter:
         # inverse transform 
         # array = bytescl(numpy.real(numpy.fft.ifftn(array)))
 
+        self.dyn_roiseq.clear()
+
         # create PIL sequence from numpy array!
         for i in range(nimgs):
             self.dyn_roiseq.append(PIL.Image.fromarray(numpy.uint8(array[i,:,:])))
+
+
+
+
 
 
     def temporal_autocorrelation(self, tkplotframe, frequencymap):

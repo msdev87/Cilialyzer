@@ -181,7 +181,8 @@ class Cilialyzer():
     #    #    self.roiplayer.roiseq[i].save("./sequence/img"+str(i)+".png","PNG") 
 
 
-    #def exportvideo(self):
+    def exportvideo(self):
+
     #    """
     #    w, h = self.roiplayer.roiseq[0].size
     #    fourcc = cv.VideoWriter_fourcc('m', 'p', '4', 'v')
@@ -194,22 +195,22 @@ class Cilialyzer():
     #    writer.release() 
     #    """
 
-    #    img_array = []
-    #    for i in range(self.roiplayer.seqlength):
-    #        img = numpy.array(self.roiplayer.roiseq[i])
-    #        height, width = img.shape
-    #        size = (width,height)
-    #        img_array.append(img)
+        img_array = []
+        for i in range(self.roiplayer.seqlength):
+            img = numpy.array(self.roiplayer.roiseq[i])
+            height, width = img.shape
+            size = (width,height)
+            img_array.append(img)
 
-    #    #fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    #    fourcc = cv2.VideoWriter_fourcc(*'h264')
-    #    out = cv2.VideoWriter('output.mp4',fourcc, 15, size)
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        #fourcc = cv2.VideoWriter_fourcc(*'h264')
+        out = cv2.VideoWriter('output.mp4',fourcc, 15, size,False)
 
-    #    for i in range(len(img_array)):
-    #        print('test')
-    #        print(img_array[i].shape)
-    #        out.write(img_array[i])
-    #    out.release()
+        for i in range(len(img_array)):
+            print('test')
+            #print(img_array[i].shape)
+            out.write(img_array[i])
+        out.release()
 
 
 
@@ -833,10 +834,12 @@ class Cilialyzer():
         #    command=self.export, height=bh, width=16)
         #self.exportB.place(in_=self.roitab, anchor='c', relx=0.07,rely=0.32)
 
+
+
         # Export video Button
-        #self.exportvideoB = tk.Button(self.roitab, text='Export video',
-        #    command=self.exportvideo, height=bh, width=16)
-        #self.exportvideoB.place(in_=self.roitab, anchor='c', relx=.07,rely=.5)
+        self.exportvideoB = tk.Button(self.roitab, text='Export video',
+            command=self.exportvideo, height=bh, width=16)
+        self.exportvideoB.place(in_=self.roitab, anchor='c', relx=.07,rely=.32)
 
         # initialize roiplayer
         self.roiplayer = FlipbookROI.ImgSeqPlayer(self.roitab,self.PIL_ImgSeq.directory,0,
