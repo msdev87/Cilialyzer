@@ -52,7 +52,7 @@ def get_opticalflow(PILseq, pixsize, fps):
     # the window size needs to be chosen to an even number (nr of pixels) 
 
     # start nrproc processes 
-    nrproc = 10
+    nrproc = 15
     arguments=[]
 
     steps = 15 # number of optical flow fields calculated per process 

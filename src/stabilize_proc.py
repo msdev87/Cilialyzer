@@ -24,6 +24,8 @@ def subproc(args):
     dummy[border//2:array.shape[1]+border//2,border//2:array.shape[2]+border//2] = 1
 
     sr = StackReg(StackReg.RIGID_BODY)
+    #sr = StackReg(StackReg.SCALED_ROTATION)
+
 
     maxdiff=0.0 # maximum difference between transformed images
 
@@ -54,11 +56,10 @@ def subproc(args):
 
     # Reduce the intensity of highly scattering structures by slightly 
     # croping distribution of the intensity (2% from dark and bright side)
-    cut1 = numpy.percentile(array_stabilized, 0.5)
-    cut2 = numpy.percentile(array_stabilized, 99.5)
-
-    array_stabilized[array_stabilized < cut1] = cut1
-    array_stabilized[array_stabilized > cut2] = cut2
+    #cut1 = numpy.percentile(array_stabilized, 0.5)
+    #cut2 = numpy.percentile(array_stabilized, 99.5)
+    #array_stabilized[array_stabilized < cut1] = cut1
+    #array_stabilized[array_stabilized > cut2] = cut2
 
     return (array_stabilized, croppix)
 

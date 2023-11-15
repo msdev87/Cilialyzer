@@ -93,10 +93,10 @@ def process(args):
                 cnt = cnt+1
 
         # write optical flow to disk:
-        savetxt('../Data/OpticalFlow_23rdOct2023_8T20x/opticalflow_ws'+str(int(wsize))+'_xpos_'+str(tlist[t])+'.dat',x_arr)
-        savetxt('../Data/OpticalFlow_23rdOct2023_8T20x/opticalflow_ws'+str(int(wsize))+'_ypos_'+str(tlist[t])+'.dat',y_arr)
-        savetxt('../Data/OpticalFlow_23rdOct2023_8T20x/opticalflow_ws'+str(int(wsize))+'_v_'+str(tlist[t])+'.dat',v_arr)
-        savetxt('../Data/OpticalFlow_23rdOct2023_8T20x/opticalflow_ws'+str(int(wsize))+'_u_'+str(tlist[t])+'.dat',u_arr)
-        savetxt('../Data/OpticalFlow_23rdOct2023_8T20x/opticalflow_ws'+str(int(wsize))+'_speed_'+str(tlist[t])+'.dat',speed_matrix)
+        savetxt('../Data/OpticalFlow_1stNov2023_ALI2_1T20x/opticalflow_ws'+str(int(wsize))+'_xpos_'+str(tlist[t])+'.dat',x_arr)
+        savetxt('../Data/OpticalFlow_1stNov2023_ALI2_1T20x/opticalflow_ws'+str(int(wsize))+'_ypos_'+str(tlist[t])+'.dat',y_arr)
+        savetxt('../Data/OpticalFlow_1stNov2023_ALI2_1T20x/opticalflow_ws'+str(int(wsize))+'_v_'+str(tlist[t])+'.dat',v_arr)
+        savetxt('../Data/OpticalFlow_1stNov2023_ALI2_1T20x/opticalflow_ws'+str(int(wsize))+'_u_'+str(tlist[t])+'.dat',u_arr)
+        savetxt('../Data/OpticalFlow_1stNov2023_ALI2_1T20x/opticalflow_ws'+str(int(wsize))+'_speed_'+str(tlist[t])+'.dat',speed_matrix)
 
 

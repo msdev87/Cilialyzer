@@ -562,20 +562,18 @@ class ImageSequence:
             #self.sequence[i] = img
             roiseq[i] = img
 
-    def binning(self, roiseq):
+    def binning(self, roiplayer):
 
-        firstimg = roiseq[0] # first image of roi sequence
+        firstimg = roiplayer.roiseq[0] # first image of roi sequence
         width, height = firstimg.size # dimension of images 
-        nimgs = len(roiseq) # number of images
+        nimgs = len(roiplayer.roiseq) # number of images
 
         # initialize numpy float array, which will hold the image sequence  
         # array = numpy.zeros((int(nimgs), int(height), int(width)), dtype=float)
 
         for i in range(nimgs):
-            roiseq[i] = roiseq[i].resize((width//2,height//2),
+            roiplayer.roiseq[i] = roiplayer.roiseq[i].resize((width//2,height//2),
                 resample=Image.BICUBIC)
-
-
 
         """
         # convert stack of PIL images to numpy array
@@ -600,6 +598,17 @@ class ImageSequence:
             roiseq[i] = Image.fromarray(numpy.uint8(binned[i,:,:]))
         """
 
+        # Start to replay the binned sequence: 
+        # roiplayer.stop = 0
+        # roiplayer.animate()
+        #roiplayer.refreshing = 1
+
+        roiplayer.stop = 2
+        roiplayer.frame.destroy()
+        roiplayer.__init__(roiplayer.master, roiplayer.directory, roiplayer.refreshing, roiplayer.roiseq, roiplayer.seqlength, roiplayer.roiobj, roiplayer.selectroi)
+        roiplayer.animate()
+        roiplayer.stop = 0
+        roiplayer.refreshing = 0 # as refreshing ends here  
 
 
 

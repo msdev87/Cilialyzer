@@ -148,6 +148,7 @@ class DynFilter:
         # array = bytescl(numpy.real(numpy.fft.ifftn(array)))
 
         self.dyn_roiseq.clear()
+        self.dyn_roiseq = []
 
         # create PIL sequence from numpy array!
         for i in range(nimgs):
