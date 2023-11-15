@@ -207,7 +207,7 @@ class Cilialyzer():
         out = cv2.VideoWriter('output.mp4',fourcc, 15, size,False)
 
         for i in range(len(img_array)):
-            print('test')
+            #print('test')
             #print(img_array[i].shape)
             out.write(img_array[i])
         out.release()
