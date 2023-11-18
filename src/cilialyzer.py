@@ -522,11 +522,24 @@ class Cilialyzer():
             fps = float(self.toolbar.fpscombo.get()))
 
     # -------------------------------------------------------------------------
+
+    # --------------------- computation of the optical flow field -------------
+    def compute_opticalflowFB(self):
+        """
+        compute the optical flow using Farneback's algorithm
+        """
+
+        #OpticalFlow.get_opticalflow(self.dynseq.dyn_roiseq,
+        #    float(self.toolbar.pixsizecombo.get()),
+        #    fps = float(self.toolbar.fpscombo.get()))
+        OpticalFlow.get_opticalflowFB(self.opticalflowtab, self.dynseq.dyn_roiseq,
+            float(self.toolbar.pixsizecombo.get()),
+            fps = float(self.toolbar.fpscombo.get()))
+    # -------------------------------------------------------------------------
+
+
     def batchv1(self):
         Batchanalysis.process()
-
-
-
 
 
     def kspec():
@@ -1252,8 +1265,14 @@ class Cilialyzer():
             self.nbook.add(self.opticalflowtab, text=' Optical flow ')
 
             self.opticalflowB = tk.Button(self.opticalflowtab,
-                text='Compute optical flow', command=self.compute_opticalflow, height=bh, width=bw)
-            self.opticalflowB.place(in_=self.opticalflowtab, anchor="c", relx=0.5, rely=0.5)
+                text='Compute optical flow (C)', command=self.compute_opticalflow, height=bh, width=bw)
+            self.opticalflowB.place(in_=self.opticalflowtab, anchor="c", relx=0.5, rely=0.2)
+
+            self.FarnebackB = tk.Button(self.opticalflowtab,
+                text='Compute optical flow (FB)', command=self.compute_opticalflowFB, height=bh, width=bw)
+            self.FarnebackB.place(in_=self.opticalflowtab, anchor="c", relx=0.5, rely=0.1)
+
+
 
 
         # each time the application's window size gets changed -> call 'resize'

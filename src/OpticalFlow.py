@@ -10,9 +10,109 @@ import gaussian2Dfit
 import tkinter as tk
 import crosscorrelation_zp
 
-import matplotlib.pyplot as plt
+import matplotlib
 import multiprocessing
 import process_opticalflow
+import cv2
+
+from scipy import ndimage
+
+matplotlib.use("TkAgg")
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.figure import Figure
+import time
+import autocorrelation_zeropadding
+
+def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
+    """ compute optical flow based on Farneback's algorithm """
+
+    firstimg = PILseq[0] # first image of roi sequence  
+    width, height = firstimg.size # dimension of images 
+    nimgs = len(PILseq) # number of images   
+
+    u_flow = []
+    v_flow = []
+
+    for t in range(nimgs-1):
+
+        img1 = numpy.array(PILseq[t])
+        img2 = numpy.array(PILseq[t+1])
+
+        flow = cv2.calcOpticalFlowFarneback(
+            img1, img2, None, 0.75, 3, 16, 5, 5, 1.1, 0)
+
+        # Note the following convention! 
+        # The function finds the optical flow, so that: 
+        # prev(y,x) ~ next( y+flow(y,x)[1] , x+flow(y,x)[0]) 
+
+        v_flow.append(-flow[...,1])
+        u_flow.append(-flow[...,0])
+
+    # contruct matrix holding the pixel positions 
+    isize = len(u_flow[0][:,0])
+    jsize = len(u_flow[0][0,:])
+
+    xarr = numpy.array(range(jsize)) * pixsize / 1000.0
+    yarr = numpy.array(range(isize)) * pixsize / 1000.0
+
+
+    xmat, ymat = numpy.meshgrid(xarr, yarr)
+
+    # display optical flow field
+    fig = plt.figure()
+    ax = plt.axes()
+    ax.set_aspect('equal', 'box')
+    plt.rcParams["figure.figsize"] = (5,5)
+
+    # note: the optical flow fields get downsampled before they are plotted
+    shrink_factor = 0.25
+    xmat = ndimage.interpolation.zoom(xmat,shrink_factor)
+    ymat = ndimage.interpolation.zoom(ymat,shrink_factor)
+    vmat = ndimage.interpolation.zoom(u_flow[0][:,:],shrink_factor)
+    umat = ndimage.interpolation.zoom(v_flow[0][:,:],shrink_factor)
+
+    ax.quiver(xmat, ymat, umat, vmat,width=0.002,scale=0.12, scale_units='xy',headaxislength=2.0,headwidth=2.0,headlength=2.0)
+
+    can = FigureCanvasTkAgg(fig, tkframe)
+    can.draw()
+    can.get_tk_widget().place(in_=tkframe, anchor="c", relx=0.25, rely=0.5)
+    can._tkcanvas.place(in_=tkframe)
+
+    for t in range(nimgs-1):
+        umat = ndimage.interpolation.zoom(u_flow[t][:,:],shrink_factor)
+        vmat = ndimage.interpolation.zoom(v_flow[t][:,:],shrink_factor)
+        #vmat = -vmat
+        ax.clear()
+        ax.quiver(xmat, ymat, umat, vmat,width=0.002,scale=0.12, scale_units='xy',headaxislength=2.0,headwidth=2.0,headlength=2.0)
+        can.draw()
+        can.flush_events()
+        time.sleep(0.01)
+        ax.clear()
+
+    # compute average autocorrelation of optical flow 
+    for t in range(nimgs-1):
+        umat = ndimage.interpolation.zoom(u_flow[t][:,:],shrink_factor)
+        vmat = ndimage.interpolation.zoom(v_flow[t][:,:],shrink_factor)
+        ucorr=autocorrelation_zeropadding.acorr2D_zp(umat)
+        vcorr=autocorrelation_zeropadding.acorr2D_zp(vmat)
+        if (t==0):
+            corr=ucorr+vcorr
+        else:
+            corr=corr+ucorr+vcorr
+
+    # plot 'corr'
+    fig = plt.figure()
+    ax = plt.axes()
+    ax.set_aspect('equal', 'box')
+    plt.rcParams["figure.figsize"] = (5,5)
+
+    ax.imshow(corr)
+    can = FigureCanvasTkAgg(fig, tkframe)
+    can.draw()
+    can.get_tk_widget().place(in_=tkframe, anchor="c", relx=0.75, rely=0.5)
+    can._tkcanvas.place(in_=tkframe)
+
+
 
 def get_opticalflow(PILseq, pixsize, fps):
 
