@@ -66,7 +66,7 @@ def acorr_zp(signal):
 
 
 
-def acorr2D_zp(signal, mask=None):
+def acorr2D_zp(signal, centering=True, mask=None):
     """
     computes the 2D autocorrelation of the input signal
 
@@ -116,8 +116,11 @@ def acorr2D_zp(signal, mask=None):
     # Get the signal's mean (excluding missing values)
     mean = numpy.sum(numpy.multiply(signal, mask)) / numpy.sum(mask)
 
-    # Get a centered version of the signal
-    centered_signal = numpy.subtract(signal, mean)
+    # Get a centered version of the signal (if centering is True)
+    if (centering):
+        centered_signal = numpy.subtract(signal, mean)
+    else:
+        centered_signal = signal
 
     # Pad the centered signal with zeros, in such a way that the padded
     # signal is twice as big as the input signal
@@ -135,7 +138,7 @@ def acorr2D_zp(signal, mask=None):
 
     pseudo_powerSpectralDensity = numpy.multiply(fft_signal,
         numpy.conjugate(fft_signal))
-    pseudo_autocovariance = numpy.real( numpy.fft.ifft2( 
+    pseudo_autocovariance = numpy.real( numpy.fft.ifft2(
         pseudo_powerSpectralDensity))
 
     # We repeat the same process (except for centering) on a masked_signal

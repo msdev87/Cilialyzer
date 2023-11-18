@@ -23,6 +23,8 @@ from matplotlib.figure import Figure
 import time
 import autocorrelation_zeropadding
 
+from scipy.signal import medfilt2d
+
 def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
     """ compute optical flow based on Farneback's algorithm """
 
@@ -39,14 +41,33 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
         img2 = numpy.array(PILseq[t+1])
 
         flow = cv2.calcOpticalFlowFarneback(
-            img1, img2, None, 0.75, 3, 16, 5, 5, 1.1, 0)
+            img1, img2, None, 0.9, 3, 12, 5, 5, 1.1, 0)
 
         # Note the following convention! 
         # The function finds the optical flow, so that: 
         # prev(y,x) ~ next( y+flow(y,x)[1] , x+flow(y,x)[0]) 
+        # Therefore we take the negative of flow
 
-        v_flow.append(-flow[...,1])
-        u_flow.append(-flow[...,0])
+        v_flow.append(flow[...,1])
+        u_flow.append(flow[...,0])
+
+    # remove outliers in u_flow and v_flow
+    # i.e. topmost 0.25% and lowermost 0.5%
+    cut1 = numpy.percentile(u_flow, 0.5)
+    cut2 = numpy.percentile(u_flow, 99.5)
+    for i in range(nimgs-1):
+        u_flow[i][u_flow[i] < cut1] = cut1
+        u_flow[i][u_flow[i] > cut2] = cut2
+        # further outlier removal in u_flow and v_flow by median filtering (3x3):   
+        u_flow[i] = medfilt2d(u_flow[i])
+        v_flow[i] = medfilt2d(v_flow[i])
+        # spatial smoothing
+        u_flow[i] = ndimage.uniform_filter(u_flow[i], size=4)
+        v_flow[i] = ndimage.uniform_filter(v_flow[i], size=4)
+
+    # smooth optical flow by local averaging (2x2) over all axes!  
+    u_flow = ndimage.uniform_filter(u_flow, size=2)
+    v_flow = ndimage.uniform_filter(v_flow, size=2)
 
     # contruct matrix holding the pixel positions 
     isize = len(u_flow[0][:,0])
@@ -54,7 +75,6 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
 
     xarr = numpy.array(range(jsize)) * pixsize / 1000.0
     yarr = numpy.array(range(isize)) * pixsize / 1000.0
-
 
     xmat, ymat = numpy.meshgrid(xarr, yarr)
 
@@ -65,7 +85,7 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
     plt.rcParams["figure.figsize"] = (5,5)
 
     # note: the optical flow fields get downsampled before they are plotted
-    shrink_factor = 0.25
+    shrink_factor = 0.15
     xmat = ndimage.interpolation.zoom(xmat,shrink_factor)
     ymat = ndimage.interpolation.zoom(ymat,shrink_factor)
     vmat = ndimage.interpolation.zoom(u_flow[0][:,:],shrink_factor)
@@ -91,14 +111,14 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
 
     # compute average autocorrelation of optical flow 
     for t in range(nimgs-1):
-        umat = ndimage.interpolation.zoom(u_flow[t][:,:],shrink_factor)
-        vmat = ndimage.interpolation.zoom(v_flow[t][:,:],shrink_factor)
-        ucorr=autocorrelation_zeropadding.acorr2D_zp(umat)
-        vcorr=autocorrelation_zeropadding.acorr2D_zp(vmat)
-        if (t==0):
-            corr=ucorr+vcorr
+        umat = u_flow[t][:,:] # ndimage.interpolation.zoom(u_flow[t][:,:], shrink_factor)
+        vmat = v_flow[t][:,:] # ndimage.interpolation.zoom(v_flow[t][:,:], shrink_factor)
+        ucorr = autocorrelation_zeropadding.acorr2D_zp(umat, centering=False)
+        vcorr = autocorrelation_zeropadding.acorr2D_zp(vmat, centering=False)
+        if (t == 0):
+            corr = ucorr+vcorr
         else:
-            corr=corr+ucorr+vcorr
+            corr = corr+ucorr+vcorr
 
     # plot 'corr'
     fig = plt.figure()
@@ -106,7 +126,7 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
     ax.set_aspect('equal', 'box')
     plt.rcParams["figure.figsize"] = (5,5)
 
-    ax.imshow(corr)
+    ax.imshow(corr, cmap="gray")
     can = FigureCanvasTkAgg(fig, tkframe)
     can.draw()
     can.get_tk_widget().place(in_=tkframe, anchor="c", relx=0.75, rely=0.5)
