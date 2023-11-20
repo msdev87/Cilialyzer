@@ -66,7 +66,7 @@ def acorr_zp(signal):
 
 
 
-def acorr2D_zp(signal, centering=True, mask=None):
+def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
     """
     computes the 2D autocorrelation of the input signal
 
@@ -156,7 +156,11 @@ def acorr2D_zp(signal, centering=True, mask=None):
     # The "error" made can now be easily corrected by an element-wise division
     autocovariance = pseudo_autocovariance / mask_correction_factors
 
-    variance = autocovariance.flat[0]
+    if (normalize):
+        variance = autocovariance.flat[0]
+    else:
+        variance = 1.0
+
 
     # fft-shift:
     autocovariance = numpy.fft.fftshift(autocovariance)
