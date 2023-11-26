@@ -43,7 +43,7 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
         img2 = numpy.array(PILseq[t+1])
 
         flow = cv2.calcOpticalFlowFarneback(
-            img1, img2, None, 0.9, 1, 15, 5, 5, 1.1, 0)
+            img1, img2, None, 0.8, 2, 12, 7, 5, 1.1, 0)
 
         # Note the following convention! 
         # The function finds the optical flow, so that: 
@@ -71,8 +71,9 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
         u_flow[i] = medfilt2d(u_flow[i])
         v_flow[i] = medfilt2d(v_flow[i])
         # spatial smoothing
-        u_flow[i] = ndimage.gaussian_filter(u_flow[i], sigma=2)
-        v_flow[i] = ndimage.gaussian_filter(v_flow[i], sigma=2)
+        ss = 700.0 / pixsize
+        u_flow[i] = ndimage.gaussian_filter(u_flow[i], sigma=ss)
+        v_flow[i] = ndimage.gaussian_filter(v_flow[i], sigma=ss)
 
     # smooth optical flow by local averaging (2x2) over all axes!  
     u_flow = ndimage.uniform_filter(u_flow, size=2)
@@ -97,8 +98,6 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
                 # speeds[t,i,j] = math.sqrt( u_flow[]**2 + v_flow[]**2 )
     """
     print('finished')
-
-
 
     # normalize: 
     for t in range(nt):
@@ -134,14 +133,21 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
     can.get_tk_widget().place(in_=tkframe, anchor="c", relx=0.25, rely=0.5)
     can._tkcanvas.place(in_=tkframe)
 
+    color = numpy.sqrt(umat**2 + vmat**2)
+
+    plt.set_cmap("Greys")
+
     for t in range(nimgs-1):
         umat = ndimage.interpolation.zoom(u_flow[t][:,:],shrink_factor)
         vmat = ndimage.interpolation.zoom(v_flow[t][:,:],shrink_factor)
+        color = numpy.sqrt(umat**2 + vmat**2)
+
         #vmat = -vmat
         ax.clear()
-        ax.quiver(xmat, ymat, umat, vmat,width=0.002,scale=0.15, scale_units='xy',headaxislength=3.0,headwidth=3.0,headlength=3.0)
+        ax.quiver(xmat, ymat, umat, -vmat,color,width=0.002,scale=0.14, scale_units='xy',headaxislength=4.0,headwidth=4.0,headlength=4.0)
         can.draw()
-        #plt.savefig('./png/frame-'+str(i)+'.png')
+        can.print_figure('./png/frame-'+str(t).zfill(3)+'.png')
+        #plt.savefig('./png/frame-'+str(t)+'.png')
         #time.sleep(1)
         can.flush_events()
         time.sleep(0.01)
@@ -160,8 +166,8 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
 
     corr = 1.0 / float(nimgs-1) * corr
 
-    if (numpy.min(corr) < 0):
-        corr = corr - numpy.min(corr)
+    #if (numpy.min(corr) < 0):
+    #    corr = corr - numpy.min(corr)
 
     print('max corr:')
     print(numpy.max(corr))
@@ -171,20 +177,43 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
     # plot 'corr'
     fig = plt.figure()
     ax = plt.axes()
-    ax.set_aspect('equal', 'box')
+    #ax.set_aspect('equal', 'box')
     plt.rcParams["figure.figsize"] = (5,5)
 
-    ax.set_xlabel("$\Delta$x [$\mu$m]",fontsize=16)
-    ax.set_ylabel("$\Delta$y [$\mu$m]",fontsize=16)
-    ax.axes.tick_params(labelsize=15)
+    ax.set_xlabel("$\Delta$x [$\mu$m]",fontsize=17)
+    ax.set_ylabel("$\Delta$y [$\mu$m]",fontsize=17)
+    ax.axes.tick_params(labelsize=16)
     fig.tight_layout()
 
-    left = -len(umat[0,:])/2.0 * pixsize * 0.001
-    right = -left
-    bot = -len(umat[:,0])/2.0 * pixsize * 0.001
-    top = -bot
+    # x and y axis should span from -50 to 50 (=100 micrometers)
 
-    ax.imshow(numpy.sqrt(corr), extent=(left,right,bot,top),cmap="gray")
+    nx = int(100.0 / (pixsize*0.001))
+    ny = int(100.0 / (pixsize*0.001))
+
+    corrplot = numpy.zeros((ny,nx))
+    corrplot[:,:] = numpy.nan
+
+    dy = ny - len(corr[:,0])
+    dx = nx - len(corr[0,:])
+
+    # the plot is supposed to always span from -50 to +50 micrometers 
+    if ((dx > 0) and (dy > 0)):
+            corrplot[dy//2:len(corr[:,0])+dy//2,dx//2:len(corr[0,:])+dx//2] = corr
+    if ((dx > 0) and (dy <= 0)):
+            corrplot[:,dx//2:len(corr[0,:])+dx//2] = corr[-dy//2:len(corr[:,0])+dy//2,:]
+
+    if ((dx <= 0) and (dy > 0)):
+        corrplot[dy//2:len(corr[:,0])+dy//2,:] = corr[:,-dx//2:len(corr[0,:])+dx//2]
+    if ((dx <= 0) and (dy <= 0)):
+        corrplot[:,:] = corr[-dy//2:len(corr[:,0])+dy//2,-dx//2:len(corr[0,:])+dx//2]
+
+    vmax = numpy.max(corr)
+
+    # adapt orientation of corrplot so that the orientation matches 
+    # the orientation of the images taken in reflection!
+    corrplot = numpy.flip(corrplot, 1)
+
+    ax.imshow(corrplot, extent=(-50,50,-50,50),cmap="bwr",vmin=-0.35*vmax,vmax=0.35*vmax)
     can = FigureCanvasTkAgg(fig, tkframe)
     can.draw()
     can.get_tk_widget().place(in_=tkframe, anchor="c", relx=0.75, rely=0.5)

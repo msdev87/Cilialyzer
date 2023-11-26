@@ -457,7 +457,7 @@ class DynFilter:
         # consequently, the average over 50 images is a good approximation 
         # for the overall average 
 
-        nimgs = 50
+        nimgs = 300
 
         for t in range(nimgs): # loop over time
 
@@ -504,7 +504,7 @@ class DynFilter:
         nrows = len(scorr[:,0]) # number of rows
         ncols = len(scorr[0,:]) # number of columns
 
-        fig = Figure(figsize=(6,5), dpi=100)
+        fig = Figure(figsize=(5,5))#, dpi=100)
         ax = fig.add_subplot(111)
 
         self.tkframe = Frame(tkparent)
@@ -526,26 +526,48 @@ class DynFilter:
 
 
         # 2D colormap of scorr
-        xmin=-ncols/2.0*pixsize*0.001
-        xmax=-xmin
-        ymin=nrows/2.0*pixsize*0.001
-        ymax=-ymin
+        #xmin=-ncols/2.0*pixsize*0.001
+        #xmax=-xmin
+        #ymin=nrows/2.0*pixsize*0.001
+        #ymax=-ymin
 
-        print('ncols',ncols)
-        print('nrows',nrows)
-        print('xmin,xmax,ymin,ymax ',xmin, xmax, ymin, ymax)
+        #print('ncols',ncols)
+        #print('nrows',nrows)
+        #print('xmin,xmax,ymin,ymax ',xmin, xmax, ymin, ymax)
 
 
-        la1 = ax.imshow(scorr,alpha=1.0,cmap='bwr',interpolation='none',extent=[xmin,xmax,ymin,ymax])
+        # x and y axis should span from -50 to 50 (=100 micrometers)
 
+        nx = int(100.0 / (pixsize*0.001))
+        ny = int(100.0 / (pixsize*0.001))
+
+        corrplot = numpy.zeros((ny,nx))
+        corrplot[:,:] = numpy.nan
+
+        dy = ny - len(scorr[:,0])
+        dx = nx - len(scorr[0,:])
+
+        # the plot is supposed to always span from -50 to +50 micrometers 
+        if ((dx > 0) and (dy > 0)):
+                corrplot[dy//2:len(scorr[:,0])+dy//2,dx//2:len(scorr[0,:])+dx//2] = scorr
+        if ((dx > 0) and (dy <= 0)):
+                corrplot[:,dx//2:len(scorr[0,:])+dx//2] = scorr[-dy//2:len(scorr[:,0])+dy//2,:]
+
+        if ((dx <= 0) and (dy > 0)):
+            corrplot[dy//2:len(scorr[:,0])+dy//2,:] = scorr[:,-dx//2:len(scorr[0,:])+dx//2]
+        if ((dx <= 0) and (dy <= 0)):
+            corrplot[:,:] = scorr[-dy//2:len(scorr[:,0])+dy//2,-dx//2:len(scorr[0,:])+dx//2]
+
+        vmax = numpy.max(corrplot)
+        la1 = ax.imshow(corrplot,alpha=1.0,cmap='bwr',interpolation='none',extent=[-50,50,-50,50], vmin=-0.4*vmax,vmax=0.4*vmax)
 
         # write scorr to file: 
-        numpy.savetxt('meanspatialautocorr.dat', scorr)
+        # numpy.savetxt('meanspatialautocorr.dat', scorr)
 
 
         #ax.set_title('Mean Spatial Autocorrelation',fontsize=16)
-        ax.set_xlabel("$\Delta$x [$\mu$m]",fontsize=16)
-        ax.set_ylabel("$\Delta$y [$\mu$m]",fontsize=16)
+        ax.set_xlabel("$\Delta$x [$\mu$m]",fontsize=17)
+        ax.set_ylabel("$\Delta$y [$\mu$m]",fontsize=17)
 
 
         divider = make_axes_locatable(ax)
@@ -616,8 +638,8 @@ class DynFilter:
         # ----------------- plot scorr with profile line --------------------
 
         fac = 0.001*pixsize
-        ax.plot([x0*fac-xmax, x1*fac-xmax], [y0*fac+ymax, y1*fac+ymax], color="orange", linewidth=1)
-        
+        #ax.plot([x0*fac-xmax, x1*fac-xmax], [y0*fac+ymax, y1*fac+ymax], color="orange", linewidth=1)
+
         fig.tight_layout()
         can.draw()
         can.get_tk_widget().pack()
