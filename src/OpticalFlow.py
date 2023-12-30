@@ -1,4 +1,5 @@
 from PIL import Image
+import PIL
 import numpy
 import math
 import matplotlib.pyplot as plt
@@ -25,6 +26,8 @@ import autocorrelation_zeropadding
 
 from scipy.signal import medfilt2d
 
+import FlipbookROI
+
 def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
     """ compute optical flow based on Farneback's algorithm """
 
@@ -35,7 +38,8 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
     u_flow = []
     v_flow = []
 
-    #nimgs = 300
+    nimgs = 300
+
 
     for t in range(nimgs-1):
 
@@ -45,20 +49,19 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
         flow = cv2.calcOpticalFlowFarneback(
             img1, img2, None, 0.8, 2, 12, 7, 5, 1.1, 0)
 
-        # Note the following convention! 
+        # Note the following convention
         # The function finds the optical flow, so that: 
         # prev(y,x) ~ next( y+flow(y,x)[1] , x+flow(y,x)[0]) 
-        # Therefore we take the negative of flow
 
         v_flow.append(flow[...,1])
         u_flow.append(flow[...,0])
 
     # remove outliers in u_flow and v_flow
     # i.e. topmost 0.25% and lowermost 0.5%
-    u1 = numpy.percentile(u_flow, 1)
-    u2 = numpy.percentile(u_flow, 99)
-    v1 = numpy.percentile(v_flow, 1)
-    v2 = numpy.percentile(v_flow, 99)
+    u1 = numpy.percentile(u_flow, 0)
+    u2 = numpy.percentile(u_flow, 100)
+    v1 = numpy.percentile(v_flow, 0)
+    v2 = numpy.percentile(v_flow, 100)
 
     for i in range(nimgs-1):
 
@@ -104,6 +107,25 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
         u_flow[t][:,:] = u_flow[t][:,:] / max_speed
         v_flow[t][:,:] = v_flow[t][:,:] / max_speed
 
+
+    # write optical flow speed to disk (directory ofspeed)
+    speedmat = numpy.zeros_like(u_flow)
+    for t in range(nimgs-1):
+        speedmat[t][:,:] = numpy.sqrt(u_flow[t][:,:]**2 + v_flow[t][:,:]**2)
+
+
+    mx = numpy.max(speedmat)
+    mi = numpy.min(speedmat)
+    for i in range(nimgs-1):
+        img = speedmat[i][:,:]
+        img = PIL.Image.fromarray(numpy.uint8((img - mi) / (mx-mi) * 255))
+        img.save('./ofspeed/ofspeed-'+str(i).zfill(3)+'.png')
+
+
+
+
+
+
     # contruct matrix holding the pixel positions 
     isize = len(u_flow[0][:,0])
     jsize = len(u_flow[0][0,:])
@@ -130,7 +152,7 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
 
     can = FigureCanvasTkAgg(fig, tkframe)
     can.draw()
-    can.get_tk_widget().place(in_=tkframe, anchor="c", relx=0.25, rely=0.5)
+    can.get_tk_widget().place(in_=tkframe, anchor="c", relx=0.2, rely=0.5)
     can._tkcanvas.place(in_=tkframe)
 
     color = numpy.sqrt(umat**2 + vmat**2)
@@ -211,13 +233,79 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
 
     # adapt orientation of corrplot so that the orientation matches 
     # the orientation of the images taken in reflection!
-    corrplot = numpy.flip(corrplot, 1)
+    #corrplot = numpy.flip(corrplot, 1)
 
     ax.imshow(corrplot, extent=(-50,50,-50,50),cmap="bwr",vmin=-0.35*vmax,vmax=0.35*vmax)
     can = FigureCanvasTkAgg(fig, tkframe)
     can.draw()
-    can.get_tk_widget().place(in_=tkframe, anchor="c", relx=0.75, rely=0.5)
+    can.get_tk_widget().place(in_=tkframe, anchor="c", relx=0.5, rely=0.5)
     can._tkcanvas.place(in_=tkframe)
+
+    '''
+    # space-time correlation
+    tshifts = 30
+    # iterate over time shifts
+
+    stcorr = []
+    for dt in range(tshifts):
+
+        for t in range(nimgs-1-dt):
+            umat1 = u_flow[t][:,:]
+            vmat1 = v_flow[t][:,:]
+
+            umat2 = u_flow[t+dt][:,:]
+            vmat2 = v_flow[t+dt][:,:]
+
+            ucorr = crosscorrelation_zp.ccorr2D_zp(umat1, umat2, mask=None, normalize=False, centering=False)
+            vcorr = crosscorrelation_zp.ccorr2D_zp(vmat1, vmat2, mask=None, normalize=False, centering=False)
+
+            if (t == 0):
+                corr = ucorr + vcorr
+            else:
+                corr = corr + ucorr + vcorr
+
+        corr = 1.0 / float(nimgs-1-dt) * corr
+        # as we correlate simultaneously in space and time, we need to flip the correlogram:
+        corr = numpy.flip(corr, axis=(0,1))
+
+        # further adapt orientation of so that the orientation matches 
+        # the orientation of the images taken in reflection!
+        # corrplot = numpy.flip(corrplot, 1)
+        stcorr.append(corr)
+    # replay the space-time correlogram:
+    refresh = 0
+    # create new tkframe for replaying
+    #cframe = tk.Frame(tkframe, takefocus=0)
+    #cframe.place(in_=tkframe, anchor="c", relx=0.7, rely=0.5)
+
+    #player = FlipbookROI.ImgSeqPlayer(cframe,'', 0, stcorr, len(stcorr), None, 1)
+    #player.animate()
+
+    """
+    fig = plt.figure()
+    ax = plt.axes()
+    #ax.set_aspect('equal', 'box')
+    plt.rcParams["figure.figsize"] = (5,5)
+
+    ax.set_xlabel("$\Delta$x [$\mu$m]",fontsize=17)
+    ax.set_ylabel("$\Delta$y [$\mu$m]",fontsize=17)
+    ax.axes.tick_params(labelsize=16)
+    fig.tight_layout()
+
+    """
+
+    #stcorr.append(PIL.Image.fromarray(numpy.uint8((corr-numpy.min(corr)) /(numpy.max(corr)-numpy.min(corr))*254 )))
+    stcorr = numpy.array(stcorr)
+
+    mx = numpy.max(stcorr)
+    mi = numpy.min(stcorr)
+    for i in range(len(stcorr[:,0,0])):
+        img = stcorr[i,:,:]
+        #img = numpy.flip(stcorr[i,:,:],0) #???
+        img = PIL.Image.fromarray(numpy.uint8((img - mi) / (mx-mi) * 255))
+        img.save('stcorr'+str(i).zfill(3)+'.png')
+
+    '''
 
 
 

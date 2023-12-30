@@ -285,7 +285,7 @@ class Toolbar:
 
         self.diriconB = tk.Button(self.toolbarframe,height=25,width=33,\
             borderwidth=0,command=self.selectdirectory,image=self.diricon)
-        self.diriconB.grid(row=0,column=0,padx=7,pady=3,sticky='e')
+        self.diriconB.place(in_=self.toolbarframe, anchor='c', x=30, rely=0.5)
 
         # --------------------------------------------------------------------- 
         # image-Button 'next directory' to select the next subdirectory 
@@ -294,13 +294,15 @@ class Toolbar:
 
         self.nextdiriconB = tk.Button(self.toolbarframe,height=25,width=33,\
             borderwidth=0,command=self.nextdirectory,image=self.nextdiricon)
-        self.nextdiriconB.grid(row=0,column=1,padx=7,pady=3,sticky='e')
+        self.nextdiriconB.place(in_=self.toolbarframe, anchor='e', x=100, rely=0.5)
+        #grid(row=0,column=1,padx=7,pady=3,sticky='e')
 
         # Label Widget + Entry Widget for setting the recording speed [FPS] 
 
         fps_label=tk.Label(self.toolbarframe, text="Recording Speed [fps] :",\
             anchor='e', font=("TkDefaultFont",10),width=22)
-        fps_label.grid(row=0,column=3,padx=5,sticky='W')
+        fps_label.place(in_=self.toolbarframe, anchor='c', x=300, rely=0.5)
+        #grid(row=0,column=3,padx=5,sticky='W')
 
         # read fps_defaults.txt (if it exists)
         if (os.path.exists('fps_defaults.txt')):
@@ -325,7 +327,8 @@ class Toolbar:
 
         self.fpscombo = tk.ttk.Combobox(self.toolbarframe,values=fps_list,width=5)
         self.fpscombo.current(0)
-        self.fpscombo.grid(row=0,column=4,sticky='W')
+        self.fpscombo.place(in_=self.toolbarframe, anchor='c', x=420,rely=0.5)
+        #grid(row=0,column=4,sticky='W')
         # --------------------------------------------------------------------- 
 
         # ---------------------------------------------------------------------
@@ -335,14 +338,16 @@ class Toolbar:
 
         self.loadvideoB = tk.Button(self.toolbarframe, height=25, width=30,
             borderwidth=0,command=self.read_video,image=self.loadvideo_icon)
-        self.loadvideoB.grid(row=0, column=2, padx=7,pady=3,sticky='e')
+        self.loadvideoB.place(in_=self.toolbarframe, anchor='c', x=130, rely=0.5)
+        #grid(row=0, column=2, padx=7,pady=3,sticky='e')
 
         # ---------------------------------------------------------------------
         # Add Label and Entry Widget for setting the pixel size in [nm]  
 
         pixsize_label=tk.Label(self.toolbarframe,text="Pixelsize [nm] :",\
             width=22,anchor='e',font=("TkDefaultFont",10))
-        pixsize_label.grid(row=0,column=5,sticky='W')
+        pixsize_label.place(in_=self.toolbarframe, anchor='c', x=550, rely=0.5)
+        #grid(row=0,column=5,sticky='W')
 
         # read pixelsize_defaults.txt (if it exists)
         if (os.path.exists('pixelsize_defaults.txt')):
@@ -367,9 +372,20 @@ class Toolbar:
             f.close()
 
         self.pixsizecombo = tk.ttk.Combobox(self.toolbarframe,values=pixelsize_list,width=5)
-        self.pixsizecombo.grid(row=0,column=6,padx=5,sticky='W')
+        self.pixsizecombo.place(in_=self.toolbarframe, anchor='c', x=680, rely=0.5)
+        #grid(row=0,column=6,padx=5,sticky='W')
         self.pixsizecombo.current(0)
         # ---------------------------------------------------------------------
+
+        # Add label and entry widget to set the number of images to be read in
+
+
+
+
+
+
+
+
 
 
 

@@ -1,7 +1,7 @@
 import numpy
 from math import sqrt
 
-def ccorr2D_zp(signal1, signal2, mask=None):
+def ccorr2D_zp(signal1, signal2, mask=None, normalize=True, centering=True):
     """
     computes the 2D cross-correlation of the input signals
 
@@ -57,8 +57,12 @@ def ccorr2D_zp(signal1, signal2, mask=None):
     mean2 = numpy.sum(numpy.multiply(signal2, mask)) / numpy.sum(mask)
 
     # Get a centered version of the signals
-    centered_signal1 = numpy.subtract(signal1, mean1)
-    centered_signal2 = numpy.subtract(signal2, mean2)
+    if (centering):
+        centered_signal1 = numpy.subtract(signal1, mean1)
+        centered_signal2 = numpy.subtract(signal2, mean2)
+    else:
+        centered_signal1 = signal1
+        centered_signal2 = signal2
 
     # Pad the centered signal with zeros, in such a way that the padded
     # signal is twice as big as the input signal
@@ -102,8 +106,12 @@ def ccorr2D_zp(signal1, signal2, mask=None):
     crosscovariance = numpy.fft.fftshift(crosscovariance)
     crosscovariance = crosscovariance[int(ni/2):int(3*ni/2),int(nj/2):int(3*nj/2)]
 
-    var1 = numpy.var(centered_signal1)
-    var2 = numpy.var(centered_signal2)
+    if (normalize):
+        var1 = numpy.var(centered_signal1)
+        var2 = numpy.var(centered_signal2)
+    else:
+        var1 = 1.0
+        var2 = 1.0
 
     return (crosscovariance / (sqrt(var1*var2)))
 

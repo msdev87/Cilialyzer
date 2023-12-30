@@ -52,6 +52,10 @@ def stcorr(array, maxtimeshift=14):
             #sys.exit()
             #print('**************')
 
+            # as the second image gets shifted in space and time simulatenously 
+            # we need to flip its orientation in x and y!
+            cc = numpy.flip(cc)
+
             scc = scc + cc
 
         scc = (1.0 / (nimgs-maxtimeshift)) * scc # average 

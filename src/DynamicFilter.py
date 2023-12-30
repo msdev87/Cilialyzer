@@ -559,7 +559,7 @@ class DynFilter:
             corrplot[:,:] = scorr[-dy//2:len(scorr[:,0])+dy//2,-dx//2:len(scorr[0,:])+dx//2]
 
         vmax = numpy.max(corrplot)
-        la1 = ax.imshow(corrplot,alpha=1.0,cmap='bwr',interpolation='none',extent=[-50,50,-50,50], vmin=-0.4*vmax,vmax=0.4*vmax)
+        la1 = ax.imshow(corrplot,alpha=1.0,cmap='bwr',interpolation='none',extent=[-50,50,-50,50], vmin=-0.6*vmax,vmax=0.6*vmax)
 
         # write scorr to file: 
         # numpy.savetxt('meanspatialautocorr.dat', scorr)
@@ -607,6 +607,9 @@ class DynFilter:
         # plot the correlation profile along the line (x0,y0) -- (x1,y1) 
         x0,y0 = maxx-(4*dx),maxy-(4*dy)
         x1,y1 = maxx+(4*dx),maxy+(4*dy)
+
+
+
 
         # note that:
         # sqrt( (x1-x0)^2 + (y1-y0)^2 ) = 4 * wavelength
@@ -684,9 +687,11 @@ class DynFilter:
 
         ax.plot([distmat_profile[0],distmat_profile[-1]],[0,0], color='black',linewidth=2.0)
 
-
+        l1 = len(distmat_profile)
+        l2 = len(scorr_profile)
         ax.plot(distmat_profile,scorr_profile,linewidth=3,color='darkorange')
         ax.set_ylim([-0.6,1.05])
+        ax.set_xlim([-70,70])
         ax.axvline(x=0.5*wavelength,ymin=-0.55,ymax=0.95,linestyle='dashed',color='0.5')
         ax.axvline(x=-0.5*wavelength,ymin=-0.55,ymax=0.95,linestyle='dashed',color='0.5')
 
