@@ -378,14 +378,31 @@ class Toolbar:
         # ---------------------------------------------------------------------
 
         # Add label and entry widget to set the number of images to be read in
+        nimgs_label=tk.Label(self.toolbarframe, text=" Read first # images: ",\
+            width=18,anchor='c',font=("TkDefaultFont",10))
+        nimgs_label.place(in_=self.toolbarframe, anchor='c', x=800, rely=0.5)
 
+        # read nimgs_defaults.txt (if it exists)
+        if (os.path.exists('nimgs_defaults.txt')):
+            with open('nimgs_defaults.txt') as f:
+                nimgs_defaults = f.readlines()
+                nimgs_defaults = [line.rstrip() for line in nimgs_defaults]
+                nimgs_list = nimgs_defaults
+        else:
+            nimgs_list = []
 
+        if (len(nimgs_list) < 3):
+            nimgs_list = ['all', 300, 600]
 
+            if (os.path.exists('nimgs_defaults.txt')):
+                os.remove('nimgs_defaults.txt')
+            f = open('nimgs_defaults.txt','a')
+            f.write(str(nimgs_list[0])+"\n")
+            f.write(str(nimgs_list[1])+"\n")
+            f.write(str(nimgs_list[2])+"\n")
+            f.close()
 
-
-
-
-
-
-
+        self.nimgscombo = tk.ttk.Combobox(self.toolbarframe,values=nimgs_list,width=4)
+        self.nimgscombo.place(in_=self.toolbarframe, anchor='c', x=900, rely=0.5)
+        self.nimgscombo.current(0)
 
