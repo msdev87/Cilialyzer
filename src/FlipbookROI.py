@@ -138,7 +138,6 @@ class ImgSeqPlayer(object):
     def __init__(self, master, directory, refreshing, PILseq, seqlength,
                 roiobj, selectroi):
 
-
         self.exportflag = False
         self.roiseq = PILseq
         self.ROI = None

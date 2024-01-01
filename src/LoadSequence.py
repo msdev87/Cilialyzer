@@ -200,6 +200,7 @@ class ImageSequence:
                 img=img.convert("L")
 
             else:
+                # conversion of 16 bit images 
                 numpyimg = numpy.array(img)
                 numpyimg = numpyimg / 65536.0 * 255
                 numpyimg.astype(int)
@@ -213,11 +214,20 @@ class ImageSequence:
 
             yield img # yields a generator (PIL images)  
 
-    def load_imgs(self):
+    def load_imgs(self, nimgscombo):
 
         # basically loads the image sequence into self.sequence
         # by calling get_images()
         # finally self.sequence[i] holds the i-th frame (8 Bit, PIL image) 
+
+        # nimgscombo holds the number of images, which are to be read
+        nimgs = nimgscombo.get()
+        print('-------------------------------------------------------------')
+        print(nimgs)
+        print(type(nimgs))
+
+        if (nimgs!='all'):
+            nimgs=int(nimgs)
 
         #print('starting to load images...')
 
@@ -243,7 +253,11 @@ class ImageSequence:
         ni = 0
         for filename in self.get_files():
             ni = ni+1
-        self.seqlength = ni
+
+        if ((nimgs != 'all') and (nimgs < ni)):
+            self.seqlength = nimgs
+        else:
+            self.seqlength = ni
 
         self.pbstyle = tkinter.ttk.Style()
         self.pbstyle.theme_use("default")
@@ -262,11 +276,12 @@ class ImageSequence:
             self.sequence = []
 
         for img in self.get_images():
-            pbvar.set(progress)
-            if (not(progress % 10)):
-                progresswin.update()
-            self.sequence.append(img)
-            progress +=1
+            if (progress < self.seqlength):
+                if (not(progress % 10)):
+                    pbvar.set(progress)
+                    progresswin.update()
+                self.sequence.append(img)
+                progress+=1
 
         progresswin.destroy()
         #style.configure("TProgressbar", thickness=5)

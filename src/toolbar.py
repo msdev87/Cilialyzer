@@ -92,8 +92,10 @@ class Toolbar:
 
         # ask the user to set a new directory and load the images                 
         self.PIL_ImgSeq.choose_directory()
-        self.PIL_ImgSeq.load_imgs() # loads image sequence                             
+        self.PIL_ImgSeq.load_imgs(self.nimgscombo) # loads image sequence                             
         # PIL_ImgSeq.sequence[i] now holds the i-th frame (img format: 8 Bits, PIL)
+
+
 
         avoid_troubles.clear_main(self.player, self.roiplayer, self.ptrackplayer)
 
@@ -114,6 +116,15 @@ class Toolbar:
 
         # make sure that the rotationangle is set to 0: 
         self.roiplayer.rotationangle = 0.0
+
+        print('****************************************')
+        print('****************************************')
+        print(self.PIL_ImgSeq.seqlength)
+        print('****************************************')
+
+
+
+
 
         # print('roiplayer id in Toolbar: ',id(self.roiplayer))
         self.roiplayer.animate()
@@ -235,8 +246,6 @@ class Toolbar:
 
         # delete displayed content in activity tab:
         self.activitymap.delete_content()
-
-
 
         self.PIL_ImgSeq.load_video(self.fpscombo.get())
 
