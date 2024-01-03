@@ -71,6 +71,21 @@ class activitymap:
         self.width, self.height = self.firstimg.size # dimension of images 
         self.nimgs = len(PILseq) # number of images   
 
+        # --------------- subtract mean image from PILseq ---------------------
+        # convert stack of PIL images to numpy array
+        for i in range(nimgs):
+            array[i, :, :] = numpy.array(PILseq[i])
+
+        # calculate the mean image
+        for i in range(nimgs):
+            sumimg = numpy.add(sumimg,array[i,:,:])
+        meanimg = numpy.multiply(1.0/float(nimgs), sumimg)
+
+        # subtract the mean image 
+        for i in range(nimgs):
+            array[i,:,:] = numpy.subtract(array[i,:,:], meanimg)
+        # ------------------------------------------------------------------- #
+
         # initialze the array, which will contain the activity map
         self.freqmap = numpy.zeros((int(self.height), int(self.width)))
 
@@ -122,7 +137,8 @@ class activitymap:
                     self.freqmap[i,j] = numpy.nan
                     self.validity_mask[i,j] = 0
 
-                # For a valid pixel, we furthermore demand that the peak 
+                # 2ND CONDITION TO MARK A PIXEL AS VALID/INVALID
+                # For a valid pixel, we FURTHERMORE demand that the peak 
                 # frequency lies within the CBF-band
 
                 # get location of peak frequency for each pixel
@@ -137,6 +153,24 @@ class activitymap:
                 else:
                     self.freqmap[i,j] = numpy.nan
                     self.validity_mask[i,j] = 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         # plot the activity map (self.freqmap)
         dpis = 120
