@@ -14,7 +14,7 @@ else:
 import tkinter.ttk
 import scipy.optimize
 
-from scipy.ndimage import gaussian_filter
+
 
 def decay_func(x, a, b):
     # f(x) = a * x^(-b)

@@ -11,6 +11,11 @@ import math
 
 import denoising
 
+from skimage import filters
+from scipy import ndimage
+from scipy.ndimage import gaussian_filter
+
+
 class activitymap:
 
     def __init__(self, parent, parentw, parenth, pixsize, active_percentage, active_area, fcparentframe):
@@ -71,20 +76,46 @@ class activitymap:
         self.width, self.height = self.firstimg.size # dimension of images 
         self.nimgs = len(PILseq) # number of images   
 
+        
         # --------------- subtract mean image from PILseq ---------------------
         # convert stack of PIL images to numpy array
-        for i in range(nimgs):
-            array[i, :, :] = numpy.array(PILseq[i])
+        array=[]
+        for i in range(self.nimgs):
+            array.append(numpy.array(PILseq[i]))
+        array = numpy.array(array)
 
-        # calculate the mean image
-        for i in range(nimgs):
-            sumimg = numpy.add(sumimg,array[i,:,:])
-        meanimg = numpy.multiply(1.0/float(nimgs), sumimg)
-
+        ## calculate the mean image
+        #for i in range(nimgs):
+        #    sumimg = numpy.add(sumimg,array[i,:,:])
+        #meanimg = numpy.multiply(1.0/float(nimgs), sumimg)
+        #
         # subtract the mean image 
-        for i in range(nimgs):
-            array[i,:,:] = numpy.subtract(array[i,:,:], meanimg)
+        #for i in range(nimgs):
+        #    array[i,:,:] = numpy.subtract(array[i,:,:], meanimg)
         # ------------------------------------------------------------------- #
+
+        # initialize the variance map
+        # which holds the variance along the time t for each pixel
+        varmap = numpy.zeros((int(self.height), int(self.width)))
+
+        for i in range(int(self.height)):
+            for j in range(int(self.width)):
+                varmap[i,j] = numpy.var(array[:,i,j])
+
+        # get variance threshold via otsu-method 
+        hist = []
+        p = numpy.percentile(varmap, 50)
+        for i in range(int(self.height)):
+            for j in range(int(self.width)):
+                v = varmap[i,j]
+                if (v < p):
+                    hist.append(v)
+        hist = numpy.array(hist)
+        otsu_threshold = filters.threshold_otsu(hist)
+        #plt.hist(hist,1000)
+        #plt.show()
+
+
 
         # initialze the array, which will contain the activity map
         self.freqmap = numpy.zeros((int(self.height), int(self.width)))
@@ -113,6 +144,9 @@ class activitymap:
         # integral of the 'mean' powerspectrum over choosen frequency band 
         A_bar = numpy.sum(pwspecplot.yax[bot:top+1])
 
+
+        hist = []
+
         for i in range(ni):
             for j in range(nj):
 
@@ -127,6 +161,9 @@ class activitymap:
 
                 A_xy = numpy.sum(self.spec[bot:top+1])
 
+                hist.append(A_xy)
+
+
                 if (A_xy > threshold * A_bar):
                     # valid pixel
                     # calculate the mean freq in freq band (weighted mean)
@@ -134,7 +171,7 @@ class activitymap:
                         self.spec[bot:top+1])) / numpy.sum(self.spec[bot:top+1])
                 else:
                     # mark pixel as invalid
-                    self.freqmap[i,j] = numpy.nan
+                    #self.freqmap[i,j] = numpy.nan
                     self.validity_mask[i,j] = 0
 
                 # 2ND CONDITION TO MARK A PIXEL AS VALID/INVALID
@@ -151,25 +188,39 @@ class activitymap:
                     # pixel fullfills the criterium - nothing to do
                     pass
                 else:
-                    self.freqmap[i,j] = numpy.nan
+                    #self.freqmap[i,j] = numpy.nan
                     self.validity_mask[i,j] = 0
 
 
+                # 3RD CONDITION otsu thresholding of variance
+                #if (varmap[i,j] < otsu_threshold):
+                #    self.validity_mask[i,j] = 0
+                #    self.freqmap[i,j] = numpy.nan
 
 
+        #hist = numpy.array(hist)
+        #otsu_threshold = filters.threshold_otsu(hist)
+        #plt.hist(hist,1000)
+        #plt.vlines(otsu_threshold, 0, 1000)
+        #plt.show()
 
 
+        # smooth validity mask using a 2D-average 
+        # window size = 5000 x 5000 nm (size of a cell)
+        #sig = round(1000.0 / pixsize)
+        self.validity_mask = numpy.round(gaussian_filter(self.validity_mask, 0.75))
+        self.freqmap = numpy.round(gaussian_filter(self.freqmap, 0.75))
 
 
+        print('---------- max of validity maks !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print(numpy.max(self.validity_mask))
 
 
-
-
-
-
-
-
-
+        # set frequency of invalid pixels to nan:
+        for i in range(ni):
+            for j in range(nj):
+                if (not self.validity_mask[i,j]):
+                    self.freqmap[i,j] = numpy.nan
 
 
         # plot the activity map (self.freqmap)
