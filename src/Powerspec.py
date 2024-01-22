@@ -113,10 +113,6 @@ class powerspec:
             progress = 0
             # **************************************************************** #
 
-
-
-
-
             # print('shape of array: ',nt,ni,nj)
 
             # fast-fourier-transform along time axis (pixel-wise) 
@@ -155,7 +151,7 @@ class powerspec:
             # calculate the corresponding frequencies: 
             self.freqs = numpy.zeros(self.spec.size)
             for i in range(self.spec.size):
-                self.freqs[i] = (i+1) * float(FPS) / float(nimgs)
+                        self.freqs[i] = (i+2) * float(FPS) / float(nimgs)
 
             progresswin.destroy()
             s.configure("TProgressbar", thickness=5)
