@@ -68,7 +68,6 @@ class powerspec:
             #print('newtest', self.tkframe.winfo_width())
             self.pwspecplot = TkPowerspecPlot.TkPowerspecPlot(self.tkframe)
 
-
             firstimg = roiseq[0] # first image of roi sequence  
             width, height = firstimg.size # dimension of images 
             nimgs = len(roiseq) # number of images   
@@ -76,23 +75,21 @@ class powerspec:
             # initialize numpy float array, which will hold the image sequence  
             array = numpy.zeros((int(nimgs),int(height),int(width)))
 
+
+            # ---- Noise-removal by Gaussian filtering (in space and time) ---- 
+            # Gaussian filtering of the img seq in space and time 
+            # (sigma=1,kernel size=1)
             for i in range(nimgs):
-                array[i,:,:] = gaussian_filter(numpy.array(roiseq[i]),sigma=0.75)
-
-
-            # slight gaussian smoothing along time axis:
-            for i in range(height):
-                for j in range(width):
-                    array[:,i,j] = gaussian_filter(array[:,i,j], sigma=0.75)
-
+                array[i,:,:] = numpy.array(roiseq[i])
+            array = gaussian_filter(array, 1.0, truncate=1.0)
+            # --------------------------------------------------------------- #
 
             (nt,ni,nj) = numpy.shape(array)
 
-            # print('shape of array: ',nt,ni,nj)
 
-            # create a toplevel window to display the progress indicator
-            # caution: the feedback to the frontend slows down the cbf calculation!
-            # ******************************************************************* #
+            # -- create a toplevel window to display the progress indicator --
+            # caution: the feedback to the frontend slows down the cbf calc.!
+            # *************************************************************** #
             progresswin = Toplevel()
             progresswin.minsize(width=500,height=30)
             progresswin.title("Powerspectrum in Progress, Please Wait...")
@@ -109,12 +106,18 @@ class powerspec:
             s.theme_use("default")
             s.configure("TProgressbar", thickness=30)
 
-            pbvar = IntVar() # progress bar variable (counting the number of loaded images)   
+            pbvar = IntVar() # progress bar variable (counts number of loaded imgs)   
             pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",variable=pbvar,\
                 maximum=ni*nj,length=600,style="TProgressbar")
             pb.grid(row=1,column=0,pady=5)
             progress = 0
             # **************************************************************** #
+
+
+
+
+
+            # print('shape of array: ',nt,ni,nj)
 
             # fast-fourier-transform along time axis (pixel-wise) 
 
@@ -138,7 +141,10 @@ class powerspec:
                 progresswin.update()
 
             # note that we (conciously) throw away the zero-frequency part
-            self.spec = self.spec[1:round(nt/2)]
+            # AND the first (lowest frequency > 0), as this frequency 
+            # is falsified by the periodic repetition of the function 
+            # by the FFT
+            self.spec = self.spec[2:round(nt/2)]
             self.spec = self.spec / numpy.sum(self.spec)
 
             #print('--------------------------------------------------')
@@ -162,7 +168,7 @@ class powerspec:
             # self.pwspecplot.plot(self.freqs, self.spec, xlabel, ylabel, labelpad, fontsize)
 
             # slightly smooth the powerspectrum
-            self.spec = gaussian_filter(self.spec, sigma=1)
+            self.spec = gaussian_filter(self.spec, sigma=1.0,truncate=1.0)
             self.pwspecplot.plot(self.freqs, self.spec, xlabel, ylabel, labelpad, fontsize)
 
             # write powerspectrum and frequencies to file: 

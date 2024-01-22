@@ -38,8 +38,7 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
     u_flow = []
     v_flow = []
 
-    nimgs = 300
-
+    if (nimgs > 300): nimgs=300
 
     for t in range(nimgs-1):
 
@@ -75,8 +74,8 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
         v_flow[i] = medfilt2d(v_flow[i])
         # spatial smoothing
         ss = 700.0 / pixsize
-        u_flow[i] = ndimage.gaussian_filter(u_flow[i], sigma=ss)
-        v_flow[i] = ndimage.gaussian_filter(v_flow[i], sigma=ss)
+        u_flow[i] = ndimage.gaussian_filter(u_flow[i], sigma=ss, truncate=2.0)
+        v_flow[i] = ndimage.gaussian_filter(v_flow[i], sigma=ss, truncate=2.0)
 
     # smooth optical flow by local averaging (2x2) over all axes!  
     u_flow = ndimage.uniform_filter(u_flow, size=2)
@@ -100,7 +99,7 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
                     max_speed = speed
                 # speeds[t,i,j] = math.sqrt( u_flow[]**2 + v_flow[]**2 )
     """
-    print('finished')
+    #print('finished')
 
     # normalize: 
     for t in range(nt):
@@ -119,11 +118,7 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
     for i in range(nimgs-1):
         img = speedmat[i][:,:]
         img = PIL.Image.fromarray(numpy.uint8((img - mi) / (mx-mi) * 255))
-        img.save('./ofspeed/ofspeed-'+str(i).zfill(3)+'.png')
-
-
-
-
+        #img.save('./ofspeed/ofspeed-'+str(i).zfill(3)+'.png')
 
 
     # contruct matrix holding the pixel positions 

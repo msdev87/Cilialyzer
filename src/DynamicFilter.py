@@ -100,11 +100,11 @@ class DynFilter:
         # ------------------ keep second harmonic freq band --------------------
         if (nharms > 1):
 
-            peakw = maxf - minf 
-            peakf = minf + 0.5 * peakw  
+            peakw = maxf - minf
+            peakf = minf + 0.5 * peakw
 
-            sminf = 2.0 * peakf - 0.5 * peakw  
-            smaxf = 2.0 * peakf + 0.5 * peakw  
+            sminf = 2.0 * peakf - 0.5 * peakw
+            smaxf = 2.0 * peakf + 0.5 * peakw
 
             minf2 = int(round((float(nimgs)*sminf/float(fps))-1))
             maxf2 = int(round((float(nimgs)*smaxf/float(fps))-1))
@@ -538,8 +538,8 @@ class DynFilter:
 
         # x and y axis should span from -50 to 50 (=100 micrometers)
 
-        nx = int(100.0 / (pixsize*0.001))
-        ny = int(100.0 / (pixsize*0.001))
+        nx = int(200.0 / (pixsize*0.001)) # changed to 200 micrometers 
+        ny = int(200.0 / (pixsize*0.001))
 
         corrplot = numpy.zeros((ny,nx))
         corrplot[:,:] = numpy.nan
@@ -559,7 +559,7 @@ class DynFilter:
             corrplot[:,:] = scorr[-dy//2:len(scorr[:,0])+dy//2,-dx//2:len(scorr[0,:])+dx//2]
 
         vmax = numpy.max(corrplot)
-        la1 = ax.imshow(corrplot,alpha=1.0,cmap='bwr',interpolation='none',extent=[-50,50,-50,50], vmin=-0.6*vmax,vmax=0.6*vmax)
+        la1 = ax.imshow(corrplot,alpha=1.0,cmap='bwr',interpolation='none',extent=[-100,100,-100,100], vmin=-0.6*vmax,vmax=0.6*vmax)
 
         # write scorr to file: 
         # numpy.savetxt('meanspatialautocorr.dat', scorr)
@@ -607,9 +607,6 @@ class DynFilter:
         # plot the correlation profile along the line (x0,y0) -- (x1,y1) 
         x0,y0 = maxx-(4*dx),maxy-(4*dy)
         x1,y1 = maxx+(4*dx),maxy+(4*dy)
-
-
-
 
         # note that:
         # sqrt( (x1-x0)^2 + (y1-y0)^2 ) = 4 * wavelength
@@ -691,7 +688,7 @@ class DynFilter:
         l2 = len(scorr_profile)
         ax.plot(distmat_profile,scorr_profile,linewidth=3,color='darkorange')
         ax.set_ylim([-0.6,1.05])
-        ax.set_xlim([-70,70])
+        ax.set_xlim([-100,100])
         ax.axvline(x=0.5*wavelength,ymin=-0.55,ymax=0.95,linestyle='dashed',color='0.5')
         ax.axvline(x=-0.5*wavelength,ymin=-0.55,ymax=0.95,linestyle='dashed',color='0.5')
 
@@ -699,8 +696,8 @@ class DynFilter:
         str1 = "$\lambda$ = "
         str2 = "$%.1f$" %wavelength
         str3 = " $\mu$m"
-        xpos = 0.7*wavelength
-        ypos = 0.9
+        xpos = 0.5*wavelength
+        ypos = 0.8
         ax.text(xpos,ypos,str1+str2+str3,fontsize=14)
 
         #ax.set_title('Mean Spatial Autocorrelation') 
@@ -775,7 +772,7 @@ class DynFilter:
         str1=r'$\xi$'
         str2=" = $%.1f$" %xi
         str3=" $\mu$m"
-        ax.text(0.7*wavelength,0.75,str1+str2+str3,fontsize=14,color='darkorange')
+        ax.text(0.5*wavelength,0.65,str1+str2+str3,fontsize=14,color='darkorange')
 
 
         ax.margins(0.01)
