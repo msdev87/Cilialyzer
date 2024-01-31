@@ -77,13 +77,13 @@ class TkPowerspecPlot:
         #print "peakheight :", peakheight 
 
         low = minf
-        high = maxf 
+        high = maxf
 
         #print "minf :", minf
         #print "maxf :", maxf 
         #print "FPS :", FPS 
 
-        nimgs = len(self.xax) 
+        nimgs = len(self.xax)
 
         #bot=int(round((float(low)*nimgs/float(FPS))-1)) # transform [Hz] into index
         #top=int(round((float(high)*nimgs/float(FPS))-1))

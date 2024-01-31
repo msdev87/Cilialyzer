@@ -19,7 +19,6 @@ import cv2
 from scipy.signal import medfilt2d
 
 
-
 class activitymap:
 
     def __init__(self, parent, parentw, parenth, pixsize, active_percentage, active_area, fcparentframe):
@@ -68,8 +67,9 @@ class activitymap:
 
     def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum, pixsize, threshold):
         """
-        calculation of the activity map (spatially resolved CBF map)
+        Calculation of the activity map (spatially resolved CBF map)
         """
+
         self.pixsize = pixsize
         self.fps = FPS
 
@@ -80,62 +80,61 @@ class activitymap:
         self.width, self.height = self.firstimg.size # dimension of images 
         self.nimgs = len(PILseq) # number of images   
 
-
         # -------------- determine dense optical flow -------------------------
         u_flow = []
         v_flow = []
 
-        if (self.nimgs > 500):
-            nimgs=500
+        if (self.nimgs > 300):
+            nimgs = 300
         else:
             nimgs = self.nimgs
 
+        # ws: window size in Farneback's optical flow 
+        ws = round(2000.0/pixsize) # we set the window size to about 2 microns
+        if (ws < 3): ws = 3
 
         for t in range(nimgs-1):
-            img1 = ndimage.gaussian_filter(numpy.array(PILseq[t]), sigma=500.0/pixsize, truncate=2.0)
-            img2 = ndimage.gaussian_filter(numpy.array(PILseq[t+1]), sigma=500/pixsize, truncate=2.0)
+            # spatial filtering prior to optical flow calc
+            img1 = gaussian_filter(numpy.array(PILseq[t]), 500.0/pixsize, truncate=2.0)
+            img2 = gaussian_filter(numpy.array(PILseq[t+1]), 500.0/pixsize, truncate=2.0)
 
-            flow = cv2.calcOpticalFlowFarneback(img1, img2, None, 0.8, 2, 12, 7, 5, 1.1, 0)
+            flow = cv2.calcOpticalFlowFarneback(img1, img2, None, 0.99, 1, ws, 7, 5, 1.1, 0)
 
             v_flow.append(flow[...,1])
             u_flow.append(flow[...,0])
 
-        for i in range(nimgs-1):
+        # Outlier removal in flow by median filtering (kernel size = 3):   
+        u_flow = ndimage.median_filter(u_flow, size=3)
+        v_flow = ndimage.median_filter(v_flow, size=3)
 
-            # Outlier removal in u_flow and v_flow by median filtering (3x3):   
-            u_flow[i] = medfilt2d(u_flow[i])
-            v_flow[i] = medfilt2d(v_flow[i])
-            # spatial smoothing
-            ss = 500.0 / pixsize
-            u_flow[i] = ndimage.gaussian_filter(u_flow[i], sigma=ss, truncate=2.0)
-            v_flow[i] = ndimage.gaussian_filter(v_flow[i], sigma=ss, truncate=2.0)
+        # smooth optical flow by Gaussian filtering over all axes!  
+        ws = 300.0 / pixsize
+        u_flow = gaussian_filter(u_flow, ws, truncate=2.0)
+        v_flow = gaussian_filter(v_flow, ws, truncate=2.0)
 
-        # smooth optical flow by local averaging over all axes!  
-        u_flow = ndimage.uniform_filter(u_flow, size=3)
-        v_flow = ndimage.uniform_filter(v_flow, size=3)
-
-        speedmat = numpy.zeros_like(u_flow)
+        speedmat = numpy.zeros_like(u_flow) # initialize speed matrix
         for t in range(nimgs-1):
             speedmat[t,:,:] = numpy.sqrt(u_flow[t][:,:]**2 + v_flow[t][:,:]**2)
 
+        # delete u_flow and v_flow
+        del u_flow
+        del v_flow
+
         (nt,ni,nj)=numpy.shape(speedmat)
 
-        smap = numpy.zeros((ni,nj))
+        # condition for a pixel to be valid (optical flow speed condition)
+        speedmat_95p = numpy.zeros((ni,nj))
+
+        # we impose the following condition: 
+        # The 95%-percentile for each pixel needs to be > 2*1 micron * CBF_ij
+        # the latter represents some kind of minimum flow speed
 
         for i in range(ni):
             for j in range(nj):
-                smap[i,j] = numpy.mean(speedmat[:,i,j])
-        smap=ndimage.gaussian_filter(smap, sigma=2.0,truncate=1.0)
+                speedmat_95p[i,j] = numpy.percentile(speedmat[:,i,j],95)
 
 
-        # plot speed histo
-        #hist = smap.flatten()
-        #otsu_threshold = filters.threshold_otsu(hist)
-        #plt.hist(hist,1000)
-        #plt.vlines(otsu_threshold, 0, 1000)
-        #plt.show()
-
-
+        """
         # ---------------- TESTING the temporal variance --------------------
         # convert stack of PIL images to numpy array
         array=[]
@@ -151,7 +150,7 @@ class activitymap:
             for j in range(int(self.width)):
                 varmap[i,j] = numpy.var(gaussian_filter(array[:,i,j],sigma=1.0,truncate=1.0))
 
-        # get variance threshold via otsu-method 
+        # get variance threshold via otsu-method
         hist = []
         p = numpy.percentile(varmap, 99)
         for i in range(int(self.height)):
@@ -164,8 +163,7 @@ class activitymap:
         #plt.hist(hist,1000)
         #plt.title('Histo of variances')
         #plt.show()
-
-
+        """
 
         # initialze the array, which will contain the activity map
         self.freqmap = numpy.zeros((int(self.height), int(self.width)))
@@ -194,8 +192,7 @@ class activitymap:
         # integral of the 'mean' powerspectrum over choosen frequency band 
         A_bar = numpy.sum(pwspecplot.yax[bot:top+1])
 
-
-        hist = []
+        #hist = []
 
         for i in range(ni):
             for j in range(nj):
@@ -204,15 +201,14 @@ class activitymap:
                 self.spec = self.spec[1:round(nt/2)-1]
                 self.spec = self.spec / numpy.sum(self.spec)
 
-                # check the validity of each pixel: 
+                # Check the validity of each pixel: 
                 # according to the procedure of the 'integral spectral density' 
                 # presented in Ryser et al. 2007
                 # (condition for invalidity: A_xy / A_bar < 0.15)  
 
                 A_xy = numpy.sum(self.spec[bot:top+1])
 
-                hist.append(A_xy)
-
+                #hist.append(A_xy)
 
                 if (A_xy > threshold * A_bar):
                     # valid pixel
@@ -221,7 +217,7 @@ class activitymap:
                         self.spec[bot:top+1])) / numpy.sum(self.spec[bot:top+1])
                 else:
                     # mark pixel as invalid
-                    #self.freqmap[i,j] = numpy.nan
+                    # self.freqmap[i,j] = numpy.nan
                     self.validity_mask[i,j] = 0
 
                 # 2ND CONDITION TO MARK A PIXEL AS VALID/INVALID
@@ -241,64 +237,37 @@ class activitymap:
                     #self.freqmap[i,j] = numpy.nan
                     self.validity_mask[i,j] = 0
 
+                # 3RD CONDITION considering the optical flow speed 
+                if (not (speedmat_95p[i,j]*self.pixsize*self.fps > 3000.0 * self.freqmap[i,j])):
+                    self.validity_mask[i,j] = 0
 
-                # 3RD CONDITION otsu thresholding of variance
-                #if (varmap[i,j] < otsu_threshold):
-                #    self.validity_mask[i,j] = 0
-                #    self.freqmap[i,j] = numpy.nan
-
-
-        #hist = numpy.array(hist)
-        #otsu_threshold = filters.threshold_otsu(hist)
-        #plt.hist(hist,1000)
-        #plt.vlines(otsu_threshold, 0, 1000)
-        #plt.show()
-
+        # --------------------------------------------------------------------
 
         # smooth validity mask using a 2D-average 
         # window size = 5000 x 5000 nm (size of a cell)
-        #sig = round(1000.0 / pixsize)
-        self.validity_mask = numpy.round(gaussian_filter(self.validity_mask, sigma=1.0, truncate=1.0))
-        self.freqmap = numpy.round(gaussian_filter(self.freqmap, sigma=1.0, truncate=1.0))
+        # sig = round(1000.0 / pixsize)
+        self.validity_mask = numpy.round(gaussian_filter(self.validity_mask, 1.0, truncate=1.0))
+        self.freqmap = gaussian_filter(self.freqmap,1.0, truncate=1.0)
 
+        #  ----------------- check histogram for of_speed / cbf --------------
+        #hist=numpy.zeros(1000)
+        #for i in range(ni):
+        #    for j in range(nj):
+        #        if (self.validity_mask[i,j]):
+        #            hist=hist+ numpy.histogram(speedmat[:,i,j]/self.freqmap[i,j],bins=1000,range=(0,0.5))[0]
+        #
+        #plt.plot(hist)
+        #plt.show()
+        # --------------------------------------------------------------------
 
         print('---------- max of validity maks !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         print(numpy.max(self.validity_mask))
-
 
         # set frequency of invalid pixels to nan:
         for i in range(ni):
             for j in range(nj):
                 if (not self.validity_mask[i,j]):
                     self.freqmap[i,j] = numpy.nan
-
-
-
-        # ---------------------------------------------------------------
-        # test, optical flow speed divided by cbf_ij 
-        hist = []
-
-        for i in range(ni):
-            for j in range(nj):
-                speedmat[:,i,j] = gaussian_filter(speedmat[:,i,j], sigma=2.0, truncate=1.0)
-
-        for t in range(nimgs-1):
-            for i in range(ni):
-                for j in range(nj):
-                    if (self.validity_mask[i,j]):
-                        hist.append(speedmat[t,i,j] / self.freqmap[i,j])
-
-
-        hist = numpy.array(hist)
-        #otsu_threshold = filters.threshold_otsu(hist)
-        plt.hist(hist,3000)
-        #plt.vlines(otsu_threshold, 0, 1000)
-        plt.show()
-        # ------------------------------------------------------------------
-
-
-
-
 
         # plot the activity map (self.freqmap)
         dpis = 120

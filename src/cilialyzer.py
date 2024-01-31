@@ -1031,15 +1031,6 @@ class Cilialyzer():
         # ---------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
-
         # ----------------- Remaining CBF notebook tab widgets ----------------
         # minfreq and maxfreq represent the lower and the upper limit
         # of the selected frequency bandwidth when determining the CBF
