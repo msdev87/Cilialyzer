@@ -18,7 +18,6 @@ import cv2
 
 from scipy.signal import medfilt2d
 
-
 class activitymap:
 
     def __init__(self, parent, parentw, parenth, pixsize, active_percentage, active_area, fcparentframe):
@@ -65,10 +64,16 @@ class activitymap:
         self.active_percentage = active_percentage
         self.active_area = active_area
 
-    def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum, pixsize, threshold):
+    def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum, pixsize):
         """
         Calculation of the activity map (spatially resolved CBF map)
         """
+
+
+        # threshold for the condition to mark pixel as valid or invalid
+        # based on the integral in the pixelspectra
+        threshold = 0.25
+
 
         self.pixsize = pixsize
         self.fps = FPS
@@ -133,7 +138,6 @@ class activitymap:
             for j in range(nj):
                 speedmat_95p[i,j] = numpy.percentile(speedmat[:,i,j],95)
 
-
         """
         # ---------------- TESTING the temporal variance --------------------
         # convert stack of PIL images to numpy array
@@ -184,10 +188,10 @@ class activitymap:
         # calculate the frequencies: 
         self.freqs = numpy.zeros(self.spec.size)
         for i in range(self.spec.size):
-            self.freqs[i] = (i+1) * float(FPS) / float(self.nimgs)
+            self.freqs[i] = (i+2) * float(FPS) / float(self.nimgs)
 
-        bot = int(round( (float(self.nimgs)*minf/float(FPS))-1 ))
-        top = int(round( (float(self.nimgs)*maxf/float(FPS))-1 ))
+        bot = int(round( (float(self.nimgs)*minf/float(FPS))-2 ))
+        top = int(round( (float(self.nimgs)*maxf/float(FPS))-2 ))
 
         # integral of the 'mean' powerspectrum over choosen frequency band 
         A_bar = numpy.sum(pwspecplot.yax[bot:top+1])
@@ -197,8 +201,11 @@ class activitymap:
         for i in range(ni):
             for j in range(nj):
 
+                # Note here that 'pixelspectra' are not cropped, meaning that
+                # they containe the zero-frequency contribution and the lowest
+                # frequency contribution
                 self.spec = powerspectrum.pixelspectra[:,i,j]
-                self.spec = self.spec[1:round(nt/2)-1]
+                self.spec = self.spec[2:round(nt/2)-2] # here we cut them away
                 self.spec = self.spec / numpy.sum(self.spec)
 
                 # Check the validity of each pixel: 

@@ -43,9 +43,7 @@ class powerspec:
         self.tkframe = Frame(parent,width=self.parentw,height=self.parenth)
         self.parent = parent
 
-
-        #self.tkframe.pack(expand=1,fill=BOTH)
-        self.tkframe.pack()
+        self.tkframe.place(in_=parent, width=self.parentw,height=self.parenth)
         self.tkframe.update()
         self.pwspecplot = TkPowerspecPlot.TkPowerspecPlot(self.tkframe)
         self.pixelspectra = None
@@ -63,7 +61,7 @@ class powerspec:
             self.tkframe.destroy()
             self.tkframe = Frame(parent,width=self.parentw,height=self.parenth)
 
-            self.place(in_=parent,anchor='c',relx=0.5,rely=0.5)
+            self.tkframe.place(in_=parent,anchor='c',relx=0.5,rely=0.5)
             #self.tkframe.pack()
             self.tkframe.update()
             #print('newtest', self.tkframe.winfo_width())
@@ -231,14 +229,14 @@ class powerspec:
             if (s2 < 0.2):
                 s2 = 0.2
 
-            print('-----------------------------------------------------------')
-            print('a: ',a)
-            print('b: ',b)
-            print('mu1: ', mu1)
-            print('mu2: ', mu2)
-            print('s1: ',s1)
-            print('s2: ',s2)
-            print('-----------------------------------------------------------')
+            #print('-----------------------------------------------------------')
+            #print('a: ',a)
+            #print('b: ',b)
+            #print('mu1: ', mu1)
+            #print('mu2: ', mu2)
+            #print('s1: ',s1)
+            #print('s2: ',s2)
+            #print('-----------------------------------------------------------')
 
             # check whether the second Gaussian is different from the first one
             # if yes --> take second Gaussian into account
@@ -395,6 +393,7 @@ class powerspec:
         plt.waitforbuttonpress()
         plt.waitforbuttonpress()
 
+
     def delete_content(self):
         """
         Method to remove the content getting displayed in the CBF-tab
@@ -402,10 +401,8 @@ class powerspec:
         # rebuild the frame (delete its content)  
         self.tkframe.destroy()
         self.tkframe = Frame(self.parent,width=self.parentw,height=self.parenth)
-
-        self.tkframe.pack()
+        self.tkframe.place(in_=parent, width=self.parentw,height=self.parenth)
         self.tkframe.update()
-
 
 #    def get_cbf(self,nimgs,FPS): 
 #        
@@ -441,8 +438,6 @@ class powerspec:
 #        peakheight = max(self.spec) 
 #        print "peakheight3"
 #        print peakheight 
-#
-#
 #
 #
 #        freqs = self.freqs[bot:top]

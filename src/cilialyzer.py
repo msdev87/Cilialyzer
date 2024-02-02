@@ -273,12 +273,12 @@ class Cilialyzer():
 
                 self.powerspectrum.pwspecplot.canvas.draw()
         # ----------------------- end of peakselector ------------------------------
-
+    """
     def set_threshold(self):
-        """
-        This function gets executed if the user changes the threshold,
-        which is used to calculate the activity map
-        """
+
+        #This function gets executed if the user changes the threshold,
+        #which is used to calculate the activity map
+
         #self.activity_map.calc_activitymap(self.mapframe,\
         #    self.roiplayer.roiseq,float(self.toolbar.fpscombo.get()),\
         #    float(self.minscale.get()), float(self.maxscale.get()),\
@@ -292,6 +292,9 @@ class Cilialyzer():
         f = open('validity_threshold.txt','a')
         f.write(str(float(self.activity_threshold.get()))+"\n")
         f.close()
+    """
+
+
 
     def image_stabilization(self):
 
@@ -948,6 +951,7 @@ class Cilialyzer():
 
         self.fcorrframe = None
 
+        """
         # read validity threshold (to generate activity map) from file:
         try:
             with open('validity_threshold.txt') as f:
@@ -963,8 +967,9 @@ class Cilialyzer():
             f = open('validity_threshold.txt','a')
             f.write(str(th)+"\n")
             f.close()
+        """
 
-        self.threshold = th
+        #self.threshold = th
 
         self.active_percentage = tk.StringVar()
         self.active_area = tk.StringVar()
@@ -980,7 +985,7 @@ class Cilialyzer():
             command=lambda: self.activity_map.calc_activitymap(self.mapframe,\
             self.roiplayer.roiseq,float(self.toolbar.fpscombo.get()),\
             float(self.minscale.get()), float(self.maxscale.get()),\
-            self.powerspectrum, float(self.toolbar.pixsizecombo.get()), float(self.activity_threshold.get())), height=bh, width=bw)
+            self.powerspectrum, float(self.toolbar.pixsizecombo.get())),height=bh,width=bw)
         self.activityB.place(in_=self.activitytab, anchor='c', relx=0.5, rely=0.05)
 
         # spinbox to set the threshold
@@ -990,28 +995,25 @@ class Cilialyzer():
         #    variable=self.threshold, command=self.set_threshold)
         #self.activity_threshold.place(in_=self.activitytab, anchor='c', relx=0.1, rely=0.5) 
 
-        if hasattr(self, 'threshold'):
-            pass
-        else:
-            # set init
-            self.threshold = 0.2
+        #if hasattr(self, 'threshold'):
+        #    pass
+        #else:
+        #    # set init
+        #    self.threshold = 0.2
 
         self.thframe=tk.Label(self.activitytab)
         self.thframe.place(in_=self.activitytab, anchor='c', relx=0.3, rely=0.1)
 
-        self.thresholdL=tk.Label(self.thframe, text="Activity threshold: ", height=2,width=18)
-        self.thresholdL.grid(row=0,column=0,columnspan=1)
-
-        self.textvar = tk.StringVar()
-
-        self.textvar.set(str(self.threshold))
+        #self.thresholdL=tk.Label(self.thframe, text="Activity threshold: ", height=2,width=18)
+        #self.thresholdL.grid(row=0,column=0,columnspan=1)
+        #self.textvar = tk.StringVar()
+        #self.textvar.set(str(self.threshold))
 
         # spinbox 
-        self.activity_threshold = tk.Spinbox(self.thframe, textvariable=self.textvar, from_=0, to=0.9, increment=0.01,\
-            command=self.set_threshold,width=5)
-        self.activity_threshold.grid(row=0,column=1,columnspan=1)
-        #self.activity_threshold.delete(0, "end")
-        #self.activity_threshold.insert(0,0)
+        #self.activity_threshold = tk.Spinbox(self.thframe, textvariable=self.textvar, from_=0, to=0.9, increment=0.01,\
+        #    command=self.set_threshold,width=5)
+        #self.activity_threshold.grid(row=0,column=1,columnspan=1)
+
         # ----------------------------------------------------------------------
 
         # ---------------------------------------------------------------------
