@@ -9,11 +9,6 @@ def acorr_zp(signal):
     returned function is of the same size as the signal.
     """
 
-    #print('---------------------------------------------------------------')
-    #print(' ------------- this is a test ---------------------------------')
-    #print('---------------------------------------------------------------')
-
-
     # Get a centered version of the signal 
     centered_signal = signal - numpy.mean(signal)
 
@@ -84,19 +79,9 @@ def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
     # along the width and the height
     ni, nj = signal.shape
 
-    #print('*****************************************************************')
-    #print('ni1: ',ni,'nj1: ',nj)
-    #print('*****************************************************************')
-
     # if mask is None (default), we assume that all pixels in signal are valid: 
     if mask is None:
         mask = numpy.ones_like(signal)
-
-    # make sure there are no nan-values (missing numbers are set to zero)
-    for i in range(ni):
-        for j in range(nj):
-            if (not mask[i,j]):
-                signal[i,j] = 0.0
 
     if (ni % 2):
         # if ni mod 2 == 1 then ni is an odd number -> remove one row
@@ -113,8 +98,22 @@ def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
     #print('ni: ',ni,'nj: ',nj)
     #print('******************************************************************')
 
+    # make sure there are no nan-values in signal 
+    # (this is just for the calculation of the mean)
+    for i in range(ni):
+        for j in range(nj):
+            if (not mask[i,j]):
+                signal[i,j] = 0
+
     # Get the signal's mean (excluding missing values)
     mean = numpy.sum(numpy.multiply(signal, mask)) / numpy.sum(mask)
+
+    # Missing numbers are now set to the signal's mean
+    # This way, missing numbers will then be zero after centering
+    for i in range(ni):
+        for j in range(nj):
+            if (not mask[i,j]):
+                signal[i,j] = mean
 
     # Get a centered version of the signal (if centering is True)
     if (centering):
@@ -152,7 +151,6 @@ def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
     mask_correction_factors = numpy.real(numpy.fft.ifft2( numpy.multiply(
         fft_masked_signal, numpy.conjugate(fft_masked_signal))))
 
-
     # The "error" made can now be easily corrected by an element-wise division
     autocovariance = pseudo_autocovariance / mask_correction_factors
 
@@ -161,12 +159,9 @@ def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
     else:
         variance = 1.0
 
-
     # fft-shift:
     autocovariance = numpy.fft.fftshift(autocovariance)
     autocovariance = autocovariance[int(ni/2):int(3*ni/2),int(nj/2):int(3*nj/2)]
-
-    #print('done')
 
     return (autocovariance / variance)
 

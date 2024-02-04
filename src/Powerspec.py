@@ -263,72 +263,48 @@ class powerspec:
                 # take both Gaussians into account
                 if (mu1 > mu2):
                     # set minscale as local min in interval [mu2-4s2,mu2-2s2]
-                    ind1 = int( round(((mu2-4*s2)*float(nimgs)/float(FPS))))
-                    ind2 = int( round(((mu2-2*s2)*float(nimgs)/float(FPS))))
+                    ind1 = int( round(((mu2-4*s2)*float(nimgs)/float(FPS)))-2)
+                    ind2 = int( round(((mu2-2*s2)*float(nimgs)/float(FPS)))-2)
                     ind1 = max(ind1,0) # prevent negative indices
                     ind2 = max(ind2,1)
-
                     minscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
-                    #minscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
 
                     # set maxscale as local min in interval [m1+2*s1,mu1+4*s1]
-                    ind1 = int(round(((mu1+2*s1)*float(nimgs)/float(FPS))))
-                    ind2 = int(round(((mu1+4*s1)*float(nimgs)/float(FPS))))
-
+                    ind1 = int(round(((mu1+2*s1)*float(nimgs)/float(FPS)))-2)
+                    ind2 = int(round(((mu1+4*s1)*float(nimgs)/float(FPS)))-2)
                     maxscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
-                    #maxscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
 
                 if (mu1 < mu2):
                     # set minscale as local min in interval [mu1-4s1,mu1-2s1]
-                    ind1 = int(round(((mu1-4*s1)*float(nimgs)/float(FPS))))
-                    ind2 = int(round(((mu1-2*s1)*float(nimgs)/float(FPS))))
+                    ind1 = int(round(((mu1-4*s1)*float(nimgs)/float(FPS)))-2)
+                    ind2 = int(round(((mu1-2*s1)*float(nimgs)/float(FPS)))-2)
                     ind1 = max(ind1, 0)
                     ind2 = max(ind2, 1)
-                    # print('test')
-                    # print('ind1: ',ind1)
-                    # print('ind2: ',ind2)
-
                     minscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
 
                     # set maxscale as local min in interval [m2+2*s2,mu2+4*s2]
-                    ind1 = int(round(((mu2+2*s2)*float(nimgs)/float(FPS))))
-                    ind2 = int(round(((mu2+4*s2)*float(nimgs)/float(FPS))))
-
+                    ind1 = int(round(((mu2+2*s2)*float(nimgs)/float(FPS)))-2)
+                    ind2 = int(round(((mu2+4*s2)*float(nimgs)/float(FPS)))-2)
                     maxscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
 
             else:
-
                 # only first gaussian (dominant peak height) is taken into account
 
                 # set minscale as local min in interval [mu1-4s1,mu1-2s1]
-                ind1 = int(round(((mu1 - 4 * s1) * float(nimgs) / float(FPS))))
-                ind2 = int(round(((mu1 - 2 * s1) * float(nimgs) / float(FPS))))
+                ind1 = int(round(((mu1-4*s1) * float(nimgs) / float(FPS)))-2)
+                ind2 = int(round(((mu1-2*s1) * float(nimgs) / float(FPS)))-2)
 
                 # the following lines ensure that the indices are not negative 
                 # and that the interval can not be empty  
                 ind1 = max(ind1, 0)
                 ind2 = max(ind2, 1)
 
-                #print('-----------------------------------------------------------')
-                #print('minscale')
-                #print('ind1 ',ind1,' ind2 ',ind2)
-                #print('freq[ind1] ', self.freqs[ind1],' freq[ind2] ',self.freqs[ind2])
-                #print('-----------------------------------------------------------')
-
                 minscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
-                #minscale.set(self.freqs[int(numpy.where(self.spec == numpy.amin(self.spec[ind1:ind2]))[0][0])])
 
                 # set maxscale as local min in interval [m1+2*s1,mu1+4*s1]
-                ind1 = int(round(((mu1 + 2 * s1) * float(nimgs) / float(FPS))))
-                ind2 = int(round(((mu1 + 4 * s1) * float(nimgs) / float(FPS))))
-                #print('-----------------------------------------------------------')
-                #print('maxscale')
-                #print('ind1 ',ind1,' ind2 ',ind2)
-                #print('freq[ind1] ',self.freqs[ind1],' freq[ind2] ',self.freqs[ind2])
-                #print('-----------------------------------------------------------')
-
+                ind1 = int(round(((mu1 + 2 * s1) * float(nimgs) / float(FPS)))-2)
+                ind2 = int(round(((mu1 + 4 * s1) * float(nimgs) / float(FPS)))-2)
                 maxscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
-
 
             # freqs[i] = (i+2) * FPS / nimgs
 
@@ -340,7 +316,6 @@ class powerspec:
             #x = numpy.array(range(1000))
             #x = numpy.divide(x,10)
             #y = fit_func(x, pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6], pars[7])
-
             #self.pwspecplot.axes.plot(x,y)
 
 

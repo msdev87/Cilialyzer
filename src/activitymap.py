@@ -69,11 +69,9 @@ class activitymap:
         Calculation of the activity map (spatially resolved CBF map)
         """
 
-
         # threshold for the condition to mark pixel as valid or invalid
         # based on the integral in the pixelspectra
         threshold = 0.25
-
 
         self.pixsize = pixsize
         self.fps = FPS
@@ -89,8 +87,8 @@ class activitymap:
         u_flow = []
         v_flow = []
 
-        if (self.nimgs > 300):
-            nimgs = 300
+        if (self.nimgs > FPS):
+            nimgs = int(FPS)
         else:
             nimgs = self.nimgs
 
@@ -98,7 +96,7 @@ class activitymap:
         ws = round(2000.0/pixsize) # we set the window size to about 2 microns
         if (ws < 3): ws = 3
 
-        for t in range(nimgs-1):
+        for t in range(int(nimgs)-1):
             # spatial filtering prior to optical flow calc
             img1 = gaussian_filter(numpy.array(PILseq[t]), 500.0/pixsize, truncate=2.0)
             img2 = gaussian_filter(numpy.array(PILseq[t+1]), 500.0/pixsize, truncate=2.0)
@@ -211,7 +209,7 @@ class activitymap:
                 # Check the validity of each pixel: 
                 # according to the procedure of the 'integral spectral density' 
                 # presented in Ryser et al. 2007
-                # (condition for invalidity: A_xy / A_bar < 0.15)  
+                # (condition for invalidity: A_xy / A_bar < 0.25)  
 
                 A_xy = numpy.sum(self.spec[bot:top+1])
 
@@ -235,7 +233,7 @@ class activitymap:
                 maxind=numpy.argmax(self.spec)
 
                 if (maxind.size > 1):
-                    maxind=maxind[0]
+                    maxind = maxind[0]
 
                 if ((maxind >= bot) and (maxind <= top)):
                     # pixel fullfills the criterium - nothing to do
@@ -246,15 +244,13 @@ class activitymap:
 
                 # 3RD CONDITION considering the optical flow speed 
                 if (not (speedmat_95p[i,j]*self.pixsize*self.fps > 3000.0 * self.freqmap[i,j])):
-                    self.validity_mask[i,j] = 0
+                    if((i>5 and i<ni-5) and (j>5 and j<nj-5)): self.validity_mask[i,j] = 0
 
         # --------------------------------------------------------------------
 
         # smooth validity mask using a 2D-average 
-        # window size = 5000 x 5000 nm (size of a cell)
-        # sig = round(1000.0 / pixsize)
-        self.validity_mask = numpy.round(gaussian_filter(self.validity_mask, 1.0, truncate=1.0))
-        self.freqmap = gaussian_filter(self.freqmap,1.0, truncate=1.0)
+        self.validity_mask = numpy.round(gaussian_filter(self.validity_mask, 2.0, truncate=1.0))
+        self.freqmap = gaussian_filter(self.freqmap,2.0, truncate=1.0)
 
         #  ----------------- check histogram for of_speed / cbf --------------
         #hist=numpy.zeros(1000)
@@ -267,8 +263,8 @@ class activitymap:
         #plt.show()
         # --------------------------------------------------------------------
 
-        print('---------- max of validity maks !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        print(numpy.max(self.validity_mask))
+        #print('---------- max of validity maks !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        #print(numpy.max(self.validity_mask))
 
         # set frequency of invalid pixels to nan:
         for i in range(ni):
@@ -301,7 +297,7 @@ class activitymap:
         maxf = math.ceil(maxf)+0.001
 
         # customize xticks and yticks
-        print('self.pixsize: ',self.pixsize)
+        # print('self.pixsize: ',self.pixsize)
         xmax = round(self.width * self.pixsize / 1000.0)
         ymax = round(self.height * self.pixsize / 1000.0)
 
@@ -318,8 +314,8 @@ class activitymap:
         self.fig.colorbar(bla1,cax=cax,label='Frequency [Hz]')
 
         # write activity map to file:
-        print('shape of activitymap: ', self.freqmap.shape)
-        numpy.savetxt('activitymap.dat', self.freqmap)
+        # print('shape of activitymap: ', self.freqmap.shape)
+        # numpy.savetxt('activitymap.dat', self.freqmap)
 
 
         #divider = make_axes_locatable(self.ax2)
@@ -328,12 +324,12 @@ class activitymap:
         #print ('shape of self.freqmap: ', self.freqmap.shape)
         #bla2 = self.ax2.hist(arr,bins=50)
 
-        print('--------------------------------------------------------------')
-        print('spatial mean CBF: ', numpy.nanmean(arr))
+        #print('--------------------------------------------------------------')
+        #print('spatial mean CBF: ', numpy.nanmean(arr))
         #print('numpy variance: ', numpy.std(arr))
         #bla = numpy.sqrt(numpy.sum(numpy.subtract(arr, numpy.mean(arr))**2) / float(len(arr)))
-        print('spatial variance in CBF (standard deviation): ',numpy.nanstd(arr))
-        print('--------------------------------------------------------------')
+        #print('spatial variance in CBF (standard deviation): ',numpy.nanstd(arr))
+        #print('--------------------------------------------------------------')
         #bla2=self.ax2.imshow(numpy.asarray(self.firstimg),cmap='gray',alpha=1.0)
         #self.ax2.set_title('spatial CBF distribution')
         #self.fig.colorbar(bla2,cax=cax)
@@ -384,17 +380,16 @@ class activitymap:
         """
         Computes the autocorrelation of the activity map
         """
-        print('frequency correlation gets computed...')
 
         # we mainly need the validity_mask and the acitivity map freqmap
         # 2D autocorrelation with zero-padding!
 
-        #activitymap = numpy.array(self.freqmap)
-        #mask = numpy.array(self.validity_mask)
+        # activitymap = numpy.array(self.freqmap)
+        # mask = numpy.array(self.validity_mask)
 
         if (self.freqmap is not None):
-            self.freq_acorr = autocorrelation_zeropadding.acorr2D_zp(self.freqmap,
-                self.validity_mask)
+             self.freq_acorr = autocorrelation_zeropadding.acorr2D_zp(self.freqmap,
+                centering=True, normalize=True, mask=self.validity_mask)
 
         # for extent keyword (to indicate the range of the x and y axis) 
         xmax = 0.5 * self.width * self.pixsize / 1000.0
@@ -402,12 +397,6 @@ class activitymap:
 
         xmin = -xmax
         ymin = -ymax
-
-        #print(self.freq_acorr)
-
-        #fig = plt.figure()
-        #plt.imshow(self.freq_acorr, alpha=1.0, cmap='gray', interpolation='none')
-        #plt.show()
 
         dpi = 120
 
@@ -420,10 +409,10 @@ class activitymap:
 
         self.canvas = FigureCanvasTkAgg(self.fcfig, parent)
 
-        print(' ------------------------------------------------------------ ')
-        print('check normalization of frequency corr')
-        print(numpy.max(self.freq_acorr))
-        print(' ------------------------------------------------------------ ')
+        #print(' ------------------------------------------------------------ ')
+        #print('check normalization of frequency corr')
+        #print(numpy.max(self.freq_acorr))
+        #print(' ------------------------------------------------------------ ')
 
         divider = make_axes_locatable(self.ax)
         cax = divider.append_axes("right", size="7%", pad=0.08)
@@ -435,10 +424,8 @@ class activitymap:
 
         self.fcfig.colorbar(bla,cax=cax,label="C($\Delta$x,$\Delta$y)")
 
-
         # write freq correlogram to file:
         numpy.savetxt('frequencycorrelogram.dat', self.freq_acorr)
-
 
         # Determine the frequency correlation length 
         # as the square root of all pixels > 1/e

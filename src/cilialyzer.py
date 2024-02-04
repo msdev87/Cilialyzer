@@ -1084,7 +1084,7 @@ class Cilialyzer():
         #**********************************************************************#
 
 
-        # ******************** Frequency correlation tab ***********************
+        # ******************* Frequency correlation tab ***********************
         # notebook tab to compute the correlation length in the activity map
         self.freqcorrtab = tk.Frame(self.nbook)
         self.nbook.add(self.freqcorrtab, text='Frequency correlation')
@@ -1092,7 +1092,6 @@ class Cilialyzer():
         # add a frame to display the correlogram 
         self.fcorrframe = tk.Frame(self.freqcorrtab,width=int(round(0.7*self.nbookw)),height=int(round(0.7*self.nbookh)))
         self.fcorrframe.place(in_=self.freqcorrtab, anchor='c', relx=0.5, rely=0.5)
-
 
         self.activity_map.fc_tkframe = tk.Frame(self.fcorrframe, width=int(round(0.7*self.nbookw)),height=int(round(0.7*self.nbookh)))
         self.activity_map.fc_tkframe.place(in_=self.fcorrframe, anchor='c', relx=0.5, rely=0.5)
@@ -1102,23 +1101,16 @@ class Cilialyzer():
         # update activitymap in toolbar object:
         self.toolbar.activitymap = self.activity_map
 
-
-
-
         self.freqcorrB = tk.Button(self.freqcorrtab, text='Frequency Correlation',
             command=lambda: self.activity_map.frequency_correlogram(
             self.fcorrframe, float(self.toolbar.pixsizecombo.get())), height=bh, width=bw)
         self.freqcorrB.place(in_=self.freqcorrtab, anchor='c', relx=0.5, rely=0.05)
-
 
         tk.Frame(self.activitytab, \
             width=int(round(0.8*self.nbookh)), height=int(round(0.8*self.nbookh)))
         self.mapframe.place(in_=self.activitytab, anchor='c', relx=0.5, rely=0.55)
 
         self.mapframe.update()
-
-
-
         # **********************************************************************
 
 
