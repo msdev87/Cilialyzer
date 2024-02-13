@@ -376,7 +376,7 @@ class powerspec:
         # rebuild the frame (delete its content)  
         self.tkframe.destroy()
         self.tkframe = Frame(self.parent,width=self.parentw,height=self.parenth)
-        self.tkframe.place(in_=parent, width=self.parentw,height=self.parenth)
+        self.tkframe.place(in_=self.parent, width=self.parentw,height=self.parenth)
         self.tkframe.update()
 
 #    def get_cbf(self,nimgs,FPS): 

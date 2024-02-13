@@ -332,8 +332,8 @@ class Cilialyzer():
         for i in range(nimgs):
             array[i, :, :] = numpy.array(self.roiplayer.roiseq[i])
 
-        print('----- check1 for nan values ------')
-        print(numpy.sum(numpy.isnan(array)))
+        # print('----- check1 for nan values ------')
+        # print(numpy.sum(numpy.isnan(array)))
 
         # compute the mean image:
         meanimg = numpy.mean(array[0:int(nimgs / 10), :, :], axis=0)
@@ -375,17 +375,13 @@ class Cilialyzer():
                 array_stabilized[i * arrayslice:nimgs, :, :] = result[
                     num_procs - 1][0]
 
-
-
-        print('----- check2 for nan values ------')
-        print(numpy.sum(numpy.isnan(array_stabilized)))
-
+        # print('----- check2 for nan values ------')
+        # print(numpy.sum(numpy.isnan(array_stabilized)))
 
         croppix=0
         for i in range(ncores):
             if (result[i][1] > croppix):
                 croppix = result[i][1]
-
 
 
         #croppix = max(result[:][1])

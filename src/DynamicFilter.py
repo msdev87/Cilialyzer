@@ -9,6 +9,8 @@ import os
 import autocorrelation_zeropadding
 import temporal_autocorrelation2D
 
+from scipy.ndimage import gaussian_filter
+
 
 if os.sys.version_info.major > 2:
     from tkinter import *
@@ -440,7 +442,7 @@ class DynFilter:
             return a*numpy.exp(-abs(x/b))
 
         nimgs = len(self.dyn_roiseq)
-        print('nimgs', nimgs)
+        # print('nimgs', nimgs)
         firstimg = self.dyn_roiseq[0]
         width, height = firstimg.size
 
@@ -454,10 +456,9 @@ class DynFilter:
 
         # as the spatial autocorrelation hardly varies over time
         # we do not have to average over the whole image stack
-        # consequently, the average over 50 images is a good approximation 
-        # for the overall average 
+        # the average over 300 images is a good approximation  
 
-        nimgs = 300
+        if (nimgs > 300): nimgs = 300
 
         for t in range(nimgs): # loop over time
 
@@ -466,7 +467,7 @@ class DynFilter:
             img2[:,:] = numpy.array(self.dyn_roiseq[t])
 
             # calculate the correlation between img1 and img2
-			# given by the inverse FFT of the product: FFT(img1)*FFT(img2)
+            # given by the inverse FFT of the product: FFT(img1)*FFT(img2)
 
             fft1 = numpy.fft.fft2(img1)
             fft2 = numpy.fft.fft2(img2)
@@ -488,12 +489,14 @@ class DynFilter:
         scorr = numpy.squeeze(scorr) # get rid of extra dimensions
 
 
-        # FOR TEST write scorr out for tests 
-        #numpy.savetxt('scorr.dat',scorr)
 
-        # 'scorr' holds now the two-dimensional mean spatial autocorrelation
-	# based on which we determine the metachronal wavelength 
-	# according to Ryser et al. 2007 
+
+        # FOR TEST write scorr out for tests 
+        # numpy.savetxt('scorr.dat',scorr)
+
+        # 'scorr' holds now the two-dimensional mean spatial autocorrelation   
+        # based on which we determine the metachronal wavelength 
+        # according to Ryser et al. 2007 
 
         # the metachronal wavelength is characterized by the distance between 
         # the two minima in the mean spatial autocorrelation
@@ -504,7 +507,7 @@ class DynFilter:
         nrows = len(scorr[:,0]) # number of rows
         ncols = len(scorr[0,:]) # number of columns
 
-        fig = Figure(figsize=(5,5))#, dpi=100)
+        fig = Figure(figsize=(5,5)) #, dpi=100)
         ax = fig.add_subplot(111)
 
         self.tkframe = Frame(tkparent)
@@ -512,7 +515,7 @@ class DynFilter:
 
         can = FigureCanvasTkAgg(fig, self.tkframe)
 
-	# only the center of scorr is interesting
+        # only the center of scorr is interesting
         # xs = round(nrows/2)-round(nrows/8)
         # xe = round(nrows/2)+round(nrows/8)
         # ys = round(ncols/2)-round(ncols/8)
@@ -524,21 +527,18 @@ class DynFilter:
         # la1= ax.imshow(scorr[xs:xe,ys:ye],alpha=1.0,cmap='bwr',interpolation='none',
         # extent=[xmin,xmax,ymin,ymax])
 
-
         # 2D colormap of scorr
-        #xmin=-ncols/2.0*pixsize*0.001
-        #xmax=-xmin
-        #ymin=nrows/2.0*pixsize*0.001
-        #ymax=-ymin
+        # xmin=-ncols/2.0*pixsize*0.001
+        # xmax=-xmin
+        # ymin=nrows/2.0*pixsize*0.001
+        # ymax=-ymin
 
-        #print('ncols',ncols)
-        #print('nrows',nrows)
-        #print('xmin,xmax,ymin,ymax ',xmin, xmax, ymin, ymax)
+        # print('ncols',ncols)
+        # print('nrows',nrows)
+        # print('xmin,xmax,ymin,ymax ',xmin, xmax, ymin, ymax)
 
-
-        # x and y axis should span from -50 to 50 (=100 micrometers)
-
-        nx = int(200.0 / (pixsize*0.001)) # changed to 200 micrometers 
+        # x and y axis should span from -100 to 100 (=200 micrometers)
+        nx = int(200.0 / (pixsize*0.001)) # nr pixels in x-dir to span 200 microm 
         ny = int(200.0 / (pixsize*0.001))
 
         corrplot = numpy.zeros((ny,nx))
@@ -547,28 +547,26 @@ class DynFilter:
         dy = ny - len(scorr[:,0])
         dx = nx - len(scorr[0,:])
 
-        # the plot is supposed to always span from -50 to +50 micrometers 
+        # the plot is supposed to always span from -100 to +100 micrometers 
         if ((dx > 0) and (dy > 0)):
                 corrplot[dy//2:len(scorr[:,0])+dy//2,dx//2:len(scorr[0,:])+dx//2] = scorr
         if ((dx > 0) and (dy <= 0)):
                 corrplot[:,dx//2:len(scorr[0,:])+dx//2] = scorr[-dy//2:len(scorr[:,0])+dy//2,:]
-
         if ((dx <= 0) and (dy > 0)):
             corrplot[dy//2:len(scorr[:,0])+dy//2,:] = scorr[:,-dx//2:len(scorr[0,:])+dx//2]
         if ((dx <= 0) and (dy <= 0)):
             corrplot[:,:] = scorr[-dy//2:len(scorr[:,0])+dy//2,-dx//2:len(scorr[0,:])+dx//2]
 
         vmax = numpy.max(corrplot)
-        la1 = ax.imshow(corrplot,alpha=1.0,cmap='bwr',interpolation='none',extent=[-100,100,-100,100], vmin=-0.6*vmax,vmax=0.6*vmax)
+        la1 = ax.imshow(corrplot,alpha=1.0,cmap='bwr',interpolation='none',\
+            extent=[-100,100,-100,100], vmin=-0.6*vmax, vmax=0.6*vmax)
 
         # write scorr to file: 
         # numpy.savetxt('meanspatialautocorr.dat', scorr)
 
-
-        #ax.set_title('Mean Spatial Autocorrelation',fontsize=16)
+        # ax.set_title('Mean Spatial Autocorrelation',fontsize=16)
         ax.set_xlabel("$\Delta$x [$\mu$m]",fontsize=17)
         ax.set_ylabel("$\Delta$y [$\mu$m]",fontsize=17)
-
 
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
@@ -580,14 +578,19 @@ class DynFilter:
         # plot the profile of the correlogram along the line 
         # connecting the two minima (and the global maximum)
 
-        # get the location of the extrema in scorr (in pixel coordinates) 
+        # get the location of the extrema in scorr (in pixel coordinates)
+        # (if multiple extrema argmax/argmin provides index of first occurence) 
         maxy, maxx = numpy.unravel_index(numpy.argmax(scorr,axis=None),scorr.shape)
         miny, minx = numpy.unravel_index(numpy.argmin(scorr,axis=None),scorr.shape)
+
+
+        # slightly smooth scorr:
+        scorr = gaussian_filter(scorr, sigma=1.0, truncate=1.0)
 
         # get the profile along the line, which is given by the connection 
         # of the maximum and minimum coordinates
 
-	# calculate the 2D distance matrix 'distmat' (in pixels)        
+        # calculate the 2D distance matrix 'distmat' (in pixels)        
         distmat = numpy.zeros(scorr.shape)
 
         for y in range(scorr.shape[0]):
@@ -599,16 +602,56 @@ class DynFilter:
         # the wavelength is defined as twice the distance between the
         # maximum and the minimum!                                   
 
-        # wavelength in pixels:                   
+        # let us now refine the position of the minimum 
+        # ---> search all pixels in a square environment around (minx, miny) 
+        # with a value, which is negative and lower than 1/e*peakheight 
+
+        square_arr = scorr[miny,minx]# square array around minimum position 
+        minimum_value = scorr[miny,minx]
+        threshold = 1.0 / math.exp(1) * minimum_value
+        s=1
+        while (numpy.all(square_arr < threshold)):
+            # repeat while all elements in square around min are > minimum val
+            s = s+2 # increase size of square array (1x1, 3x3, 5x5, ...) 
+            square_arr = scorr[miny-s:miny+s+1, minx-s:minx+s+1]
+
+        # positions within scorr
+        x = numpy.linspace(-int(s/2),int(s/2),s) + minx
+        y = numpy.linspace(-int(s/2),int(s/2),s) + miny
+        xx, yy = numpy.meshgrid(x, y)
+
+        # determine center of mass (cm) within square_arr
+
+        x_cm, y_cm = 0.0, 0.0
+        weight_total = 0.0 # sum of weights
+        for i in range(s):
+            for j in range(s):
+                x = int(xx[i,j])
+                y = int(yy[i,j])
+                print('x: ',x,' y: ',y)
+                if (scorr[y,x] < 0):
+                    x_cm = x_cm + abs(scorr[y,x]) * x
+                    y_cm = y_cm + abs(scorr[y,x]) * y
+                    weight_total += abs(scorr[y,x])
+
+        x_cm = x_cm / weight_total
+        y_cm = y_cm / weight_total
+
+        # x_cm and y_cm can now be defined as a more exact measure for the 
+        # position of the minimum 
+        minx = x_cm
+        miny = y_cm
+
+        # Wavelength in pixels:                   
         dx = maxx-minx
         dy = maxy-miny
-        wavelength_pix=2*math.sqrt(dx**2+dy**2)
+        wavelength_pix = 2*math.sqrt(dx**2+dy**2)
 
-        # plot the correlation profile along the line (x0,y0) -- (x1,y1) 
+        # Plot the correlation profile along the line (x0,y0) -- (x1,y1) 
         x0,y0 = maxx-(4*dx),maxy-(4*dy)
         x1,y1 = maxx+(4*dx),maxy+(4*dy)
 
-        # note that:
+        # Note that:
         # sqrt( (x1-x0)^2 + (y1-y0)^2 ) = 4 * wavelength
 
         # the line needs to be restricted by the size of scorr (nrows, ncols) 
@@ -638,7 +681,7 @@ class DynFilter:
         # ----------------- plot scorr with profile line --------------------
 
         fac = 0.001*pixsize
-        #ax.plot([x0*fac-xmax, x1*fac-xmax], [y0*fac+ymax, y1*fac+ymax], color="orange", linewidth=1)
+        ax.plot([x0*fac, x1*fac], [y0*fac, y1*fac], color="orange", linewidth=1)
 
         fig.tight_layout()
         can.draw()
@@ -774,12 +817,10 @@ class DynFilter:
         str3=" $\mu$m"
         ax.text(0.5*wavelength,0.65,str1+str2+str3,fontsize=14,color='darkorange')
 
-
         ax.margins(0.01)
         can.draw()
         can.get_tk_widget().pack()
         can._tkcanvas.pack()
-
 
         #######################################################################
         #######################################################################
@@ -837,14 +878,4 @@ class DynFilter:
 	    indices_j = numpy.around(dirj) 			
 		
         """   	
-
-
-
-
-
-
-
-
-
-
 

@@ -249,8 +249,8 @@ class activitymap:
         # --------------------------------------------------------------------
 
         # smooth validity mask using a 2D-average 
-        self.validity_mask = numpy.round(gaussian_filter(self.validity_mask, 2.0, truncate=1.0))
-        self.freqmap = gaussian_filter(self.freqmap,2.0, truncate=1.0)
+        self.validity_mask = numpy.round(gaussian_filter(self.validity_mask, 1.0, truncate=1.0))
+        self.freqmap = gaussian_filter(self.freqmap,1.0, truncate=1.0)
 
         #  ----------------- check histogram for of_speed / cbf --------------
         #hist=numpy.zeros(1000)
@@ -391,7 +391,10 @@ class activitymap:
              self.freq_acorr = autocorrelation_zeropadding.acorr2D_zp(self.freqmap,
                 centering=True, normalize=True, mask=self.validity_mask)
 
-        # for extent keyword (to indicate the range of the x and y axis) 
+        # Slightly smooth autocorrelogram: 
+        self.freq_acorr = gaussian_filter(self.freq_acorr, 1.0, truncate=1.0)
+
+        # For extent keyword (to indicate the range of the x and y axis) 
         xmax = 0.5 * self.width * self.pixsize / 1000.0
         ymax = 0.5 * self.height * self.pixsize / 1000.0
 
@@ -480,9 +483,4 @@ class activitymap:
         self.fc_tkframe = Frame(self.fcparentframe, width=self.parentw, height=self.parenth)
         self.fc_tkframe.place(in_=self.fcparentframe, anchor='c', relx=0.5, rely=0.5)
         self.fc_tkframe.update()
-
-
-
-
-
 
