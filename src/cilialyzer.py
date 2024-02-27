@@ -24,7 +24,7 @@ import OpticalFlow
 import cv2
 import avoid_troubles
 import PIL
-import Batchanalysis
+import batchanalysis
 
 class Cilialyzer():
 
@@ -536,10 +536,8 @@ class Cilialyzer():
             fps = float(self.toolbar.fpscombo.get()))
     # -------------------------------------------------------------------------
 
-
     def batchv1(self):
-        Batchanalysis.process()
-
+        batchanalysis.process(self)
 
     def kspec():
         # calculate the spatial power spectral density
@@ -551,8 +549,6 @@ class Cilialyzer():
             dynseq = DynamicFilter.DynFilter()
             dynseq.dyn_roiseq = roiplayer.roiseq
             dynseq.kspec(float(toolbar_object.fpscombo.get()), float(minscale.get()), float(maxscale.get()), kplotframe)
-
-
 
     def select_pixel():
         global roiplayer

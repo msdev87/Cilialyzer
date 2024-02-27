@@ -144,7 +144,7 @@ class ImageSequence:
             initdir=os.getcwd()
 
         self.directory = askdirectory(title="Select Directory",
-                                            initialdir=initdir)
+            initialdir=initdir)
 
         f = open('previous_directory.dat','w')
         f.write(self.directory) # write choosen directory into file 'f' 
