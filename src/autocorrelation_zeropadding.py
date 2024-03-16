@@ -155,7 +155,8 @@ def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
     autocovariance = pseudo_autocovariance / mask_correction_factors
 
     if (normalize):
-        variance = autocovariance.flat[0]
+        #variance = autocovariance.flat[0]
+        variance = numpy.sum(numpy.multiply(centered_signal,centered_signal)) / numpy.sum(mask)
     else:
         variance = 1.0
 

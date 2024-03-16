@@ -538,8 +538,11 @@ class DynFilter:
         # print('xmin,xmax,ymin,ymax ',xmin, xmax, ymin, ymax)
 
         # x and y axis should span from -100 to 100 (=200 micrometers)
-        nx = int(200.0 / (pixsize*0.001)) # nr pixels in x-dir to span 200 microm 
-        ny = int(200.0 / (pixsize*0.001))
+        #nx = int(200.0 / (pixsize*0.001)) # nr pixels in x-dir to span 200 microm 
+        #ny = int(200.0 / (pixsize*0.001))
+
+        ny = len(scorr[:,0])
+        nx = len(scorr[0,:])
 
         corrplot = numpy.zeros((ny,nx))
         corrplot[:,:] = numpy.nan
@@ -547,7 +550,8 @@ class DynFilter:
         dy = ny - len(scorr[:,0])
         dx = nx - len(scorr[0,:])
 
-        # the plot is supposed to always span from -100 to +100 micrometers 
+        # the plot is supposed to always span from -100 to +100 micrometers
+        # here we check from where to where we have to crop from scorr 
         if ((dx > 0) and (dy > 0)):
                 corrplot[dy//2:len(scorr[:,0])+dy//2,dx//2:len(scorr[0,:])+dx//2] = scorr
         if ((dx > 0) and (dy <= 0)):
@@ -558,8 +562,11 @@ class DynFilter:
             corrplot[:,:] = scorr[-dy//2:len(scorr[:,0])+dy//2,-dx//2:len(scorr[0,:])+dx//2]
 
         vmax = numpy.max(corrplot)
+        xend = 0.5*nx/pixsize*1000.0
+        yend = 0.5*ny/pixsize*1000.0
+
         la1 = ax.imshow(corrplot,alpha=1.0,cmap='bwr',interpolation='none',\
-            extent=[-100,100,-100,100], vmin=-0.6*vmax, vmax=0.6*vmax)
+            extent=[-xend,xend,-yend,yend], vmin=-0.6*vmax, vmax=0.6*vmax)
 
         # write scorr to file: 
         # numpy.savetxt('meanspatialautocorr.dat', scorr)
@@ -574,7 +581,7 @@ class DynFilter:
         cbar.ax.tick_params(labelsize=15)
         ax.axes.tick_params(labelsize=15)
 
-        ########################################################################
+        ######################################################################
         # plot the profile of the correlogram along the line 
         # connecting the two minima (and the global maximum)
 
@@ -583,9 +590,8 @@ class DynFilter:
         maxy, maxx = numpy.unravel_index(numpy.argmax(scorr,axis=None),scorr.shape)
         miny, minx = numpy.unravel_index(numpy.argmin(scorr,axis=None),scorr.shape)
 
-
         # slightly smooth scorr:
-        scorr = gaussian_filter(scorr, sigma=1.0, truncate=1.0)
+        scorr = gaussian_filter(scorr, sigma=1.0, truncate=2.0)
 
         # get the profile along the line, which is given by the connection 
         # of the maximum and minimum coordinates
@@ -606,7 +612,7 @@ class DynFilter:
         # ---> search all pixels in a square environment around (minx, miny) 
         # with a value, which is negative and lower than 1/e*peakheight 
 
-        square_arr = scorr[miny,minx]# square array around minimum position 
+        square_arr = scorr[miny,minx] # square array around minimum position 
         minimum_value = scorr[miny,minx]
         threshold = 1.0 / math.exp(1) * minimum_value
         s=1
@@ -628,7 +634,7 @@ class DynFilter:
             for j in range(s):
                 x = int(xx[i,j])
                 y = int(yy[i,j])
-                print('x: ',x,' y: ',y)
+                # print('x: ',x,' y: ',y)
                 if (scorr[y,x] < 0):
                     x_cm = x_cm + abs(scorr[y,x]) * x
                     y_cm = y_cm + abs(scorr[y,x]) * y
@@ -636,6 +642,12 @@ class DynFilter:
 
         x_cm = x_cm / weight_total
         y_cm = y_cm / weight_total
+
+        print('--------- test --------')
+        print('minx: ', minx)
+        print('miny: ',miny)
+        print('xcm: ',x_cm)
+        print('ycm:',y_cm)
 
         # x_cm and y_cm can now be defined as a more exact measure for the 
         # position of the minimum 
@@ -680,8 +692,10 @@ class DynFilter:
 
         # ----------------- plot scorr with profile line --------------------
 
-        fac = 0.001*pixsize
-        ax.plot([x0*fac, x1*fac], [y0*fac, y1*fac], color="orange", linewidth=1)
+        #fac = 0.001*pixsize
+        fac = 1.0
+        #ax.plot([x0*fac, x1*fac], [y0*fac, y1*fac], color="orange", linewidth=1)
+
 
         fig.tight_layout()
         can.draw()
@@ -695,7 +709,7 @@ class DynFilter:
         num = 1000
         print('x0,x1,y0,y1',x0,x1,y0,y1)
         x, y = numpy.linspace(x0, x1, num), numpy.linspace(y0, y1, num)
-        scorr_profile = scorr[y.astype(numpy.int), x.astype(numpy.int)]
+        scorr_profile = scorr[round(y), round(x)]
         distmat_profile= distmat[y.astype(numpy.int), x.astype(numpy.int)]
 
         # note that the spacing corresponds now to 4*wavelength/num

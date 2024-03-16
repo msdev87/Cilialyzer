@@ -169,7 +169,7 @@ class Toolbar:
         f.write(next_directory) # write choosen directory into file 'f'   
         f.close()
 
-        self.PIL_ImgSeq.load_imgs() # loads image sequence                             
+        self.PIL_ImgSeq.load_imgs(self.nimgscombo) # loads image sequence                             
         # PIL_ImgSeq.sequence[i] now holds the i-th frame (img format: 8 Bits, PIL)
 
         avoid_troubles.clear_main(self.player,self.roiplayer,self.ptrackplayer)

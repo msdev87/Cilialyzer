@@ -94,7 +94,7 @@ class activitymap:
 
         # ws: window size in Farneback's optical flow 
         ws = round(2000.0/pixsize) # we set the window size to about 2 microns
-        if (ws < 3): ws = 3
+        if (ws < 5): ws = 5
 
         for t in range(int(nimgs)-1):
             # spatial filtering prior to optical flow calc
@@ -111,7 +111,7 @@ class activitymap:
         v_flow = ndimage.median_filter(v_flow, size=3)
 
         # smooth optical flow by Gaussian filtering over all axes!  
-        ws = 300.0 / pixsize
+        ws = 1000.0 / pixsize
         u_flow = gaussian_filter(u_flow, ws, truncate=2.0)
         v_flow = gaussian_filter(v_flow, ws, truncate=2.0)
 
@@ -443,8 +443,8 @@ class activitymap:
         str1 = r'$\xi_f$'
         str2 = " = $%.2f$" %xi
         str3 = " $\mu$m"
-        xpos = -3
-        ypos = 3
+        xpos = 15
+        ypos = 15
         self.ax.text(xpos,ypos,str1+str2+str3,fontsize=10)
 
         self.fcfig.tight_layout(pad=1.5)
