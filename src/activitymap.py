@@ -87,8 +87,8 @@ class activitymap:
         u_flow = []
         v_flow = []
 
-        if (self.nimgs > FPS):
-            nimgs = int(FPS)
+        if (self.nimgs > 0.5*FPS):
+            nimgs = int(0.5*FPS)
         else:
             nimgs = self.nimgs
 
@@ -114,6 +114,32 @@ class activitymap:
         ws = 1000.0 / pixsize
         u_flow = gaussian_filter(u_flow, ws, truncate=2.0)
         v_flow = gaussian_filter(v_flow, ws, truncate=2.0)
+
+
+        print('--------------------------------------------------------------')
+        print(u_flow.shape)
+
+        # determine orbit for each pixel i,j  
+        xorbits = numpy.zeros_like(u_flow)
+        for i in range(len(u_flow[0,:,0])):
+            for j in range(len(u_flow[0,0,:])):
+                for t in range(len(u_flow[:,0,0])):
+
+                    xorbits[t,i,j] = numpy.sum(u_flow[0:t,i,j])
+
+
+
+        plt.figure()
+        plt.plot(xorbits[0:100,10,10])
+        plt.plot(xorbits[0:100,20,20])
+        plt.plot(xorbits[0:100,50,50])
+        plt.show()
+
+
+
+
+
+
 
         speedmat = numpy.zeros_like(u_flow) # initialize speed matrix
         for t in range(nimgs-1):

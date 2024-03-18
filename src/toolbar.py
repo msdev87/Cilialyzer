@@ -399,3 +399,17 @@ class Toolbar:
         self.nimgscombo.place(in_=self.toolbarframe, anchor='c', x=900, rely=0.5)
         self.nimgscombo.current(0)
 
+        # ---------------------------------------------------------------------
+        # Add combobox to indicate whether Reflection or Transmission was used
+
+        mod = ['Transmission', 'Reflection']
+        self.modcombo = tk.ttk.Combobox(self.toolbarframe, values=mod, width=11)
+        self.modcombo.place(in_=self.toolbarframe, anchor='c', x=1100, rely=0.5)
+        self.modcombo.current(0)
+
+
+
+
+
+
+
