@@ -709,8 +709,8 @@ class DynFilter:
         num = 1000
         print('x0,x1,y0,y1',x0,x1,y0,y1)
         x, y = numpy.linspace(x0, x1, num), numpy.linspace(y0, y1, num)
-        scorr_profile = scorr[round(y), round(x)]
-        distmat_profile= distmat[y.astype(numpy.int), x.astype(numpy.int)]
+        scorr_profile = scorr[y.round().astype(int), x.round().astype(int)]
+        distmat_profile= distmat[y.round().astype(int), x.round().astype(int)]
 
         # note that the spacing corresponds now to 4*wavelength/num
 

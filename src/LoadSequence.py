@@ -19,6 +19,9 @@ import tkinter.ttk
 import scipy
 import scipy.misc
 from scipy.ndimage import gaussian_filter
+from scipy.ndimage import median_filter
+
+
 from PIL import Image, ImageTk, ImageEnhance
 #from Tkinter import ttk
 from PIL import ImageFilter
@@ -265,8 +268,7 @@ class ImageSequence:
 
         pbvar = IntVar() # progressbar variable (counts number of loaded imgs)   
         pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",
-			variable=pbvar,maximum=self.seqlength,length=600,
-			style="TProgressbar")
+            variable=pbvar, maximum=self.seqlength, length=600, style="TProgressbar")
         pb.grid(row=1,column=0,pady=5)
 
         progress = 0
@@ -450,13 +452,6 @@ class ImageSequence:
         # destroy busywin as soon as video has been loaded
         busywin.destroy()
 
-
-
-
-
-
-
-
     def removepattern(self):
         firstimg = self.sequence[0] # first image of roi sequence  
         width, height = firstimg.size # dimension of images 
@@ -471,7 +466,6 @@ class ImageSequence:
         for i in range(nimgs):
             array[i,:,:] = numpy.array(self.sequence[i])
 
-
         # calc mean image 
         for i in range(nimgs):
             sumimg = numpy.add(sumimg,array[i,:,:])
@@ -483,14 +477,9 @@ class ImageSequence:
         for i in range(nimgs):
             array[i,:,:] = numpy.subtract(array[i,:,:], numpy.subtract(meanimg, gaussian_filter(array[i,:,:], sigma=1)))
 
-
         array = numpy.uint8(bytescl(array))
         for i in range(nimgs):
             self.sequence[i] = Image.fromarray(array[i,:,:])
-        
-
-
-
 
 
     def imagereg(self):
@@ -550,6 +539,10 @@ class ImageSequence:
         for i in range(nimgs):
             array[i, :, :] = numpy.array(sequence[i])
 
+
+
+
+
         # calculate the mean image
         for i in range(nimgs):
             sumimg = numpy.add(sumimg,array[i,:,:])
@@ -567,8 +560,8 @@ class ImageSequence:
 
         array = numpy.uint8(bytescl(array))
 
-        #print('max', numpy.amax(array))
-        #print('min', numpy.amin(array))
+        # print('max', numpy.amax(array))
+        # print('min', numpy.amin(array))
 
         #array = numpy.uint8(array) 
         #print(array[0,:,:])

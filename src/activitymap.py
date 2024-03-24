@@ -71,7 +71,7 @@ class activitymap:
 
         # threshold for the condition to mark pixel as valid or invalid
         # based on the integral in the pixelspectra
-        threshold = 0.25
+        threshold = 0.15
 
         self.pixsize = pixsize
         self.fps = FPS
@@ -98,10 +98,14 @@ class activitymap:
 
         for t in range(int(nimgs)-1):
             # spatial filtering prior to optical flow calc
-            img1 = gaussian_filter(numpy.array(PILseq[t]), 500.0/pixsize, truncate=2.0)
-            img2 = gaussian_filter(numpy.array(PILseq[t+1]), 500.0/pixsize, truncate=2.0)
+            #img1 = gaussian_filter(numpy.array(PILseq[t]), 500.0/pixsize, truncate=2.0)
+            #img2 = gaussian_filter(numpy.array(PILseq[t+1]), 500.0/pixsize, truncate=2.0)
 
-            flow = cv2.calcOpticalFlowFarneback(img1, img2, None, 0.99, 1, ws, 7, 5, 1.1, 0)
+            img1 = numpy.array(PILseq[t])
+            img2 = numpy.array(PILseq[t+1])
+
+            flow = cv2.calcOpticalFlowFarneback(
+                    img1, img2, None, 0.99, 1, ws, 7, ws, 1.1, 0)
 
             v_flow.append(flow[...,1])
             u_flow.append(flow[...,0])
@@ -112,34 +116,25 @@ class activitymap:
 
         # smooth optical flow by Gaussian filtering over all axes!  
         ws = 1000.0 / pixsize
-        u_flow = gaussian_filter(u_flow, ws, truncate=2.0)
-        v_flow = gaussian_filter(v_flow, ws, truncate=2.0)
+        u_flow = gaussian_filter(u_flow, ws, truncate=1.0)
+        v_flow = gaussian_filter(v_flow, ws, truncate=1.0)
 
 
-        print('--------------------------------------------------------------')
+        """
+        print('-------------------------------------------------------------')
         print(u_flow.shape)
-
-        # determine orbit for each pixel i,j  
+        # determine orbit for each pixel i,j
         xorbits = numpy.zeros_like(u_flow)
         for i in range(len(u_flow[0,:,0])):
             for j in range(len(u_flow[0,0,:])):
                 for t in range(len(u_flow[:,0,0])):
-
                     xorbits[t,i,j] = numpy.sum(u_flow[0:t,i,j])
-
-
-
         plt.figure()
         plt.plot(xorbits[0:100,10,10])
         plt.plot(xorbits[0:100,20,20])
         plt.plot(xorbits[0:100,50,50])
         plt.show()
-
-
-
-
-
-
+        """
 
         speedmat = numpy.zeros_like(u_flow) # initialize speed matrix
         for t in range(nimgs-1):
@@ -269,13 +264,13 @@ class activitymap:
                     self.validity_mask[i,j] = 0
 
                 # 3RD CONDITION considering the optical flow speed 
-                if (not (speedmat_95p[i,j]*self.pixsize*self.fps > 3000.0 * self.freqmap[i,j])):
+                if (not (speedmat_95p[i,j]*self.pixsize*self.fps > 1000.0 * self.freqmap[i,j])):
                     if((i>5 and i<ni-5) and (j>5 and j<nj-5)): self.validity_mask[i,j] = 0
 
         # --------------------------------------------------------------------
 
         # smooth validity mask using a 2D-average 
-        self.validity_mask = numpy.round(gaussian_filter(self.validity_mask, 1.0, truncate=1.0))
+        #self.validity_mask = numpy.round(gaussian_filter(self.validity_mask, 1.0, truncate=1.0))
         self.freqmap = gaussian_filter(self.freqmap,1.0, truncate=1.0)
 
         #  ----------------- check histogram for of_speed / cbf --------------

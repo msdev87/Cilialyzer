@@ -312,7 +312,7 @@ class Cilialyzer():
         # add text label
         tl=tk.Label(busywin,\
         text=' Please wait, image stabilization in progress  ', font="TkDefaultFont 11")
-        tl.grid(row=0,column=0,pady=5)
+        tl.grid(row=0, column=0, pady=5)
         busywin.columnconfigure(0, weight=1)
         busywin.rowconfigure(0, weight=1)
         tl.update()
@@ -347,7 +347,7 @@ class Cilialyzer():
         arrayslice = round(nimgs / num_procs)
 
         # read n of frames to be skipped in stabilization from file:
-        f = open('skipframe_default.txt','r')
+        f = open('skipframe_default.txt', 'r')
         skipframe = int(f.read())
         f.close()
 
@@ -360,6 +360,8 @@ class Cilialyzer():
         else:
             subarrays.append((meanimg, array[i * arrayslice:nimgs, :, :],skipframe))
 
+
+        # note the actual stabilization happens in stabilize_proc
         result = self.pool.map(stabilize_proc.subproc,
                           [subarrays[i] for i in range(num_procs)])
 
@@ -375,23 +377,20 @@ class Cilialyzer():
                 array_stabilized[i * arrayslice:nimgs, :, :] = result[
                     num_procs - 1][0]
 
-        # print('----- check2 for nan values ------')
-        # print(numpy.sum(numpy.isnan(array_stabilized)))
+        print('----- check2 for nan values ------')
+        print(numpy.sum(numpy.isnan(array_stabilized)))
 
         croppix=0
         for i in range(ncores):
             if (result[i][1] > croppix):
                 croppix = result[i][1]
 
-
-        #croppix = max(result[:][1])
-        #croppix=10 
-
         for i in range(nimgs):
             self.roiplayer.roiseq[i] = Image.fromarray(
                     numpy.uint8(array_stabilized[i, croppix:height-croppix, croppix:width-croppix]))
 
         busywin.destroy()
+
 
 
     # -------------------------------------------------------------------------
@@ -884,7 +883,7 @@ class Cilialyzer():
         self.cropB.place(in_=self.roitab, anchor="c", relx=.07, rely=.12)
 
         """
-        # denoise button 
+        # denoise button
         self.denoiseB = tk.Button(self.roitab, text='Denoise',
             command=lambda: self.PIL_ImgSeq.denoise(self.roiplayer.roiseq),
             height=bh, width=16)
@@ -931,7 +930,7 @@ class Cilialyzer():
             height=int(round(0.95*self.nbookh)))
         self.nbook.add(self.activitytab, text='Activity map')
 
-        self.mapframe = tk.Frame(self.activitytab, \
+        self.mapframe = tk.Frame(self.activitytab,
             width=int(round(0.8*self.nbookh)), height=int(round(0.8*self.nbookh)))
         self.mapframe.place(in_=self.activitytab, anchor='c', relx=0.5, rely=0.55)
         self.mapframe.update()

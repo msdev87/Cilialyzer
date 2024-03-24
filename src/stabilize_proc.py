@@ -24,26 +24,24 @@ def subproc(args):
     dummy[border//2:array.shape[1]+border//2,border//2:array.shape[2]+border//2] = 1
 
     sr = StackReg(StackReg.RIGID_BODY)
-    #sr = StackReg(StackReg.SCALED_ROTATION)
-
 
     maxdiff=0.0 # maximum difference between transformed images
 
-    # loop over all images                                           
+    # Loop over all images                                           
     for i in range(nimgs):
-        # note that only every x-th image is registered (performance)  
-        # where x is given by 'skipframe'
-        if ((i % skipframe) == 0):
-            sr.register(meanimg,array[i,:,:])
+        # Note that only every x-th image is registered (computation time)  
+        # where x is given by 'skipframe+1'
+        if ((i % (skipframe+1)) == 0):
+            sr.register(meanimg, array[i,:,:])
         # every other images are transformed as its predecessor(s)
         array_stabilized[i,:,:] = sr.transform(array[i,:,:])
 
-        #img = Image.fromarray(bytescl.bytescl(sr.transform(dummy)).astype(uint8))
-        #img.save('dummy'+str(i)+'.png')
+        # img = Image.fromarray(bytescl.bytescl(sr.transform(dummy)).astype(uint8))
+        # img.save('dummy'+str(i)+'.png')
         if (numpy.sum(numpy.absolute(dummy - sr.transform(dummy))) > maxdiff):
             maxdiff=numpy.sum(numpy.absolute(dummy - sr.transform(dummy)))
 
-    # Check for negative values in stabilized array and set them to zero 
+    # Check for negative values in stabilized array and set them to mean
     array_stabilized[numpy.argwhere(array_stabilized < 0)] = 0
 
     h = array_stabilized.shape[1]
@@ -55,11 +53,10 @@ def subproc(args):
         croppix = int(maxdiff // w + 5)
 
     # Reduce the intensity of highly scattering structures by slightly 
-    # croping distribution of the intensity (2% from dark and bright side)
-    #cut1 = numpy.percentile(array_stabilized, 0.5)
-    #cut2 = numpy.percentile(array_stabilized, 99.5)
-    #array_stabilized[array_stabilized < cut1] = cut1
-    #array_stabilized[array_stabilized > cut2] = cut2
+    # croping distribution of the intensity (0.1% from dark and bright side)
+    cut1 = numpy.percentile(array_stabilized, 0.05)
+    cut2 = numpy.percentile(array_stabilized, 99.95)
+    array_stabilized[array_stabilized < cut1] = cut1
+    array_stabilized[array_stabilized > cut2] = cut2
 
     return (array_stabilized, croppix)
-
