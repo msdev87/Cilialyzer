@@ -76,7 +76,14 @@ def sort_list(l):
             s = fname.split(".")
             file_ending = s[-1]
 
-            bla = s[0].split("-")
+            # check whether the image number is separated by 
+            # a subtract sign, or an underline:
+
+            if ('-' in s[0][-6:]):
+                bla = s[0].split("-")
+            if ('_' in s[0][-6:]):
+                bla = s[0].split("_")
+
             number = bla[-1]
             numbering.append(number)
 

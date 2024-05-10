@@ -1272,7 +1272,12 @@ class Cilialyzer():
 
 if __name__ == "__main__":
 
-    #import multiprocessing
+    from ctypes import WinDLL
+    # make this process DPI-aware
+    shcore = WinDLL('shcore')  # access the Windows "shcore" DLL (library)
+    shcore.SetProcessDpiAwareness(1)  # call "SetProcessDpiAwareness"
+
+    # import multiprocessing
     App = Cilialyzer()
     # -------------------------------------------------------------------------
     App.main_window.mainloop()  # loop and wait for events
