@@ -75,7 +75,6 @@ class Cilialyzer():
             pass
         """
 
-
     def switchtab(self, event):
         # if tab is pressed (and pressed tab != active tab) then take precautions...
 
@@ -143,16 +142,22 @@ class Cilialyzer():
         if (self.DynamicFiltering_flag):
             if (clicked_tab == self.nbook.index(self.dynfiltertab)):
                 # dynamic filtering tab got selected
-                self.nbook.select(self.nbook.index(self.dynfiltertab))
-                # 1. apply band-pass filter
-                self.dynseq.bandpass(self.roiplayer.roiseq,
-                    float(self.toolbar.fpscombo.get()), float(self.minscale.get()),
-                    float(self.maxscale.get()), int(self.nrharmscombo.get()))
-                refresh = 0
-                self.dynplayer = Flipbook.ImgSeqPlayer(self.dynfiltertab,
-                    self.PIL_ImgSeq.directory, refresh, self.dynseq.dyn_roiseq,
-                    self.PIL_ImgSeq.seqlength)
-                self.dynplayer.animate() # call meth
+                pass
+    def dynfiltering(self):
+        # delete current replay-content
+
+        # apply band-pass filter
+        self.dynseq.bandpass(self.roiplayer.roiseq,
+            float(self.toolbar.fpscombo.get()), float(self.minscale.get()),
+            float(self.maxscale.get()), int(self.nrharmscombo.get()))
+        self.nbook.select(self.nbook.index(self.dynfiltertab))
+        refresh = 0
+        self.dynplayer = Flipbook.ImgSeqPlayer(self.dynfiltertab,
+            self.PIL_ImgSeq.directory, refresh, self.dynseq.dyn_roiseq,
+            self.PIL_ImgSeq.seqlength)
+        self.dynplayer.animate() # call meth
+
+
 
     def select_roi(self):
 
@@ -192,7 +197,7 @@ class Cilialyzer():
     #        print('test')
     #        writer.write(pil_to_cv(frame))
 
-    #    writer.release() 
+    #    writer.release()
     #    """
 
         img_array = []
@@ -421,9 +426,9 @@ class Cilialyzer():
             #                      float(maxscale.get()))
 
 
-        firstimg = self.dynseq.dyn_roiseq[0] # first image of roi sequence  
-        width, height = firstimg.size # dimension of images 
-        nimgs = len(self.dynseq.dyn_roiseq) # number of images  
+        firstimg = self.dynseq.dyn_roiseq[0] # first image of roi sequence
+        width, height = firstimg.size # dimension of images
+        nimgs = len(self.dynseq.dyn_roiseq) # number of images
 
         # create numpy array 'array' 
         array = numpy.zeros((int(nimgs),int(height),int(width)))
@@ -979,7 +984,7 @@ class Cilialyzer():
         #self.activity_threshold = tk.Scale(self.activitytab, from_=0.0, to=0.5,
         #    orient=tk.VERTICAL, length=400, resolution=0.01,
         #    variable=self.threshold, command=self.set_threshold)
-        #self.activity_threshold.place(in_=self.activitytab, anchor='c', relx=0.1, rely=0.5) 
+        #self.activity_threshold.place(in_=self.activitytab, anchor='c', relx=0.1, rely=0.5)
 
         #if hasattr(self, 'threshold'):
         #    pass
@@ -1053,7 +1058,7 @@ class Cilialyzer():
         # self.powerspectrum.spec : holds the spectrum
         # selfpowerspectrum.freqs : holds the corresponding frequencies
 
-        # ------------------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         # add a combobox in which the user is supposed to specify the
         # number of harmonics, the default is 2
         # Label and Entry Widget for specifying the number of visible harmonics
@@ -1151,12 +1156,16 @@ class Cilialyzer():
         #*********************************************************************#
 
         # ********************** Dynamic Filtering ************************** #
-        if (self.DynamicFiltering_flag):
+        if self.DynamicFiltering_flag:
             self.dynseq = DynamicFilter.DynFilter()
+            # here we add the notebook tab for the dynamic filtering
             self.dynfiltertab = tk.Frame(self.nbook, width=int(round(0.75*self.nbookw)),
                 height=int(round(0.8*self.nbookh)))
             self.nbook.add(self.dynfiltertab, text='  Dynamic filtering  ')
-        #*********************************************************************#
+            # add 'Time-domain filtering' Button
+            self.DynFiltB = tk.Button(self.dynfiltertab, text='Time-domain filtering', command=self.dynfiltering, height=bh, width=bw)
+            self.DynFiltB.place(in_=self.dynfiltertab, anchor="c", relx=.5, rely=.05)
+        # ******************************************************************** #
 
         # ****************** Spatio-Temporal Correlation ******************** #
         if (self.SpatioTemporalCorrelogram_flag):
