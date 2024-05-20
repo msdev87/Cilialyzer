@@ -150,7 +150,7 @@ class Cilialyzer():
         # apply band-pass filter
         self.dynseq.bandpass(self.roiplayer.roiseq,
             float(self.toolbar.fpscombo.get()), float(self.minscale.get()),
-            float(self.maxscale.get()), int(self.nrharmscombo.get()))
+            float(self.maxscale.get()))
         self.nbook.select(self.nbook.index(self.dynfiltertab))
 
         # try to delete the frame containing the dynamically filtered video
@@ -251,7 +251,9 @@ class Cilialyzer():
 
         self.powerspectrum.pwspecplot.canvas.draw()
 
+        """
         if (self.DynamicFiltering_flag):
+          
             # --------- shade the second and third harmonic (if selected) ----------
             if (int(self.nrharmscombo.get()) > 1):
                 fpeakw = maxf - minf
@@ -285,7 +287,11 @@ class Cilialyzer():
                     alpha=0.4)
 
                 self.powerspectrum.pwspecplot.canvas.draw()
-        # ----------------------- end of peakselector ------------------------------
+        # ----------------------- end of peakselector --------------------------
+    """
+
+
+
     """
     def set_threshold(self):
 
@@ -1058,15 +1064,15 @@ class Cilialyzer():
         # add a combobox in which the user is supposed to specify the
         # number of harmonics, the default is 2
         # Label and Entry Widget for specifying the number of visible harmonics
-        if (self.DynamicFiltering_flag):
-            self.nrharms_label=tk.Label(self.cbftab, text="Number of Harmonics :",width=22,anchor='e',\
-            font=("Helvetica",11))
-            self.nrharms_label.place(in_=self.cbftab, anchor='c', relx=0.75, rely=0.15)
+        #if (self.DynamicFiltering_flag):
+        #    self.nrharms_label=tk.Label(self.cbftab, text="Number of Harmonics :",width=22,anchor='e',\
+        #    font=("Helvetica",11))
+        #    self.nrharms_label.place(in_=self.cbftab, anchor='c', relx=0.75, rely=0.15)
 
-            self.nrharms_list = [1,2,3]
-            self.nrharmscombo = tkinter.ttk.Combobox(self.cbftab,values=self.nrharms_list,width=5)
-            self.nrharmscombo.place(in_=self.cbftab, anchor='c', relx=0.85, rely=0.15)
-            self.nrharmscombo.current(0)
+        #    self.nrharms_list = [1,2,3]
+        #    self.nrharmscombo = tkinter.ttk.Combobox(self.cbftab,values=self.nrharms_list,width=5)
+        #    self.nrharmscombo.place(in_=self.cbftab, anchor='c', relx=0.85, rely=0.15)
+        #    self.nrharmscombo.current(0)
         # ----------------------------------------------------------------------
         #**********************************************************************#
 

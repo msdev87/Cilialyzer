@@ -64,7 +64,7 @@ class DynFilter:
         else:
             self.pool = multiprocessing.Pool(self.ncpus)
 
-    def bandpass(self, PILseq, fps, minf, maxf, nharms):
+    def bandpass(self, PILseq, fps, minf, maxf):
 
         # input: roiseq 
         # output: dynamically filtered roiseq 
@@ -100,6 +100,7 @@ class DynFilter:
         filt[-maxf1:-minf1+1] = 1.0
         # ---------------------------------------------------------------------- 
         # ------------------ keep second harmonic freq band --------------------
+        """
         if (nharms > 1):
 
             peakw = maxf - minf
@@ -128,7 +129,7 @@ class DynFilter:
             # corr. negative freqs: 
             filt[-maxf3:-minf3+1] = 1.0
         # ----------------------------------------------------------------------
-
+        """
         numpy.set_printoptions(threshold=sys.maxsize)
         #print(filt)
 
