@@ -143,6 +143,7 @@ class Cilialyzer():
             if (clicked_tab == self.nbook.index(self.dynfiltertab)):
                 # dynamic filtering tab got selected
                 pass
+
     def dynfiltering(self):
         # delete current replay-content
 
@@ -151,6 +152,13 @@ class Cilialyzer():
             float(self.toolbar.fpscombo.get()), float(self.minscale.get()),
             float(self.maxscale.get()), int(self.nrharmscombo.get()))
         self.nbook.select(self.nbook.index(self.dynfiltertab))
+
+        # try to delete the frame containing the dynamically filtered video
+        try:
+            self.dynplayeri.frame.destroy()
+        except:
+            pass
+
         refresh = 0
         self.dynplayer = Flipbook.ImgSeqPlayer(self.dynfiltertab,
             self.PIL_ImgSeq.directory, refresh, self.dynseq.dyn_roiseq,
@@ -299,8 +307,6 @@ class Cilialyzer():
         f.close()
     """
 
-
-
     def image_stabilization(self):
 
         avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
@@ -396,8 +402,6 @@ class Cilialyzer():
 
         busywin.destroy()
 
-
-
     # -------------------------------------------------------------------------
     def meanscorrgram(self):
         """
@@ -425,7 +429,6 @@ class Cilialyzer():
             #dynseq.spatiotempcorr(float(toolbar_object.fpscombo.get()), float(minscale.get()),
             #                      float(maxscale.get()))
 
-
         firstimg = self.dynseq.dyn_roiseq[0] # first image of roi sequence
         width, height = firstimg.size # dimension of images
         nimgs = len(self.dynseq.dyn_roiseq) # number of images
@@ -442,15 +445,12 @@ class Cilialyzer():
         print('------- nimgs: ', nimgs)
         print(type(array))
 
-
         # create PIL sequence from numpy array!
         for i in range(len(array)):
             arr = (array[i]+1.0)*127.0
             self.dynseq.corr_roiseq.append(PIL.Image.fromarray(numpy.uint8(arr)))
             print(numpy.max(arr))
             print(numpy.min(arr))
-
-
 
         """
         except NameError:
@@ -846,8 +846,6 @@ class Cilialyzer():
         #    command=self.export, height=bh, width=16)
         #self.exportB.place(in_=self.roitab, anchor='c', relx=0.07,rely=0.32)
 
-
-
         # Export video Button
         self.exportvideoB = tk.Button(self.roitab, text='Export video',
             command=self.exportvideo, height=bh, width=16)
@@ -870,6 +868,7 @@ class Cilialyzer():
         #statusF.grid_columnconfigure(0,weight=1)
         #print('width statusbar frame: ',statusF.winfo_width())
         #----------------------------------------------------------------------#
+
         # --------------------- 'Image Stabilization'-button -------------------
         self.imageregB = tk.Button(self.roitab, text='Image stabilization',
             command=self.image_stabilization, height=bh, width=16)
@@ -918,15 +917,12 @@ class Cilialyzer():
         self.activity_map = None
         # ---------------------- create the toolbar --------------------------#
         self.toolbar = toolbar.Toolbar(self.mainframe, self.player,
-                                   self.roiplayer, self.ptrackplayer,
-                                   self.PIL_ImgSeq, self.nbook, self.roitab,
-                                   self.roi, self.toolbar_height,
-                                   self.nbookw, self.statusbar,self.powerspectrum, self.activity_map)
-
+            self.roiplayer, self.ptrackplayer, self.PIL_ImgSeq, self.nbook,
+            self.roitab, self.roi, self.toolbar_height, self.nbookw,
+            self.statusbar,self.powerspectrum, self.activity_map)
         self.toolbarF = self.toolbar.toolbarframe
         self.toolbarF.grid(row=0, column=0, columnspan=1, rowspan=1, sticky='ew')
         # ------------------------------------------------------------------- #
-
 
         #*********************************************************************#
         #************************* activity map tab **************************#

@@ -82,7 +82,10 @@ class Toolbar:
             pass
 
         # delete displayed content in activity tab:
-        self.activitymap.delete_content()
+        try:
+            self.activitymap.delete_content()
+        except:
+            pass
 
         # ask the user to set a new directory and load the images                 
         self.PIL_ImgSeq.choose_directory()
@@ -109,7 +112,6 @@ class Toolbar:
         # make sure that the rotationangle is set to 0: 
         self.roiplayer.rotationangle = 0.0
 
-        #print('****************************************')
         #print('****************************************')
         #print(self.PIL_ImgSeq.seqlength)
         #print('****************************************')
@@ -321,7 +323,6 @@ class Toolbar:
         self.fpscombo = tk.ttk.Combobox(self.toolbarframe,values=fps_list,width=5)
         self.fpscombo.current(0)
         self.fpscombo.place(in_=self.toolbarframe, anchor='c', x=420,rely=0.5)
-        #grid(row=0,column=4,sticky='W')
         # --------------------------------------------------------------------- 
 
         # ---------------------------------------------------------------------
@@ -332,15 +333,12 @@ class Toolbar:
         self.loadvideoB = tk.Button(self.toolbarframe, height=25, width=30,
             borderwidth=0,command=self.read_video,image=self.loadvideo_icon)
         self.loadvideoB.place(in_=self.toolbarframe, anchor='c', x=130, rely=0.5)
-        #grid(row=0, column=2, padx=7,pady=3,sticky='e')
-
         # ---------------------------------------------------------------------
         # Add Label and Entry Widget for setting the pixel size in [nm]  
 
         pixsize_label=tk.Label(self.toolbarframe,text="Pixelsize [nm] :",\
             width=22,anchor='e',font=("TkDefaultFont",10))
         pixsize_label.place(in_=self.toolbarframe, anchor='c', x=550, rely=0.5)
-        #grid(row=0,column=5,sticky='W')
 
         # read pixelsize_defaults.txt (if it exists)
         if (os.path.exists('pixelsize_defaults.txt')):

@@ -232,9 +232,9 @@ class ImageSequence:
 
         # nimgscombo holds the number of images, which are to be read
         nimgs = nimgscombo.get()
-        print('-------------------------------------------------------------')
-        print(nimgs)
-        print(type(nimgs))
+        # print('-------------------------------------------------------------')
+        # print(nimgs)
+        # print(type(nimgs))
 
         if (nimgs!='all'):
             nimgs=int(nimgs)
@@ -280,7 +280,7 @@ class ImageSequence:
 
         progress = 0
 
-        # reset image sequence before loading a newly choosen sequence 
+        # reset image sequence before loading a newly chosen sequence
         if (len(self.sequence) != 0):
             self.sequence = []
 
@@ -319,7 +319,7 @@ class ImageSequence:
 
         f = open('previous_directory.dat','w')
         f.write(os.path.split(self.videofile)[0])
-	# writes choosen directory (value of 'directory') into file 'f' 
+	    # writes choosen directory (value of 'directory') into file 'f'
         f.close()
 
         # update the label, which displays the directory name:
@@ -344,7 +344,7 @@ class ImageSequence:
 
         # generate the image sequence in the just generated folder 
 
-        #seqname = os.path.split(os.path.split(self.directory)[1])
+        # seqname = os.path.split(os.path.split(self.directory)[1])
 
         # handle exception (ffmpeg might not be installed)
         try:
@@ -379,8 +379,6 @@ class ImageSequence:
         except:
             tkinter.messagebox.showinfo("warning","Please check your ffmpeg installation!")
 
-
-
     def load_video(self, fps):
         """
         Convert the selected video (avi, mpeg, ...) to a PIL image sequence
@@ -399,9 +397,8 @@ class ImageSequence:
 
         f = open('previous_directory.dat','w')
         f.write(os.path.split(self.videofile)[0])
-	# writes choosen directory (value of 'directory') into file 'f' 
+	    # writes choosen directory (value of 'directory') into file 'f'
         f.close()
-
 
         # ---------------------------------------------------------------------
         # indicate busy status
@@ -488,7 +485,6 @@ class ImageSequence:
         for i in range(nimgs):
             self.sequence[i] = Image.fromarray(array[i,:,:])
 
-
     def imagereg(self):
         import imreg_dft
 
@@ -510,7 +506,7 @@ class ImageSequence:
         for i in range(nimgs):
             array[i,:,:] = numpy.array(self.sequence[i])
 
-        #print(len(array.shape))
+        # print(len(array.shape))
         # set reference to 'first', 'previous', or 'mean'
         aligned = sr.register_transform_stack(array, reference='mean',verbose=True)
         #for i in range(nimgs):
@@ -545,10 +541,6 @@ class ImageSequence:
         # convert stack of PIL images to numpy array
         for i in range(nimgs):
             array[i, :, :] = numpy.array(sequence[i])
-
-
-
-
 
         # calculate the mean image
         for i in range(nimgs):
@@ -624,9 +616,6 @@ class ImageSequence:
         roiplayer.animate()
         roiplayer.stop = 0
         roiplayer.refreshing = 0 # as refreshing ends here  
-
-
-
 
 
     def denoise(self, roiseq):

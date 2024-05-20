@@ -156,11 +156,6 @@ class DynFilter:
         for i in range(nimgs):
             self.dyn_roiseq.append(PIL.Image.fromarray(numpy.uint8(array[i,:,:])))
 
-
-
-
-
-
     def temporal_autocorrelation(self, tkplotframe, frequencymap):
             """
             computes the mean temporal autocorrelation function
@@ -643,11 +638,11 @@ class DynFilter:
         x_cm = x_cm / weight_total
         y_cm = y_cm / weight_total
 
-        print('--------- test --------')
-        print('minx: ', minx)
-        print('miny: ',miny)
-        print('xcm: ',x_cm)
-        print('ycm:',y_cm)
+        # print('--------- test --------')
+        # print('minx: ', minx)
+        # print('miny: ',miny)
+        # print('xcm: ',x_cm)
+        #print('ycm:',y_cm)
 
         # x_cm and y_cm can now be defined as a more exact measure for the 
         # position of the minimum 
