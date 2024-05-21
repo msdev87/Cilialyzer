@@ -89,16 +89,26 @@ class DynFilter:
         filt = numpy.zeros(nt)
 
         # ---------- get indices of 'cbf band' -> keep fundamental freq --------
-        # we also have to filter in the negative frequency domain!  
+        # we also have to filter in the negative frequency domain!
+        # Note that minf1 and maxf1 are frequency indices (not in real units)
         minf1 = int(round((float(nimgs)*minf/float(fps))-1))
         maxf1 = int(round((float(nimgs)*maxf/float(fps))-1))
 
-        # keep positive frquencies
-        filt[minf1:maxf1+1] = 1.0 
+        # Note that we bandpass filter in the following
+        # The frequency band we keep is given by the min. frequency,
+        # (i.e. the left slider), the max. frequency is given by 7 x max. freq.
+        # OR the highest frequency possible
+        if (7*maxf1 < int(len(filt)/2)-1):
+            # keep positive frequencies
+            filt[minf1:7*maxf1] = 1.0
+            # get corresponding negative frequencies:
+            filt[-7*maxf1:-minf1+1] = 1.0
+        else:
+            # keep positive freqs from minf1
+            filt[minf1:int(len(filt)/2)] = 1.0
+            #keep negative freqs from -minf1
+            filt[-int(len(filt)/2)-1:-minf1+1] = 1.0
 
-        # get corresponding negative frequencies:
-        filt[-maxf1:-minf1+1] = 1.0
-        # ---------------------------------------------------------------------- 
         # ------------------ keep second harmonic freq band --------------------
         """
         if (nharms > 1):
@@ -135,20 +145,13 @@ class DynFilter:
 
         # dynamic filtering for each pixel separately! (in time domain)   
 
-        # loop over pixels (spatial domain)  
+        # loop over pixels (spatial domain)
         # apply bandpass (along time axis!) for pixel after pixel
-
-
         for i in range(ni):
             for j in range(nj):
-
                 array[:,i,j] = numpy.real(numpy.fft.ifft(numpy.multiply(
                     numpy.fft.fft(array[:, i, j], axis=0), filt), axis=0))
-
         array = bytescl(array)
-
-        # inverse transform 
-        # array = bytescl(numpy.real(numpy.fft.ifftn(array)))
 
         self.dyn_roiseq.clear()
         self.dyn_roiseq = []

@@ -155,7 +155,7 @@ class Cilialyzer():
 
         # try to delete the frame containing the dynamically filtered video
         try:
-            self.dynplayeri.frame.destroy()
+            self.dynplayer.frame.destroy()
         except:
             pass
 
