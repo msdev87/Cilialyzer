@@ -26,7 +26,7 @@ In your mail, we would very much appreciate, if you could provide brief informat
 Thank you for your support and we are looking forward to hearing from you. 
 
 
-Best wishes,
+Best wishes,  
 Martin Schneiter, PhD 
    
    
