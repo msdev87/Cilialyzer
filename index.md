@@ -14,12 +14,12 @@
 
 
 we are currently in the process of finalizing a **greatly improved version of Cilialyzer**.  
-If you would like to receive a link to download the newest Cilialyzer version -- **still free, open source and running out of the box (binary version)** -- please notify us via email:
+If you would like to receive a link to download the newest Cilialyzer version, please notify us via email:  
 **[martin.schneiter@unibe.ch](mailto:martin.schneiter@unibe.ch)**. 
+The greatly improved upcoming version will still be **free, open source and the compiled/binary version runs out of the box**.
 
-
-By doing so, you will allow us to get to know our user base. Additionally, all of our registered users will in future get notified 
-as soon as the latest stable Cilialyzer version is available (approximately 2--3 times per year). 
+By your notification via mail, you help us to get to know our user base. All of our users will be registered and getting notified 
+as soon as a new stable Cilialyzer version will be available (approximately 2--3 times per year). 
 In your mail, we would very much appreciate, if you could provide brief information for what purpose you plan to use Cilialyzer.
 
 
