@@ -14,8 +14,8 @@
 
 
 we are currently in the process of finalizing a **greatly improved version of Cilialyzer**.  
-If you would like to receive a link to download the newest Cilialyzer version, please notify us via email:  
-**[martin.schneiter@unibe.ch](mailto:martin.schneiter@unibe.ch)**.  
+**If you would like to receive a link to download the newest Cilialyzer version, please notify us via email:  
+[martin.schneiter@unibe.ch](mailto:martin.schneiter@unibe.ch)**.  
 The greatly improved upcoming version will still be **free, open source and the compiled/binary version runs out of the box**.
 
 By your notification via mail, you help us to get to know our user base. All of our users will be registered and getting notified 
