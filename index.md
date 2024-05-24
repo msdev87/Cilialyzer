@@ -1,4 +1,5 @@
 <!-- ## Welcome to GitHub Pages -->
+<!--
 <div align="center"> 
    <a href="./index.html" style="font-size:25px;font-weight:600;"       >Home</a>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
    <a href="./download.html" style="font-size:25px;font-weight:400;"     >Download</a>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -8,7 +9,7 @@
 </div> 
 
 <br />
-
+-->
 **Dear visitor**,
 <br />
 We are currently in the process of finalizing a **greatly improved version of Cilialyzer**. 
