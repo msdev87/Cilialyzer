@@ -5,7 +5,7 @@ def process(main):
 
     # select a directory
     # find all subdirectories
-    # loop over all subdirectories
+    # loop over all subdirectories (and their content)
     #   image stabilization
     #   mean subtraction
     #   powerspec
@@ -22,9 +22,8 @@ def process(main):
     # let the user choose a directory:
     main.toolbar.PIL_ImgSeq.choose_directory()
 
-    # find all subdirectories  
-
-    # get path of chosen directory:
+    # find all subdirectories
+    # get first the path of the chosen directory:
     f=open('previous_directory.dat','r')
     path=f.read()
     f.close()
@@ -40,6 +39,10 @@ def process(main):
     for item in contents:
         if os.path.isdir(item):
             dirlist.append(item)
+
+    print('----- test : dirlist ----- ')
+    print(dirlist)
+    print('---------------------------')
 
     # -------------------- Loop over all directories -----------------------
     for dirname in dirlist:
