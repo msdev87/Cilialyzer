@@ -20,21 +20,24 @@ def process(main):
         pass
 
     # let the user choose a directory:
-    main.toolbar.PIL_ImgSeq.choose_directory()
-
-    # find all subdirectories
+    main.toolbar.PIL_ImgSeq.choose_directory(manual=0)
+    # choose_directory writes the chosen directory to file previous_directory.dat
+    # goal: find all subdirectories
     # get first the path of the chosen directory:
     f=open('previous_directory.dat','r')
     path=f.read()
     f.close()
 
-    contents = os.listdir(path)
+    contents = os.listdir(path) # listdir returns all directories and files in path
+
+    # contents holds relative paths, we need to add the base path to content[i]:
+    basepath = path
     for i in range(len(contents)):
-        contents[i] = os.path.join(path, contents[i])
+        contents[i] = os.path.join(basepath, contents[i])
 
-    contents.sort()
+    #contents.sort()
 
-    # dirlist holds the list of all directories within the chosen directory
+    # goal: dirlist holds the list of all directories within 'base path' directory
     dirlist = []
     for item in contents:
         if os.path.isdir(item):
@@ -63,6 +66,10 @@ def process(main):
         except:
             pass
 
+
+
+
+        """
         main.toolbar.PIL_ImgSeq.directory = dirname
         # next line updates the label (displayed path to the new directory) 
         main.PIL_ImgSeq.dirname.set(dirname)
@@ -74,17 +81,22 @@ def process(main):
         f = open('previous_directory.dat','w')
         f.write(dirname)
         f.close()
+        """
 
-        main.toolbar.PIL_ImgSeq.load_imgs(main.toolbar.nimgscombo) # loads image sequence                             
+        # Load the image sequence!
+        main.toolbar.PIL_ImgSeq.load_imgs(main.toolbar.nimgscombo)
         # PIL_ImgSeq.sequence[i] holds the i-th frame (img format: 8 Bits, PIL)
 
+
+        """
         main.toolbar.nbook.select(main.nbook.index(main.roitab))
         refresh = 0
         selectroi = 1
-
         main.roiplayer.__init__(main.roitab, main.PIL_ImgSeq.directory,refresh,
         main.PIL_ImgSeq.sequence, main.PIL_ImgSeq.seqlength, main.roi, selectroi)
+        """
 
+        """
         # make sure that the rotationangle is set to 0:
         main.roiplayer.rotationangle = 0.0
 
@@ -93,14 +105,15 @@ def process(main):
 
         # print('roiplayer id in Toolbar: ',id(self.roiplayer))
         # main.roiplayer.animate()
+        """
 
         # Calculate powerspectrum
         main.powerspectrum.calc_powerspec(main.roiplayer.roiseq,
         main.toolbar.fpscombo.get(),main.pwspec1frame, main.minscale,
-        main.maxscale)
+        main.maxscale, manual=0)
 
-
-
+        # resultate auflisten in frontend
+        # columns: directory, powerspectrum plot (file link), cbf, ..
 
 
 

@@ -115,7 +115,7 @@ class ImageSequence:
 
     def __init__(self):
 
-        # initially we load a "fake image"  
+        # initially we load a "fake sequence"
 
         self.directory = './fakesequence'
 
@@ -143,31 +143,29 @@ class ImageSequence:
         self.thread1 = None
         self.busywin = None
 
-    def choose_directory(self):
-    #def choose_directory(self,dirname,fname):
+    def choose_directory(self, manual=1):
 
         try:
-            # read file
-            f=open('previous_directory.dat','r')
+            # try to read file holding previously chosen directory
+            f = open('previous_directory.dat','r')
             initdir=f.read()
         except:
             initdir=os.getcwd()
 
-        self.directory = askdirectory(title="Select Directory",
-            initialdir=initdir)
+        self.directory = askdirectory(title="Select Directory", initialdir=initdir)
 
         f = open('previous_directory.dat','w')
-        f.write(self.directory) # write choosen directory into file 'f' 
+        f.write(self.directory) # write chosen directory into file 'f'
         f.close()
 
         # update the label, which displays the directory name:
         self.dirname.set(self.directory)
 
-        # update the name of the first image:
-        f = os.listdir(self.directory)
-        sort_list(f)
-        #self.fname = self.fname.set(f[0])
-        self.fname.set(f[0])
+        if manual:
+            # update the name of the first image:
+            f = os.listdir(self.directory)
+            sort_list(f)
+            self.fname.set(f[0])
 
     def get_files(self):
         """

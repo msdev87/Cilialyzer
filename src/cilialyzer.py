@@ -1254,13 +1254,13 @@ class Cilialyzer():
         # self.main_window.bind( "<Configure>", self.resize)
 
         # *********************************************************************
-        # Automatic 1
+        #                      Automated processing
         # *********************************************************************
         self.autotab1 = tk.Frame(self.nbook, width=int(round(0.9*self.nbookw)),
             height=int(round(0.95*self.nbookh)))
-        self.nbook.add(self.autotab1, text=' Batch processing v1 ')
+        self.nbook.add(self.autotab1, text=' Automated processing ')
 
-        self.autoB1 = tk.Button(self.autotab1, text='Process video batch',
+        self.autoB1 = tk.Button(self.autotab1, text='Process videos',
             command=self.batchv1, height=bh, width=bw)
         self.autoB1.place(in_=self.autotab1, anchor="c", relx=0.5, rely=0.5)
 

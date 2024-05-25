@@ -14,8 +14,6 @@ else:
 import tkinter.ttk
 import scipy.optimize
 
-
-
 def decay_func(x, a, b):
     # f(x) = a * x^(-b)
     return a * (x**(-b))
@@ -49,23 +47,23 @@ class powerspec:
         self.pixelspectra = None
         self.pixelffts = None
 
-    def calc_powerspec(self, roiseq, FPS, parent, minscale, maxscale):
+    def calc_powerspec(self, roiseq, FPS, parent, minscale, maxscale, manual=1):
 
         # check whether the input data is adequately set:
         if (len(roiseq)) < 10:
             messagebox.showerror(title = "Error", message = "Please select a directory")
 
         else:
+            if manual:
+                # rebuild the frame (deletes its content)
+                self.tkframe.destroy()
+                self.tkframe = Frame(parent,width=self.parentw,height=self.parenth)
 
-            # rebuild the frame (deletes its content)  
-            self.tkframe.destroy()
-            self.tkframe = Frame(parent,width=self.parentw,height=self.parenth)
+                self.tkframe.place(in_=parent,anchor='c',relx=0.5,rely=0.5)
 
-            self.tkframe.place(in_=parent,anchor='c',relx=0.5,rely=0.5)
-            #self.tkframe.pack()
-            self.tkframe.update()
-            #print('newtest', self.tkframe.winfo_width())
-            self.pwspecplot = TkPowerspecPlot.TkPowerspecPlot(self.tkframe)
+                self.tkframe.update()
+                #print('newtest', self.tkframe.winfo_width())
+                self.pwspecplot = TkPowerspecPlot.TkPowerspecPlot(self.tkframe)
 
             firstimg = roiseq[0] # first image of roi sequence  
             width, height = firstimg.size # dimension of images 
@@ -87,27 +85,31 @@ class powerspec:
             # -- create a toplevel window to display the progress indicator --
             # caution: the feedback to the frontend slows down the cbf calc.!
             # *************************************************************** #
-            progresswin = Toplevel()
-            progresswin.minsize(width=500,height=30)
-            progresswin.title("Powerspectrum in Progress, Please Wait...")
+            if manual:
+                progresswin = Toplevel()
+                progresswin.minsize(width=500,height=30)
+                progresswin.title("Powerspectrum in Progress, Please Wait...")
 
-            # get the monitor dimensions:
-            screenw = progresswin.winfo_screenwidth()
-            screenh = progresswin.winfo_screenheight()
+                # get the monitor dimensions:
+                screenw = progresswin.winfo_screenwidth()
+                screenh = progresswin.winfo_screenheight()
 
-            # place the progress indicator in the center of the screen 
-            placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
-            progresswin.geometry(placement)
+                # place the progress indicator in the center of the screen
+                placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
+                progresswin.geometry(placement)
+                progresswin.geometry('600x30')
 
-            s = tkinter.ttk.Style()
-            s.theme_use("default")
-            s.configure("TProgressbar", thickness=30)
+                s = tkinter.ttk.Style()
+                s.theme_use("default")
+                s.configure("TProgressbar", thickness=30)
 
-            pbvar = IntVar() # progress bar variable (counts number of loaded imgs)   
-            pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",variable=pbvar,\
-                maximum=ni*nj,length=600,style="TProgressbar")
-            pb.grid(row=1,column=0,pady=5)
-            progress = 0
+                pbvar = IntVar() # progress bar variable (counts number of loaded imgs)
+                pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",variable=pbvar,\
+                    maximum=ni*nj,length=600,style="TProgressbar")
+                #pb.grid(row=1,column=0,pady=5)
+
+                pb.place(in_=progresswin)
+                progress = 0
             # **************************************************************** #
 
             # print('shape of array: ',nt,ni,nj)
