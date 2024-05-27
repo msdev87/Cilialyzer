@@ -284,7 +284,7 @@ class ImageSequence:
 
         for img in self.get_images():
             if (progress < self.seqlength):
-                if (not(progress % 10)):
+                if (not(progress % 100)):
                     pbvar.set(progress)
                     progresswin.update()
                 self.sequence.append(img)

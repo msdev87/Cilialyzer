@@ -1037,6 +1037,7 @@ class Cilialyzer():
                              resolution=0.2, variable=self.maxfreq, command=self.peakselector)
         self.maxscale.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.85)
 
+        # Make the 'Powerspectrum' button
         self.powerspecB=tk.Button(self.cbftab, text='Powerspectrum',\
             command=lambda: self.powerspectrum.calc_powerspec(self.roiplayer.roiseq,\
         self.toolbar.fpscombo.get(),self.pwspec1frame, self.minscale,
@@ -1052,6 +1053,13 @@ class Cilialyzer():
 
         # self.powerspectrum.spec : holds the spectrum
         # selfpowerspectrum.freqs : holds the corresponding frequencies
+
+        # Here we add a button to export/save the plot of the power spectrum
+        self.save_psdB = tk.Button(self.cbftab, text='Save plot',
+            command=lambda:self.powerspectrum.pwspecplot.save_plot(), height=bh, width=bw)
+        self.save_psdB.place(in_=self.cbftab, relx=0.85, rely=0.35,anchor='c')
+
+
 
         # ----------------------------------------------------------------------
         # add a combobox in which the user is supposed to specify the

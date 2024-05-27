@@ -16,8 +16,8 @@ class TkPowerspecPlot:
         #print('test',self.tkframe.winfo_height())
 
         dpi = 100
-        figh = round(tkframe.winfo_height() / dpi)
-        figw = round(1.3 * figh)
+        figh = round(0.95*tkframe.winfo_height() / dpi)
+        figw = round(1.2 * figh)
         #print('figh', figh, 'figw', figw) 
 
         self.fig = Figure(figsize=(figw,figh), dpi=dpi)
@@ -33,7 +33,7 @@ class TkPowerspecPlot:
         self.meancbf = None
         self.CBFtxt = None
 
-    def plot(self,xax,yax,xl='xlabel',yl='ylabel',lp=10,fs=18,xlims=(0.1,50)):
+    def plot(self,xax,yax,xl='xlabel',yl='ylabel',lp=10,fs=15,xlims=(0.1,50)):
 
         self.xlabel = xl
         self.ylabel = yl
@@ -49,14 +49,13 @@ class TkPowerspecPlot:
         self.axes.set_xlabel(self.xlabel,labelpad=self.labelpad,fontsize=self.fontsize)
         self.axes.set_ylabel(self.ylabel,labelpad=self.labelpad,fontsize=self.fontsize)
         self.axes.tick_params(labelsize=self.fontsize)
-
         self.axes.set_ylim(bottom=0, top=1.3*numpy.amax(self.yax[2:])) 
 
         self.fig.tight_layout()
 
         self.canvas = FigureCanvasTkAgg(self.fig, self.tkframe) # hand over the fig and the tkinter frame 
 
-        # shade are between 5 and 15 Hertz
+        # shaded area between 5 and 15 Hertz initially
         ind = numpy.sum((numpy.array(self.xax) <= 15.0).astype(int))
         self.axes.fill_between(self.xax[0:ind+1], self.yax[0:ind+1],facecolor='gray',alpha=0.5)
 
@@ -65,10 +64,8 @@ class TkPowerspecPlot:
 
         self.canvas.draw()
 
-        self.canvas.get_tk_widget().pack()
-
-        #canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        self.canvas._tkcanvas.pack()
+        self.canvas.get_tk_widget().place( relwidth=0.95, relheight=0.95)
+        self.canvas._tkcanvas.place(relwidth=0.95, relheight=0.95)
 
     def get_cbf(self, minf, maxf, FPS):
 
@@ -120,10 +117,13 @@ class TkPowerspecPlot:
         str5 = " [Hz]"
 
         if (self.CBFtxt is None):
-            self.CBFtxt = self.axes.text(xpos,ypos,str1+str2+str3+str4+str5,fontsize=18,transform=self.axes.transAxes)
+            self.CBFtxt = self.axes.text(xpos,ypos,str1+str2+str3+str4+str5,fontsize=15,transform=self.axes.transAxes)
         else:
             self.CBFtxt.set_text(str1+str2+str3+str4+str5)
         self.canvas.draw()
 
         #print "CBF: ", mean        
 
+    def save_plot(self):
+        fname = 'test.png'
+        self.fig.savefig(fname,format='png',dpi=200)

@@ -41,7 +41,7 @@ class powerspec:
         self.tkframe = Frame(parent,width=self.parentw,height=self.parenth)
         self.parent = parent
 
-        self.tkframe.place(in_=parent, width=self.parentw,height=self.parenth)
+        self.tkframe.place(in_=parent, width=self.parentw, height=self.parenth)
         self.tkframe.update()
         self.pwspecplot = TkPowerspecPlot.TkPowerspecPlot(self.tkframe)
         self.pixelspectra = None
