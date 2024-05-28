@@ -1,5 +1,8 @@
 import os
 import avoid_troubles
+import tkinter as tk
+from tkinter import ttk
+
 
 def process(main):
 
@@ -47,6 +50,29 @@ def process(main):
     print(dirlist)
     print('---------------------------')
 
+    """
+    # ---------------- Before looping over all videos --------------------------
+    # Create the a treeview widget in which we display the results
+
+    # resultate auflisten in frontend
+    # columns: directory, powerspectrum plot (file link), cbf, ..
+
+    # Create a frame in which we place the treeview
+    treeframe = tk.Frame(main.autotab1, width=500,height=500)
+    treeframe.place(in_=main.autotab1,relx=0.5, rely=0.5)
+
+    columns = ('path', 'cbf_mean')
+    tree = ttk.Treeview(treeframe, columns=columns, show='headings')
+
+    # specify the header, which will be displayed in the frontend
+    tree.heading('path', text='Directory')
+    tree.heading('cbf_mean', text='Average CBF [Hz]')
+
+    tree_content = []
+    tree.place()
+    """
+
+
     # -------------------- Loop over all directories -----------------------
     for dirname in dirlist:
 
@@ -67,8 +93,6 @@ def process(main):
             pass
 
 
-
-
         """
         main.toolbar.PIL_ImgSeq.directory = dirname
         # next line updates the label (displayed path to the new directory) 
@@ -86,7 +110,6 @@ def process(main):
         # Load the image sequence!
         main.toolbar.PIL_ImgSeq.load_imgs(main.toolbar.nimgscombo)
         # PIL_ImgSeq.sequence[i] holds the i-th frame (img format: 8 Bits, PIL)
-
 
         """
         main.toolbar.nbook.select(main.nbook.index(main.roitab))
@@ -112,15 +135,11 @@ def process(main):
         main.toolbar.fpscombo.get(),main.pwspec1frame, main.minscale,
         main.maxscale, manual=0)
 
-        # resultate auflisten in frontend
-        # columns: directory, powerspectrum plot (file link), cbf, ..
-
-
-
-
-
-
-
+        """
+        new_values =(dirname, main.powerspectrum.pwspecplot.meancbf)
+        tree_content.append(new_values)
+        tree.insert('', tk.END, values=new_values)
+        """
 
 
 

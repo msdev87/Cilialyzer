@@ -14,6 +14,7 @@ else:
 import tkinter.ttk
 import scipy.optimize
 
+
 def decay_func(x, a, b):
     # f(x) = a * x^(-b)
     return a * (x**(-b))
@@ -163,7 +164,7 @@ class powerspec:
             # self.pwspecplot.plot(self.freqs, self.spec, xlabel, ylabel, labelpad, fontsize)
 
             # slightly smooth the powerspectrum
-            self.spec = gaussian_filter(self.spec, sigma=1.0,truncate=1.0)
+            self.spec = gaussian_filter(self.spec, sigma=1.0,truncate=1.25)
             # Please note: 
             # the cropped self.freqs (frequency array) and the cropped
             # self.spec array is overgiven!
@@ -190,11 +191,15 @@ class powerspec:
             h2 = 0.7 * h1
             mu2 = 1.8 * mu1
             s2 = s1
+
+
             pars0 = [a, b, h1, mu1, s1, h2, mu2, s2]
 
             # -----------------------------------------------------------------
 
-            pars, cov = scipy.optimize.curve_fit(f=fit_func, xdata=x, ydata=y, p0=pars0, bounds=(0,50))
+            pars, cov = scipy.optimize.curve_fit(f=fit_func, xdata=x, ydata=y,
+                p0=pars0, bounds=(0,50))
+
 
             """
             pars holds the following fit parameters:
@@ -202,6 +207,15 @@ class powerspec:
             f(x) = a*x^(-b) + gauss1(h1,mu1,s1) + gauss2(h2,mu2,s2)
             to the (gaussian-smoothed) power spectral density
             """
+
+            # calculate the RMSD to measure the quality of the fit
+            # to allow for comparisons between different videos, the RMSD
+            # is normalized by the peak value in the powerspectrum
+            RMSD = numpy.sqrt(numpy.sum((fit_func(x, pars0[0], pars[1],pars[2],pars[3],pars[4],pars[5],pars[6],pars[7]) - y)**2/len(y)))
+
+            RMSD = RMSD / numpy.max(y)
+
+            print('RMSD: ', RMSD)
 
             # generate an automated suggestion for minscale and maxscale 
             # 1. order the fitted gaussian according to their peak heights
