@@ -48,23 +48,23 @@ class powerspec:
         self.pixelspectra = None
         self.pixelffts = None
 
-    def calc_powerspec(self, roiseq, FPS, parent, minscale, maxscale, manual=1):
+    def calc_powerspec(self, roiseq, FPS, parent, minscale, maxscale, automated=0):
 
         # check whether the input data is adequately set:
         if (len(roiseq)) < 10:
             messagebox.showerror(title = "Error", message = "Please select a directory")
 
         else:
-            if manual:
-                # rebuild the frame (deletes its content)
-                self.tkframe.destroy()
-                self.tkframe = Frame(parent,width=self.parentw,height=self.parenth)
+            # if not automated:
+            # rebuild the frame (deletes its content)
+            self.tkframe.destroy()
+            self.tkframe = Frame(parent,width=self.parentw,height=self.parenth)
 
-                self.tkframe.place(in_=parent,anchor='c',relx=0.5,rely=0.5)
+            self.tkframe.place(in_=parent,anchor='c',relx=0.5,rely=0.5)
 
-                self.tkframe.update()
-                #print('newtest', self.tkframe.winfo_width())
-                self.pwspecplot = TkPowerspecPlot.TkPowerspecPlot(self.tkframe)
+            self.tkframe.update()
+            #print('newtest', self.tkframe.winfo_width())
+            self.pwspecplot = TkPowerspecPlot.TkPowerspecPlot(self.tkframe)
 
             firstimg = roiseq[0] # first image of roi sequence  
             width, height = firstimg.size # dimension of images 
@@ -86,31 +86,30 @@ class powerspec:
             # -- create a toplevel window to display the progress indicator --
             # caution: the feedback to the frontend slows down the cbf calc.!
             # *************************************************************** #
-            if manual:
-                progresswin = Toplevel()
-                progresswin.minsize(width=500,height=30)
-                progresswin.title("Powerspectrum in Progress, Please Wait...")
+            # if not automated:
+            progresswin = Toplevel()
+            progresswin.minsize(width=500,height=30)
+            progresswin.title("Powerspectrum in Progress, Please Wait...")
 
-                # get the monitor dimensions:
-                screenw = progresswin.winfo_screenwidth()
-                screenh = progresswin.winfo_screenheight()
+            # get the monitor dimensions:
+            screenw = progresswin.winfo_screenwidth()
+            screenh = progresswin.winfo_screenheight()
 
-                # place the progress indicator in the center of the screen
-                placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
-                progresswin.geometry(placement)
-                progresswin.geometry('600x30')
+            # place the progress indicator in the center of the screen
+            placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
+            progresswin.geometry(placement)
+            progresswin.geometry('600x30')
 
-                s = tkinter.ttk.Style()
-                s.theme_use("default")
-                s.configure("TProgressbar", thickness=30)
+            s = tkinter.ttk.Style()
+            s.theme_use("default")
+            s.configure("TProgressbar", thickness=30)
 
-                pbvar = IntVar() # progress bar variable (counts number of loaded imgs)
-                pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",variable=pbvar,\
-                    maximum=ni*nj,length=600,style="TProgressbar")
-                #pb.grid(row=1,column=0,pady=5)
+            pbvar = IntVar() # progress bar variable (counts number of loaded imgs)
+            pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",variable=pbvar,\
+                maximum=ni*nj,length=600,style="TProgressbar")
 
-                pb.place(in_=progresswin)
-                progress = 0
+            pb.place(in_=progresswin)
+            progress = 0
             # **************************************************************** #
 
             # print('shape of array: ',nt,ni,nj)
@@ -133,10 +132,11 @@ class powerspec:
                     self.pixelspectra[:,i,j] = spec
                     self.spec = numpy.add(self.spec, spec)
                     progress += 1
+                # if not automated:
                 pbvar.set(progress)
                 progresswin.update()
 
-            # note that we (conciously) throw away the zero-frequency part
+            # note that we (consciously) throw away the zero-frequency part
             # AND the first (lowest frequency > 0), as this frequency 
             # is falsified by the periodic repetition of the function 
             # by the FFT
@@ -153,6 +153,7 @@ class powerspec:
             for i in range(self.spec.size):
                         self.freqs[i] = (i+2) * float(FPS) / float(nimgs)
 
+            # if not automated:
             progresswin.destroy()
             s.configure("TProgressbar", thickness=5)
 

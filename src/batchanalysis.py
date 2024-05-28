@@ -92,8 +92,6 @@ def process(main):
         except:
             pass
 
-
-        """
         main.toolbar.PIL_ImgSeq.directory = dirname
         # next line updates the label (displayed path to the new directory) 
         main.PIL_ImgSeq.dirname.set(dirname)
@@ -105,7 +103,7 @@ def process(main):
         f = open('previous_directory.dat','w')
         f.write(dirname)
         f.close()
-        """
+
 
         # Load the image sequence!
         main.toolbar.PIL_ImgSeq.load_imgs(main.toolbar.nimgscombo)
@@ -130,10 +128,17 @@ def process(main):
         # main.roiplayer.animate()
         """
 
+        # switch tab to cbf tab
+        main.nbook.select(main.nbook.index(main.cbftab))
+
         # Calculate powerspectrum
-        main.powerspectrum.calc_powerspec(main.roiplayer.roiseq,
+        main.powerspectrum.calc_powerspec(main.PIL_ImgSeq.sequence,
         main.toolbar.fpscombo.get(),main.pwspec1frame, main.minscale,
-        main.maxscale, manual=0)
+        main.maxscale, automated=1)
+
+        # switch back to automated analysis tab
+        main.nbook.select(main.nbook.index(main.autotab1))
+
 
         """
         new_values =(dirname, main.powerspectrum.pwspecplot.meancbf)
