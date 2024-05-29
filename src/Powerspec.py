@@ -86,29 +86,29 @@ class powerspec:
             # -- create a toplevel window to display the progress indicator --
             # caution: the feedback to the frontend slows down the cbf calc.!
             # *************************************************************** #
-            # if not automated:
-            progresswin = Toplevel()
-            progresswin.minsize(width=500,height=30)
-            progresswin.title("Powerspectrum in Progress, Please Wait...")
+            if not automated:
+                progresswin = Toplevel()
+                progresswin.minsize(width=500,height=30)
+                progresswin.title("Powerspectrum in Progress, Please Wait...")
 
-            # get the monitor dimensions:
-            screenw = progresswin.winfo_screenwidth()
-            screenh = progresswin.winfo_screenheight()
+                # get the monitor dimensions:
+                screenw = progresswin.winfo_screenwidth()
+                screenh = progresswin.winfo_screenheight()
 
-            # place the progress indicator in the center of the screen
-            placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
-            progresswin.geometry(placement)
-            progresswin.geometry('600x30')
+                # place the progress indicator in the center of the screen
+                placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
+                progresswin.geometry(placement)
+                progresswin.geometry('600x30')
 
-            s = tkinter.ttk.Style()
-            s.theme_use("default")
-            s.configure("TProgressbar", thickness=30)
+                s = tkinter.ttk.Style()
+                s.theme_use("default")
+                s.configure("TProgressbar", thickness=30)
 
-            pbvar = IntVar() # progress bar variable (counts number of loaded imgs)
-            pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",variable=pbvar,\
-                maximum=ni*nj,length=600,style="TProgressbar")
+                pbvar = IntVar() # progress bar variable (counts number of loaded imgs)
+                pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",variable=pbvar,\
+                    maximum=ni*nj,length=600,style="TProgressbar")
 
-            pb.place(in_=progresswin)
+                pb.place(in_=progresswin)
             progress = 0
             # **************************************************************** #
 
@@ -132,9 +132,9 @@ class powerspec:
                     self.pixelspectra[:,i,j] = spec
                     self.spec = numpy.add(self.spec, spec)
                     progress += 1
-                # if not automated:
-                pbvar.set(progress)
-                progresswin.update()
+                if not automated:
+                    pbvar.set(progress)
+                    progresswin.update()
 
             # note that we (consciously) throw away the zero-frequency part
             # AND the first (lowest frequency > 0), as this frequency 
@@ -153,9 +153,9 @@ class powerspec:
             for i in range(self.spec.size):
                         self.freqs[i] = (i+2) * float(FPS) / float(nimgs)
 
-            # if not automated:
-            progresswin.destroy()
-            s.configure("TProgressbar", thickness=5)
+            if not automated:
+                progresswin.destroy()
+                s.configure("TProgressbar", thickness=5)
 
             ylabel = 'Power Spectral Density'
             xlabel = 'Frequency [Hz]'

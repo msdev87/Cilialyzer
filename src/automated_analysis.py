@@ -24,7 +24,7 @@ def process(main):
         pass
 
     # let the user choose a directory:
-    main.toolbar.PIL_ImgSeq.choose_directory(manual=0)
+    main.toolbar.PIL_ImgSeq.choose_directory(automated=1)
     # choose_directory writes the chosen directory to file previous_directory.dat
     # goal: find all subdirectories
     # get first the path of the chosen directory:
@@ -105,9 +105,8 @@ def process(main):
         f.write(dirname)
         f.close()
 
-
         # Load the image sequence!
-        main.toolbar.PIL_ImgSeq.load_imgs(main.toolbar.nimgscombo)
+        main.toolbar.PIL_ImgSeq.load_imgs(main.toolbar.nimgscombo, automated=1)
         # PIL_ImgSeq.sequence[i] holds the i-th frame (img format: 8 Bits, PIL)
 
         """
@@ -130,7 +129,7 @@ def process(main):
         """
 
         # switch tab to cbf tab
-        main.nbook.select(main.nbook.index(main.cbftab))
+        # main.nbook.select(main.nbook.index(main.cbftab))
 
         # Calculate powerspectrum
         main.powerspectrum.calc_powerspec(main.PIL_ImgSeq.sequence,
@@ -140,9 +139,7 @@ def process(main):
         main.powerspectrum.pwspecplot.save_plot(main.PIL_ImgSeq.directory)
 
         # switch back to automated analysis tab
-        main.nbook.select(main.nbook.index(main.autotab))
-
-
+        # main.nbook.select(main.nbook.index(main.autotab))
 
         new_values = (dirname, main.powerspectrum.pwspecplot.meancbf)
         tree_content.append(new_values)

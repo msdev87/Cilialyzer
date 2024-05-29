@@ -143,7 +143,7 @@ class ImageSequence:
         self.thread1 = None
         self.busywin = None
 
-    def choose_directory(self, manual=1):
+    def choose_directory(self, automated=0):
 
         try:
             # try to read file holding previously chosen directory
@@ -161,8 +161,8 @@ class ImageSequence:
         # update the label, which displays the directory name:
         self.dirname.set(self.directory)
 
-        if manual:
-            # update the name of the first image:
+        if not automated:
+        # update the name of the first image:
             f = os.listdir(self.directory)
             sort_list(f)
             self.fname.set(f[0])
@@ -222,7 +222,7 @@ class ImageSequence:
 
             yield img # yields a generator (PIL images)  
 
-    def load_imgs(self, nimgscombo):
+    def load_imgs(self, nimgscombo, automated=0):
 
         # basically loads the image sequence into self.sequence
         # by calling get_images()
@@ -237,25 +237,27 @@ class ImageSequence:
         if (nimgs!='all'):
             nimgs=int(nimgs)
 
-        #print('starting to load images...')
+        # print('starting to load images...')
 
-        # if directory not selected yet: 
-        if (self.directory==''):
-            tkinter.messagebox.showinfo("Title","Please select directory first")
-            self.choose_directory()
+        # if directory not selected yet:
+        if not automated:
+            if (self.directory==''):
+                tkinter.messagebox.showinfo("Title","Please select directory first")
+                self.choose_directory(automated=automated)
 
-        # create a toplevel window to display the progress indicator 
-        progresswin = Toplevel()
-        progresswin.minsize(width=500,height=30)
-        progresswin.title("Loading Image Sequence, Please Wait...")
+        if not automated:
+            # create a toplevel window to display the progress indicator
+            progresswin = Toplevel()
+            progresswin.minsize(width=500,height=30)
+            progresswin.title("Loading Image Sequence, Please Wait...")
 
-        # get the monitor dimensions:
-        screenw = progresswin.winfo_screenwidth()
-        screenh = progresswin.winfo_screenheight()
+            # get the monitor dimensions:
+            screenw = progresswin.winfo_screenwidth()
+            screenh = progresswin.winfo_screenheight()
 
-        # place the progress indicator in the center of the screen 
-        placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
-        progresswin.geometry(placement)
+            # place the progress indicator in the center of the screen
+            placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
+            progresswin.geometry(placement)
 
         # count the number of images in selected sequence (ni) 
         ni = 0
@@ -267,14 +269,15 @@ class ImageSequence:
         else:
             self.seqlength = ni
 
-        self.pbstyle = tkinter.ttk.Style()
-        self.pbstyle.theme_use("default")
-        self.pbstyle.configure("TProgressbar", thickness=10)
+        if not automated:
+            self.pbstyle = tkinter.ttk.Style()
+            self.pbstyle.theme_use("default")
+            self.pbstyle.configure("TProgressbar", thickness=10)
 
-        pbvar = IntVar() # progressbar variable (counts number of loaded imgs)   
-        pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",
-            variable=pbvar, maximum=self.seqlength, length=600, style="TProgressbar")
-        pb.grid(row=1,column=0,pady=5)
+            pbvar = IntVar() # progressbar variable (counts number of loaded imgs)
+            pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",
+                variable=pbvar, maximum=self.seqlength, length=600, style="TProgressbar")
+            pb.place()
 
         progress = 0
 
@@ -285,13 +288,15 @@ class ImageSequence:
         for img in self.get_images():
             if (progress < self.seqlength):
                 if (not(progress % 100)):
-                    pbvar.set(progress)
-                    progresswin.update()
+                    if not automated:
+                        pbvar.set(progress)
+                        progresswin.update()
                 self.sequence.append(img)
                 progress+=1
 
-        progresswin.destroy()
-        #style.configure("TProgressbar", thickness=5)
+        if not automated:
+            progresswin.destroy()
+            #style.configure("TProgressbar", thickness=5)
 
         # determine width and height of images: 
         firstimg = self.sequence[0]
