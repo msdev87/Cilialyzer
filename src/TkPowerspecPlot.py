@@ -7,6 +7,7 @@ import tkinter as tk
 import matplotlib.pyplot as plt
 import numpy
 import math
+import re
 
 class TkPowerspecPlot:
 
@@ -124,6 +125,7 @@ class TkPowerspecPlot:
 
         #print "CBF: ", mean        
 
-    def save_plot(self):
-        fname = 'test.png'
+    def save_plot(self, dirname):
+        fname = re.sub(r'[^A-Za-z0-9 ]', "_", dirname)
+        fname = fname + '.png'
         self.fig.savefig(fname,format='png',dpi=200)

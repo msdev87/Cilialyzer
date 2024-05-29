@@ -3,6 +3,7 @@ import avoid_troubles
 import tkinter as tk
 from tkinter import ttk
 
+import csv
 
 def process(main):
 
@@ -50,7 +51,7 @@ def process(main):
     print(dirlist)
     print('---------------------------')
 
-    """
+
     # ---------------- Before looping over all videos --------------------------
     # Create the a treeview widget in which we display the results
 
@@ -58,8 +59,8 @@ def process(main):
     # columns: directory, powerspectrum plot (file link), cbf, ..
 
     # Create a frame in which we place the treeview
-    treeframe = tk.Frame(main.autotab1, width=500,height=500)
-    treeframe.place(in_=main.autotab1,relx=0.5, rely=0.5)
+    treeframe = tk.Frame(main.autotab, width=500,height=500)
+    treeframe.place(in_=main.autotab,relx=0.3, rely=0.3)
 
     columns = ('path', 'cbf_mean')
     tree = ttk.Treeview(treeframe, columns=columns, show='headings')
@@ -70,7 +71,7 @@ def process(main):
 
     tree_content = []
     tree.place()
-    """
+
 
 
     # -------------------- Loop over all directories -----------------------
@@ -136,16 +137,20 @@ def process(main):
         main.toolbar.fpscombo.get(),main.pwspec1frame, main.minscale,
         main.maxscale, automated=1)
 
+        main.powerspectrum.pwspecplot.save_plot(main.PIL_ImgSeq.directory)
+
         # switch back to automated analysis tab
-        main.nbook.select(main.nbook.index(main.autotab1))
+        main.nbook.select(main.nbook.index(main.autotab))
 
 
-        """
-        new_values =(dirname, main.powerspectrum.pwspecplot.meancbf)
+
+        new_values = (dirname, main.powerspectrum.pwspecplot.meancbf)
         tree_content.append(new_values)
-        tree.insert('', tk.END, values=new_values)
-        """
+        # tree.insert('', tk.END, values=new_values)
 
+    # write the determined values to excel file
 
-
+    with open('output.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(tree_content)
 

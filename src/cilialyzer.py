@@ -24,7 +24,7 @@ import OpticalFlow
 import cv2
 import avoid_troubles
 import PIL
-import batchanalysis
+import automated_analysis
 
 class Cilialyzer():
 
@@ -539,8 +539,8 @@ class Cilialyzer():
             fps = float(self.toolbar.fpscombo.get()))
     # -------------------------------------------------------------------------
 
-    def batchv1(self):
-        batchanalysis.process(self)
+    def start_autoanalysis(self):
+        automated_analysis.process(self)
 
     def kspec():
         # calculate the spatial power spectral density
@@ -1056,7 +1056,7 @@ class Cilialyzer():
 
         # Here we add a button to export/save the plot of the power spectrum
         self.save_psdB = tk.Button(self.cbftab, text='Save plot',
-            command=lambda:self.powerspectrum.pwspecplot.save_plot(), height=bh, width=bw)
+            command=lambda:self.powerspectrum.pwspecplot.save_plot(self.PIL_ImgSeq.directory), height=bh, width=bw)
         self.save_psdB.place(in_=self.cbftab, relx=0.85, rely=0.35,anchor='c')
 
 
@@ -1264,13 +1264,13 @@ class Cilialyzer():
         # *********************************************************************
         #                      Automated processing
         # *********************************************************************
-        self.autotab1 = tk.Frame(self.nbook, width=int(round(0.9*self.nbookw)),
+        self.autotab = tk.Frame(self.nbook, width=int(round(0.9*self.nbookw)),
             height=int(round(0.95*self.nbookh)))
-        self.nbook.add(self.autotab1, text=' Automated processing ')
+        self.nbook.add(self.autotab, text=' Automated analysis ')
 
-        self.autoB1 = tk.Button(self.autotab1, text='Process videos',
-            command=self.batchv1, height=bh, width=bw)
-        self.autoB1.place(in_=self.autotab1, anchor="c", relx=0.5, rely=0.5)
+        self.autoB = tk.Button(self.autotab, text='Start analysis',
+            command=self.start_autoanalysis, height=bh, width=bw)
+        self.autoB.place(in_=self.autotab, anchor="c", relx=0.5, rely=0.1)
 
 
 
