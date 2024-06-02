@@ -201,7 +201,6 @@ class powerspec:
             pars, cov = scipy.optimize.curve_fit(f=fit_func, xdata=x, ydata=y,
                 p0=pars0, bounds=(0,50))
 
-
             """
             pars holds the following fit parameters:
             we fitted the function:
@@ -209,14 +208,30 @@ class powerspec:
             to the (gaussian-smoothed) power spectral density
             """
 
-            # calculate the RMSD to measure the quality of the fit
-            # to allow for comparisons between different videos, the RMSD
-            # is normalized by the peak value in the powerspectrum
-            RMSD = numpy.sqrt(numpy.sum((fit_func(x, pars0[0], pars[1],pars[2],pars[3],pars[4],pars[5],pars[6],pars[7]) - y)**2/len(y)))
+            # We need a measure of how well the automated CBF estimate is
+            # Instead of the usually used RMSD we smth like a relative RMSD
+            # i.e. for each frequency we measure the RMSD weighted by the
+            # amplitude of the powerspectrum
+            # This allows to compare between different videos
 
-            RMSD = RMSD / numpy.max(y)
+            # The measure could also be termed 'average relative absolute deviation'
+            # (between the power spectral density and the fit)
 
-            print('RMSD: ', RMSD)
+            # We are only interested in the frequency range from 1 to 20 Hz
+
+            average_relative_deviation = 0.
+            counter = 0
+            for i in range(len(self.spec)):
+
+                if (self.freqs[i] > 1.0) and (self.freqs[i] < 20.0):
+                    average_relative_deviation = average_relative_deviation +\
+                        math.sqrt((fit_func(self.freqs[i], pars0[0], pars[1],pars[2],pars[3],pars[4],pars[5],pars[6],pars[7]) - self.spec[i])**2)
+                    counter += 1
+
+            average_relative_deviation = average_relative_deviation / counter
+
+
+            print('average relative deviation: ', average_relative_deviation)
 
             # generate an automated suggestion for minscale and maxscale 
             # 1. order the fitted gaussian according to their peak heights
