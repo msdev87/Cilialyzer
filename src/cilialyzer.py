@@ -308,33 +308,37 @@ class Cilialyzer():
         f.close()
     """
 
-    def image_stabilization(self):
+    def image_stabilization(self, automated=0):
 
-        avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
-        # busy indicator
-        busywin = tk.Toplevel()
-        busywin.minsize(width=500,height=20)
-        busywin.title("Operation in progress")
-        # get the monitor dimensions:
-        screenw = busywin.winfo_screenwidth()
-        screenh = busywin.winfo_screenheight()
-        # place the busy indicator in the center of the screen 
-        placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
-        busywin.geometry(placement)
-        # add text label
-        tl=tk.Label(busywin,\
-        text=' Please wait, image stabilization in progress  ', font="TkDefaultFont 11")
-        tl.grid(row=0, column=0, pady=5)
-        busywin.columnconfigure(0, weight=1)
-        busywin.rowconfigure(0, weight=1)
-        tl.update()
-        busywin.update()
+        if not automated:
+            avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
+            # busy indicator
+            busywin = tk.Toplevel()
+            busywin.minsize(width=500,height=20)
+            busywin.title("Operation in progress")
+            # get the monitor dimensions:
+            screenw = busywin.winfo_screenwidth()
+            screenh = busywin.winfo_screenheight()
+            # place the busy indicator in the center of the screen
+            placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
+            busywin.geometry(placement)
+            # add text label
+            tl=tk.Label(busywin,\
+                text=' Please wait, image stabilization in progress  ', font="TkDefaultFont 11")
+            tl.place()
+            busywin.columnconfigure(0, weight=1)
+            busywin.rowconfigure(0, weight=1)
+            tl.update()
+            busywin.update()
 
         sr = StackReg(StackReg.RIGID_BODY)
 
         firstimg = self.roiplayer.roiseq[0]  # first image of roi sequence
         width, height = firstimg.size  # dimension of images
         nimgs = len(self.roiplayer.roiseq)  # number of images
+
+        print('test, number of images in image stabilization: ', nimgs)
+
 
         # initialize numpy float array, which will hold the image sequence
         array = numpy.zeros((int(nimgs), int(height), int(width)))
@@ -400,8 +404,8 @@ class Cilialyzer():
         for i in range(nimgs):
             self.roiplayer.roiseq[i] = Image.fromarray(
                     numpy.uint8(array_stabilized[i, croppix:height-croppix, croppix:width-croppix]))
-
-        busywin.destroy()
+        if not automated:
+            busywin.destroy()
 
     # -------------------------------------------------------------------------
     def meanscorrgram(self):

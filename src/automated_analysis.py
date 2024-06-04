@@ -78,7 +78,9 @@ def process(main):
     tree_content = []
     tree.place()
 
-    # -------------------- Loop over all directories -----------------------
+    # --------------------------------------------------------------------------
+    # ---------------------- Loop over all directories -------------------------
+    # --------------------------------------------------------------------------
     for dirname in dirlist:
 
         try:
@@ -113,6 +115,9 @@ def process(main):
         main.toolbar.PIL_ImgSeq.load_imgs(main.toolbar.nimgscombo, automated=1)
         # PIL_ImgSeq.sequence[i] holds the i-th frame (img format: 8 Bits, PIL)
 
+        main.roiplayer.roiseq = main.toolbar.PIL_ImgSeq.sequence
+
+
         """
         main.toolbar.nbook.select(main.nbook.index(main.roitab))
         refresh = 0
@@ -131,6 +136,10 @@ def process(main):
         # print('roiplayer id in Toolbar: ',id(self.roiplayer))
         # main.roiplayer.animate()
         """
+
+        # 1. Image stabilization
+        main.image_stabilization(automated=1)
+
 
         # switch tab to cbf tab
         # main.nbook.select(main.nbook.index(main.cbftab))

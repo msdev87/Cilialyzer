@@ -64,7 +64,7 @@ def build_config(main):
     main.auto_pathL = tk.Label(main.autotab, textvariable=main.auto_path_str)
     main.auto_pathL.place(in_=main.autotab,anchor='c',relx=0.5, rely=0.14)
 
-    # add checkbutton for the image stabilizaiton
+    # add checkbutton for the image stabilization
     main.img_stab_autoflag = tk.IntVar()
     main.img_stab_checkB = ttk.Checkbutton(main.autoLF, text=" Image stabilization ", variable=main.img_stab_autoflag)
     main.img_stab_checkB.place(in_=main.autoLF, anchor='w', relx=0.1, rely=0.1)
