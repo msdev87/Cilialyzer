@@ -25,6 +25,8 @@ import cv2
 import avoid_troubles
 import PIL
 import automated_analysis
+import config_automated_analysis
+
 
 class Cilialyzer():
 
@@ -1270,15 +1272,10 @@ class Cilialyzer():
 
         self.autoB = tk.Button(self.autotab, text='Start analysis',
             command=self.start_autoanalysis, height=bh, width=bw)
-        self.autoB.place(in_=self.autotab, anchor="c", relx=0.5, rely=0.1)
+        self.autoB.place(in_=self.autotab, anchor="c", relx=0.5, rely=0.8)
 
-
-
-
-
-
-
-
+        # Build the settings to configure the analysis pipeline
+        config_automated_analysis.build_config(self)
 
 
 

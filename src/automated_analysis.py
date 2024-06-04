@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 
 import csv
+import os
 
 def process(main):
 
@@ -23,11 +24,16 @@ def process(main):
     except:
         pass
 
+    """ 
+    this has been moved to 'config_automated_analysis.py
+    
     # let the user choose a directory:
     main.toolbar.PIL_ImgSeq.choose_directory(automated=1)
     # choose_directory writes the chosen directory to file previous_directory.dat
     # goal: find all subdirectories
     # get first the path of the chosen directory:
+    """
+
     f=open('previous_directory.dat','r')
     path=f.read()
     f.close()
@@ -71,8 +77,6 @@ def process(main):
 
     tree_content = []
     tree.place()
-
-
 
     # -------------------- Loop over all directories -----------------------
     for dirname in dirlist:
