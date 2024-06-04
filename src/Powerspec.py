@@ -14,7 +14,6 @@ else:
 import tkinter.ttk
 import scipy.optimize
 
-
 def decay_func(x, a, b):
     # f(x) = a * x^(-b)
     return a * (x**(-b))
@@ -362,10 +361,10 @@ class powerspec:
             self.pwspecplot.get_cbf(float(minscale.get()), float(maxscale.get()), FPS)
 
             # plot the fit
-            #x = numpy.array(range(1000))
-            #x = numpy.divide(x,10)
-            #y = fit_func(x, pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6], pars[7])
-            #self.pwspecplot.axes.plot(x,y)
+            x = numpy.array(range(1000))
+            x = numpy.divide(x,10)
+            y = fit_func(x, pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6], pars[7])
+            self.pwspecplot.axes.plot(x,y, color='orange', linestyle='--')
 
 
     def peakselection(self,powerspecplot):
