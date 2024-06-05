@@ -27,6 +27,8 @@ import PIL
 import automated_analysis
 import config_automated_analysis
 
+from tkinter.filedialog import askdirectory
+
 
 class Cilialyzer():
 
@@ -221,6 +223,23 @@ class Cilialyzer():
             #print(img_array[i].shape)
             out.write(img_array[i])
         out.release()
+
+
+    def export_imageseries(self):
+
+        #    w, h = self.roiplayer.roiseq[0].size
+
+        directory = askdirectory()
+        basename = directory
+
+        for i in range(self.roiplayer.seqlength):
+            img = self.roiplayer.roiseq[i]
+            fname = basename + '\\image_' + str(i).zfill(4) + '.png'
+            img.save(fname)
+
+
+
+
 
 
 
@@ -857,6 +876,15 @@ class Cilialyzer():
         self.exportvideoB = tk.Button(self.roitab, text='Export video',
             command=self.exportvideo, height=bh, width=16)
         self.exportvideoB.place(in_=self.roitab, anchor='c', relx=.07,rely=.32)
+
+        # Export Images button (to export image series to directory)
+        self.exportimgsB = tk.Button(self.roitab, text='Export images',
+            command=self.export_imageseries, height=bh, width=16)
+        self.exportimgsB.place(in_=self.roitab, anchor='c', relx=.07,rely=.37)
+
+
+
+
 
         # initialize roiplayer
         self.roiplayer = FlipbookROI.ImgSeqPlayer(self.roitab,self.PIL_ImgSeq.directory,0,
