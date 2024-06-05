@@ -65,18 +65,25 @@ def process(main):
     # columns: directory, powerspectrum plot (file link), cbf, ..
 
     # Create a frame in which we place the treeview
-    treeframe = tk.Frame(main.autotab, width=500,height=500)
-    treeframe.place(in_=main.autotab,relx=0.3, rely=0.3)
+    # treeframe = tk.Frame(main.autotab, width=500,height=500)
+    # treeframe.place(in_=main.autotab,relx=0.3, rely=0.3)
 
-    columns = ('path', 'cbf_mean')
-    tree = ttk.Treeview(treeframe, columns=columns, show='headings')
+    # columns = ('path', 'cbf_mean')
+    # tree = ttk.Treeview(treeframe, columns=columns, show='headings')
 
     # specify the header, which will be displayed in the frontend
-    tree.heading('path', text='Directory')
-    tree.heading('cbf_mean', text='Average CBF [Hz]')
+    # tree.heading('path', text='Directory')
+    # tree.heading('cbf_mean', text='Average CBF [Hz]')
 
-    tree_content = []
-    tree.place()
+    # tree_content = []
+    # tree.place()
+
+
+
+
+
+    # Output table is written to csv file
+    output_table = []
 
     # --------------------------------------------------------------------------
     # ---------------------- Loop over all directories -------------------------
@@ -154,13 +161,39 @@ def process(main):
         # switch back to automated analysis tab
         # main.nbook.select(main.nbook.index(main.autotab))
 
-        new_values = (dirname, main.powerspectrum.pwspecplot.meancbf)
-        tree_content.append(new_values)
+
+        # Dynamic filtering:
+        main.dynfiltering(automated=1)
+
+
+
+        # Determine the wavelength and the spatial correlation length
+        main.dynseq.mscorr(float(main.toolbar.fpscombo.get()),
+            float(main.minscale.get()), float(main.maxscale.get()),
+            main.mscorrplotframe, main.mscorrprofileframe, float(main.toolbar.pixsizecombo.get()))
+
+
+
+        output_table.append(
+            {
+            "Filename": dirname,
+            "CBF": main.powerspectrum.pwspecplot.meancbf,
+            "Wavelength": main.dynseq.wavelength,
+            "Spatial correlation length": main.dynseq.sclength,
+            "FPS": main.toolbar.fpscombo.get(),
+            "Pixelsize": main.toolbar.pixsizecombo.get()
+            }
+        )
+
+        #new_values = (dirname, main.powerspectrum.pwspecplot.meancbf)
+        #tree_content.append(new_values)
         # tree.insert('', tk.END, values=new_values)
 
-    # write the determined values to excel file
-
-    with open('output.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerows(tree_content)
-
+        # write the determined values to excel file
+        header = output_table[0].keys()
+        with open('output.csv', mode='w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.Dictwriter(csvfile, fieldnames=header)
+            # write the header
+            writer.writeheader()
+            # write the data rows
+            writer.writerows(output_table)

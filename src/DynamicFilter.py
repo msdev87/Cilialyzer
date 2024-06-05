@@ -455,8 +455,7 @@ class DynFilter:
 
         # as the spatial autocorrelation hardly varies over time
         # we do not have to average over the whole image stack
-        # the average over 300 images is a good approximation  
-
+        # the average over 300 images is a good approximation
         if (nimgs > 300): nimgs = 300
 
         for t in range(nimgs): # loop over time
@@ -748,7 +747,8 @@ class DynFilter:
         ax.axvline(x=0.5*wavelength,ymin=-0.55,ymax=0.95,linestyle='dashed',color='0.5')
         ax.axvline(x=-0.5*wavelength,ymin=-0.55,ymax=0.95,linestyle='dashed',color='0.5')
 
-        # print the wavelength 'lambda' 
+        # print the wavelength 'lambda'
+        self.wavelength = wavelength
         str1 = "$\lambda$ = "
         str2 = "$%.1f$" %wavelength
         str3 = " $\mu$m"

@@ -145,22 +145,24 @@ class Cilialyzer():
                 # dynamic filtering tab got selected
                 pass
 
-    def dynfiltering(self):
+    def dynfiltering(self, automated=0):
         # Apply band-pass filter
         self.dynseq.bandpass(self.roiplayer.roiseq,
             float(self.toolbar.fpscombo.get()), float(self.minscale.get()),
             float(self.maxscale.get()))
-        self.nbook.select(self.nbook.index(self.dynfiltertab))
-        # try to delete the frame containing the dynamically filtered video
-        try:
-            self.dynplayer.frame.destroy()
-        except:
-            pass
-        refresh = 0
-        self.dynplayer = Flipbook.ImgSeqPlayer(self.dynfiltertab,
-            self.PIL_ImgSeq.directory, refresh, self.dynseq.dyn_roiseq,
-            self.PIL_ImgSeq.seqlength)
-        self.dynplayer.animate() # call meth
+
+        if not automated:
+            self.nbook.select(self.nbook.index(self.dynfiltertab))
+            # try to delete the frame containing the dynamically filtered video
+            try:
+                self.dynplayer.frame.destroy()
+            except:
+                pass
+            refresh = 0
+            self.dynplayer = Flipbook.ImgSeqPlayer(self.dynfiltertab,
+                self.PIL_ImgSeq.directory, refresh, self.dynseq.dyn_roiseq,
+                self.PIL_ImgSeq.seqlength)
+            self.dynplayer.animate() # call meth
 
     def select_roi(self):
 
