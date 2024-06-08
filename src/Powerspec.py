@@ -106,8 +106,9 @@ class powerspec:
                 pbvar = IntVar() # progress bar variable (counts number of loaded imgs)
                 pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",variable=pbvar,\
                     maximum=ni*nj,length=600,style="TProgressbar")
-
+                s.configure("TProgressbar", thickness=30)
                 pb.place(in_=progresswin)
+                progresswin.update()
             progress = 0
             # **************************************************************** #
 

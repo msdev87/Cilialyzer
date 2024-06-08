@@ -25,7 +25,7 @@ import cv2
 import avoid_troubles
 import PIL
 import automated_analysis
-import config_automated_analysis
+import automated_analysis_config
 
 from tkinter.filedialog import askdirectory
 
@@ -1309,7 +1309,7 @@ class Cilialyzer():
         self.autoB.place(in_=self.autotab, anchor="c", relx=0.5, rely=0.8)
 
         # Build the settings to configure the analysis pipeline
-        config_automated_analysis.build_config(self)
+        automated_analysis_config.build_config(self)
 
 
 

@@ -2,9 +2,8 @@ import os
 import avoid_troubles
 import tkinter as tk
 from tkinter import ttk
-
 import csv
-import os
+import datetime
 
 def process(main):
 
@@ -82,13 +81,22 @@ def process(main):
 
 
 
-    # Output table is written to csv file
+    # Output table will be written to csv file
+    # ouptut_table is a dictionary and will contain the data
     output_table = []
+    # Initialize the dict with only the header/keys:
+    header_keys = ["Filename","CBF","FPS","Pixelsize","Wavelength", "Spatial correlation length"]
+    header = dict.fromkeys(header_keys,None)
 
+    output_table.append(header)
+
+    counter = 0
     # --------------------------------------------------------------------------
     # ---------------------- Loop over all directories -------------------------
     # --------------------------------------------------------------------------
     for dirname in dirlist:
+
+
 
         try:
             # delete displayed content in CBF tab: 
@@ -124,7 +132,6 @@ def process(main):
 
         main.roiplayer.roiseq = main.toolbar.PIL_ImgSeq.sequence
 
-
         """
         main.toolbar.nbook.select(main.nbook.index(main.roitab))
         refresh = 0
@@ -144,56 +151,54 @@ def process(main):
         # main.roiplayer.animate()
         """
 
-        # 1. Image stabilization
-        main.image_stabilization(automated=1)
-
-
-        # switch tab to cbf tab
-        # main.nbook.select(main.nbook.index(main.cbftab))
-
-        # Calculate powerspectrum
-        main.powerspectrum.calc_powerspec(main.PIL_ImgSeq.sequence,
-        main.toolbar.fpscombo.get(),main.pwspec1frame, main.minscale,
-        main.maxscale, automated=1)
-
-        main.powerspectrum.pwspecplot.save_plot(main.PIL_ImgSeq.directory)
-
-        # switch back to automated analysis tab
-        # main.nbook.select(main.nbook.index(main.autotab))
-
-
-        # Dynamic filtering:
-        main.dynfiltering(automated=1)
+        # ------------------------ Image stabilization -------------------------
+        if (main.img_stab_autoflag.get()):
+            # 1. Image stabilization
+            main.image_stabilization(automated=1)
+        # ----------------------------------------------------------------------
 
 
 
-        # Determine the wavelength and the spatial correlation length
-        main.dynseq.mscorr(float(main.toolbar.fpscombo.get()),
-            float(main.minscale.get()), float(main.maxscale.get()),
-            main.mscorrplotframe, main.mscorrprofileframe, float(main.toolbar.pixsizecombo.get()))
+        # ----------------------- Calculate powerspectrum ----------------------
+        if (main.cbf_autoflag.get()):
+            main.powerspectrum.calc_powerspec(main.PIL_ImgSeq.sequence,
+                main.toolbar.fpscombo.get(),main.pwspec1frame, main.minscale,
+                main.maxscale, automated=1)
 
+            main.powerspectrum.pwspecplot.save_plot(main.PIL_ImgSeq.directory)
 
+        if (main.wl_autoflag):
+            # Dynamic filtering:
+            main.dynfiltering(automated=1)
+            # Determine the wavelength and the spatial correlation length
+            main.dynseq.mscorr(float(main.toolbar.fpscombo.get()),
+                float(main.minscale.get()), float(main.maxscale.get()),
+                main.mscorrplotframe, main.mscorrprofileframe, float(main.toolbar.pixsizecombo.get()))
 
-        output_table.append(
-            {
+        # write output to list
+        output_table.append({
             "Filename": dirname,
             "CBF": main.powerspectrum.pwspecplot.meancbf,
-            "Wavelength": main.dynseq.wavelength,
-            "Spatial correlation length": main.dynseq.sclength,
             "FPS": main.toolbar.fpscombo.get(),
-            "Pixelsize": main.toolbar.pixsizecombo.get()
-            }
-        )
+            "Pixelsize": main.toolbar.pixsizecombo.get(),
+            "Wavelength": main.dynseq.wavelength if main.wl_autoflag else '',
+            "Spatial correlation length": main.dynseq.sclength if main.wl_autoflag else ''
+        })
 
-        #new_values = (dirname, main.powerspectrum.pwspecplot.meancbf)
-        #tree_content.append(new_values)
-        # tree.insert('', tk.END, values=new_values)
+
+        # also write error code to output file
+        #TODO
+
 
         # write the determined values to excel file
         header = output_table[0].keys()
-        with open('output.csv', mode='w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.Dictwriter(csvfile, fieldnames=header)
+        with open('Cilialyzer_output_'+datetime.date.today().strftime("%Y_%m_%d")+'.csv', mode='w', newline='', encoding='utf-8') as csvfile:
+        #with open('Cilialyzer_output' + '.csv', mode='w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=header)
             # write the header
             writer.writeheader()
             # write the data rows
             writer.writerows(output_table)
+
+        # increase counter
+        counter += 1

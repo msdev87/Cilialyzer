@@ -127,5 +127,5 @@ class TkPowerspecPlot:
 
     def save_plot(self, dirname):
         fname = re.sub(r'[^A-Za-z0-9 ]', "_", dirname)
-        fname = fname + '.png'
+        fname = fname + '_POWERSPECTRUM.png'
         self.fig.savefig(fname,format='png',dpi=200)

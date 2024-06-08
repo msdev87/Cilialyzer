@@ -247,9 +247,11 @@ class ImageSequence:
 
         if not automated:
             # create a toplevel window to display the progress indicator
-            progresswin = Toplevel()
-            progresswin.minsize(width=500,height=30)
+            progresswin = Toplevel(height=10)
+            progresswin.minsize(width=500,height=10)
             progresswin.title("Loading Image Sequence, Please Wait...")
+
+
 
             # get the monitor dimensions:
             screenw = progresswin.winfo_screenwidth()
@@ -258,6 +260,9 @@ class ImageSequence:
             # place the progress indicator in the center of the screen
             placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
             progresswin.geometry(placement)
+            progresswin.update()
+
+
 
         # count the number of images in selected sequence (ni) 
         ni = 0
@@ -277,7 +282,9 @@ class ImageSequence:
             pbvar = IntVar() # progressbar variable (counts number of loaded imgs)
             pb=tkinter.ttk.Progressbar(progresswin,mode="determinate",
                 variable=pbvar, maximum=self.seqlength, length=600, style="TProgressbar")
-            pb.place()
+            pb.place(in_=progresswin)
+            progresswin.update()
+
 
         progress = 0
 
