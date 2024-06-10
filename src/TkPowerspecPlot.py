@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import numpy
 import math
 import re
+import os
+import datetime
 
 class TkPowerspecPlot:
 
@@ -126,6 +128,13 @@ class TkPowerspecPlot:
         #print "CBF: ", mean        
 
     def save_plot(self, dirname):
+
+        output_directory = os.path.join(os.getcwd(),
+            'Cilialyzer_output_' + datetime.date.today().strftime("%Y_%m_%d"))
+        try:
+            os.mkdir(output_directory)
+        except FileExistsError:
+            pass
         fname = re.sub(r'[^A-Za-z0-9 ]', "_", dirname)
-        fname = fname + '_POWERSPECTRUM.png'
+        fname = os.path.join(output_directory, fname + '_POWERSPECTRUM.png')
         self.fig.savefig(fname,format='png',dpi=200)

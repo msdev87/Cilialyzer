@@ -193,7 +193,6 @@ class powerspec:
             mu2 = 1.8 * mu1
             s2 = s1
 
-
             pars0 = [a, b, h1, mu1, s1, h2, mu2, s2]
 
             # -----------------------------------------------------------------
@@ -229,7 +228,6 @@ class powerspec:
                     counter += 1
 
             average_relative_deviation = average_relative_deviation / counter
-
 
             print('average relative deviation: ', average_relative_deviation)
 
@@ -367,6 +365,7 @@ class powerspec:
             y = fit_func(x, pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6], pars[7])
             self.pwspecplot.axes.plot(x,y, color='orange', linestyle='--')
 
+            return average_relative_deviation
 
     def peakselection(self,powerspecplot):
 

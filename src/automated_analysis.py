@@ -16,6 +16,7 @@ def process(main):
     #   activitymap
     #   write results to csv file
 
+
     # avoid troubles
     try:
         avoid_troubles.stop_animation(
@@ -33,59 +34,74 @@ def process(main):
     # get first the path of the chosen directory:
     """
 
+    def contains_directory(directory):
+        # this function checks whether the provided directory contains
+        # at least one subdirectory
+        # List all contents in the directory:
+        contents = os.listdir(directory)
+        # Iterate through contents and check if any is a directory
+        for item in contents:
+            if os.path.isdir(os.path.join(directory, item)):
+                return True
+        return False
+
+
+
+
+    def get_parent_directory(path):
+        parent_directory = os.path.dirname(path)
+        return parent_directory
+
+
+    def list_all_directories(base_path):
+        all_dirs = []
+        for root, dirs, files in os.walk(base_path):
+            for dir in dirs:
+                all_dirs.append(os.path.join(root, dir))
+        return all_dirs
+
     f=open('previous_directory.dat','r')
     path=f.read()
     f.close()
 
-    contents = os.listdir(path) # listdir returns all directories and files in path
+    dir_list = list_all_directories(path)
+    for i in range(len(dir_list)):
+        dir_list[i] = os.path.join(get_parent_directory(dir_list[i]), dir_list[i])
+
+
+    #contents = os.listdir(path) # listdir returns all directories and files in path
 
     # contents holds relative paths, we need to add the base path to content[i]:
-    basepath = path
-    for i in range(len(contents)):
-        contents[i] = os.path.join(basepath, contents[i])
+    #basepath = path
+    #for i in range(len(contents)):
+    #    contents[i] = os.path.join(basepath, contents[i])
 
-    #contents.sort()
+
 
     # goal: dirlist holds the list of all directories within 'base path' directory
-    dirlist = []
-    for item in contents:
-        if os.path.isdir(item):
-            dirlist.append(item)
+    #dirlist = []
+    #for item in contents:
+    #    if os.path.isdir(item):
+    #        dirlist.append(item)
 
-    print('----- test : dirlist ----- ')
-    print(dirlist)
-    print('---------------------------')
+    dirlist = []
+    # remove all directories which contain subdirectories:
+    for directory in dir_list:
+       if not contains_directory(directory): dirlist.append(directory)
+    number_videos = len(dirlist)
+
+    #print('----- test : dirlist ----- ')
+    #print(dirlist)
+    #print('---------------------------')
 
 
     # ---------------- Before looping over all videos --------------------------
-    # Create the a treeview widget in which we display the results
-
-    # resultate auflisten in frontend
-    # columns: directory, powerspectrum plot (file link), cbf, ..
-
-    # Create a frame in which we place the treeview
-    # treeframe = tk.Frame(main.autotab, width=500,height=500)
-    # treeframe.place(in_=main.autotab,relx=0.3, rely=0.3)
-
-    # columns = ('path', 'cbf_mean')
-    # tree = ttk.Treeview(treeframe, columns=columns, show='headings')
-
-    # specify the header, which will be displayed in the frontend
-    # tree.heading('path', text='Directory')
-    # tree.heading('cbf_mean', text='Average CBF [Hz]')
-
-    # tree_content = []
-    # tree.place()
-
-
-
-
 
     # Output table will be written to csv file
     # ouptut_table is a dictionary and will contain the data
     output_table = []
     # Initialize the dict with only the header/keys:
-    header_keys = ["Filename","CBF","FPS","Pixelsize","Wavelength", "Spatial correlation length"]
+    header_keys = ["Filename","CBF","FPS","Pixelsize","Wavelength", "Spatial correlation length","Error code"]
     header = dict.fromkeys(header_keys,None)
 
     output_table.append(header)
@@ -95,8 +111,6 @@ def process(main):
     # ---------------------- Loop over all directories -------------------------
     # --------------------------------------------------------------------------
     for dirname in dirlist:
-
-
 
         try:
             # delete displayed content in CBF tab: 
@@ -150,30 +164,40 @@ def process(main):
         # print('roiplayer id in Toolbar: ',id(self.roiplayer))
         # main.roiplayer.animate()
         """
-
+        main.error_code = 0
         # ------------------------ Image stabilization -------------------------
         if (main.img_stab_autoflag.get()):
-            # 1. Image stabilization
-            main.image_stabilization(automated=1)
+            try:
+                # 1. Image stabilization
+                main.image_stabilization(automated=1)
+            except:
+                main.error_code = 1
         # ----------------------------------------------------------------------
-
-
 
         # ----------------------- Calculate powerspectrum ----------------------
         if (main.cbf_autoflag.get()):
-            main.powerspectrum.calc_powerspec(main.PIL_ImgSeq.sequence,
-                main.toolbar.fpscombo.get(),main.pwspec1frame, main.minscale,
-                main.maxscale, automated=1)
+            try:
+                avg_rel_dev=main.powerspectrum.calc_powerspec(main.PIL_ImgSeq.sequence,
+                    main.toolbar.fpscombo.get(),main.pwspec1frame, main.minscale,
+                    main.maxscale, automated=1)
+                main.powerspectrum.pwspecplot.save_plot(main.PIL_ImgSeq.directory)
+                main.error_code = round(avg_rel_dev)
+            except:
+                main.error_code = 1
 
-            main.powerspectrum.pwspecplot.save_plot(main.PIL_ImgSeq.directory)
 
-        if (main.wl_autoflag):
-            # Dynamic filtering:
-            main.dynfiltering(automated=1)
-            # Determine the wavelength and the spatial correlation length
-            main.dynseq.mscorr(float(main.toolbar.fpscombo.get()),
-                float(main.minscale.get()), float(main.maxscale.get()),
-                main.mscorrplotframe, main.mscorrprofileframe, float(main.toolbar.pixsizecombo.get()))
+        if (main.wl_autoflag.get()):
+            try:
+                # Dynamic filtering:
+                main.dynfiltering(automated=1)
+                # Determine the wavelength and the spatial correlation length
+                min_correlation = main.dynseq.mscorr(float(main.toolbar.fpscombo.get()),
+                    float(main.minscale.get()), float(main.maxscale.get()),
+                    main.mscorrplotframe, main.mscorrprofileframe, float(main.toolbar.pixsizecombo.get()), automated=1, output_fname=main.PIL_ImgSeq.directory)
+
+                if min_correlation > -0.03: error_code = 1
+            except:
+                main.error_code = 1
 
         # write output to list
         output_table.append({
@@ -181,18 +205,18 @@ def process(main):
             "CBF": main.powerspectrum.pwspecplot.meancbf,
             "FPS": main.toolbar.fpscombo.get(),
             "Pixelsize": main.toolbar.pixsizecombo.get(),
-            "Wavelength": main.dynseq.wavelength if main.wl_autoflag else '',
-            "Spatial correlation length": main.dynseq.sclength if main.wl_autoflag else ''
+            "Wavelength": main.dynseq.wavelength if main.wl_autoflag.get() else '',
+            "Spatial correlation length": main.dynseq.sclength if main.wl_autoflag.get() else '',
+            "Error code": main.error_code
         })
-
-
-        # also write error code to output file
-        #TODO
-
 
         # write the determined values to excel file
         header = output_table[0].keys()
-        with open('Cilialyzer_output_'+datetime.date.today().strftime("%Y_%m_%d")+'.csv', mode='w', newline='', encoding='utf-8') as csvfile:
+
+        fname = 'Cilialyzer_output_'+datetime.date.today().strftime("%Y_%m_%d")+'.csv'
+        path = os.path.join(main.output_directory, fname)
+
+        with open(path, mode='w', newline='', encoding='utf-8') as csvfile:
         #with open('Cilialyzer_output' + '.csv', mode='w', newline='', encoding='utf-8') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=header)
             # write the header
@@ -200,5 +224,11 @@ def process(main):
             # write the data rows
             writer.writerows(output_table)
 
+
         # increase counter
         counter += 1
+
+        bla = ' Processed ' + str(counter) + ' of ' + str(number_videos) + ' videos '
+        main.videos_processed.set(bla)
+
+        main.main_window.update_idletasks()

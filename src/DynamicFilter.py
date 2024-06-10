@@ -8,9 +8,9 @@ import math
 import os
 import autocorrelation_zeropadding
 import temporal_autocorrelation2D
-
+import datetime
 from scipy.ndimage import gaussian_filter
-
+import re
 
 if os.sys.version_info.major > 2:
     from tkinter import *
@@ -234,7 +234,7 @@ class DynFilter:
             ax.set_ylim([-0.6, 1.05])
             ax.set_xlim([0, 1.4])
 
-            print(numpy.absolute(self.meantacorr))
+            # print(numpy.absolute(self.meantacorr))
 
             # determine the correation time tau: 
             tau = 1
@@ -244,8 +244,8 @@ class DynFilter:
             tau = nt/2 - tau
 
 
-            print('***********************')
-            print('tau: ', tau)
+            #print('***********************')
+            # print('tau: ', tau)
 
             # tau in real units: 
             tau = tau / float(self.fps) * 1000.0
@@ -429,7 +429,7 @@ class DynFilter:
         can.get_tk_widget().pack()
         can._tkcanvas.pack()
 
-    def mscorr(self, fps, minf, maxf, tkparent, tkparent2, pixsize):
+    def mscorr(self, fps, minf, maxf, tkparent, tkparent2, pixsize, automated=0, output_fname=''):
 
         # mscorr calculates the mean spatial autocorrelation
         # over several images of the image sequence 
@@ -485,8 +485,6 @@ class DynFilter:
         scorr = numpy.fft.fftshift(scorr)
 
         scorr = numpy.squeeze(scorr) # get rid of extra dimensions
-
-
 
 
         # FOR TEST write scorr out for tests 
@@ -701,11 +699,11 @@ class DynFilter:
         can._tkcanvas.pack()
 
         # --------------------------------------------------------------------
-        print('wavelength in pixels: ',wavelength_pix)
+        # print('wavelength in pixels: ',wavelength_pix)
 
         # get profile
         num = 1000
-        print('x0,x1,y0,y1',x0,x1,y0,y1)
+        # print('x0,x1,y0,y1',x0,x1,y0,y1)
         x, y = numpy.linspace(x0, x1, num), numpy.linspace(y0, y1, num)
         scorr_profile = scorr[y.round().astype(int), x.round().astype(int)]
         distmat_profile= distmat[y.round().astype(int), x.round().astype(int)]
@@ -763,6 +761,14 @@ class DynFilter:
 
         ax.set_xlabel("Displacement [$\mu$m]",fontsize=16)
         ax.set_ylabel("Correlation",fontsize=16)
+
+
+        # for the automated analysis pipeline, the minimum value
+        # of scorr_profile gets returned (to check if this value is > -0.03)
+        return_value = numpy.min(scorr_profile)
+
+
+
 
         # draw also the absolute value of the correlation profile
         # as well as its envelope, which we use to determine 
@@ -835,60 +841,16 @@ class DynFilter:
         can.get_tk_widget().pack()
         can._tkcanvas.pack()
 
-        #######################################################################
-        #######################################################################
+        if automated:
+            # save figure to disk
+            output_directory = os.path.join(os.getcwd(),
+                'Cilialyzer_output_' + datetime.date.today().strftime("%Y_%m_%d"))
+            try:
+                os.mkdir(output_directory)
+            except FileExistsError:
+                pass
+            fname = re.sub(r'[^A-Za-z0-9 ]', "_", output_fname)
+            fname = os.path.join(output_directory, fname + '_AUTOCORR_PROFILE.png')
+            fig.savefig(fname, format='png', dpi=200)
 
-        # determine the direction of maximum correlation
-        # and plot the cross-section of the 2D mean spatial autocorrelation 
-
-        # first, get the location of the maximum in scorr:
-        """
-        ind = np.unravel_index(np.argmax(scorr, axis=None), scorr.shape)
-        maxi = ind[0]
-        maxj = ind[1] 
-
-        steps = 360 
-
-        diri = numpy.zeros(li) 
-        dirj = numpy.zeros(lj) 
-
-        summe = numpy.zeros(steps)  
-        summ = 0.
-        maxdirection = 0. 
-
-        cas = 0 # determines if change along i, or change along j dominates 
- 
-        for i in range(steps):
-	    
-            alpha = i * (360. / float(steps))
-	    rad = alpha * 2. * math.pi / 360.   
-	
-	    m = sin(rad) / cos(rad) # slope m  
-	    q = maxi - fix(m * maxj) # abszisse q  
-
-            if ((alpha < 45.0) or (alpha > 315.0)): 
-	        # change along j dominates
-		diri = m * dirj + q 
-		cas = 0				
-	    
-            if ((alpha < 135.0) and (alpha > 45.0)):
-	        # change along i dominates		
-		dirj = (diri - q) / m
-		cas = 1  	
-	
-            if ((alpha > 135.0) and (alpha < 225.0)):  
-	        # change along j dominates			
-		diri = m * dirj + q 				
-		cas = 0
-	
-            if ((alpha > 225.0) and (alpha < 315.0)):
-	        # change along i dominates			
-		dirj = (diri - q) / m 
-		cas = 1
-
-				
-	    indices_i = numpy.around(diri) 				
-	    indices_j = numpy.around(dirj) 			
-		
-        """   	
-
+        return return_value

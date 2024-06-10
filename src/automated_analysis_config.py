@@ -1,6 +1,9 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 import os
+import datetime
+
+from pathlib import Path
 
 def build_config(main):
 
@@ -82,12 +85,25 @@ def build_config(main):
     main.wl_checkB.place(in_=main.autoLF, anchor='w', relx=0.05, rely=0.4)
 
     # Label 'Results will be saved to: '
-    main.auto_outputL = tk.Label(main.autotab, text='Results will be saved to:')
-    main.auto_outputL.place(in_=main.autotab, anchor='c',relx=0.5,rely=0.7)
+    # main.auto_outputL = tk.Label(main.autotab, text=' Results will be saved to: ')
+    # main.auto_outputL.place(in_=main.autotab, anchor='c',relx=0.3,rely=0.7)
+
+
+    # Output will be written to current working directory
+    main.output_directory = os.path.join( os.getcwd(), 'Cilialyzer_output_'+datetime.date.today().strftime("%Y_%m_%d"))
+
+    if not Path(main.output_directory).is_dir(): os.mkdir(main.output_directory)
+
 
     main.auto_outpath = tk.StringVar()
-    main.auto_outpath.set("")
+    main.auto_outpath.set(' Results will be saved to:  '+main.output_directory)
     main.auto_outpathL = tk.Label(main.autotab, textvariable=main.auto_outpath)
-    main.auto_outpathL.place(in_=main.autotab, anchor='c', relx=0.5, rely=0.77)
+    main.auto_outpathL.place(in_=main.autotab, anchor='c', relx=0.5, rely=0.7)
 
+    main.videos_processed = tk.StringVar()
+    main.videos_processed.set('Processing has not been started yet')
+    main.videos_processed_label =tk.Label(main.autotab, textvariable=main.videos_processed)
+    main.videos_processed_label.place(in_=main.autotab, anchor='c', relx=0.5,rely=0.9)
+
+    main.main_window.update_idletasks()
 
