@@ -22,7 +22,7 @@ is to run it within the Python environment installed on a machine running Ubuntu
 --> 
 
 
-<b> Dear visitor, if you use Cilialyzer, please contact us via e-mail: martin.schneiter@gmx.ch.<\b>
+<b> Dear visitor, if you use Cilialyzer, please contact us via e-mail: martin.schneiter@gmx.ch. </b>
 We would be happy to keep our users up-to-date and notify them by e-mail as soon as a new version of Cilialyzer has been made available. 
 And we would also like to learn more about who is using our software and for what purpose. 
 We would therefore very much appreciate to receive your short notification by e-mail to the above address.
