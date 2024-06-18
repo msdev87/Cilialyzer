@@ -14,8 +14,11 @@ The Cilialyzer - a freely available open-source software for the analysis of muc
 241:107744. doi: 10.1016/j.cmpb.2023.107744. Epub 2023 Aug 10. PMID: 37598471. <br />
 <a href="Cilialyzer_CMPB.pdf">Download PDF</a>
 
+
+<!--
 Martin Schneiter, Stefan A. Tschanz, Loretta Müller, Martin Frenz, 2022, 
 "The Cilialyzer -- a freely available open-source software
 for a standardised identification of impaired mucociliary
 activity facilitating the diagnostic testing for PCD", preprint <br />
 <a href="Cilialyzer_manuscript.pdf">Download PDF</a>
+-->
