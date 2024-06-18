@@ -31,7 +31,7 @@ We would therefore very much appreciate to receive your short notification by e-
 <br />
 <div align="center"> 
    <font size="+2">
-   <b> Download the most recent binary releases for Windows below: </b>
+   <b> Download the most recent binary release for Windows below: </b>
    </font>
 </div>
 <br />
