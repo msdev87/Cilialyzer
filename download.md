@@ -10,6 +10,7 @@
 <br />
 <br />
 
+<!--
 <b>General comment on Cilialyzer releases:</b>  <br />
 Please note that the Cilialyzer is currently undergoing further development. 
 Unfortunately, the software still crashes occasionally. We will take care of these (in)stability problems in the next few weeks and release a considerably more stable version
@@ -18,11 +19,12 @@ Furthermore, it is important to note that we have the impression that running Ci
 using Cilialyzer. 
 We recommend to run the Cilialyzer from the Python environment. However, the clearly most stable variant of using Cilialyzer 
 is to run it within the Python environment installed on a machine running Ubuntu Linux.  
+--> 
 
-Should you encounter any technical problems, should you be interested in collaborating, or should you simply like to give us a feedback, you are very welcome to contact us by e-mail: 
-martin.schneiter@gmx.ch. 
+
+<b> Dear visitor, if you use Cilialyzer, please contact us via e-mail: martin.schneiter@gmx.ch.<\b>
 We would be happy to keep our users up-to-date and notify them by e-mail as soon as a new version of Cilialyzer has been made available. 
-And finally, we would also like to learn more about who is using our software for what purpose. 
+And we would also like to learn more about who is using our software and for what purpose. 
 We would therefore very much appreciate to receive your short notification by e-mail to the above address.
 
 <br />
@@ -40,6 +42,7 @@ We would therefore very much appreciate to receive your short notification by e-
 <br />
 <br />
 
+<!--
 <b>List of most important changes made to version 1.2.0:</b>  <br />
 
 <b> Acitivity map:</b>  <br />
@@ -87,3 +90,4 @@ Cilialyzer version 1.2.0 was described in our first publication on Cilialyzer (<
    
 
 <br />
+-->
