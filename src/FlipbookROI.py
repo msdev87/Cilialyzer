@@ -707,7 +707,7 @@ class ImgSeqPlayer(object):
 
         # write the current image out as a png
         #if (self.exportflag):
-        #self.currentimg.save("./sequence/img" + str(self.index) + ".png", "PNG")
+        self.currentimg.save("./sequence/frame_" + str(self.index).zfill(4) + ".png", "PNG")
 
         self.current_photo = ImageTk.PhotoImage(self.currentimg)
         self.current_image = self.can.create_image(self.center,image=self.current_photo) # draw image! 

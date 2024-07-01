@@ -14,16 +14,16 @@ else:
 import tkinter.ttk
 import scipy.optimize
 
-def decay_func(x, a, b):
-    # f(x) = a * x^(-b)
-    return a * (x**(-b))
+def decay_func(x, a, b, c):
+    # f(x) = a * (x+b)^(-c)
+    return a * ((x+b)**(-c))
 
 def gauss_func(x,a,b,c):
     # f(x) = a * exp( - (x-b)**2 / 2c**2)
     return a * numpy.exp(-(x-b)**2 / (2*c**2))
 
-def fit_func(x, d1, d2, g1a, g1b, g1c, g2a, g2b, g2c):
-    return decay_func(x, d1, d2) + gauss_func(x, g1a, g1b, g1c) + gauss_func(x, g2a, g2b, g2c)
+def fit_func(x, d1, d2, d3, g1a, g1b, g1c, g2a, g2b, g2c):
+    return decay_func(x, d1, d2, d3) + gauss_func(x, g1a, g1b, g1c) + gauss_func(x, g2a, g2b, g2c)
 
 class powerspec:
 
@@ -184,21 +184,24 @@ class powerspec:
             # serves as a first guess for the first gaussian CBF-peak
 
             # serach location of max:
-            maxloc = numpy.argmax(y)
+            maxloc = numpy.argmax(y[numpy.where(self.freqs > 2)])
 
-            a, b, h1 = 0.5, 0.5 ,0.1
+            a, b, h1 = 0.5, 0.1 ,0.1
+            c = 0.5
             mu1 = x[maxloc]
             s1 = mu1/3.0
-            h2 = 0.7 * h1
+            h2 = 0.5 * h1
             mu2 = 1.8 * mu1
             s2 = s1
 
-            pars0 = [a, b, h1, mu1, s1, h2, mu2, s2]
+            pars0 = [a, b, c, h1, mu1, s1, h2, mu2, s2]
 
             # -----------------------------------------------------------------
-
+            lower =[0, 0, 0.01,0, 1, 0.01,0, 1, 0.01]
+            upper =[1, 1,  5,  1, 25, 5,  1, 50, 5]
             pars, cov = scipy.optimize.curve_fit(f=fit_func, xdata=x, ydata=y,
-                p0=pars0, bounds=(0,50))
+                p0=pars0, bounds=(lower, upper))
+
 
             """
             pars holds the following fit parameters:
@@ -208,23 +211,23 @@ class powerspec:
             """
 
             # We need a measure of how well the automated CBF estimate is
-            # Instead of the usually used RMSD we smth like a relative RMSD
+            # Instead of the usually used RMSD we need smth like a relative RMSD
             # i.e. for each frequency we measure the RMSD weighted by the
             # amplitude of the powerspectrum
             # This allows to compare between different videos
 
-            # The measure could also be termed 'average relative absolute deviation'
+            # The measure could be termed 'average relative absolute deviation'
             # (between the power spectral density and the fit)
 
-            # We are only interested in the frequency range from 1 to 20 Hz
+            # We are only interested in the frequency range from 1 to 30 Hz
 
             average_relative_deviation = 0.
             counter = 0
             for i in range(len(self.spec)):
 
-                if (self.freqs[i] > 1.0) and (self.freqs[i] < 20.0):
+                if (self.freqs[i] > 1.0) and (self.freqs[i] < 30.0):
                     average_relative_deviation = average_relative_deviation +\
-                        math.sqrt((fit_func(self.freqs[i], pars0[0], pars[1],pars[2],pars[3],pars[4],pars[5],pars[6],pars[7]) - self.spec[i])**2)
+                        math.sqrt((fit_func(self.freqs[i], pars0[0], pars[1],pars[2],pars[3],pars[4],pars[5],pars[6],pars[7],pars[8]) - self.spec[i])**2)
                     counter += 1
 
             average_relative_deviation = average_relative_deviation / counter
@@ -234,7 +237,7 @@ class powerspec:
             # generate an automated suggestion for minscale and maxscale 
             # 1. order the fitted gaussian according to their peak heights
 
-            peakheights = sorted([pars[2],pars[5]])
+            peakheights = sorted([pars[3],pars[6]])
             # get index of highest peak in pars:
             pars = pars.tolist() # convert numpy array to list
             h1_ind = pars.index(peakheights[-1]) # higher peak
@@ -242,6 +245,7 @@ class powerspec:
 
             a = pars[0]
             b = pars[1]
+            c = pars[2]
 
             h1  = pars[h1_ind]
             mu1 = pars[h1_ind+1]
@@ -299,6 +303,7 @@ class powerspec:
                     while(self.spec[minind-1] < self.spec[minind]): minind = minind-1
                     #minscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
                     minscale.set(self.freqs[minind])
+                    if (minscale.get() < 1): minscale.set(1)
 
                     # set maxscale as local min in interval [m1+2*s1,mu1+4*s1]
                     ind1 = int(round(((mu1+2*s1)*float(nimgs)/float(FPS)))-2)
@@ -307,6 +312,7 @@ class powerspec:
                     while(self.spec[maxind+1] < self.spec[maxind]): maxind = maxind+1
                     maxscale.set(self.freqs[maxind])
                     #maxscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
+                    if (maxscale.get() > 50): maxscale.set(50)
 
                 if (mu1 < mu2):
                     # set minscale as local min in interval [mu1-4s1,mu1-2s1]
@@ -317,6 +323,7 @@ class powerspec:
                     minind=ind2
                     while(self.spec[minind-1] < self.spec[minind]): minind = minind-1
                     minscale.set(self.freqs[minind])
+                    if (minscale.get() < 1): minscale.set(1)
                     #minscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
 
                     # set maxscale as local min in interval [m2+2*s2,mu2+4*s2]
@@ -326,6 +333,7 @@ class powerspec:
                     maxind=ind1
                     while(self.spec[maxind+1] < self.spec[maxind]): maxind = maxind+1
                     maxscale.set(self.freqs[maxind])
+                    if (maxscale.get() > 50): maxscale.set(50)
 
             else:
                 # Only first gaussian (dominant peak height) is considered 
@@ -341,6 +349,7 @@ class powerspec:
                 gfspec = gaussian_filter(self.spec, 1.0, truncate=1.0)
                 while(gfspec[minind-1] < gfspec[minind]): minind = minind-1
                 minscale.set(self.freqs[minind])
+                if (minscale.get() < 1): minscale.set(1)
                 #minscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
 
                 # set maxscale as local min in interval [m1+2*s1,mu1+4*s1]
@@ -350,7 +359,7 @@ class powerspec:
                 while(self.spec[maxind+1] < self.spec[maxind]): maxind = maxind+1
                 maxscale.set(self.freqs[maxind])
                 #maxscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
-
+                if (maxscale.get() > 50): maxscale.set(50)
 
 
             # freqs[i] = (i+2) * FPS / nimgs
@@ -362,7 +371,7 @@ class powerspec:
             # plot the fit
             x = numpy.array(range(1000))
             x = numpy.divide(x,10)
-            y = fit_func(x, pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6], pars[7])
+            y = fit_func(x, pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6], pars[7], pars[8])
             self.pwspecplot.axes.plot(x,y, color='orange', linestyle='--')
 
             return average_relative_deviation
