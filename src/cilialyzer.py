@@ -79,6 +79,20 @@ class Cilialyzer():
             pass
         """
 
+    def get_tab_id(self, tab_text):
+        tabs = self.nbook.tabs()
+        for index, tab_id in enumerate(tabs):
+            if self.nbook.tab(tab_id, "text") == tab_text:
+                return index
+
+
+
+
+
+
+
+
+
     def switchtab(self, event):
         # if tab is pressed (and pressed tab != active tab) then take precautions...
 
@@ -195,22 +209,20 @@ class Cilialyzer():
 
     def exportvideo(self):
 
-    #    """
-    #    w, h = self.roiplayer.roiseq[0].size
-    #    fourcc = cv.VideoWriter_fourcc('m', 'p', '4', 'v')
-    #    writer = cv.VideoWriter('out', fourcc, fps, (w, h))
+        #    """
+        #    w, h = self.roiplayer.roiseq[0].size
+        #    fourcc = cv.VideoWriter_fourcc('m', 'p', '4', 'v')
+        #    writer = cv.VideoWriter('out', fourcc, fps, (w, h))
 
-    #    for frame in self.roiplayer.roiseq:
-    #        print('test')
-    #        writer.write(pil_to_cv(frame))
+        #    for frame in self.roiplayer.roiseq:
+        #        print('test')
+        #        writer.write(pil_to_cv(frame))
 
-    #    writer.release()
-    #    """
+        #    writer.release()
+        #    """
 
-
-
-
-
+        directory = askdirectory()
+        basename = directory
 
         img_array = []
         for i in range(self.roiplayer.seqlength):
@@ -865,7 +877,7 @@ class Cilialyzer():
         self.roiB.place(in_=self.roitab, anchor="c", relx=.07, rely=.22)
         # roi-sequence (cropped PIL image sequence) available by "self.roi.roiseq"
 
-        self.binB = tk.Button(self.roitab, text='Binning 2x2',
+        self.binB = tk.Button(self.roitab, text='Binning (2x2)',
                 command=lambda: self.PIL_ImgSeq.binning(self.roiplayer), height=bh, width=16)
         self.binB.place(in_=self.roitab, anchor="c", relx=0.07, rely=0.27)
 
@@ -876,12 +888,12 @@ class Cilialyzer():
 
         # Export video Button
         self.exportvideoB = tk.Button(self.roitab, text='Export video',
-            command=self.exportvideo, height=bh, width=16)
+            command=self.exportvideo, height=bh, width=16, state=tk.DISABLED, bg="lightgrey", fg="darkgrey")
         self.exportvideoB.place(in_=self.roitab, anchor='c', relx=.07,rely=.32)
 
         # Export Images button (to export image series to directory)
         self.exportimgsB = tk.Button(self.roitab, text='Export images',
-            command=self.export_imageseries, height=bh, width=16)
+            command=self.export_imageseries, height=bh, width=16, state=tk.DISABLED, bg="lightgrey", fg="darkgrey")
         self.exportimgsB.place(in_=self.roitab, anchor='c', relx=.07,rely=.37)
 
         # initialize roiplayer
@@ -1071,9 +1083,9 @@ class Cilialyzer():
                              resolution=0.2, variable=self.maxfreq, command=self.peakselector)
         self.maxscale.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.85)
 
-        print('ID of minscale and maxscale in cilialyzer.py: ')
-        print(id(self.minscale))
-        print(id(self.maxscale))
+        #print('ID of minscale and maxscale in cilialyzer.py: ')
+        #print(id(self.minscale))
+        #print(id(self.maxscale))
 
         # Make the 'Powerspectrum' button
         self.powerspecB=tk.Button(self.cbftab, text='Powerspectrum',\
@@ -1119,7 +1131,7 @@ class Cilialyzer():
         # ******************* Frequency correlation tab ***********************
         # notebook tab to compute the correlation length in the activity map
         self.freqcorrtab = tk.Frame(self.nbook)
-        self.nbook.add(self.freqcorrtab, text='Frequency correlation')
+        self.nbook.add(self.freqcorrtab, text='Frequency correlation', state="disabled")
 
         # add a frame to display the correlogram 
         self.fcorrframe = tk.Frame(self.freqcorrtab,width=int(round(0.7*self.nbookw)),height=int(round(0.7*self.nbookh)))

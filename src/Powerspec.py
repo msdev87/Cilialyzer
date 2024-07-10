@@ -238,7 +238,7 @@ class powerspec:
 
             average_relative_deviation = average_relative_deviation / counter
 
-            print('average relative deviation: ', average_relative_deviation)
+            #print('average relative deviation: ', average_relative_deviation)
 
             # generate an automated suggestion for minscale and maxscale 
             # 1. order the fitted gaussian according to their peak heights
@@ -269,10 +269,10 @@ class powerspec:
             #print('-----------------------------------------------------------')
             #print('a: ',a)
             #print('b: ',b)
-            print('mu1: ', mu1)
-            print('mu2: ', mu2)
-            print('s1: ',s1)
-            print('s2: ',s2)
+            #print('mu1: ', mu1)
+            #print('mu2: ', mu2)
+            #print('s1: ',s1)
+            #print('s2: ',s2)
             #print('-----------------------------------------------------------')
 
             # check whether the second Gaussian is different from the first one
@@ -370,7 +370,7 @@ class powerspec:
                     ind1 = max(ind1, 0)
                     #ind2 = max(ind2, 1)
                     minind=ind2
-                    gfspec = gaussian_filter(self.spec, 1.0, truncate=1.0)
+                    gfspec = gaussian_filter(self.spec, 1.5, truncate=2.0)
                     while(gfspec[minind-1] < gfspec[minind]): minind = minind-1
                     minscale.set(self.freqs[minind])
                     if (minscale.get() < 1): minscale.set(1)
@@ -392,7 +392,7 @@ class powerspec:
 
             # freqs[i] = (i+2) * FPS / nimgs
 
-            print('2nd gaussian', second_gaussian)
+            #print('2nd gaussian', second_gaussian)
 
             # ------------------------- update plot ---------------------------
             minf = float(minscale.get())
@@ -419,7 +419,7 @@ class powerspec:
             x = numpy.array(range(1000))
             x = numpy.divide(x,10)
             y = fit_func(x, pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6], pars[7], pars[8])
-            self.pwspecplot.axes.plot(x,y, color='orange', linestyle='--')
+            # self.pwspecplot.axes.plot(x,y, color='orange', linestyle='--')
 
             return average_relative_deviation
 

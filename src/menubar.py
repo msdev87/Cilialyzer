@@ -540,65 +540,65 @@ class Menubar:
         if (self.ParticleTracking_flag):
             self.ptrackB = tk.Button(self.availfeat_tab,
                 text=' + Particle tracking   ',
-                command=self.change_ptrackflag, height=1, width=20)
+                command=self.change_ptrackflag, height=1, width=23)
         else:
             self.ptrackB = tk.Button(self.availfeat_tab,\
             text=' - Particle tracking   ', command=self.change_ptrackflag,
-            height=1, width=20)
+            height=1, width=23)
         self.ptrackB.place(in_=self.availfeat_tab, anchor='c', relx=.5,rely=.07)
         # ---------------------------------------------------------------------
         # --------- Button to remove/add TempAcorr tab ----------------------- 
         if (self.TempAcorr_flag):
             self.tacorrB = tk.Button(self.availfeat_tab,
                 text=' + Temporal autocorrelation   ',
-                command=self.change_tacorrflag, height=1, width=20)
+                command=self.change_tacorrflag, height=1, width=23)
         else:
             self.tacorrB = tk.Button(self.availfeat_tab,\
                 text=' - Temporal autocorrelation   ',\
-                command=self.change_tacorrflag, height=1, width=20)
+                command=self.change_tacorrflag, height=1, width=23)
         self.tacorrB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.14)
         # ---------------------------------------------------------------------
         # ------- Button to remove/add Dyn. filtering tab ---------------------  
         if (self.DynamicFiltering_flag):
             self.dfB = tk.Button(self.availfeat_tab, text=' + Dynamic filtering   ',
-            command=self.change_dfflag, height=1, width=20)
+            command=self.change_dfflag, height=1, width=23)
         else:
             self.dfB = tk.Button(self.availfeat_tab,\
                 text=' - Dynamic filtering   ',\
-                command=self.change_dfflag, height=1, width=20)
+                command=self.change_dfflag, height=1, width=23)
         self.dfB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.21)
         # ---------------------------------------------------------------------
         # --------------- Button to remove/add spatial acorr tab --------------
         if (self.SpatialAcorr_flag):
             self.sacorrB = tk.Button(self.availfeat_tab,
                 text=' + Spatial autocorrelogram   ',
-                command=self.change_sacorrflag, height=1, width=20)
+                command=self.change_sacorrflag, height=1, width=23)
         else:
             self.sacorrB = tk.Button(self.availfeat_tab,\
                 text=' - Spatial autocorrelogram   ',\
-                command=self.change_sacorrflag, height=1, width=20)
+                command=self.change_sacorrflag, height=1, width=23)
         self.sacorrB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.28)
         # ---------------------------------------------------------------------
         # ----------- Button to remove/add Space-time corr tab  ---------------
         if (self.SpatioTemporalCorrelogram_flag):
             self.stcorrB = tk.Button(self.availfeat_tab,
                 text=' + Space-time correlation   ',
-                command=self.change_stcorrflag, height=1, width=20)
+                command=self.change_stcorrflag, height=1, width=23)
         else:
             self.stcorrB = tk.Button(self.availfeat_tab,\
                 text=' - Space-time correlation   ',\
-                command=self.change_stcorrflag, height=1, width=20)
+                command=self.change_stcorrflag, height=1, width=23)
         self.stcorrB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.35)
         # ---------------------------------------------------------------------
         # ------------- Button to remove/add optical flow tab  ----------------
         if (self.opticalflow_flag):
             self.ofB = tk.Button(self.availfeat_tab,
                 text=' + Optical flow   ',
-                command=self.change_offlag, height=1, width=20)
+                command=self.change_offlag, height=1, width=23)
         else:
             self.ofB = tk.Button(self.availfeat_tab,\
                 text=' - Optical flow   ',\
-                command=self.change_offlag, height=1, width=20)
+                command=self.change_offlag, height=1, width=23)
         self.ofB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.42)
         # ---------------------------------------------------------------------
 
@@ -606,18 +606,18 @@ class Menubar:
         if (self.WindowedAnalysis_flag):
             self.waB = tk.Button(self.availfeat_tab,
                 text=' + Windowed analysis   ',
-                command=self.change_waflag, height=1, width=20)
+                command=self.change_waflag, height=1, width=23)
         else:
             self.waB = tk.Button(self.availfeat_tab,\
                 text=' - Windowed analysis   ',\
-                command=self.change_waflag, height=1, width=20)
+                command=self.change_waflag, height=1, width=23)
         self.waB.place(in_=self.availfeat_tab, anchor='c', relx=0.5, rely=0.49)
         # ---------------------------------------------------------------------
 
         # ------------------------- 'Apply' button ----------------------------
         # The apply button saves all the new settings and restarts Cilialyzer
         self.applyB = tk.Button(self.cfg_win, text=' Apply ',
-            command=self.apply_settings, height=1, width=20,bg='gray65')
+            command=self.apply_settings, height=1, width=23,bg='gray65')
         self.applyB.grid(row=1,column=0, padx=4,pady=3)
         # ---------------------------------------------------------------------
 
@@ -686,7 +686,7 @@ class Menubar:
         self.mhelp.add_command(label='Launch Cilialyzer website',
                 command=self.launch_website)
         self.mhelp.add_command(label='About',
-                               command=self.about_info, font=self.myfont)
+                               command=self.about_info, font=self.myfont, state=tk.DISABLED)
 
         # create 'Exit'-tab
         self.mexit = tk.Menu(self.menubar)

@@ -93,8 +93,8 @@ def GetMinMaxIntensity(self):
     maxintensity = max(pixlist)
     minintensity = min(pixlist)
 
-    print('minintensity :', minintensity)
-    print('self.MinIntensity :', self.MinIntensity)
+    #print('minintensity :', minintensity)
+    #print('self.MinIntensity :', self.MinIntensity)
 
     if minintensity < self.MinIntensity:
         self.MinIntensity = minintensity
