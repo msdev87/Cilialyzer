@@ -114,14 +114,12 @@ def Brighten(self):
                 ImageEnhance.Brightness(self.currentimg).enhance(self.bright)
 
 def bytescale(self):
-
     # lambda function performs the byte-scaling (contrast enhancement)  
     self.currentimg = Image.eval(self.currentimg,
             lambda xy: round((abs(xy - self.MinIntensity) /
                             float(self.MaxIntensity-self.MinIntensity)) * 255.0))
 
 def ResizeCurrentImage(self):
-
     w,h = self.currentimg.size
     scale = min((self.screen[0]/float(w), self.screen[1]/float(h)))
     self.currentimg=self.currentimg.resize((int(w*scale), int(h*scale)))
@@ -677,22 +675,15 @@ class ImgSeqPlayer(object):
         #if (self.bbox is not None):
         #    self.can.create_rectangle(self.bbox, outline="yellow")
 
-
-
-
         #img = ImageTk.PhotoImage(self.PILimgs[self.index])
 
         #self.current_image = self.can.create_image(self.center, 
                                                   #image=self.photos[self.index]) # draw image! 
 
-        #print type(self.PILimgs[self.index])
-        #print self.index
         self.currentimg = self.PILimgs[self.index]
 
         if (self.bscontrast):
             bytescale(self)
-
-
 
         # resize image according to the user's choice 
         ResizeCurrentImage(self)

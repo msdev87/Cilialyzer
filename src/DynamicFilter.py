@@ -460,9 +460,10 @@ class DynFilter:
 
         for t in range(nimgs): # loop over time
 
-            # pair of images, which we correlate 
-            img1[:,:] = numpy.array(self.dyn_roiseq[t])
-            img2[:,:] = numpy.array(self.dyn_roiseq[t])
+            # pair of images, which we correlate
+            # images are slightly smoothed
+            img1[:,:] = gaussian_filter( numpy.array(self.dyn_roiseq[t]), sigma=1.5, truncate=2.0)
+            img2[:,:] = gaussian_filter( numpy.array(self.dyn_roiseq[t]), sigma=1.5, truncate=2.0)
 
             # calculate the correlation between img1 and img2
             # given by the inverse FFT of the product: FFT(img1)*FFT(img2)

@@ -74,33 +74,21 @@ class TkPowerspecPlot:
 
         peakheight = max(self.yax[1:])
 
-        #print "peakheight :", peakheight 
-
-        low = minf
-        high = maxf
-
-        #print "minf :", minf
-        #print "maxf :", maxf 
-        #print "FPS :", FPS 
+        low, high = minf, maxf
 
         nimgs = len(self.xax)
-
-        #bot=int(round((float(low)*nimgs/float(FPS))-1)) # transform [Hz] into index
-        #top=int(round((float(high)*nimgs/float(FPS))-1))
 
         top = numpy.sum((numpy.array(self.xax) <= maxf).astype(int))
         bot = numpy.sum((numpy.array(self.xax) <= minf).astype(int))
 
-        # note the ugly "*1.0", which comes from how python deals with references:    
-        weights = self.yax[bot:top] *  1.0
+        weights = self.yax[bot:top].copy()
 
         normfac = numpy.sum(weights)
         for i in range(bot,top):
                 weights[i-bot] = weights[i-bot] / normfac
 
         freqs = self.xax[bot:top]
-        mean = 0
-        mean_square = 0
+        mean, mean_square = 0, 0
 
         for c in range(bot,top):
                 mean = mean + weights[c-bot] * freqs[c-bot]
@@ -120,12 +108,12 @@ class TkPowerspecPlot:
         str5 = " [Hz]"
 
         if (self.CBFtxt is None):
-            self.CBFtxt = self.axes.text(xpos,ypos,str1+str2+str3+str4+str5,fontsize=15,transform=self.axes.transAxes)
+            self.CBFtxt = self.axes.text(xpos,ypos,str1+str2+str3+str4+str5,fontsize=14,transform=self.axes.transAxes)
         else:
             self.CBFtxt.set_text(str1+str2+str3+str4+str5)
         self.canvas.draw()
 
-        #print "CBF: ", mean        
+
 
     def save_plot(self, dirname):
 

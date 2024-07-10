@@ -207,6 +207,11 @@ class Cilialyzer():
     #    writer.release()
     #    """
 
+
+
+
+
+
         img_array = []
         for i in range(self.roiplayer.seqlength):
             img = numpy.array(self.roiplayer.roiseq[i])
@@ -465,7 +470,6 @@ class Cilialyzer():
             array[i,:,:] = numpy.array(self.dynseq.dyn_roiseq[i])
         (nt,ni,nj) = numpy.shape(array)
 
-
         array=spacetimecorr_zp.stcorr(array)
 
         print('------- nimgs: ', nimgs)
@@ -496,8 +500,6 @@ class Cilialyzer():
         #Flipbook.ImgSeqPlayer(self.correlationtab, self.PIL_ImgSeq.directory,
         #        refresh, self.dynseq.corr_roiseq, len(self.dynseq.corr_roiseq))
         self.corrplayer.animate()
-
-
 
     # ------------------------ windowed analysis ------------------------------
     def winanalysis(self):
@@ -882,10 +884,6 @@ class Cilialyzer():
             command=self.export_imageseries, height=bh, width=16)
         self.exportimgsB.place(in_=self.roitab, anchor='c', relx=.07,rely=.37)
 
-
-
-
-
         # initialize roiplayer
         self.roiplayer = FlipbookROI.ImgSeqPlayer(self.roitab,self.PIL_ImgSeq.directory,0,
         self.PIL_ImgSeq.sequence,self.PIL_ImgSeq.seqlength,self.roi,1)
@@ -1072,6 +1070,10 @@ class Cilialyzer():
                              orient=tk.HORIZONTAL, length=400,
                              resolution=0.2, variable=self.maxfreq, command=self.peakselector)
         self.maxscale.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.85)
+
+        print('ID of minscale and maxscale in cilialyzer.py: ')
+        print(id(self.minscale))
+        print(id(self.maxscale))
 
         # Make the 'Powerspectrum' button
         self.powerspecB=tk.Button(self.cbftab, text='Powerspectrum',\
