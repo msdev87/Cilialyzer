@@ -213,7 +213,7 @@ def process(main):
         # write the determined values to excel file
         header = output_table[0].keys()
 
-        fname = 'Cilialyzer_output_'+datetime.date.today().strftime("%Y_%m_%d")+'.csv'
+        fname = 'Cilialyzer_output_'+datetime.datetime.now().strftime("%Y_%m_%d")+'.csv'
         path = os.path.join(main.output_directory, fname)
 
         with open(path, mode='w', newline='', encoding='utf-8') as csvfile:

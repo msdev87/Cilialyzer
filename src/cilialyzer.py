@@ -688,7 +688,7 @@ class Cilialyzer():
             f.write(str(int(False))+"\n")
             f.write(str(int(False))+"\n")
             f.write(str(int(False))+"\n")
-            f.write(str(int(False))+"\n")
+            f.write(str(int(True))+"\n")
             f.write(str(int(False))+"\n")
             f.write(str(int(False))+"\n")
             f.write(str(int(False))+"\n")
