@@ -398,13 +398,15 @@ class powerspec:
             # maxscale can get too large with the above conditions
             # therefore we add that self.spec[minscale] should roughly be the
             # same as self.spec[maxscale]
-            minimum_index = int(round(((minscale) * float(nimgs) / float(FPS)))-2)
-            maximum_index = int(round(((maxscale) * float(nimgs) / float(FPS)))-2)
+            minimum_index = int(round(((minscale.get()) * float(nimgs) / float(FPS)))-2)
+            maximum_index = int(round(((maxscale.get()) * float(nimgs) / float(FPS)))-2)
 
             if (self.spec[maximum_index] < self.spec[minimum_index]):
-                while (self.spec[maximum_index-1] < self.spec[minimum_index]):
+                while (self.spec[maximum_index-2] < self.spec[minimum_index]):
                     maximum_index -= 1
-                maxscale = maximum_index * float(FPS-2) / float(nimgs)
+                maxscale.set(float(maximum_index) * (float(FPS)-2) / float(nimgs))
+
+
 
             # ------------------------- update plot ---------------------------
             minf = float(minscale.get())

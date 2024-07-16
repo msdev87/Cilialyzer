@@ -35,6 +35,8 @@ class TkPowerspecPlot:
         self.canvas = None
         self.meancbf = None
         self.CBFtxt = None
+        self.cbfSD = None
+
 
     def plot(self,xax,yax,xl='xlabel',yl='ylabel',lp=10,fs=15,xlims=(0.1,50)):
 
@@ -97,6 +99,7 @@ class TkPowerspecPlot:
         stddev = math.sqrt(mean_square - (mean*mean))
 
         self.meancbf = mean
+        self.cbfSD = stddev
 
         xpos = 0.42
         ypos = 0.82
@@ -117,8 +120,9 @@ class TkPowerspecPlot:
 
     def save_plot(self, dirname):
 
+        datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         output_directory = os.path.join(os.getcwd(),
-            'Cilialyzer_output_' + datetime.date.today().strftime("%Y_%m_%d"))
+            'Cilialyzer_output_' + datetime_string)
         try:
             os.mkdir(output_directory)
         except FileExistsError:

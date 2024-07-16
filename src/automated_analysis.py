@@ -101,7 +101,7 @@ def process(main):
     # ouptut_table is a dictionary and will contain the data
     output_table = []
     # Initialize the dict with only the header/keys:
-    header_keys = ["Filename","CBF","FPS","Pixelsize","Wavelength", "Spatial correlation length","Error code"]
+    header_keys = ["Filename","CBF","CBF_SD","CBF_min","CBF_max","FPS","Pixelsize","Wavelength", "Spatial correlation length"]
     header = dict.fromkeys(header_keys,None)
 
     output_table.append(header)
@@ -203,17 +203,22 @@ def process(main):
         output_table.append({
             "Filename": dirname,
             "CBF": main.powerspectrum.pwspecplot.meancbf,
+            "CBF_SD": main.powerspectrum.pwspecplot.cbfSD,
+            "CBF_min": main.minscale.get(),
+            "CBF_max": main.maxscale.get(),
             "FPS": main.toolbar.fpscombo.get(),
             "Pixelsize": main.toolbar.pixsizecombo.get(),
             "Wavelength": main.dynseq.wavelength if main.wl_autoflag.get() else '',
             "Spatial correlation length": main.dynseq.sclength if main.wl_autoflag.get() else '',
-            "Error code": main.error_code
         })
 
         # write the determined values to excel file
         header = output_table[0].keys()
-
+        # datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
         fname = 'Cilialyzer_output_'+datetime.datetime.now().strftime("%Y_%m_%d")+'.csv'
+        fname = 'Cilialyzer_output_'+datetime_string+'.csv'
+
+
         path = os.path.join(main.output_directory, fname)
 
         with open(path, mode='w', newline='', encoding='utf-8') as csvfile:

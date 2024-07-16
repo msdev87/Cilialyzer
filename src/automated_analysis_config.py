@@ -88,9 +88,9 @@ def build_config(main):
     # main.auto_outputL = tk.Label(main.autotab, text=' Results will be saved to: ')
     # main.auto_outputL.place(in_=main.autotab, anchor='c',relx=0.3,rely=0.7)
 
-
+    datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     # Output will be written to current working directory
-    main.output_directory = os.path.join( os.getcwd(), 'Cilialyzer_output_'+datetime.date.today().strftime("%Y_%m_%d"))
+    main.output_directory = os.path.join( os.getcwd(), 'Cilialyzer_output_'+datetime_string)
 
     if not Path(main.output_directory).is_dir(): os.mkdir(main.output_directory)
 

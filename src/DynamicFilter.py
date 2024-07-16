@@ -46,6 +46,7 @@ class DynFilter:
         self.corr_roiseq = []
         self.tkframe = None
         self.profileframe = None
+        self.corrplotframe = None
         self.kxkyplotax = None
         self.kxkyrows = None
         self.kxkycols = None
@@ -429,7 +430,7 @@ class DynFilter:
         can.get_tk_widget().pack()
         can._tkcanvas.pack()
 
-    def mscorr(self, fps, minf, maxf, tkparent, tkparent2, pixsize, automated=0, output_fname=''):
+    def mscorr(self, fps, minf, maxf, colormapframe, profileframe, pixsize, automated=0, output_fname=''):
 
         # mscorr calculates the mean spatial autocorrelation
         # over several images of the image sequence 
@@ -456,7 +457,7 @@ class DynFilter:
         # as the spatial autocorrelation hardly varies over time
         # we do not have to average over the whole image stack
         # the average over 300 images is a good approximation
-        if (nimgs > 300): nimgs = 300
+        if (nimgs > 100): nimgs = 100
 
         for t in range(nimgs): # loop over time
 
@@ -507,10 +508,11 @@ class DynFilter:
         fig = Figure(figsize=(5,5)) #, dpi=100)
         ax = fig.add_subplot(111)
 
-        self.tkframe = Frame(tkparent)
-        self.tkframe.pack(expand=1,fill=BOTH)
+        #if (self.corrplotframe is not None):
+        #    self.corrplotframe = Frame(tkparent)
+        #    self.corrplotframe.place(in_=tkparent,relx=0.5, rely=0.5, anchor='center', width=500, height=500)
 
-        can = FigureCanvasTkAgg(fig, self.tkframe)
+        can = FigureCanvasTkAgg(fig, colormapframe)
 
         # only the center of scorr is interesting
         # xs = round(nrows/2)-round(nrows/8)
@@ -696,8 +698,8 @@ class DynFilter:
 
         fig.tight_layout()
         can.draw()
-        can.get_tk_widget().pack()
-        can._tkcanvas.pack()
+        can.get_tk_widget().place(in_=colormapframe,relx=0.5, rely=0.5, anchor='center', width=600, height=500)
+        can._tkcanvas.place(in_=colormapframe,relx=0.5, rely=0.5, anchor='center', width=600, height=500)
 
         # --------------------------------------------------------------------
         # print('wavelength in pixels: ',wavelength_pix)
@@ -725,10 +727,10 @@ class DynFilter:
         fig.subplots_adjust(left=0.15,bottom=0.15)
         ax = fig.add_subplot(111)
 
-        self.profileframe = Frame(tkparent2)
-        self.profileframe.pack(expand=1,fill=BOTH)
+        #self.profileframe = Frame(tkparent2)
+        #self.profileframe.place(in_=tkparent2, relx=0.5, rely=0.5, anchor='center', width=500, height=500)
 
-        can = FigureCanvasTkAgg(fig, self.profileframe)
+        can = FigureCanvasTkAgg(fig, profileframe)
 
         ax.axes.tick_params(labelsize=14)
 
@@ -767,8 +769,6 @@ class DynFilter:
         # for the automated analysis pipeline, the minimum value
         # of scorr_profile gets returned (to check if this value is > -0.03)
         return_value = numpy.min(scorr_profile)
-
-
 
 
         # draw also the absolute value of the correlation profile
@@ -839,13 +839,15 @@ class DynFilter:
 
         ax.margins(0.01)
         can.draw()
-        can.get_tk_widget().pack()
-        can._tkcanvas.pack()
+        can.get_tk_widget().place(in_=profileframe, relx=0.5, rely=0.5, anchor='center', width=600, height=500)
+        can._tkcanvas.place(in_=profileframe, relx=0.5, rely=0.5, anchor='center', width=600, height=500)
 
         if automated:
             # save figure to disk
+            datetime_string = datetime.datetime.now().strftime(
+                "%Y-%m-%d_%H-%M-%S")
             output_directory = os.path.join(os.getcwd(),
-                'Cilialyzer_output_' + datetime.date.today().strftime("%Y_%m_%d"))
+                'Cilialyzer_output_' + datetime_string)
             try:
                 os.mkdir(output_directory)
             except FileExistsError:
