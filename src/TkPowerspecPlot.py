@@ -120,13 +120,16 @@ class TkPowerspecPlot:
 
     def save_plot(self, dirname):
 
-        datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        output_directory = os.path.join(os.getcwd(),
-            'Cilialyzer_output_' + datetime_string)
-        try:
-            os.mkdir(output_directory)
-        except FileExistsError:
-            pass
+        f = open('output_directory.dat', 'r')
+        output_directory = f.read()
+        f.close()
+        #datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        #output_directory = os.path.join(os.getcwd(),
+        #    'Cilialyzer_output_' + datetime_string)
+        #try:
+        #    os.mkdir(output_directory)
+        #except FileExistsError:
+        #    pass
         fname = re.sub(r'[^A-Za-z0-9 ]', "_", dirname)
         fname = os.path.join(output_directory, fname + '_POWERSPECTRUM.png')
         self.fig.savefig(fname,format='png',dpi=200)

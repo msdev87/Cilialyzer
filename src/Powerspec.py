@@ -406,6 +406,8 @@ class powerspec:
                     maximum_index -= 1
                 maxscale.set(float(maximum_index) * (float(FPS)-2) / float(nimgs))
 
+            if (minscale.get() < 1.5): minscale.set(1.5)
+
 
 
             # ------------------------- update plot ---------------------------

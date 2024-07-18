@@ -88,10 +88,17 @@ def build_config(main):
     # main.auto_outputL = tk.Label(main.autotab, text=' Results will be saved to: ')
     # main.auto_outputL.place(in_=main.autotab, anchor='c',relx=0.3,rely=0.7)
 
+    # create output_directory and write its path to file
     datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    dirname = 'Cilialyzer_output_' + datetime_string
+    output_path = os.path.join(os.getcwd(), dirname)
+    # write output_path to file:
+    f = open('output_directory.dat', 'w')
+    f.write(output_path)
+    f.close()
     # Output will be written to current working directory
-    main.output_directory = os.path.join( os.getcwd(), 'Cilialyzer_output_'+datetime_string)
-
+    main.output_directory = output_path
+    # create the output directory, if it does not exist
     if not Path(main.output_directory).is_dir(): os.mkdir(main.output_directory)
 
 

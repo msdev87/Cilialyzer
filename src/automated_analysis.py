@@ -107,6 +107,14 @@ def process(main):
     output_table.append(header)
 
     counter = 0
+
+    # read output_path from file
+    f = open('output_directory.dat','r')
+    output_directory = f.read()
+    f.close()
+    output_path = os.path.join(output_directory, 'Cilialyzer_output.csv')
+
+
     # --------------------------------------------------------------------------
     # ---------------------- Loop over all directories -------------------------
     # --------------------------------------------------------------------------
@@ -214,14 +222,9 @@ def process(main):
 
         # write the determined values to excel file
         header = output_table[0].keys()
-        # datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-        fname = 'Cilialyzer_output_'+datetime.datetime.now().strftime("%Y_%m_%d")+'.csv'
-        fname = 'Cilialyzer_output_'+datetime_string+'.csv'
 
 
-        path = os.path.join(main.output_directory, fname)
-
-        with open(path, mode='w', newline='', encoding='utf-8') as csvfile:
+        with open(output_path, mode='w', newline='', encoding='utf-8') as csvfile:
         #with open('Cilialyzer_output' + '.csv', mode='w', newline='', encoding='utf-8') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=header)
             # write the header

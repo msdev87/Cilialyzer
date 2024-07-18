@@ -844,14 +844,17 @@ class DynFilter:
 
         if automated:
             # save figure to disk
-            datetime_string = datetime.datetime.now().strftime(
-                "%Y-%m-%d_%H-%M-%S")
-            output_directory = os.path.join(os.getcwd(),
-                'Cilialyzer_output_' + datetime_string)
-            try:
-                os.mkdir(output_directory)
-            except FileExistsError:
-                pass
+            #datetime_string = datetime.datetime.now().strftime(
+            #    "%Y-%m-%d_%H-%M-%S")
+            #output_directory = os.path.join(os.getcwd(),
+            #    'Cilialyzer_output_' + datetime_string)
+            f = open('output_directory.dat','r')
+            output_directory = f.read()
+            f.close()
+            # try:
+            #    os.mkdir(output_directory)
+            #except FileExistsError:
+            #    pass
             fname = re.sub(r'[^A-Za-z0-9 ]', "_", output_fname)
             fname = os.path.join(output_directory, fname + '_AUTOCORR_PROFILE.png')
             fig.savefig(fname, format='png', dpi=200)
