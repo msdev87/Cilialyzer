@@ -35,7 +35,6 @@ We would therefore very much appreciate to receive your short notification by e-
    </font>
 </div>
 <br />
-<br />
 <div align="center">
    <b>
    <font size="+2"> <a href="https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.5.0-f1dc712" download="">Cilialyzer-v1.5.0-f1dc712</a> (creation date: July 18, 2024) </font>
