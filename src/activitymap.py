@@ -9,14 +9,14 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import autocorrelation_zeropadding
 import math
 
-import denoising
+#import denoising
 
-from skimage import filters
+#from skimage import filters
 from scipy import ndimage
 from scipy.ndimage import gaussian_filter
 import cv2
 
-from scipy.signal import medfilt2d
+#from scipy.signal import medfilt2d
 
 class activitymap:
 
@@ -119,7 +119,6 @@ class activitymap:
         u_flow = gaussian_filter(u_flow, ws, truncate=1.0)
         v_flow = gaussian_filter(v_flow, ws, truncate=1.0)
 
-
         """
         print('-------------------------------------------------------------')
         print(u_flow.shape)
@@ -221,7 +220,7 @@ class activitymap:
             for j in range(nj):
 
                 # Note here that 'pixelspectra' are not cropped, meaning that
-                # they containe the zero-frequency contribution and the lowest
+                # they contain the zero-frequency contribution and the lowest
                 # frequency contribution
                 self.spec = powerspectrum.pixelspectra[:,i,j]
                 self.spec = self.spec[2:round(nt/2)-2] # here we cut them away
@@ -230,7 +229,7 @@ class activitymap:
                 # Check the validity of each pixel: 
                 # according to the procedure of the 'integral spectral density' 
                 # presented in Ryser et al. 2007
-                # (condition for invalidity: A_xy / A_bar < 0.25)  
+                # (condition for invalidity: A_xy / A_bar < 0.15)
 
                 A_xy = numpy.sum(self.spec[bot:top+1])
 
@@ -270,7 +269,7 @@ class activitymap:
         # --------------------------------------------------------------------
 
         # smooth validity mask using a 2D-average 
-        #self.validity_mask = numpy.round(gaussian_filter(self.validity_mask, 1.0, truncate=1.0))
+        # self.validity_mask = numpy.round(gaussian_filter(self.validity_mask, 1.0, truncate=1.0))
         self.freqmap = gaussian_filter(self.freqmap,1.0, truncate=1.0)
 
         #  ----------------- check histogram for of_speed / cbf --------------

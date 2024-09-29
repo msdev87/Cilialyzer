@@ -1131,7 +1131,7 @@ class Cilialyzer():
         # ******************* Frequency correlation tab ***********************
         # notebook tab to compute the correlation length in the activity map
         self.freqcorrtab = tk.Frame(self.nbook)
-        self.nbook.add(self.freqcorrtab, text='Frequency correlation', state="disabled")
+        self.nbook.add(self.freqcorrtab, text='Frequency correlation')#, state="disabled")
 
         # add a frame to display the correlogram 
         self.fcorrframe = tk.Frame(self.freqcorrtab,width=int(round(0.7*self.nbookw)),height=int(round(0.7*self.nbookh)))

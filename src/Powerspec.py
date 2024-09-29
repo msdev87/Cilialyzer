@@ -49,10 +49,6 @@ class powerspec:
 
     def calc_powerspec(self, roiseq, FPS, parent, minscale, maxscale, automated=0):
 
-        # print('ID of minscale and maxscale in calc_powerspec:')
-        # print(id(minscale))
-        # print(id(maxscale))
-
         # check whether the input data is adequately set:
         if (len(roiseq)) < 10:
             messagebox.showerror(title = "Error", message = "Please select a directory")
@@ -64,9 +60,8 @@ class powerspec:
             self.tkframe = Frame(parent,width=self.parentw,height=self.parenth)
 
             self.tkframe.place(in_=parent, anchor='c', relx=0.5, rely=0.5)
-
             self.tkframe.update()
-            #print('newtest', self.tkframe.winfo_width())
+
             self.pwspecplot = TkPowerspecPlot.TkPowerspecPlot(self.tkframe)
 
             firstimg = roiseq[0] # first image of roi sequence  
@@ -93,11 +88,9 @@ class powerspec:
                 progresswin = Toplevel()
                 progresswin.minsize(width=500,height=30)
                 progresswin.title("Powerspectrum in Progress, Please Wait...")
-
                 # get the monitor dimensions:
                 screenw = progresswin.winfo_screenwidth()
                 screenh = progresswin.winfo_screenheight()
-
                 # place the progress indicator in the center of the screen
                 placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
                 progresswin.geometry(placement)
@@ -115,9 +108,6 @@ class powerspec:
                 progresswin.update()
             progress = 0
             # **************************************************************** #
-
-            # print('shape of array: ',nt,ni,nj)
-
             # fast-fourier-transform along time axis (pixel-wise) 
 
             # powerspectrum.pixelspectra : 3D array, which holds the 
@@ -145,12 +135,8 @@ class powerspec:
             # is falsified by the periodic repetition of the function 
             # by the FFT
             self.spec = self.spec[2:round(nt/2)-2]
+            # normalize the temporal power spectrum to 1:
             self.spec = self.spec / numpy.sum(self.spec)
-
-            #print('--------------------------------------------------')
-            #print('test if self.spec is properly normalized to 1:')
-            #print(numpy.sum(self.spec))
-            #print('--------------------------------------------------')
 
             # calculate the corresponding frequencies: 
             self.freqs = numpy.zeros(self.spec.size)
@@ -407,8 +393,6 @@ class powerspec:
                 maxscale.set(float(maximum_index) * (float(FPS)-2) / float(nimgs))
 
             if (minscale.get() < 1.5): minscale.set(1.5)
-
-
 
             # ------------------------- update plot ---------------------------
             minf = float(minscale.get())

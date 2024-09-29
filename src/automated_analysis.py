@@ -141,6 +141,7 @@ def process(main):
         main.PIL_ImgSeq.dirname.set(dirname)
         # update the displayed filename of the first image
         files = os.listdir(dirname)
+        print(files)
         main.toolbar.PIL_ImgSeq.fname.set(files[0])
 
         # write selected directory to file
