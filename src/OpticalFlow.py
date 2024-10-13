@@ -1,15 +1,15 @@
 from PIL import Image
 import PIL
 import numpy
-import math
+#import math
 import matplotlib.pyplot as plt
 import os
-import multiprocessing
-import spacetimecorr_zp
-import gaussian2Dfit
+#import multiprocessing
+#import spacetimecorr_zp
+#import gaussian2Dfit
 
-import tkinter as tk
-import crosscorrelation_zp
+#import tkinter as tk
+#import crosscorrelation_zp
 
 import matplotlib
 import multiprocessing
@@ -20,13 +20,13 @@ from scipy import ndimage
 
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
-from matplotlib.figure import Figure
+#from matplotlib.figure import Figure
 import time
 import autocorrelation_zeropadding
 
 from scipy.signal import medfilt2d
 
-import FlipbookROI
+#import FlipbookROI
 
 def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
     """ compute optical flow based on Farneback's algorithm """
@@ -163,7 +163,18 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
         ax.clear()
         ax.quiver(xmat, ymat, umat, -vmat,color,width=0.002,scale=0.14, scale_units='xy',headaxislength=4.0,headwidth=4.0,headlength=4.0)
         can.draw()
-        can.print_figure('./png/frame-'+str(t).zfill(3)+'.png')
+
+        # check if folder 'png exists in current working directory
+        if not os.path.exists('png'):
+            # Create the folder if it does not exist
+            os.makedirs('png')
+
+        if os.name == 'nt':
+            # on windows
+            can.print_figure('.\\png\\frame-' + str(t).zfill(3) + '.png')
+        else:
+            can.print_figure('./png/frame-'+str(t).zfill(3)+'.png')
+
         #plt.savefig('./png/frame-'+str(t)+'.png')
         #time.sleep(1)
         can.flush_events()
@@ -233,7 +244,7 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
     ax.imshow(corrplot, extent=(-50,50,-50,50),cmap="bwr",vmin=-0.35*vmax,vmax=0.35*vmax)
     can = FigureCanvasTkAgg(fig, tkframe)
     can.draw()
-    can.get_tk_widget().place(in_=tkframe, anchor="c", relx=0.5, rely=0.5)
+    can.get_tk_widget().place(in_=tkframe, anchor="c", relx=0.75, rely=0.5)
     can._tkcanvas.place(in_=tkframe)
 
     '''

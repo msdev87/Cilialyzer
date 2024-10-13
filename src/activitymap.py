@@ -262,7 +262,14 @@ class activitymap:
                     #self.freqmap[i,j] = numpy.nan
                     self.validity_mask[i,j] = 0
 
-                # 3RD CONDITION considering the optical flow speed 
+                # 3RD CONDITION considering the optical flow speed
+                # check the autocorrelation along the time-axis
+
+
+
+
+
+
                 #if (not (speedmat_95p[i,j]*self.pixsize*self.fps > 1000.0 * self.freqmap[i,j])):
                 #    if((i>5 and i<ni-5) and (j>5 and j<nj-5)): self.validity_mask[i,j] = 0
 

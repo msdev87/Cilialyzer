@@ -208,19 +208,8 @@ class Cilialyzer():
 
 
     def exportvideo(self):
-
-        #    """
-        #    w, h = self.roiplayer.roiseq[0].size
-        #    fourcc = cv.VideoWriter_fourcc('m', 'p', '4', 'v')
-        #    writer = cv.VideoWriter('out', fourcc, fps, (w, h))
-
-        #    for frame in self.roiplayer.roiseq:
-        #        print('test')
-        #        writer.write(pil_to_cv(frame))
-
-        #    writer.release()
-        #    """
-
+        # asks for an output directory
+        # writes current roiplayer to output dir as mp4 video file
         directory = askdirectory()
         basename = directory
 
@@ -231,13 +220,11 @@ class Cilialyzer():
             size = (width,height)
             img_array.append(img)
 
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        #fourcc = cv2.VideoWriter_fourcc(*'h264')
-        out = cv2.VideoWriter('output.mp4',fourcc, 15, size,False)
+        #fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        fourcc = cv2.VideoWriter_fourcc(*'FFV1')  # FFV1 is a lossless codec
+        out = cv2.VideoWriter(os.path.join(basename,'output.avi'),fourcc, 300, size,False)
 
         for i in range(len(img_array)):
-            #print('test')
-            #print(img_array[i].shape)
             out.write(img_array[i])
         out.release()
 
@@ -888,12 +875,12 @@ class Cilialyzer():
 
         # Export video Button
         self.exportvideoB = tk.Button(self.roitab, text='Export video',
-            command=self.exportvideo, height=bh, width=16, state=tk.DISABLED, bg="lightgrey", fg="darkgrey")
+            command=self.exportvideo, height=bh, width=16, bg="lightgrey", fg="darkgrey")
         self.exportvideoB.place(in_=self.roitab, anchor='c', relx=.07,rely=.32)
 
         # Export Images button (to export image series to directory)
         self.exportimgsB = tk.Button(self.roitab, text='Export images',
-            command=self.export_imageseries, height=bh, width=16, state=tk.DISABLED, bg="lightgrey", fg="darkgrey")
+            command=self.export_imageseries, height=bh, width=16, bg="lightgrey", fg="darkgrey")
         self.exportimgsB.place(in_=self.roitab, anchor='c', relx=.07,rely=.37)
 
         # initialize roiplayer
@@ -1208,7 +1195,7 @@ class Cilialyzer():
             self.trackcframe.place(in_=self.ptracktab, anchor="c")
         #*********************************************************************#
 
-        # ********************** Dynamic Filtering ************************** #
+        # ********************** Dynamic Filtering tab ************************** #
         if self.DynamicFiltering_flag:
             self.dynseq = DynamicFilter.DynFilter()
             # here we add the notebook tab for the dynamic filtering
@@ -1218,6 +1205,7 @@ class Cilialyzer():
             # add 'Time-domain filtering' Button
             self.DynFiltB = tk.Button(self.dynfiltertab, text='Time-domain filtering', command=self.dynfiltering, height=bh, width=bw)
             self.DynFiltB.place(in_=self.dynfiltertab, anchor="c", relx=.5, rely=.05)
+
         # ******************************************************************** #
 
         # ****************** Spatio-Temporal Correlation ******************** #
