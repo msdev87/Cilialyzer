@@ -1144,7 +1144,7 @@ class ImgSeqPlayer(object):
             # update results data frame
             #if (self.tracenumber == 0):
 
-            self.resultstable.addRow()
+            self.resultstable.addRows(num=1)
 
             self.pandadf.at[self.tracenumber,'Speed [μm/s]'] = round(pspeed,2)
 

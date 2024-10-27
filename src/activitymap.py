@@ -5,13 +5,13 @@ matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
+import time
 import autocorrelation_zeropadding
 import math
-
+import os
 #import denoising
 
-#from skimage import filters
+from skimage import filters
 from scipy import ndimage
 from scipy.ndimage import gaussian_filter
 import cv2
@@ -87,37 +87,32 @@ class activitymap:
         u_flow = []
         v_flow = []
 
-        if (self.nimgs > 0.5*FPS):
-            nimgs = int(0.5*FPS)
-        else:
-            nimgs = self.nimgs
+        nimgs = self.nimgs
 
         # ws: window size in Farneback's optical flow 
         ws = round(2000.0/pixsize) # we set the window size to about 2 microns
         if (ws < 5): ws = 5
 
         for t in range(int(nimgs)-1):
-            # spatial filtering prior to optical flow calc
-            #img1 = gaussian_filter(numpy.array(PILseq[t]), 500.0/pixsize, truncate=2.0)
-            #img2 = gaussian_filter(numpy.array(PILseq[t+1]), 500.0/pixsize, truncate=2.0)
 
             img1 = numpy.array(PILseq[t])
             img2 = numpy.array(PILseq[t+1])
 
+            # get optical flow between image1 and image2
             flow = cv2.calcOpticalFlowFarneback(
                     img1, img2, None, 0.99, 1, ws, 7, ws, 1.1, 0)
 
             v_flow.append(flow[...,1])
             u_flow.append(flow[...,0])
 
-        # Outlier removal in flow by median filtering (kernel size = 3):   
+        # Outlier removal in optical flow by median filtering (kernel size = 3):
         u_flow = ndimage.median_filter(u_flow, size=3)
         v_flow = ndimage.median_filter(v_flow, size=3)
 
-        # smooth optical flow by Gaussian filtering over all axes!  
-        ws = 1000.0 / pixsize
-        u_flow = gaussian_filter(u_flow, ws, truncate=1.0)
-        v_flow = gaussian_filter(v_flow, ws, truncate=1.0)
+        # smooth optical flow by (primarily spatial) Gaussian filtering
+        ws = 2000.0 / pixsize
+        u_flow = gaussian_filter(u_flow, sigma=(1,ws,ws), truncate=1.0)
+        v_flow = gaussian_filter(v_flow, sigma=(1,ws,ws), truncate=1.0)
 
         """
         print('-------------------------------------------------------------')
@@ -135,6 +130,7 @@ class activitymap:
         plt.show()
         """
 
+        # speedmat contains the optical flow speed [nt,ni,nj]
         speedmat = numpy.zeros_like(u_flow) # initialize speed matrix
         for t in range(nimgs-1):
             speedmat[t,:,:] = numpy.sqrt(u_flow[t][:,:]**2 + v_flow[t][:,:]**2)
@@ -143,18 +139,7 @@ class activitymap:
         del u_flow
         del v_flow
 
-        (nt,ni,nj)=numpy.shape(speedmat)
-
-        # condition for a pixel to be valid (optical flow speed condition)
-        speedmat_95p = numpy.zeros((ni,nj))
-
-        # we impose the following condition: 
-        # The 95%-percentile for each pixel needs to be > 2*1 micron * CBF_ij
-        # the latter represents some kind of minimum flow speed
-
-        for i in range(ni):
-            for j in range(nj):
-                speedmat_95p[i,j] = numpy.percentile(speedmat[:,i,j],95)
+        (nt,ni,nj) = numpy.shape(speedmat)
 
         """
         # ---------------- TESTING the temporal variance --------------------
@@ -163,6 +148,9 @@ class activitymap:
         for i in range(nimgs):
             array.append(gaussian_filter(numpy.array(PILseq[i]),sigma=3.0,truncate=1.0))
         array = numpy.array(array)
+
+        # center and normalize array
+        array = array - numpy.mean(array)
 
         # initialize the variance map
         # which holds the variance along the time t for each pixel
@@ -174,17 +162,16 @@ class activitymap:
 
         # get variance threshold via otsu-method
         hist = []
-        p = numpy.percentile(varmap, 99)
         for i in range(int(self.height)):
             for j in range(int(self.width)):
                 v = varmap[i,j]
-                if (v < p):
-                    hist.append(v)
-        #hist = numpy.array(hist)
-        #otsu_threshold = filters.threshold_otsu(hist)
-        #plt.hist(hist,1000)
-        #plt.title('Histo of variances')
-        #plt.show()
+                hist.append(v)
+        hist = numpy.array(hist)
+        otsu_threshold = filters.threshold_otsu(hist)
+        plt.hist(hist,1000)
+        plt.title('Histo of variances')
+        plt.axvline(x=otsu_threshold, color='r', linestyle='--', label='x = 5')
+        plt.show()
         """
 
         # initialze the array, which will contain the activity map
@@ -216,6 +203,12 @@ class activitymap:
 
         #hist = []
 
+        dirname = 'test_pixelautocorr'
+        if (os.path.exists(dirname)):
+            pass
+        else:
+            os.mkdir(dirname)
+
         for i in range(ni):
             for j in range(nj):
 
@@ -233,16 +226,13 @@ class activitymap:
 
                 A_xy = numpy.sum(self.spec[bot:top+1])
 
-                #hist.append(A_xy)
-
                 if (A_xy > threshold * A_bar):
                     # valid pixel
                     # calculate the mean freq in freq band (weighted mean)
                     self.freqmap[i,j] = numpy.sum(numpy.multiply(self.freqs[bot:top+1],
                         self.spec[bot:top+1])) / numpy.sum(self.spec[bot:top+1])
                 else:
-                    # mark pixel as invalid
-                    # self.freqmap[i,j] = numpy.nan
+                    # mark pixel as invalid by setting validity mask to zero
                     self.validity_mask[i,j] = 0
 
                 # 2ND CONDITION TO MARK A PIXEL AS VALID/INVALID
@@ -254,24 +244,55 @@ class activitymap:
 
                 if (maxind.size > 1):
                     maxind = maxind[0]
-
-                if ((maxind >= bot) and (maxind <= top)):
-                    # pixel fullfills the criterium - nothing to do
-                    pass
+                if (bot <= maxind <= top):
+                    # pixel fullfills the criterium (bot < peak frequency < top)
+                    pass # -> nothing to do
                 else:
-                    #self.freqmap[i,j] = numpy.nan
                     self.validity_mask[i,j] = 0
 
                 # 3RD CONDITION considering the optical flow speed
-                # check the autocorrelation along the time-axis
+
+                if (self.validity_mask[i,j]):
+                    # demand that the peak in the powerspec of the optical flow
+                    # speed lies in the CBF-bandwidth
+
+                    # calculate powerspectrum of pixel i,j based on OptFl speed
+                    speed = numpy.squeeze(speedmat[:,i,j])
+                    speed = (speed-numpy.mean(speed)) / numpy.sum(speed)
+                    pix_fft = numpy.fft.fft(speed)
+                    of_spec = numpy.absolute(numpy.square(pix_fft))
+
+                    # of_spec contains the powerspectrum of the optical flow
+                    # speed for pixel i,j
+
+                    # get rid of the first two frequencies
+                    of_spec = of_spec[2:round(len(of_spec)/2)-2]
+                    # normalize the spectrum
+                    of_spec = of_spec / numpy.sum(of_spec)
+
+                    # get location of peak frequency for each pixel
+                    maxind = numpy.argmax(of_spec)
+                    if (maxind.size > 1):
+                        maxind = maxind[0]
+                    if ((maxind >= bot) and (maxind <= top)):
+                        # pixel fullfills the criterium - nothing to do
+                        pass
+                    else:
+                        #self.validity_mask[i, j] = 0
+                        pass
+
+                    #plt.figure(figsize=(4, 3))  # Set figure size
+                    #plt.plot(self.freqs[0:len(of_spec)], of_spec)
+                    #plt.xlim([0, 30])
+                    #fname = 'spec' + str(i) + str(j) + '.png'
+                    #path = os.path.join(dirname, fname)
+                    #plt.savefig(path, dpi=100)  # Save a
+                    #plt.close()
 
 
 
 
 
-
-                #if (not (speedmat_95p[i,j]*self.pixsize*self.fps > 1000.0 * self.freqmap[i,j])):
-                #    if((i>5 and i<ni-5) and (j>5 and j<nj-5)): self.validity_mask[i,j] = 0
 
         # --------------------------------------------------------------------
 
@@ -405,14 +426,11 @@ class activitymap:
 
     def frequency_correlogram(self, parent, pixsize):
         """
-        Computes the autocorrelation of the activity map
+        Computes the spatial autocorrelation of the activity map
         """
 
-        # we mainly need the validity_mask and the acitivity map freqmap
+        # we mainly need the validity_mask and the acitivity map 'freqmap'
         # 2D autocorrelation with zero-padding!
-
-        # activitymap = numpy.array(self.freqmap)
-        # mask = numpy.array(self.validity_mask)
 
         if (self.freqmap is not None):
              self.freq_acorr = autocorrelation_zeropadding.acorr2D_zp(self.freqmap,
