@@ -128,11 +128,16 @@ class activitymap:
 
         """
         # ---------------- TESTING the temporal variance --------------------
-        # convert stack of PIL images to numpy array
-        array=[]
-        for i in range(nimgs):
-            array.append(gaussian_filter(numpy.array(PILseq[i]),sigma=3.0,truncate=1.0))
-        array = numpy.array(array)
+        # as we already have the power spectral density (PSD) 
+        # we can make us of parseval's theorem to determine the variance 
+        # from the PSD. According to Parseval's theorem, the variance is given
+        # by the integral over the PSD 
+        # (if the signal has been centered before calculating its PSD)
+        # (this is computationally efficient)
+
+
+
+
 
         # center and normalize array
         array = array - numpy.mean(array)

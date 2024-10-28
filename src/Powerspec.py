@@ -75,8 +75,15 @@ class powerspec:
             # Gaussian filtering of the img seq in space and time
             sigma = 1
             kernel_size = 1
-            for i in range(nimgs):
-                array[i,:,:] = numpy.array(roiseq[i])
+
+            for t in range(nimgs):
+                array[t,:,:] = numpy.array(roiseq[t])
+
+            mean_image = numpy.mean(array[t,:,:], axis=0)
+
+            # Center the 'array' (i.e. subtract mean image)
+            for t in range(nimgs):
+                array[t,:,:] = array[t,:,:] - mean_image
             array = gaussian_filter(array, sigma, truncate=kernel_size)
             # --------------------------------------------------------------- #
 
