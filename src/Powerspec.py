@@ -72,11 +72,12 @@ class powerspec:
             array = numpy.zeros((int(nimgs),int(height),int(width)))
 
             # ---- Noise-removal by Gaussian filtering (in space and time) ---- 
-            # Gaussian filtering of the img seq in space and time 
-            # (sigma=1,kernel size=1)
+            # Gaussian filtering of the img seq in space and time
+            sigma = 1
+            kernel_size = 1
             for i in range(nimgs):
                 array[i,:,:] = numpy.array(roiseq[i])
-            array = gaussian_filter(array, 1.0, truncate=1.0)
+            array = gaussian_filter(array, sigma, truncate=kernel_size)
             # --------------------------------------------------------------- #
 
             (nt,ni,nj) = numpy.shape(array)

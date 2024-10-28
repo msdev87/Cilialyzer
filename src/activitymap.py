@@ -90,13 +90,13 @@ class activitymap:
         nimgs = self.nimgs
 
         # ws: window size in Farneback's optical flow 
-        ws = round(2000.0/pixsize) # we set the window size to about 2 microns
+        ws = round(1500.0/pixsize) # we set the window size to about 1.5 microns
         if (ws < 5): ws = 5
 
         for t in range(int(nimgs)-1):
 
-            img1 = numpy.array(PILseq[t])
-            img2 = numpy.array(PILseq[t+1])
+            img1 = gaussian_filter(numpy.array(PILseq[t]), sigma=(1,1), truncate=1.0)
+            img2 = gaussian_filter(numpy.array(PILseq[t+1]), sigma=(1,1), truncate=1.0)
 
             # get optical flow between image1 and image2
             flow = cv2.calcOpticalFlowFarneback(
@@ -110,32 +110,17 @@ class activitymap:
         v_flow = ndimage.median_filter(v_flow, size=3)
 
         # smooth optical flow by (primarily spatial) Gaussian filtering
-        ws = 2000.0 / pixsize
-        u_flow = gaussian_filter(u_flow, sigma=(1,ws,ws), truncate=1.0)
-        v_flow = gaussian_filter(v_flow, sigma=(1,ws,ws), truncate=1.0)
+        ws = 1500.0 / pixsize
+        wt = FPS / 150.0
+        u_flow = gaussian_filter(u_flow, sigma=(wt,ws,ws), truncate=1.0)
+        v_flow = gaussian_filter(v_flow, sigma=(wt,ws,ws), truncate=1.0)
 
-        """
-        print('-------------------------------------------------------------')
-        print(u_flow.shape)
-        # determine orbit for each pixel i,j
-        xorbits = numpy.zeros_like(u_flow)
-        for i in range(len(u_flow[0,:,0])):
-            for j in range(len(u_flow[0,0,:])):
-                for t in range(len(u_flow[:,0,0])):
-                    xorbits[t,i,j] = numpy.sum(u_flow[0:t,i,j])
-        plt.figure()
-        plt.plot(xorbits[0:100,10,10])
-        plt.plot(xorbits[0:100,20,20])
-        plt.plot(xorbits[0:100,50,50])
-        plt.show()
-        """
-
-        # speedmat contains the optical flow speed [nt,ni,nj]
+        # Speedmat contains the optical flow speed [nt,ni,nj]
         speedmat = numpy.zeros_like(u_flow) # initialize speed matrix
         for t in range(nimgs-1):
             speedmat[t,:,:] = numpy.sqrt(u_flow[t][:,:]**2 + v_flow[t][:,:]**2)
 
-        # delete u_flow and v_flow
+        # Delete u_flow and v_flow
         del u_flow
         del v_flow
 
@@ -198,8 +183,11 @@ class activitymap:
         bot = int(round( (float(self.nimgs)*minf/float(FPS))-2 ))
         top = int(round( (float(self.nimgs)*maxf/float(FPS))-2 ))
 
-        # integral of the 'mean' powerspectrum over choosen frequency band 
-        A_bar = numpy.sum(pwspecplot.yax[bot:top+1])
+        # integral of the 'mean' powerspectrum over choosen frequency band
+        # (including the 2nd harmonics)
+        bot2nd = bot # lower frequency limit for 1st and 2nd harmonics
+        top2nd = round((0.5*bot) + (1.5 * top)) # upper freq limit for 1st and 2nd harms
+        A_bar = numpy.sum(pwspecplot.yax[bot2nd:top2nd+1])
 
         #hist = []
 
@@ -221,65 +209,78 @@ class activitymap:
 
                 # Check the validity of each pixel: 
                 # according to the procedure of the 'integral spectral density' 
-                # presented in Ryser et al. 2007
+                # presented in Ryser et al. 2007, However, note that here we
+                # use a larger frequency bandwidth (including the 2nd harmonics)
                 # (condition for invalidity: A_xy / A_bar < 0.15)
 
-                A_xy = numpy.sum(self.spec[bot:top+1])
+                A_xy = numpy.sum(self.spec[bot2nd:top2nd+1])
 
                 if (A_xy > threshold * A_bar):
                     # valid pixel
-                    # calculate the mean freq in freq band (weighted mean)
+                    # calculate the mean freq in CBF-freq band (weighted mean)
                     self.freqmap[i,j] = numpy.sum(numpy.multiply(self.freqs[bot:top+1],
                         self.spec[bot:top+1])) / numpy.sum(self.spec[bot:top+1])
                 else:
-                    # mark pixel as invalid by setting validity mask to zero
+                    # Mark pixel as invalid by setting validity mask to zero
                     self.validity_mask[i,j] = 0
+                    #print('condition 1 not satisfied')
 
+                # --------------------------------------------------------------
                 # 2ND CONDITION TO MARK A PIXEL AS VALID/INVALID
                 # For a valid pixel, we FURTHERMORE demand that the peak 
-                # frequency lies within the CBF-band
+                # frequency originates from the fundamental CBF peak or its
+                # second harmonic
 
-                # get location of peak frequency for each pixel
+                # Get location of peak frequency for each pixel
                 maxind=numpy.argmax(self.spec)
 
                 if (maxind.size > 1):
                     maxind = maxind[0]
-                if (bot <= maxind <= top):
-                    # pixel fullfills the criterium (bot < peak frequency < top)
-                    pass # -> nothing to do
-                else:
+                if not (bot-1 <= maxind <= top2nd+1):
+                    # The condition above checks whether the peak frequency
+                    # (maxind) lies within the fundamental CBF bandwidth
+                    # or the bandwidth of the second harmonics
                     self.validity_mask[i,j] = 0
+                    #print('condition 2 not satisfied')
+                # --------------------------------------------------------------
 
+
+                # --------------------------------------------------------------
+                """
                 # 3RD CONDITION considering the optical flow speed
-
                 if (self.validity_mask[i,j]):
-                    # demand that the peak in the powerspec of the optical flow
-                    # speed lies in the CBF-bandwidth
+                    # For a pixel to be valid, it is required that its spectral
+                    # power within the CBF bandwidth is at least twice as high
+                    # as it would be for white noise
 
-                    # calculate powerspectrum of pixel i,j based on OptFl speed
+                    # Calculate powerspectrum of pixel i,j based on OptFl speed
                     speed = numpy.squeeze(speedmat[:,i,j])
                     speed = (speed-numpy.mean(speed)) / numpy.sum(speed)
                     pix_fft = numpy.fft.fft(speed)
                     of_spec = numpy.absolute(numpy.square(pix_fft))
-
-                    # of_spec contains the powerspectrum of the optical flow
+                    # of_spec now contains the powerspectrum of the optical flow
                     # speed for pixel i,j
 
-                    # get rid of the first two frequencies
+                    # Get rid of the first two frequencies
                     of_spec = of_spec[2:round(len(of_spec)/2)-2]
-                    # normalize the spectrum
+                    # Normalize the spectrum
                     of_spec = of_spec / numpy.sum(of_spec)
 
-                    # get location of peak frequency for each pixel
-                    maxind = numpy.argmax(of_spec)
-                    if (maxind.size > 1):
-                        maxind = maxind[0]
-                    if ((maxind >= bot) and (maxind <= top)):
-                        # pixel fullfills the criterium - nothing to do
-                        pass
-                    else:
-                        #self.validity_mask[i, j] = 0
-                        pass
+                    # Now we demand that the integral power over the CBF bandw.
+                    # is twice as high as in white noise
+                    cbf_power = numpy.sum(of_spec[bot:top2nd+1])
+                    power_total = numpy.sum(of_spec)
+
+                    ratio1 = cbf_power / power_total
+                    ratio2 =  (1.5*maxf-0.5*minf)/(0.5*FPS)
+                    cond3 = (ratio1 > 2 * ratio2)
+
+                    if (not cond3):
+                        # If 3rd condition is not satisfied
+                        self.validity_mask[i,j] = 0
+                        #print('condition 3 not satisfied')
+                        #print('ratio1: ',ratio1)
+                        #print('ratio2: ',ratio2)
 
                     #plt.figure(figsize=(4, 3))  # Set figure size
                     #plt.plot(self.freqs[0:len(of_spec)], of_spec)
@@ -288,12 +289,7 @@ class activitymap:
                     #path = os.path.join(dirname, fname)
                     #plt.savefig(path, dpi=100)  # Save a
                     #plt.close()
-
-
-
-
-
-
+                    """
         # --------------------------------------------------------------------
 
         # smooth validity mask using a 2D-average 
