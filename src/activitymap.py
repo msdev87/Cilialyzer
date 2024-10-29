@@ -83,6 +83,18 @@ class activitymap:
         self.width, self.height = self.firstimg.size # dimension of images 
         self.nimgs = len(PILseq) # number of images   
 
+
+
+
+
+
+
+
+
+
+
+
+
         # -------------- determine dense optical flow -------------------------
         u_flow = []
         v_flow = []
@@ -126,49 +138,41 @@ class activitymap:
 
         (nt,ni,nj) = numpy.shape(speedmat)
 
-        """
-        # ---------------- TESTING the temporal variance --------------------
-        # as we already have the power spectral density (PSD) 
-        # we can make us of parseval's theorem to determine the variance 
-        # from the PSD. According to Parseval's theorem, the variance is given
-        # by the integral over the PSD 
-        # (if the signal has been centered before calculating its PSD)
-        # (this is computationally efficient)
-
-
-
-
-
-        # center and normalize array
-        array = array - numpy.mean(array)
-
-        # initialize the variance map
-        # which holds the variance along the time t for each pixel
-        varmap = numpy.zeros((int(self.height), int(self.width)))
-
-        for i in range(int(self.height)):
-            for j in range(int(self.width)):
-                varmap[i,j] = numpy.var(gaussian_filter(array[:,i,j],sigma=1.0,truncate=1.0))
-
-        # get variance threshold via otsu-method
-        hist = []
-        for i in range(int(self.height)):
-            for j in range(int(self.width)):
-                v = varmap[i,j]
-                hist.append(v)
-        hist = numpy.array(hist)
-        otsu_threshold = filters.threshold_otsu(hist)
-        plt.hist(hist,1000)
-        plt.title('Histo of variances')
-        plt.axvline(x=otsu_threshold, color='r', linestyle='--', label='x = 5')
-        plt.show()
-        """
-
         # initialze the array, which will contain the activity map
         self.freqmap = numpy.zeros((int(self.height), int(self.width)))
 
         # initialize the boolean mask indicating the validity of each pixel 
         self.validity_mask = numpy.ones((int(self.height), int(self.width)))
+
+        array = numpy.zeros((nimgs, self.height, self.width))
+        # ------------------ TESTING the temporal variance --------------------
+        for t in range(nimgs):
+            array[t,:,:] = numpy.array(PILseq[t])
+
+        # average temporal variance (averaged over all pixels)
+        #average_variance = numpy.mean(numpy.var(array,axis=0))
+        variance_threshold = filters.threshold_otsu(numpy.var(array,axis=0)) / 10.0
+        #= average_variance / 10.0
+
+        for i in range(ni):
+            for j in range(nj):
+                var_ij = numpy.var(array[:,i,j])
+                if (var_ij < variance_threshold):
+                    self.validity_mask[i,j] = 0
+        # ----------------------------------------------------------------------
+        del array
+
+
+
+
+
+
+
+
+
+
+
+
 
         # delete the priorly drawn activity map
         self.tkframe.destroy()
@@ -212,6 +216,7 @@ class activitymap:
                 self.spec = self.spec[2:round(nt/2)-2] # here we cut them away
                 self.spec = self.spec / numpy.sum(self.spec)
 
+
                 # Check the validity of each pixel: 
                 # according to the procedure of the 'integral spectral density' 
                 # presented in Ryser et al. 2007, However, note that here we
@@ -248,6 +253,9 @@ class activitymap:
                     self.validity_mask[i,j] = 0
                     #print('condition 2 not satisfied')
                 # --------------------------------------------------------------
+
+                # variance of optical flow
+
 
 
                 # --------------------------------------------------------------
