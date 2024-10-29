@@ -71,19 +71,19 @@ class powerspec:
             # initialize numpy float array, which will hold the image sequence  
             array = numpy.zeros((int(nimgs),int(height),int(width)))
 
-            # ---- Noise-removal by Gaussian filtering (in space and time) ---- 
-            # Gaussian filtering of the img seq in space and time
-            sigma = 1
-            kernel_size = 1
-
+            # Get mean_image
             for t in range(nimgs):
                 array[t,:,:] = numpy.array(roiseq[t])
-
-            mean_image = numpy.mean(array[t,:,:], axis=0)
+            mean_image = numpy.mean(array, axis=0)
 
             # Center the 'array' (i.e. subtract mean image)
             for t in range(nimgs):
                 array[t,:,:] = array[t,:,:] - mean_image
+
+            # Gaussian filtering of the img seq in space and time
+            sigma = 1
+            kernel_size = 1
+
             array = gaussian_filter(array, sigma, truncate=kernel_size)
             # --------------------------------------------------------------- #
 

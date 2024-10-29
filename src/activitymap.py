@@ -83,18 +83,6 @@ class activitymap:
         self.width, self.height = self.firstimg.size # dimension of images 
         self.nimgs = len(PILseq) # number of images   
 
-
-
-
-
-
-
-
-
-
-
-
-
         # -------------- determine dense optical flow -------------------------
         u_flow = []
         v_flow = []
@@ -144,34 +132,34 @@ class activitymap:
         # initialize the boolean mask indicating the validity of each pixel 
         self.validity_mask = numpy.ones((int(self.height), int(self.width)))
 
+        """
+        # ------------ Temporal variance condition intensity -------------------
         array = numpy.zeros((nimgs, self.height, self.width))
-        # ------------------ TESTING the temporal variance --------------------
         for t in range(nimgs):
             array[t,:,:] = numpy.array(PILseq[t])
 
-        # average temporal variance (averaged over all pixels)
-        #average_variance = numpy.mean(numpy.var(array,axis=0))
-        variance_threshold = filters.threshold_otsu(numpy.var(array,axis=0)) / 10.0
-        #= average_variance / 10.0
+        # Average temporal variance (averaged over all pixels)
+        variance_threshold = filters.threshold_otsu(numpy.var(array, axis=0))
+        variance_threshold /= 10.0 # conservative Otsu-threshold
 
         for i in range(ni):
             for j in range(nj):
                 var_ij = numpy.var(array[:,i,j])
                 if (var_ij < variance_threshold):
                     self.validity_mask[i,j] = 0
-        # ----------------------------------------------------------------------
         del array
-
-
-
-
-
-
-
-
-
-
-
+        # ----------------------------------------------------------------------
+        # ----------- Temporal variance condition optical flow  ----------------
+        # Average temporal variance (averaged over all pixels)
+        variance_threshold = filters.threshold_otsu(numpy.var(speedmat,axis=0))
+        variance_threshold /= 10.0
+        for i in range(ni):
+            for j in range(nj):
+                var_ij = numpy.var(speedmat[:,i,j])
+                if (var_ij < variance_threshold):
+                    self.validity_mask[i,j] = 0
+        # ----------------------------------------------------------------------
+        """
 
 
         # delete the priorly drawn activity map
