@@ -93,10 +93,20 @@ class activitymap:
         ws = round(1500.0/pixsize) # we set the window size to about 1.5 microns
         if (ws < 5): ws = 5
 
+        # subtract the mean (Note: it is necessary to subtract the mean
+        # before the optical flow calculation!)
+
+
+        # determine mean image:
+        mean_image = numpy.zeros((self.height,self.width))
+        for t in range(nimgs):
+            mean_image += numpy.array(PILseq[t])
+        mean_image /= float(nimgs)
+
         for t in range(int(nimgs)-1):
 
-            img1 = gaussian_filter(numpy.array(PILseq[t]), sigma=(1,1), truncate=1.0)
-            img2 = gaussian_filter(numpy.array(PILseq[t+1]), sigma=(1,1), truncate=1.0)
+            img1 = gaussian_filter(numpy.array(PILseq[t])-mean_image, sigma=(1,1), truncate=1.0)
+            img2 = gaussian_filter(numpy.array(PILseq[t+1])-mean_image, sigma=(1,1), truncate=1.0)
 
             # get optical flow between image1 and image2
             flow = cv2.calcOpticalFlowFarneback(
@@ -132,7 +142,7 @@ class activitymap:
         # initialize the boolean mask indicating the validity of each pixel 
         self.validity_mask = numpy.ones((int(self.height), int(self.width)))
 
-        """
+
         # ------------ Temporal variance condition intensity -------------------
         array = numpy.zeros((nimgs, self.height, self.width))
         for t in range(nimgs):
@@ -149,30 +159,30 @@ class activitymap:
                     self.validity_mask[i,j] = 0
         del array
         # ----------------------------------------------------------------------
+
         # ----------- Temporal variance condition optical flow  ----------------
         # Average temporal variance (averaged over all pixels)
         variance_threshold = filters.threshold_otsu(numpy.var(speedmat,axis=0))
-        variance_threshold /= 10.0
+        variance_threshold /= 25.0
         for i in range(ni):
             for j in range(nj):
                 var_ij = numpy.var(speedmat[:,i,j])
                 if (var_ij < variance_threshold):
                     self.validity_mask[i,j] = 0
         # ----------------------------------------------------------------------
-        """
 
 
-        # delete the priorly drawn activity map
+        # Delete the priorly drawn activity map
         self.tkframe.destroy()
         self.tkframe = Frame(parent, width=self.parentw, height=self.parenth)
         self.tkframe.place(in_=parent, anchor='c', relx=0.5, rely=0.5)
 
-        # fast-fourier-transform along time axis (pixel-wise) 
+        # Fast-fourier-transform along time axis (pixel-wise)
         # (nt,ni,nj) = numpy.shape(self.array)
         (nt, ni, nj) = numpy.shape(powerspectrum.pixelspectra)
         self.spec = numpy.zeros(nt)
 
-        # calculate the frequencies: 
+        # Calculate the frequencies:
         self.freqs = numpy.zeros(self.spec.size)
         for i in range(self.spec.size):
             self.freqs[i] = (i+2) * float(FPS) / float(self.nimgs)
@@ -185,8 +195,6 @@ class activitymap:
         bot2nd = bot # lower frequency limit for 1st and 2nd harmonics
         top2nd = round((0.5*bot) + (1.5 * top)) # upper freq limit for 1st and 2nd harms
         A_bar = numpy.sum(pwspecplot.yax[bot2nd:top2nd+1])
-
-        #hist = []
 
         dirname = 'test_pixelautocorr'
         if (os.path.exists(dirname)):
@@ -234,7 +242,7 @@ class activitymap:
 
                 if (maxind.size > 1):
                     maxind = maxind[0]
-                if not (bot-1 <= maxind <= top2nd+1):
+                if not (maxind <= top2nd+1):
                     # The condition above checks whether the peak frequency
                     # (maxind) lies within the fundamental CBF bandwidth
                     # or the bandwidth of the second harmonics
