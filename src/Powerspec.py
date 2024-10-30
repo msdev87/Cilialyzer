@@ -235,7 +235,7 @@ class powerspec:
             #print('average relative deviation: ', average_relative_deviation)
 
             # generate an automated suggestion for minscale and maxscale 
-            # 1. order the fitted gaussian according to their peak heights
+            # step 1: order the fitted gaussian according to their peak heights
 
             peakheights = sorted([pars[3],pars[6]])
             # get index of highest peak in pars:
@@ -326,7 +326,7 @@ class powerspec:
                     while(self.spec[maxind+1] < self.spec[maxind]): maxind = maxind+1
                     maxscale.set(self.freqs[maxind])
                     #maxscale.set(self.freqs[ind1+numpy.argmin(self.spec[ind1:ind2])])
-                    if (maxscale.get() > 2*mu2+1.5*s2): maxscale.set(2*mu2+1.5*s2)
+                    if (maxscale.get() > 2*mu2+1.75*s2): maxscale.set(2*mu2+1.75*s2)
                     #print('maxscale set')
 
                 if (mu1 < mu2):
@@ -349,7 +349,7 @@ class powerspec:
                     maxind=ind1
                     while(self.spec[maxind+1] < self.spec[maxind]): maxind = maxind+1
                     maxscale.set(self.freqs[maxind])
-                    if (maxscale.get() > 2*mu1+1.5*s1): maxscale.set(2*mu1+1.5*s1)
+                    if (maxscale.get() > 2*mu1+1.75*s1): maxscale.set(2*mu1+1.75*s1)
                     #print('maxscale set')
             else:
                 # Only first gaussian (dominant peak height) is considered 
@@ -364,7 +364,7 @@ class powerspec:
                     ind1 = max(ind1, 0)
                     #ind2 = max(ind2, 1)
                     minind=ind2
-                    gfspec = gaussian_filter(self.spec, 1.5, truncate=2.0)
+                    gfspec = gaussian_filter(self.spec, 1, truncate=2.0)
                     while(gfspec[minind-1] < gfspec[minind]): minind = minind-1
                     minscale.set(self.freqs[minind])
                     if (minscale.get() < 1): minscale.set(1)
@@ -398,7 +398,8 @@ class powerspec:
             if (self.spec[maximum_index] < self.spec[minimum_index]):
                 while (self.spec[maximum_index-2] < self.spec[minimum_index]):
                     maximum_index -= 1
-                maxscale.set(float(maximum_index) * (float(FPS)-2) / float(nimgs))
+                #maxscale.set(float(maximum_index) * (float(FPS)-2) / float(nimgs))
+                maxscale.set(self.freqs[maximum_index])
 
             if (minscale.get() < 1.5): minscale.set(1.5)
 
