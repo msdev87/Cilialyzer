@@ -441,7 +441,7 @@ class Cilialyzer():
         if (len(self.dynseq.dyn_roiseq) > 1):
             self.dynseq.mscorr(float(self.toolbar.fpscombo.get()), float(self.minscale.get()),
                 float(self.maxscale.get()), self.mscorrplotframe, self.mscorrprofileframe,
-                float(self.toolbar.pixsizecombo.get()))
+                float(self.toolbar.pixsizecombo.get()), self.activity_map.validity_mask)
         else:
             self.dynseq.dyn_roiseq = self.PIL_ImgSeq.sequence
             self.dynseq.mscorr(float(self.toolbar.fpscombo.get()), float(self.minscale.get()),

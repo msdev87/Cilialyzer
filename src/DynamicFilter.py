@@ -430,7 +430,7 @@ class DynFilter:
         can.get_tk_widget().pack()
         can._tkcanvas.pack()
 
-    def mscorr(self, fps, minf, maxf, colormapframe, profileframe, pixsize, automated=0, output_fname=''):
+    def mscorr(self, fps, minf, maxf, colormapframe, profileframe, pixsize, validity_mask, automated=0, output_fname=''):
 
         # mscorr calculates the mean spatial autocorrelation
         # over several images of the image sequence 
@@ -482,7 +482,7 @@ class DynFilter:
             corr = numpy.subtract(ifft,(numpy.mean(img1) * numpy.mean(img2)))
             corr = corr / (stdv1 * stdv2)
             """
-            corr = autocorrelation_zeropadding.acorr2D_zp(img)
+            corr = autocorrelation_zeropadding.acorr2D_zp(img, mask=validity_mask)
 
 
             scorr = numpy.add(scorr,corr)
