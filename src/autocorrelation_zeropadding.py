@@ -53,6 +53,10 @@ def acorr_zp(signal):
     # The normalization is made by diving by the variance of the signal, which
     # corresponds to the very first value of the autocovariance
     variance = autocovariance.flat[0]
+    #if (normalize):
+    #    variance = numpy.sum(numpy.multiply(centered_signal,centered_signal)) / numpy.sum(mask)
+    #else:
+    #    variance = 1.0
 
     # Taking care of the case when the signal has zero variance (when it
     # is constant nearly everywhere), we can then proceed to the
@@ -64,42 +68,34 @@ def acorr_zp(signal):
         return (autocovariance / variance)
 
 
-
 def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
     """
-    computes the 2D autocorrelation of the input signal
+    Computes the 2D autocorrelation of a two-dimensional input array
 
-    Note that the binary 'mask' indicates the validity of each pixel
-    The signal might contain missing values!
+    Note that the binary mask indicates the validity of each pixel
+    The signal may therefore contain missing values
 
-    The autocovariance is computed by an FFT and with a zero padding
-    made in order to double the size of the signal.
-    The returned autocorrelation is not necessarily of the same size as the
-    input signal
+    The autocovariance is computed by an FFT and with a zero padding at the edges
+
+    The returned autocorrelation is of the same size as the input signal
+
+    Input:
+    signal: two-dimensional array
+    mask: two-dim array (same size as signal) indicating validity of each pixel
+
+    Output:
+    Autocorrelation of input signal
     """
 
-    # the computation is more safe and simple when we make first sure 
-    # that the signal has an even number of elements along both dimensions 
-    # along the width and the height
+    # Get the number of rows and columns
     ni, nj = signal.shape
 
-    # if mask is None (default), we assume that all pixels in signal are valid: 
+    # If mask is None (default), we assume that all pixels in signal are valid:
     if mask is None:
         mask = numpy.ones_like(signal) # 1 means valid
 
-    if (ni % 2):
-        # if ni mod 2 == 1 then ni is an odd number -> remove one row
-        signal = signal[0:ni-1,:]
-        mask = mask[0:ni-1,:]
-    if (nj % 2):
-        signal = signal[:,0:nj-1]
-        mask = mask[:,0:nj-1]
-
-    # the signal (and the mask) has now an even number of rows and columns 
-    ni, nj = signal.shape
-
-    # make sure there are no nan-values in signal 
-    # (this is just for the calculation of the mean)
+    # Make sure there are no NaN-values in signal
+    # (this is only for the calculation of the mean)
     for i in range(ni):
         for j in range(nj):
             if (not mask[i,j]):
@@ -125,21 +121,17 @@ def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
     # signal is twice as big as the input signal
     padded_signal = numpy.zeros((2*ni, 2*nj))
 
-    # fill in the signal:
-    #padded_signal[int(ni/2):int(3*ni/2),int(nj/2):int(3*nj/2)] = centered_signal
+    # Note: padded signal has now an even number of values along row and column
+
+    # Fill in the signal:
     padded_signal[0:ni,0:nj] = centered_signal
 
-    # Note that we filled in the signal in the middle, why?
-    # Finally, we are interested in positive as well as negative shifts
-    # This is why the signal is placed in the above zero-padded array
-
-    # The Fourier transform is computed using the FFT
+    # The Fourier transform is computed using the FFT (Wiener Khinchin theorem)
     fft_signal = numpy.fft.fft2(padded_signal)
 
     # We get an erroneous autocovariance by taking the inverse transform
     # of the power spectral density 
-    # (due to missing values substitued by zero and the zero-padding)
-
+    # (due to missing values substituted by zero and the zero-padding)
     pseudo_powerSpectralDensity = numpy.abs(numpy.multiply(fft_signal,
         numpy.conjugate(fft_signal)))
     pseudo_autocovariance = numpy.real( numpy.fft.ifft2(
@@ -149,15 +141,13 @@ def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
     # in order to estimate the error made on the previous computation 
     # the mask_signal has as entries ones (for signal) and zeros (for no signal) 
     # Note that the mask has also to be placed in the center of the padded array
+    # This mask can then be used to correctly normalize
+    # (i.e. to adjust the normalization by counting overlapping valid pixels only)
     masked_signal = numpy.zeros((2*ni, 2*nj))
-    #masked_signal[int(ni/2):int(3*ni/2),int(nj/2):int(3*nj/2)] = mask
     masked_signal[0:ni,0:nj] = mask
 
     fft_masked_signal = numpy.fft.fft2(masked_signal)
 
-    #if numpy.all(mask==1):
-    #    mask_correction_factors = numpy.ones_like(masked_signal)
-    #else:
     mask_correction_factors = numpy.abs(numpy.fft.ifft2( numpy.multiply(
         fft_masked_signal, numpy.conjugate(fft_masked_signal))))
 
@@ -165,17 +155,16 @@ def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
     autocovariance = pseudo_autocovariance / mask_correction_factors
 
     if (normalize):
-        #variance = autocovariance.flat[0]
         variance = numpy.sum(numpy.multiply(centered_signal,centered_signal)) / numpy.sum(mask)
     else:
         variance = 1.0
 
     # fft-shift:
     autocovariance = numpy.fft.fftshift(autocovariance)
-    # autocovariance = autocovariance[int(ni/2):int(3*ni/2),int(nj/2):int(3*nj/2)]
 
+    # The zero-shift is now located in the middle of the array
+    # If the length of the array is 2*ni, the zero shift corresponds to index ni
+    # (first ni negative shifts, then shift of zero, finally ni-1 positive shifts)
     autocovariance = autocovariance[int(ni/2):int(3*ni/2),int(nj/2):int(3*nj/2)]
 
     return (autocovariance / variance)
-
-

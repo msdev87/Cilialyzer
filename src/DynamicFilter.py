@@ -463,12 +463,13 @@ class DynFilter:
 
             # pair of images, which we correlate
             # images are slightly smoothed
-            img1[:,:] = gaussian_filter( numpy.array(self.dyn_roiseq[t]), sigma=1.5, truncate=2.0)
-            img2[:,:] = gaussian_filter( numpy.array(self.dyn_roiseq[t]), sigma=1.5, truncate=2.0)
+            img = gaussian_filter( numpy.array(self.dyn_roiseq[t]), sigma=1.5, truncate=2.0)
+            #img2[:,:] = gaussian_filter( numpy.array(self.dyn_roiseq[t]), sigma=1.5, truncate=2.0)
 
             # calculate the correlation between img1 and img2
             # given by the inverse FFT of the product: FFT(img1)*FFT(img2)
 
+            """
             fft1 = numpy.fft.fft2(img1)
             fft2 = numpy.fft.fft2(img2)
 
@@ -480,11 +481,14 @@ class DynFilter:
 
             corr = numpy.subtract(ifft,(numpy.mean(img1) * numpy.mean(img2)))
             corr = corr / (stdv1 * stdv2)
+            """
+            corr = autocorrelation_zeropadding.acorr2D_zp(img)
+
 
             scorr = numpy.add(scorr,corr)
 
         scorr = scorr / float(nimgs)
-        scorr = numpy.fft.fftshift(scorr)
+        #scorr = numpy.fft.fftshift(scorr)
 
         scorr = numpy.squeeze(scorr) # get rid of extra dimensions
 
