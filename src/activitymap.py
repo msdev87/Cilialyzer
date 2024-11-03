@@ -17,6 +17,9 @@ from scipy.ndimage import gaussian_filter
 import cv2
 
 #from scipy.signal import medfilt2d
+from PIL import Image
+from bytescl import bytescl
+
 
 class activitymap:
 
@@ -96,17 +99,35 @@ class activitymap:
         # subtract the mean (Note: it is necessary to subtract the mean
         # before the optical flow calculation!)
 
+        array = numpy.zeros((int(self.nimgs), int(self.height), int(self.width)), dtype=float)
+        # convert stack of PIL images to numpy array
+        for i in range(nimgs):
+            array[i, :, :] = numpy.array(PILseq[i])
 
-        # determine mean image:
-        mean_image = numpy.zeros((self.height,self.width))
-        for t in range(nimgs):
-            mean_image += numpy.array(PILseq[t])
-        mean_image /= float(nimgs)
+        # determine average image (static background)
+        mean_image = numpy.mean(array, axis=0)
+
+        # subtract average image
+        for i in range(nimgs):
+            array[i, :, :] = numpy.subtract(array[i,:,:], mean_image)
+
+        array = numpy.subtract(array, numpy.amin(array))
+        array = numpy.uint8(bytescl(array))
+
+        for i in range(nimgs):
+            img = Image.fromarray(array[i, :, :])
+            PILseq[i] = img
+
+        del array
+
 
         for t in range(int(nimgs)-1):
 
-            img1 = gaussian_filter(numpy.array(PILseq[t])-mean_image, sigma=(1,1), truncate=1.0)
-            img2 = gaussian_filter(numpy.array(PILseq[t+1])-mean_image, sigma=(1,1), truncate=1.0)
+            #img1 = gaussian_filter(numpy.subtract(numpy.array(PILseq[t]), mean_image), sigma=(1,1), truncate=1.0)
+            #img2 = gaussian_filter(numpy.subtract(numpy.array(PILseq[t+1]), mean_image), sigma=(1,1), truncate=1.0)
+
+            img1 = gaussian_filter(PILseq[t], sigma=(1, 1), truncate=1.0)
+            img2 = gaussian_filter(PILseq[t+1], sigma=(1, 1), truncate=1.0)
 
             # get optical flow between image1 and image2
             flow = cv2.calcOpticalFlowFarneback(
@@ -158,6 +179,10 @@ class activitymap:
                 if (var_ij < variance_threshold):
                     self.validity_mask[i,j] = 0
         del array
+
+        print('valid percentage after temporal variance: ',
+              numpy.sum(self.validity_mask)/self.validity_mask.size)
+
         # ----------------------------------------------------------------------
 
         # ----------- Temporal variance condition optical flow  ----------------
@@ -169,6 +194,10 @@ class activitymap:
                 var_ij = numpy.var(speedmat[:,i,j])
                 if (var_ij < variance_threshold):
                     self.validity_mask[i,j] = 0
+
+        print('valid percentage after optical flow: ',
+              numpy.sum(self.validity_mask) / self.validity_mask.size)
+
         # ----------------------------------------------------------------------
 
 
