@@ -163,7 +163,7 @@ class powerspec:
             # self.pwspecplot.plot(self.freqs, self.spec, xlabel, ylabel, labelpad, fontsize)
 
             # slightly smooth the powerspectrum
-            self.spec = gaussian_filter(self.spec, sigma=1.0,truncate=1.25)
+            self.spec = gaussian_filter(self.spec, sigma=1.0,truncate=2.0)
             # Please note: 
             # the cropped self.freqs (frequency array) and the cropped
             # self.spec array is overgiven!

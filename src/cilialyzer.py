@@ -563,7 +563,7 @@ class Cilialyzer():
         #    float(self.toolbar.pixsizecombo.get()),
         #    fps = float(self.toolbar.fpscombo.get()))
         OpticalFlow.get_opticalflowFB(self.opticalflowtab, self.dynseq.dyn_roiseq,
-            float(self.toolbar.pixsizecombo.get()),
+            float(self.toolbar.pixsizecombo.get()),self.activity_map.validity_mask,
             fps = float(self.toolbar.fpscombo.get()))
     # -------------------------------------------------------------------------
 

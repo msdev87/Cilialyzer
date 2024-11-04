@@ -170,12 +170,12 @@ class activitymap:
             array[t,:,:] = numpy.array(PILseq[t])
 
         # Average temporal variance (averaged over all pixels)
-        variance_threshold = filters.threshold_otsu(numpy.var(array, axis=0))
-        variance_threshold /= 10.0 # conservative Otsu-threshold
+        variance_threshold = filters.threshold_otsu(numpy.sqrt(numpy.var(array, axis=0)))
+        variance_threshold /= 2.0 #10.0 # conservative Otsu-threshold
 
         for i in range(ni):
             for j in range(nj):
-                var_ij = numpy.var(array[:,i,j])
+                var_ij = numpy.sqrt(numpy.var(array[:,i,j]))
                 if (var_ij < variance_threshold):
                     self.validity_mask[i,j] = 0
         del array
@@ -187,11 +187,11 @@ class activitymap:
 
         # ----------- Temporal variance condition optical flow  ----------------
         # Average temporal variance (averaged over all pixels)
-        variance_threshold = filters.threshold_otsu(numpy.var(speedmat,axis=0))
-        variance_threshold /= 25.0
+        variance_threshold = filters.threshold_otsu(numpy.sqrt(numpy.var(speedmat,axis=0)))
+        variance_threshold /= 2.0 #25.0
         for i in range(ni):
             for j in range(nj):
-                var_ij = numpy.var(speedmat[:,i,j])
+                var_ij = numpy.sqrt(numpy.var(speedmat[:,i,j]))
                 if (var_ij < variance_threshold):
                     self.validity_mask[i,j] = 0
 

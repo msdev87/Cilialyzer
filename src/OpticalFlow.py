@@ -28,7 +28,7 @@ from scipy.signal import medfilt2d
 
 #import FlipbookROI
 
-def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
+def get_opticalflowFB(tkframe, PILseq, pixsize, validity_mask, fps):
     """ compute optical flow based on Farneback's algorithm """
 
     firstimg = PILseq[0] # first image of roi sequence  
@@ -38,7 +38,7 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
     u_flow = []
     v_flow = []
 
-    if (nimgs > 300): nimgs=300
+    if (nimgs > 500): nimgs=500
 
     for t in range(nimgs-1):
 
@@ -185,14 +185,18 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, fps):
     for t in range(nimgs-1):
         umat = u_flow[t][:,:] # ndimage.interpolation.zoom(u_flow[t][:,:], shrink_factor)
         vmat = v_flow[t][:,:] # ndimage.interpolation.zoom(v_flow[t][:,:], shrink_factor)
-        ucorr = autocorrelation_zeropadding.acorr2D_zp(umat, centering=False, normalize=False)
-        vcorr = autocorrelation_zeropadding.acorr2D_zp(vmat, centering=False, normalize=False)
+        #ucorr = autocorrelation_zeropadding.acorr2D_zp(umat, centering=False, normalize=False, mask=validity_mask)
+        #vcorr = autocorrelation_zeropadding.acorr2D_zp(vmat, centering=False, normalize=False, mask=validity_mask)
+
+        ucorr = autocorrelation_zeropadding.acorr2D_zp(umat, mask=validity_mask)
+        vcorr = autocorrelation_zeropadding.acorr2D_zp(vmat, mask=validity_mask)
+
         if (t == 0):
             corr = ucorr + vcorr
         else:
             corr = corr + ucorr + vcorr
 
-    corr = 1.0 / float(nimgs-1) * corr
+    corr = 1.0 / float(nimgs-1) * corr / 2.0
 
     #if (numpy.min(corr) < 0):
     #    corr = corr - numpy.min(corr)
