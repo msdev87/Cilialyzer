@@ -550,6 +550,7 @@ class DynFilter:
         corrplot = numpy.zeros((ny,nx))
         corrplot[:,:] = numpy.nan
 
+        """
         dy = ny - len(scorr[:,0])
         dx = nx - len(scorr[0,:])
 
@@ -563,10 +564,12 @@ class DynFilter:
             corrplot[dy//2:len(scorr[:,0])+dy//2,:] = scorr[:,-dx//2:len(scorr[0,:])+dx//2]
         if ((dx <= 0) and (dy <= 0)):
             corrplot[:,:] = scorr[-dy//2:len(scorr[:,0])+dy//2,-dx//2:len(scorr[0,:])+dx//2]
+        """
+        corrplot = scorr
 
         vmax = numpy.max(corrplot)
-        xend = 0.5*nx/pixsize*1000.0
-        yend = 0.5*ny/pixsize*1000.0
+        xend = 0.5*nx*pixsize/1000.0
+        yend = 0.5*ny*pixsize/1000.0
 
         la1 = ax.imshow(corrplot,alpha=1.0,cmap='bwr',interpolation='none',\
             extent=[-xend,xend,-yend,yend], vmin=-0.6*vmax, vmax=0.6*vmax)

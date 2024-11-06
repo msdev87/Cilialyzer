@@ -112,7 +112,7 @@ def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
                 signal[i,j] = mean
 
     # Get a centered version of the signal (if centering is True)
-    if (centering):
+    if centering:
         centered_signal = numpy.subtract(signal, mean)
     else:
         centered_signal = signal
@@ -132,10 +132,10 @@ def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
     # We get an erroneous autocovariance by taking the inverse transform
     # of the power spectral density 
     # (due to missing values substituted by zero and the zero-padding)
-    pseudo_powerSpectralDensity = numpy.abs(numpy.multiply(fft_signal,
+    pseudo_power_spectral_density = numpy.abs(numpy.multiply(fft_signal,
         numpy.conjugate(fft_signal)))
     pseudo_autocovariance = numpy.real( numpy.fft.ifft2(
-        pseudo_powerSpectralDensity))
+        pseudo_power_spectral_density))
 
     # We repeat the same process (except for centering) on a masked_signal
     # in order to estimate the error made on the previous computation 

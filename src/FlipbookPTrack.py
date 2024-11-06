@@ -28,7 +28,6 @@ from scipy.ndimage.filters import uniform_filter
 
 #from pyradar.filters.lee import lee_filter
 
-import circle_fit
 
 from pandastable import Table
 import pandas
@@ -102,10 +101,6 @@ def GetMinMaxIntensity(self):
 
     self.MaxIntensity = max(pix_box)
     self.MinIntensity = min(pix_box)
-
-    #print self.MaxIntensity 
-    #print self.MinIntensity 
-
 
 def LeeFilter(self):
 
@@ -899,11 +894,11 @@ class ImgSeqPlayer(object):
                 # particle has reached end of journey --> draw trace + circle 
 
                 # draw particle trace 
-                self.can.create_line(self.latesttrace,fill="red",width=2,smooth=True) 
+                self.can.create_line(self.latesttrace,fill="red",width=1,smooth=True)
 
                 # draw fitted arc
                 #self.can.create_oval(xc-rad,yc-rad,xc+rad,yc+rad,outline="orange",width=2)
-                self.can.create_line(self.smoothtrace,fill="orange",width=3)
+                self.can.create_line(self.smoothtrace,fill="orange",width=1)
 
 
                 # makes sure that gui gets updated properly  
@@ -1034,7 +1029,7 @@ class ImgSeqPlayer(object):
         x = int(round(self.particle_coords[0]))
         y = int(round(self.particle_coords[1]))
 
-        img=numpy.array(self.currentimg)
+        img = numpy.array(self.currentimg)
         imgh, imgw = img.shape
 
         winsize = self.sboxsize
@@ -1105,8 +1100,8 @@ class ImgSeqPlayer(object):
             import smooth
             from scipy import interpolate
 
-            xs=smooth.running_average(xpos,5)
-            ys=smooth.running_average(ypos,5)
+            xs=smooth.running_average(xpos,20)
+            ys=smooth.running_average(ypos,20)
 
             bla=numpy.array(range(len(xs)))
 
@@ -1298,5 +1293,6 @@ def lee_filter(img, size):
 
     img_weights = img_variance / (img_variance + overall_variance)
     img_output = img_mean + img_weights * (img - img_mean)
+
     return img_output
 
