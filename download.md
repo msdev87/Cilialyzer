@@ -22,6 +22,74 @@ is to run it within the Python environment installed on a machine running Ubuntu
 --> 
 
 
+
+
+
+
+
+
+<!-- The download link that triggers the modal -->
+<a href="#" onclick="showDownloadForm()">Download the latest Cilialyzer version</a>
+
+<!-- Modal Form HTML -->
+<div id="downloadModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:20px; border-radius:5px; max-width:400px; width:90%;">
+        <h2>Please enter your email to download</h2>
+        <form id="downloadForm" onsubmit="submitForm(event)">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required style="width:100%; padding:8px; margin-top:10px;">
+            <button type="submit" style="margin-top:10px; padding:10px 20px;">Submit & Download</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Show the modal when the download link is clicked
+function showDownloadForm() {
+    document.getElementById('downloadModal').style.display = 'flex';
+}
+
+// Handle form submission
+function submitForm(event) {
+    event.preventDefault(); // Prevent the form from refreshing the page
+    
+    const email = document.getElementById('email').value;
+    
+    // Send the email to Formspree or another email service
+    fetch("https://formspree.io/f/mgveyeql", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, timestamp: new Date() })
+    }).then(response => {
+        if (response.ok) {
+            // Redirect to download after form submission
+            window.location.href = "https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.5.0-f1dc712";
+        } else {
+            alert("Something went wrong. Please try again.");
+        }
+    }).catch(error => {
+        console.error("Error:", error);
+        alert("An error occurred. Please try again.");
+    });
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--
 <b> Dear visitor, if you use Cilialyzer, please contact us via e-mail: martin.schneiter@gmx.ch. </b>
 
 We would be happy to keep our users up-to-date and notify them by e-mail as soon as a new version of Cilialyzer has been made available. 
@@ -41,6 +109,9 @@ We would therefore very much appreciate to receive your short notification by e-
    </b>
 </div> 
 <br />
+-->
+
+
 
 
 <!--
