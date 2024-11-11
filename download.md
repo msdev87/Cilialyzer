@@ -33,11 +33,16 @@ is to run it within the Python environment installed on a machine running Ubuntu
 
 <!-- Modal Form HTML -->
 <div id="downloadModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
-    <div style="background:#fff; padding:20px; border-radius:5px; max-width:400px; width:90%;">
-        <h2>Please enter your email to download</h2>
+    <div style="background:#fff; padding:20px; border-radius:5px; max-width:500px; width:90%;">
+        <h3>Dear colleague, we are currently gathering information about the users of our software and their specific use cases.
+            Please provide us with the following details: </h3>
         <form id="downloadForm" onsubmit="submitForm(event)">
-            <label for="email">Email:</label>
+            <label for="email">Your email:</label>
             <input type="email" id="email" name="email" required style="width:100%; padding:8px; margin-top:10px;">
+            <label for="name">Your name:</label>
+            <input type="text" id="name" name="name" required style="width:100%; padding:8px; margin-top:10px;">
+            <label for="purpose">Use case:</label>
+            <textarea id="purpose" name="purpose" required style="width:100%; padding:8px; margin-top:10px;"></textarea>
             <button type="submit" style="margin-top:10px; padding:10px 20px;">Submit & Download</button>
         </form>
     </div>
