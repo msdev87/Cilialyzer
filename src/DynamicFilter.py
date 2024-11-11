@@ -457,7 +457,7 @@ class DynFilter:
         # as the spatial autocorrelation hardly varies over time
         # we do not have to average over the whole image stack
         # the average over 300 images is a good approximation
-        if (nimgs > 100): nimgs = 100
+        if (nimgs > 300): nimgs = 300
 
         for t in range(nimgs): # loop over time
 
@@ -491,7 +491,6 @@ class DynFilter:
         #scorr = numpy.fft.fftshift(scorr)
 
         scorr = numpy.squeeze(scorr) # get rid of extra dimensions
-
 
         # FOR TEST write scorr out for tests 
         # numpy.savetxt('scorr.dat',scorr)

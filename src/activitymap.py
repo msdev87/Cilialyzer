@@ -93,7 +93,7 @@ class activitymap:
         nimgs = self.nimgs
 
         # ws: window size in Farneback's optical flow 
-        ws = round(1500.0/pixsize) # we set the window size to about 1.5 microns
+        ws = round(1750.0/pixsize) # we set the window size to about 2 microns
         if (ws < 5): ws = 5
 
         # subtract the mean (Note: it is necessary to subtract the mean
@@ -131,7 +131,7 @@ class activitymap:
 
             # get optical flow between image1 and image2
             flow = cv2.calcOpticalFlowFarneback(
-                    img1, img2, None, 0.99, 1, ws, 7, ws, 1.1, 0)
+                    img1, img2, None, 0.99, 1, ws, 7, 7, 1.5, 0)
 
             v_flow.append(flow[...,1])
             u_flow.append(flow[...,0])

@@ -7,7 +7,7 @@ import os
 #import multiprocessing
 #import spacetimecorr_zp
 #import gaussian2Dfit
-
+from scipy.ndimage import gaussian_filter
 #import tkinter as tk
 #import crosscorrelation_zp
 
@@ -38,15 +38,19 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, validity_mask, fps):
     u_flow = []
     v_flow = []
 
-    if (nimgs > 500): nimgs=500
+    # ws: window size in Farneback's optical flow
+    ws = round(1750.0 / pixsize)  # we set the window size to about 2 microns
+    if (ws < 5): ws = 5
+
+    if (nimgs > 600): nimgs=600
 
     for t in range(nimgs-1):
 
-        img1 = numpy.array(PILseq[t])
-        img2 = numpy.array(PILseq[t+1])
+        img1 = gaussian_filter(PILseq[t], sigma=(1, 1), truncate=1.0)
+        img2 = gaussian_filter(PILseq[t+1], sigma=(1, 1), truncate=1.0)
 
         flow = cv2.calcOpticalFlowFarneback(
-            img1, img2, None, 0.8, 2, 12, 7, 5, 1.1, 0)
+            img1, img2, None, 0.9, 2, ws, 7, 7, 1.5, 0)
 
         # Note the following convention
         # The function finds the optical flow, so that: 
@@ -181,7 +185,7 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, validity_mask, fps):
         time.sleep(0.01)
         ax.clear()
 
-    # compute average autocorrelation of optical flow 
+    # ------------ Compute average autocorrelation of optical flow -------------
     for t in range(nimgs-1):
         umat = u_flow[t][:,:] # ndimage.interpolation.zoom(u_flow[t][:,:], shrink_factor)
         vmat = v_flow[t][:,:] # ndimage.interpolation.zoom(v_flow[t][:,:], shrink_factor)
