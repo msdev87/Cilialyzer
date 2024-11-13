@@ -431,18 +431,15 @@ class DynFilter:
         can._tkcanvas.pack()
 
     def mscorr(self, fps, minf, maxf, colormapframe, profileframe, pixsize, validity_mask, automated=0, output_fname=''):
-
-        # mscorr calculates the mean spatial autocorrelation
-        # over several images of the image sequence 
-
-        # def gaussian(x, a, b, c):
-        # return a*numpy.exp(-numpy.power(x - b, 2)/(2*numpy.power(c, 2)))
+        """
+        This function calculates the wavelength based on the average spatial
+        autocorrelation
+        """
 
         def exponential(x,a,b):
             return a*numpy.exp(-abs(x/b))
 
         nimgs = len(self.dyn_roiseq)
-        # print('nimgs', nimgs)
         firstimg = self.dyn_roiseq[0]
         width, height = firstimg.size
 
@@ -450,50 +447,23 @@ class DynFilter:
         corr = numpy.zeros((height,width))
         scorr = numpy.zeros((height,width)) # sum (over time) of spatial acorrs 
 
-        # 2D arrays, which will be correlated
-        img1 = numpy.zeros((height, width), dtype=float)
-        img2 = numpy.zeros((height, width), dtype=float)
-
         # as the spatial autocorrelation hardly varies over time
-        # we do not have to average over the whole image stack
-        # the average over 300 images is a good approximation
+        # -> the average over 300 images is a good approximation
         if (nimgs > 300): nimgs = 300
 
         for t in range(nimgs): # loop over time
 
-            # pair of images, which we correlate
             # images are slightly smoothed
-            img = gaussian_filter( numpy.array(self.dyn_roiseq[t]), sigma=1.5, truncate=2.0)
-            #img2[:,:] = gaussian_filter( numpy.array(self.dyn_roiseq[t]), sigma=1.5, truncate=2.0)
-
-            # calculate the correlation between img1 and img2
-            # given by the inverse FFT of the product: FFT(img1)*FFT(img2)
-
-            """
-            fft1 = numpy.fft.fft2(img1)
-            fft2 = numpy.fft.fft2(img2)
-
-            prod = numpy.multiply(fft1,numpy.conjugate(fft2)) / float(width*height)
-            ifft = numpy.real(numpy.fft.ifft2(prod))
-
-            stdv1 = numpy.std(img1)
-            stdv2 = numpy.std(img2)
-
-            corr = numpy.subtract(ifft,(numpy.mean(img1) * numpy.mean(img2)))
-            corr = corr / (stdv1 * stdv2)
-            """
+            img = gaussian_filter( numpy.array(self.dyn_roiseq[t]),
+                sigma=1.5, truncate=2.0)
+            # autocorrelate
             corr = autocorrelation_zeropadding.acorr2D_zp(img, mask=validity_mask)
-
 
             scorr = numpy.add(scorr,corr)
 
         scorr = scorr / float(nimgs)
-        #scorr = numpy.fft.fftshift(scorr)
-
-        scorr = numpy.squeeze(scorr) # get rid of extra dimensions
-
-        # FOR TEST write scorr out for tests 
-        # numpy.savetxt('scorr.dat',scorr)
+        # get rid of extra dimensions
+        scorr = numpy.squeeze(scorr)
 
         # 'scorr' holds now the two-dimensional mean spatial autocorrelation   
         # based on which we determine the metachronal wavelength 
@@ -511,37 +481,7 @@ class DynFilter:
         fig = Figure(figsize=(5,5)) #, dpi=100)
         ax = fig.add_subplot(111)
 
-        #if (self.corrplotframe is not None):
-        #    self.corrplotframe = Frame(tkparent)
-        #    self.corrplotframe.place(in_=tkparent,relx=0.5, rely=0.5, anchor='center', width=500, height=500)
-
         can = FigureCanvasTkAgg(fig, colormapframe)
-
-        # only the center of scorr is interesting
-        # xs = round(nrows/2)-round(nrows/8)
-        # xe = round(nrows/2)+round(nrows/8)
-        # ys = round(ncols/2)-round(ncols/8)
-        # ye = round(ncols/2)+round(ncols/8)
-        # axis tick labels for correlogram plot
-        # la1= ax.imshow(scorr[xs:xe,ys:ye], alpha=1.0,cmap='bwr',interpolation='none')
-        # xmin, xmax = -0.125*ncols*pixsize*0.001,0.125*ncols*pixsize*0.001
-        # ymin, ymax = -0.125*nrows*pixsize*0.001,0.125*nrows*pixsize*0.001
-        # la1= ax.imshow(scorr[xs:xe,ys:ye],alpha=1.0,cmap='bwr',interpolation='none',
-        # extent=[xmin,xmax,ymin,ymax])
-
-        # 2D colormap of scorr
-        # xmin=-ncols/2.0*pixsize*0.001
-        # xmax=-xmin
-        # ymin=nrows/2.0*pixsize*0.001
-        # ymax=-ymin
-
-        # print('ncols',ncols)
-        # print('nrows',nrows)
-        # print('xmin,xmax,ymin,ymax ',xmin, xmax, ymin, ymax)
-
-        # x and y axis should span from -100 to 100 (=200 micrometers)
-        #nx = int(200.0 / (pixsize*0.001)) # nr pixels in x-dir to span 200 microm 
-        #ny = int(200.0 / (pixsize*0.001))
 
         ny = len(scorr[:,0])
         nx = len(scorr[0,:])
@@ -570,13 +510,10 @@ class DynFilter:
         xend = 0.5*nx*pixsize/1000.0
         yend = 0.5*ny*pixsize/1000.0
 
+        # Plot the two-dim average spatial autocorrelation
         la1 = ax.imshow(corrplot,alpha=1.0,cmap='bwr',interpolation='none',\
             extent=[-xend,xend,-yend,yend], vmin=-0.6*vmax, vmax=0.6*vmax)
 
-        # write scorr to file: 
-        # numpy.savetxt('meanspatialautocorr.dat', scorr)
-
-        # ax.set_title('Mean Spatial Autocorrelation',fontsize=16)
         ax.set_xlabel("$\Delta$x [$\mu$m]",fontsize=17)
         ax.set_ylabel("$\Delta$y [$\mu$m]",fontsize=17)
 
@@ -665,14 +602,33 @@ class DynFilter:
         wavelength_pix = 2*math.sqrt(dx**2+dy**2)
 
         # Plot the correlation profile along the line (x0,y0) -- (x1,y1) 
-        x0,y0 = maxx-(4*dx),maxy-(4*dy)
-        x1,y1 = maxx+(4*dx),maxy+(4*dy)
+        x0,y0 = maxx-(2*dx),maxy-(2*dy)
+        x1,y1 = maxx+(2*dx),maxy+(2*dy)
 
         # Note that:
-        # sqrt( (x1-x0)^2 + (y1-y0)^2 ) = 4 * wavelength
+        # sqrt( (x1-x0)^2 + (y1-y0)^2 ) = 2 * wavelength
 
-        # the line needs to be restricted by the size of scorr (nrows, ncols) 
-        # (in the case of long wavelengths or small images)  
+        # generate a line of num points from (x0,y0) to (x1,y1)
+        num = 1000  # number of interpolation points
+        lx, ly = numpy.linspace(x0, x1, num), numpy.linspace(y0, y1, num)
+
+        # the line needs to be restricted by the size of scorr (nrows, ncols)
+        # (in the case of long wavelengths or small images)
+
+        # remove all elements in lx < 0, lx > nx-1, ly < 0, ly > ny-1
+        rm_indices = numpy.array([])
+        indices1 = numpy.where(lx < 0)[0]
+        indices2 = numpy.where(ly < 0)[0]
+        indices3 = numpy.where(lx > nx-1)[0]
+        indices4 = numpy.where(ly > ny-1)[0]
+
+        rm_indices = numpy.concatenate((indices1,indices2,indices3,indices4))
+
+        if rm_indices.size > 0:
+            lx = numpy.delete(lx, rm_indices)
+            ly = numpy.delete(ly, rm_indices)
+
+        """
         if (x0 > x1):
             if (x0 > ncols-1):
                 x0 = ncols-1
@@ -694,12 +650,17 @@ class DynFilter:
                 y0 = 0
             if (y1 > nrows-1):
                 y1 = nrows-1
+        """
+
 
         # ----------------- plot scorr with profile line --------------------
 
-        #fac = 0.001*pixsize
-        fac = 1.0
-        #ax.plot([x0*fac, x1*fac], [y0*fac, y1*fac], color="orange", linewidth=1)
+        fac = 0.001*pixsize
+        # ax.plot((lx-maxx)*fac,(ly-maxy)*fac, color="orange", linewidth=1)
+
+        ax.plot(0, 0, marker='o', linestyle='None', color='blue', markersize=3)
+        ax.plot(dx*fac, -dy*fac, marker='o', linestyle='None', color='red', markersize=3)
+
 
 
         fig.tight_layout()
@@ -711,13 +672,11 @@ class DynFilter:
         # print('wavelength in pixels: ',wavelength_pix)
 
         # get profile
-        num = 1000
-        # print('x0,x1,y0,y1',x0,x1,y0,y1)
+        num = 1000 # number of interpolation points
+
         x, y = numpy.linspace(x0, x1, num), numpy.linspace(y0, y1, num)
         scorr_profile = scorr[y.round().astype(int), x.round().astype(int)]
         distmat_profile= distmat[y.round().astype(int), x.round().astype(int)]
-
-        # note that the spacing corresponds now to 4*wavelength/num
 
         # distmat_profile determines the x-axis in the profile plot 
         # half of all values need to be negative
@@ -763,19 +722,12 @@ class DynFilter:
         ypos = 0.8
         ax.text(xpos,ypos,str1+str2+str3,fontsize=14)
 
-        #ax.set_title('Mean Spatial Autocorrelation') 
-        #divider = make_axes_locatable(ax)
-        #cax = divider.append_axes("right", size="5%", pad=0.05)
-        #fig.colorbar(la1,cax=cax)  
-
         ax.set_xlabel("Displacement [$\mu$m]",fontsize=16)
         ax.set_ylabel("Correlation",fontsize=16)
-
 
         # for the automated analysis pipeline, the minimum value
         # of scorr_profile gets returned (to check if this value is > -0.03)
         return_value = numpy.min(scorr_profile)
-
 
         # draw also the absolute value of the correlation profile
         # as well as its envelope, which we use to determine 
