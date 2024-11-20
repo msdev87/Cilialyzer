@@ -33,6 +33,10 @@ from pandastable import Table
 import pandas
 import pandastable
 
+import crosscorrelation_zp
+from scipy.ndimage import center_of_mass
+import matplotlib.pyplot as plt
+
 VALID_TYPES = (
     "bmp", "dib", "dcx", "gif", "im", "jpg", "jpe", "jpeg", "pcd", "pcx",
     "png", "pbm", "pgm", "ppm", "psd", "tif", "tiff", "xbm", "xpm"
@@ -168,8 +172,6 @@ class ImgSeqPlayer(object):
 
     def __init__(self, master, directory, refreshing, PILseq, seqlength,
                  roiobj,selectroi,FPS,pixsize):
-
-        #self.searchbox = 10 # search box size 
 
         self.pspeed = tk.StringVar() # particle speed 
 
@@ -308,7 +310,6 @@ class ImgSeqPlayer(object):
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         previcon = ImageTk.PhotoImage(img)
-        #previcon = tk.PhotoImage(file="./icons/prev2.gif")
         self.prevB = Button(self.frame2, image=previcon, command=self.previous_image)
         self.prevB.image = previcon
         self.prevB.grid(row=1,column=0)
@@ -317,7 +318,6 @@ class ImgSeqPlayer(object):
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         pauseicon = ImageTk.PhotoImage(img)
-        #pauseicon = tk.PhotoImage(file="./icons/pause2.gif")
         self.pauseB = Button(self.frame2, image=pauseicon, command=self.zero_fps)
         self.pauseB.image = pauseicon
         self.pauseB.grid(row=1,column=2)
@@ -326,7 +326,6 @@ class ImgSeqPlayer(object):
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         playicon = ImageTk.PhotoImage(img)
-        #playicon = tk.PhotoImage(file="./icons/play2.gif")
         self.playB = Button(self.frame2, image=playicon, command=self.play)
         self.playB.image = playicon # save image from garbage collection 
         self.playB.grid(row=1,column=1)
@@ -335,7 +334,6 @@ class ImgSeqPlayer(object):
             fh = io.BytesIO(f.read())
         img = Image.open(fh, mode="r")
         stopicon = ImageTk.PhotoImage(img)
-        #stopicon = tk.PhotoImage(file="./icons/stop2.gif")
         self.stopB = Button(self.frame2, image=stopicon, command=self.escape)
         self.stopB.image = stopicon
         self.stopB.grid(row=1,column=3)
@@ -434,10 +432,10 @@ class ImgSeqPlayer(object):
             self.contrast = 1.0 # init value  
 
         contrastL=tk.Label(self.frame5, text="Gamma Correction: ", height=1,width=18)
-        contrastL.grid(row=1,column=0,columnspan=1)
+        contrastL.grid(row=1, column=0, columnspan=1)
 
         self.contrastB = tk.Spinbox(self.frame5,from_=0.5,to=5.0,increment=0.2,
-            command=self.setcontrast,width=3)
+            command=self.setcontrast, width=3)
         self.contrastB.grid(row=1,column=1,columnspan=1)
         self.contrastB.delete(0, "end")
         self.contrastB.insert(0,1.0)
@@ -647,13 +645,12 @@ class ImgSeqPlayer(object):
         self.stop = 0 # variable to stop if spacebar gets hit 
 
         # Label displaying FPS  
-        #self.labeltext = tk.StringVar()
-        #self.labeltext.set('playback speed [FPS]: ' + str(self.speed))
-        #self.label = tk.Label(self.frame, textvariable=self.labeltext)
-        #self.label.pack(side=tk.TOP)
+        # self.labeltext = tk.StringVar()
+        # self.labeltext.set('playback speed [FPS]: ' + str(self.speed))
+        # self.label = tk.Label(self.frame, textvariable=self.labeltext)
+        # self.label.pack(side=tk.TOP)
 
     def animate(self):
-        #print("starting animate") 
 
         global t0,t1
 
@@ -732,10 +729,6 @@ class ImgSeqPlayer(object):
 
         if (self.selectroi == 1):
 
-            #print('------------------------------')
-            #print('selectroi ', self.selectroi)
-            #print('------------------------------')
-
             def on_mouse_down(event):
 
                 # start or restart tracking 
@@ -754,8 +747,7 @@ class ImgSeqPlayer(object):
 
                 self.anchor = (self.can.canvasx(event.x)-(self.sboxsize/2), self.can.canvasy(event.y)-(self.sboxsize/2))
 
-                # prevent error of clicking particle 
-                # to closely to image borders: 
+                # prevent error of clicking particle being too close to the edges:
                 self.particle_coords =(self.can.canvasx(event.x),self.can.canvasx(event.y))
 
                 x = int(round(self.particle_coords[0]))
@@ -772,7 +764,6 @@ class ImgSeqPlayer(object):
                 if ((int(self.index) < self.seqlength-5) and
                     (not ((x < int(1.1*self.sboxsize)) or (x > (imgw-(int(1.1*self.sboxsize)))) or
                     (y < int(1.1*self.sboxsize)) or (y > (imgh-(int(1.1*self.sboxsize))))))):
-
 
                     self.bbox = self.anchor + (self.can.canvasx(event.x)+(self.sboxsize/2), self.can.canvasy(event.y)+(self.sboxsize/2))
                     self.ROI = self.bbox
@@ -805,8 +796,6 @@ class ImgSeqPlayer(object):
 
             if delay > 0:
                 time.sleep(delay)
-                #print "delay"
-                #print delay
         except:
             pass
 
@@ -1026,8 +1015,13 @@ class ImgSeqPlayer(object):
     def trackparticle(self):
 
         # current particle coordinates 
-        x = int(round(self.particle_coords[0]))
-        y = int(round(self.particle_coords[1]))
+        #x = int(round(self.particle_coords[0]))
+        #y = int(round(self.particle_coords[1]))
+
+        x = self.particle_coords[0]
+        y = self.particle_coords[1]
+
+
 
         img = numpy.array(self.currentimg)
         imgh, imgw = img.shape
@@ -1046,29 +1040,90 @@ class ImgSeqPlayer(object):
             # than T-10 and whether the particle did not yet reach the 
             # images' edges 
 
-            window = img[int(y-winsize/2):int(y+winsize/2),
+            window1 = img[int(y-winsize/2):int(y+winsize/2),
                          int(x-winsize/2):int(x+winsize/2)]
+
+
+            img2 = numpy.array(self.PILimgs[self.index+1])
+            window2 = img2[int(y-winsize/2):int(y+winsize/2),
+                         int(x-winsize/2):int(x+winsize/2)]
+
+            """
+            fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+            im1=axes[0].imshow(window1, cmap='gray')
+            fig.colorbar(im1, ax=axes[0])
+            im2=axes[1].imshow(window2, cmap='gray')
+            fig.colorbar(im2, ax=axes[1])
+            plt.savefig('figure.png')
+            plt.show()
+            sys.exit()
+            """
+
+            #print('window1.size: ', window1.shape)
+            #print('window2.size: ', window2.shape)
 
             # self.pcolor designates the particle color (bright or dark):
             # self.pcolor = 1 -> bright particles -> get max 
             # self.pcolor = 2 -> dark particles -> get min 
 
-            if (int(self.pcolor.get()) == 1):
-                yarr, xarr = numpy.where(window == window.max())
-            else:
-                yarr, xarr = numpy.where(window == window.min())
 
+            # search the new position of the particle
+            # 1st: crosscorrelate with same window in frame t+1
+            # 2nd: get correlation maximum
+
+
+
+            ccorr = crosscorrelation_zp.ccorr2D_zp(window2, window1)
+
+            print('max of ccorr:', numpy.max(ccorr))
+
+            # plot ccorr
+            #plt.imshow(ccorr)
+            #plt.show()
+
+            # search extremum (depending on color / bright or dark particles)
+            #if (int(self.pcolor.get()) == 1):
+            #    yarr, xarr = numpy.where(window1 == window1.max())
+            #else:
+            #    yarr, xarr = numpy.where(window1 == window1.min())
+
+
+            ccorr[ccorr < 0.75] = 0.
+            #print(ccorr)
+            #print('------------')
+            #yarr, xarr = numpy.where(ccorr == ccorr.max())
+            #plt.imshow(ccorr, cmap='gray')
+            #plt.show()
+            #sys.exit()
+            """
             if (len(xarr) > 1):
                 indx = int(round(numpy.mean(xarr)))
                 indy = int(round(numpy.mean(yarr)))
             else:
                 indx = xarr[0]
                 indy = yarr[0]
+            """
+            indy, indx = center_of_mass(ccorr)
 
-            newx = int(-winsize/2 + indx + x)
-            newy = int(-winsize/2 + indy + y)
+            #indx = indx - winsize/2
+            #indy = indy - winsize/2
 
-            # update position 
+            #newx = int(-winsize/2 + indx + x)
+            #newy = int(-winsize/2 + indy + y)
+
+            dx = indx - (winsize/2)
+            dy = (winsize/2) - indy
+
+            print('dx: ', dx)
+            print('dy: ', dy)
+
+            newx = x + dx
+            newy = y + dy
+
+            #newx = x - winsize/2 + indx #old version with extremum tracking
+            #newy = y - winsize/2 + indy # old version; extremum tracking
+
+            # update position
             self.track_cnt = self.track_cnt + 1
             self.particle_coords = (newx,newy) # tuple particle coords
 
@@ -1077,10 +1132,8 @@ class ImgSeqPlayer(object):
             self.trace_array.append([x,y,self.index,self.sboxsize])
 
         else:
-
             # particle reached the end of its journey 
-            # least square fit and draw the trajectory 
-
+            # least square fit and draw the trajectory
             #print("end reached")
 
             l = len(self.latesttrace) # l: length of particle trace (timesteps)  
@@ -1100,8 +1153,14 @@ class ImgSeqPlayer(object):
             import smooth
             from scipy import interpolate
 
-            xs=smooth.running_average(xpos,20)
-            ys=smooth.running_average(ypos,20)
+
+            if self.recordingfps < 20:
+                smooth_winsize = 3
+            else:
+                smooth_winsize = round(self.recordingfps / 10)
+
+            xs=smooth.running_average(xpos,smooth_winsize)
+            ys=smooth.running_average(ypos,smooth_winsize)
 
             bla=numpy.array(range(len(xs)))
 
@@ -1190,63 +1249,6 @@ class ImgSeqPlayer(object):
             self.frame.update_idletasks() # update window
             #self.meanspeed.set("{:.1f}".format(numpy.mean(self.speedarray)))
 
-
-            """
-            #"straight" transport can be fitted by a polynomial fit! 
-            # check whether the particle moves around more vertically
-            # or more horizontally (by simply comparing the variances):
-            xvar = numpy.var(xpos)
-            yvar = numpy.var(ypos)
-
-            if (xvar > yvar):
-                # fit y(x) to third order polynomial
-
-                c = numpy.polyfit(xpos,ypos,3)
-                p = numpy.poly1d(c)
-                fit = p(xpos)
-                #print(fit)
-
-                # calculate the mean particel speed along trajectory
-                # calculate curve length
-
-                xypos = numpy.concatenate((xpos, fit))
-                xypos = numpy.reshape(xypos, (2,l))
-                xypos = numpy.transpose(xypos)
-                #print(xypos)
-
-                lengths = numpy.sqrt(numpy.sum(numpy.diff(xypos, axis=0)**2, axis=1))
-                curvelength = numpy.sum(lengths)
-                #print("curvelength: ", curvelength)
-
-            else:
-
-                #print("test")
-                dummy = xpos
-                xpos = ypos
-                ypos = dummy
-                c = numpy.polyfit(xpos,ypos,3)
-                p = numpy.poly1d(c)
-                fit = p(xpos)
-                #print(fit)
-
-                xypos = numpy.concatenate((xpos, fit))
-                xypos = numpy.reshape(xypos, (2,l))
-                xypos = numpy.transpose(xypos)
-
-                lengths = numpy.sqrt(numpy.sum(numpy.diff(xypos, axis=0)**2, axis=1))
-                curvelength = numpy.sum(lengths)
-
-            # calculate the particle speed :
-            pspeed = curvelength * self.recordingfps * (self.pixsize/1000.0) /
-                     float(len(self.latesttrajectory))
-            self.pspeed.set("{:.1f}".format(pspeed))
-            print(self.pspeed)
-            #print("particle speed: ", pspeed)
-            #print("curvelength: ", curvelength)
-            #print("fps: ", self.recordingfps
-            #print("pix size: ", self.pixsize)
-            #print("(self.latesttrajectory) :", len(self.latesttrajectory))
-            """
 
     def delParticle(self):
 
