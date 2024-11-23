@@ -7,7 +7,7 @@ import numpy
 import tkinter.ttk
 import math
 import bytescl
-
+import cv2
 if os.sys.version_info.major > 2:
     from tkinter.filedialog import askdirectory
     import tkinter as tk
@@ -26,6 +26,8 @@ from scipy.ndimage.measurements import variance
 from scipy.ndimage.filters import gaussian_filter
 from scipy.ndimage.filters import uniform_filter
 
+
+from scipy.stats import trim_mean
 #from pyradar.filters.lee import lee_filter
 
 
@@ -1021,12 +1023,11 @@ class ImgSeqPlayer(object):
         x = self.particle_coords[0]
         y = self.particle_coords[1]
 
-
-
         img = numpy.array(self.currentimg)
         imgh, imgw = img.shape
 
         winsize = self.sboxsize
+        print('winsize: ', winsize)
 
         # track particle until end of movie gets reached
         # OR: until the particle reaches the edge of the images  
@@ -1047,6 +1048,10 @@ class ImgSeqPlayer(object):
             img2 = numpy.array(self.PILimgs[self.index+1])
             window2 = img2[int(y-winsize/2):int(y+winsize/2),
                          int(x-winsize/2):int(x+winsize/2)]
+
+            print('window1.shape: ', window1.shape)
+            print('window2.shape: ', window2.shape)
+
 
             """
             fig, axes = plt.subplots(1, 2, figsize=(10, 4))
@@ -1073,13 +1078,8 @@ class ImgSeqPlayer(object):
 
 
 
-            ccorr = crosscorrelation_zp.ccorr2D_zp(window2, window1)
+            ccorr = crosscorrelation_zp.ccorr2D_zp(window2, window1, mask=None, normalize=False, centering=False)
 
-            print('max of ccorr:', numpy.max(ccorr))
-
-            # plot ccorr
-            #plt.imshow(ccorr)
-            #plt.show()
 
             # search extremum (depending on color / bright or dark particles)
             #if (int(self.pcolor.get()) == 1):
@@ -1088,13 +1088,13 @@ class ImgSeqPlayer(object):
             #    yarr, xarr = numpy.where(window1 == window1.min())
 
 
-            ccorr[ccorr < 0.75] = 0.
+            #ccorr[ccorr < 0.2] = 0.
             #print(ccorr)
             #print('------------')
             #yarr, xarr = numpy.where(ccorr == ccorr.max())
             #plt.imshow(ccorr, cmap='gray')
             #plt.show()
-            #sys.exit()
+
             """
             if (len(xarr) > 1):
                 indx = int(round(numpy.mean(xarr)))
@@ -1103,6 +1103,7 @@ class ImgSeqPlayer(object):
                 indx = xarr[0]
                 indy = yarr[0]
             """
+            ccorr[ccorr < numpy.percentile(ccorr, 75)] = 0.0
             indy, indx = center_of_mass(ccorr)
 
             #indx = indx - winsize/2
@@ -1111,11 +1112,15 @@ class ImgSeqPlayer(object):
             #newx = int(-winsize/2 + indx + x)
             #newy = int(-winsize/2 + indy + y)
 
-            dx = indx - (winsize/2)
-            dy = (winsize/2) - indy
+            #flow = cv2.calcOpticalFlowFarneback(
+            #    window1, window2, None, 0.75, 2, int(winsize/2), 7, 7, 1.5, 0)
+            #dx = numpy.mean(flow[:,:,0])
+            #dy = numpy.mean(flow[:,:,1])
 
-            print('dx: ', dx)
-            print('dy: ', dy)
+            dx = indx - (winsize/2) + 0.5
+            dy = indy - (winsize / 2) + 0.5
+
+            #dy = (winsize/2) - indy - 0.5
 
             newx = x + dx
             newy = y + dy
