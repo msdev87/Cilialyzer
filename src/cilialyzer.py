@@ -86,13 +86,6 @@ class Cilialyzer():
                 return index
 
 
-
-
-
-
-
-
-
     def switchtab(self, event):
         # if tab is pressed (and pressed tab != active tab) then take precautions...
 
@@ -271,67 +264,7 @@ class Cilialyzer():
 
         self.powerspectrum.pwspecplot.canvas.draw()
 
-        """
-        if (self.DynamicFiltering_flag):
-          
-            # --------- shade the second and third harmonic (if selected) ----------
-            if (int(self.nrharmscombo.get()) > 1):
-                fpeakw = maxf - minf
-                fpeak = minf + 0.5 * fpeakw
-                secondpeakf = 2.0 * fpeak
-                secondminf = secondpeakf - 0.5 * fpeakw
-                secondmaxf = secondpeakf + 0.5 * fpeakw
 
-                maxind = numpy.sum(
-                    (numpy.array(self.powerspectrum.freqs) <= secondmaxf).astype(int))
-                minind = numpy.sum(
-                    (numpy.array(self.powerspectrum.freqs) <= secondminf).astype(int))
-                self.powerspectrum.pwspecplot.axes.fill_between(
-                    self.powerspectrum.freqs[minind:maxind + 1],
-                    self.powerspectrum.spec[minind:maxind + 1], facecolor='gray', alpha=0.4)
-
-                self.powerspectrum.pwspecplot.canvas.draw()
-
-            if (int(self.nrharmscombo.get()) > 2):
-                thrdpeakf = 3.0 * fpeak
-                thrdminf = thrdpeakf - 0.5 * fpeakw
-                thrdmaxf = thrdpeakf + 0.5 * fpeakw
-
-                maxind = numpy.sum(
-                    (numpy.array(self.powerspectrum.freqs) <= thrdmaxf).astype(int))
-                minind = numpy.sum(
-                    (numpy.array(self.powerspectrum.freqs) <= thrdminf).astype(int))
-                self.powerspectrum.pwspecplot.axes.fill_between(
-                    self.powerspectrum.freqs[minind:maxind + 1],
-                    self.powerspectrum.spec[minind:maxind + 1], facecolor='gray',
-                    alpha=0.4)
-
-                self.powerspectrum.pwspecplot.canvas.draw()
-        # ----------------------- end of peakselector --------------------------
-    """
-
-
-
-    """
-    def set_threshold(self):
-
-        #This function gets executed if the user changes the threshold,
-        #which is used to calculate the activity map
-
-        #self.activity_map.calc_activitymap(self.mapframe,\
-        #    self.roiplayer.roiseq,float(self.toolbar.fpscombo.get()),\
-        #    float(self.minscale.get()), float(self.maxscale.get()),\
-        #    self.powerspectrum, float(self.toolbar.pixsizecombo.get()), float(self.activity_threshold.get()))
-
-        # write threshold to file
-        try:
-            os.remove('validity_threshold.txt')
-        except:
-            pass
-        f = open('validity_threshold.txt','a')
-        f.write(str(float(self.activity_threshold.get()))+"\n")
-        f.close()
-    """
 
     def image_stabilization(self, automated=0):
 
@@ -1023,16 +956,6 @@ class Cilialyzer():
         self.thframe=tk.Label(self.activitytab)
         self.thframe.place(in_=self.activitytab, anchor='c', relx=0.3, rely=0.1)
 
-        #self.thresholdL=tk.Label(self.thframe, text="Activity threshold: ", height=2,width=18)
-        #self.thresholdL.grid(row=0,column=0,columnspan=1)
-        #self.textvar = tk.StringVar()
-        #self.textvar.set(str(self.threshold))
-
-        # spinbox 
-        #self.activity_threshold = tk.Spinbox(self.thframe, textvariable=self.textvar, from_=0, to=0.9, increment=0.01,\
-        #    command=self.set_threshold,width=5)
-        #self.activity_threshold.grid(row=0,column=1,columnspan=1)
-
         # ----------------------------------------------------------------------
 
         # ---------------------------------------------------------------------
@@ -1184,12 +1107,11 @@ class Cilialyzer():
 
         # ************************ Particle Tracking ************************ #
         if (self.ParticleTracking_flag):
-            self.ptracktab = tk.Frame(self.nbook, width=int(round(0.6*self.nbookw)),
-                height=int(round(0.6*self.nbookh)))
+            self.ptracktab = tk.Frame(self.nbook)
+            #tk.Frame(self.nbook, width=int(round(0.6*self.nbookw)),
+            #height=int(round(0.6*self.nbookh)))
             self.nbook.add(self.ptracktab, text='Particle tracking')
-
             #print('ptracktab ',nbook.index(ptracktab))
-
             # top left -> 'controls'
             self.trackcframe = tk.Frame(self.ptracktab, takefocus=0)
             self.trackcframe.place(in_=self.ptracktab, anchor="c")
@@ -1322,7 +1244,6 @@ if __name__ == "__main__":
     shcore = WinDLL('shcore')  # access the Windows "shcore" DLL (library)
     shcore.SetProcessDpiAwareness(1)  # call "SetProcessDpiAwareness"
 
-    # import multiprocessing
     App = Cilialyzer()
     # -------------------------------------------------------------------------
     App.main_window.mainloop()  # loop and wait for events

@@ -1049,8 +1049,8 @@ class ImgSeqPlayer(object):
             window2 = img2[int(y-winsize/2):int(y+winsize/2),
                          int(x-winsize/2):int(x+winsize/2)]
 
-            print('window1.shape: ', window1.shape)
-            print('window2.shape: ', window2.shape)
+            #print('window1.shape: ', window1.shape)
+            #print('window2.shape: ', window2.shape)
 
 
             """
@@ -1080,6 +1080,8 @@ class ImgSeqPlayer(object):
 
             ccorr = crosscorrelation_zp.ccorr2D_zp(window2, window1, mask=None, normalize=False, centering=False)
 
+            print('max of ccorr:', numpy.max(ccorr))
+            print('min of ccorr:', numpy.min(ccorr))
 
             # search extremum (depending on color / bright or dark particles)
             #if (int(self.pcolor.get()) == 1):
