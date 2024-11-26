@@ -89,15 +89,13 @@ def ccorr2D_zp(signal1, signal2, mask=None, normalize=True, centering=True):
     crosscovariance = crosscovariance[int(ni/2):int(3*ni/2),int(nj/2):int(3*nj/2)]
 
     if normalize:
-        #if centering
-        #    var1 = numpy.sum(numpy.multiply(centered_signal1,centered_signal1)) / numpy.sum(mask)
-        #    var2 = numpy.sum(numpy.multiply(centered_signal2,centered_signal2)) / numpy.sum(mask)
-        #else:
         var1 = numpy.var(signal1)
         var2 = numpy.var(signal2)
     else:
         var1 = 1.0
         var2 = 1.0
 
-    return (crosscovariance / (sqrt(var1*var2)))
+    crosscorrelation = crosscovariance / (sqrt(var1 * var2))
+
+    return crosscorrelation
 

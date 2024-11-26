@@ -1076,9 +1076,14 @@ class ImgSeqPlayer(object):
             # 1st: crosscorrelate with same window in frame t+1
             # 2nd: get correlation maximum
 
-
-
-            ccorr = crosscorrelation_zp.ccorr2D_zp(window2, window1, mask=None, normalize=False, centering=False)
+            """
+            Note here that one should not center the array!
+            -> Because particle moves and neighboring 'background' can change
+            meaning that the mean in such small arrays might change
+            between two subsequent time steps making tracking impossible!
+            """
+            ccorr = crosscorrelation_zp.ccorr2D_zp(window2, window1,
+                mask=None, normalize=True, centering=False)
 
             print('max of ccorr:', numpy.max(ccorr))
             print('min of ccorr:', numpy.min(ccorr))
