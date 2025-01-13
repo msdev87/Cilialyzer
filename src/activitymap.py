@@ -9,6 +9,7 @@ import time
 import autocorrelation_zeropadding
 import math
 import os
+import re
 #import denoising
 
 from skimage import filters
@@ -62,12 +63,14 @@ class activitymap:
 
         self.freq_acorr = None # autocorrelation of the activity map 
 
+        self.freq_clength = None
+
         self.pixsize = pixsize
 
         self.active_percentage = active_percentage
         self.active_area = active_area
 
-    def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum, pixsize):
+    def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum, pixsize, automated=0):
         """
         Calculation of the activity map (spatially resolved CBF map)
         """
@@ -163,7 +166,6 @@ class activitymap:
         # initialize the boolean mask indicating the validity of each pixel 
         self.validity_mask = numpy.ones((int(self.height), int(self.width)))
 
-
         # ------------ Temporal variance condition intensity -------------------
         array = numpy.zeros((nimgs, self.height, self.width))
         for t in range(nimgs):
@@ -199,7 +201,6 @@ class activitymap:
               numpy.sum(self.validity_mask) / self.validity_mask.size)
 
         # ----------------------------------------------------------------------
-
 
         # Delete the priorly drawn activity map
         self.tkframe.destroy()
@@ -240,7 +241,6 @@ class activitymap:
                 self.spec = powerspectrum.pixelspectra[:,i,j]
                 self.spec = self.spec[2:round(nt/2)-2] # here we cut them away
                 self.spec = self.spec / numpy.sum(self.spec)
-
 
                 # Check the validity of each pixel: 
                 # according to the procedure of the 'integral spectral density' 
@@ -333,6 +333,8 @@ class activitymap:
         # smooth validity mask using a 2D-average 
         # self.validity_mask = numpy.round(gaussian_filter(self.validity_mask, 1.0, truncate=1.0))
         self.freqmap = gaussian_filter(self.freqmap,1.0, truncate=1.0)
+        # slightly smooth the validity mask
+        self.validity_mask = ndimage.median_filter(self.validity_mask, size=round(5000.0/pixsize))
 
         #  ----------------- check histogram for of_speed / cbf --------------
         #hist=numpy.zeros(1000)
@@ -507,7 +509,7 @@ class activitymap:
         self.fcfig.colorbar(bla,cax=cax,label="C($\Delta$x,$\Delta$y)")
 
         # write freq correlogram to file:
-        numpy.savetxt('frequencycorrelogram.dat', self.freq_acorr)
+        # numpy.savetxt('frequencycorrelogram.dat', self.freq_acorr)
 
         # Determine the frequency correlation length 
         # as the square root of all pixels > 1/e
@@ -518,6 +520,8 @@ class activitymap:
         print('**************************************************************')
         print('Frequency correlation length:  ',xi)
         print('**************************************************************')
+
+        self.freq_clength = xi
 
         str1 = r'$\xi_f$'
         str2 = " = $%.2f$" %xi
@@ -532,17 +536,13 @@ class activitymap:
         self.canvas.get_tk_widget().place(anchor='c', relx=0.5, rely=0.5)
         self.canvas._tkcanvas.place(anchor='c', relx=0.5, rely=0.5)
 
-        # print('frequency correlation length: ',xi)
 
-        #fig = plt.figure()
-        #ax = plt.axes(projection='3d')
-        #(ni,nj) = self.freq_acorr.shape
 
-        #x = numpy.linspace(0, nj, num=nj)
-        #y = numpy.linspace(0,ni,num=ni)
-        #X, Y = numpy.meshgrid(x, y)
-        #ax.plot_surface(X,Y,self.freq_acorr) 
-        #plt.show()
+
+
+
+
+
 
     def delete_content(self):
         """
@@ -563,3 +563,12 @@ class activitymap:
         self.fc_tkframe.place(in_=self.fcparentframe, anchor='c', relx=0.5, rely=0.5)
         self.fc_tkframe.update()
 
+
+    def save_plot(self, dirname):
+        f = open('output_directory.dat', 'r')
+        output_directory = f.read()
+        f.close()
+        # special characters are replaced by an underline:
+        fname = re.sub(r'[^A-Za-z0-9 ]', "_", dirname)
+        fname = os.path.join(output_directory, fname + '_ACTIVITYMAP.png')
+        self.fig.savefig(fname,format='png',dpi=200)

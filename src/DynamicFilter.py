@@ -55,6 +55,7 @@ class DynFilter:
         self.pixelffts = []
         self.fps = None
 
+        self.wavelength = None
         self.sclength = None # spatial correlation length
 
         # multiprocessing 
@@ -661,8 +662,6 @@ class DynFilter:
         ax.plot(0, 0, marker='o', linestyle='None', color='blue', markersize=3)
         ax.plot(dx*fac, -dy*fac, marker='o', linestyle='None', color='red', markersize=3)
 
-
-
         fig.tight_layout()
         can.draw()
         can.get_tk_widget().place(in_=colormapframe,relx=0.5, rely=0.5, anchor='center', width=600, height=500)
@@ -714,7 +713,10 @@ class DynFilter:
         ax.axvline(x=-0.5*wavelength,ymin=-0.55,ymax=0.95,linestyle='dashed',color='0.5')
 
         # print the wavelength 'lambda'
+
         self.wavelength = wavelength
+        print('*********** self.wavelength ************ ', self.wavelength )
+
         str1 = "$\lambda$ = "
         str2 = "$%.1f$" %wavelength
         str3 = " $\mu$m"

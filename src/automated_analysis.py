@@ -45,13 +45,9 @@ def process(main):
                 return True
         return False
 
-
-
-
     def get_parent_directory(path):
         parent_directory = os.path.dirname(path)
         return parent_directory
-
 
     def list_all_directories(base_path):
         all_dirs = []
@@ -101,7 +97,9 @@ def process(main):
     # ouptut_table is a dictionary and will contain the data
     output_table = []
     # Initialize the dict with only the header/keys:
-    header_keys = ["Filename","CBF","CBF_SD","CBF_min","CBF_max","FPS","Pixelsize","Wavelength", "Spatial correlation length"]
+    header_keys = ["Filename", "CBF", "CBF_SD", "CBF_min", "CBF_max",\
+                   "Active percentage", "Frequency correlation", "FPS", "Pixelsize",\
+                   "Wavelength", "Spatial correlation length", "error code"]
     header = dict.fromkeys(header_keys,None)
 
     output_table.append(header)
@@ -113,7 +111,6 @@ def process(main):
     output_directory = f.read()
     f.close()
     output_path = os.path.join(output_directory, 'Cilialyzer_output.csv')
-
 
     # --------------------------------------------------------------------------
     # ---------------------- Loop over all directories -------------------------
@@ -141,7 +138,7 @@ def process(main):
         main.PIL_ImgSeq.dirname.set(dirname)
         # update the displayed filename of the first image
         files = os.listdir(dirname)
-        print(files)
+        #print(files)
         main.toolbar.PIL_ImgSeq.fname.set(files[0])
 
         # write selected directory to file
@@ -181,6 +178,7 @@ def process(main):
                 main.image_stabilization(automated=1)
             except:
                 main.error_code = 1
+                print('********** error code after stabilization ***********')
         # ----------------------------------------------------------------------
 
         # ----------------------- Calculate powerspectrum ----------------------
@@ -193,20 +191,49 @@ def process(main):
                 main.error_code = round(avg_rel_dev)
             except:
                 main.error_code = 1
+                print('************ error_code after powerspec ************ ')
+
+
+
+        # ----------------- calculate activity map -----------------------------
+        #try:
+        main.activity_map.calc_activitymap(main.mapframe,
+            main.roiplayer.roiseq, float(main.toolbar.fpscombo.get()), \
+            float(main.minscale.get()), float(main.maxscale.get()), \
+            main.powerspectrum, float(main.toolbar.pixsizecombo.get()), automated=1)
+        main.activity_map.save_plot(main.PIL_ImgSeq.directory)
+        #except:
+        #    main.error_code=1
+
+
+        # ----------------- Frequency correlation --------------------------
+        main.activity_map.frequency_correlogram(main.fcorrframe, float(main.toolbar.pixsizecombo.get()))
+
+
+
+
+
+
+
+
 
 
         if (main.wl_autoflag.get()):
-            try:
-                # Dynamic filtering:
-                main.dynfiltering(automated=1)
-                # Determine the wavelength and the spatial correlation length
-                min_correlation = main.dynseq.mscorr(float(main.toolbar.fpscombo.get()),
-                    float(main.minscale.get()), float(main.maxscale.get()),
-                    main.mscorrplotframe, main.mscorrprofileframe, float(main.toolbar.pixsizecombo.get()), automated=1, output_fname=main.PIL_ImgSeq.directory)
+            #try:
+            # Dynamic filtering:
+            main.dynfiltering(automated=1)
+            # Determine the wavelength and the spatial correlation length
+            min_correlation = main.dynseq.mscorr(float(main.toolbar.fpscombo.get()),
+                float(main.minscale.get()), float(main.maxscale.get()),
+                main.mscorrplotframe, main.mscorrprofileframe, float(main.toolbar.pixsizecombo.get()),
+                main.activity_map.validity_mask ,automated=1, output_fname=main.PIL_ImgSeq.directory)
 
-                if min_correlation > -0.03: error_code = 1
-            except:
-                main.error_code = 1
+            if min_correlation > -0.03: main.error_code = 1
+            #except:
+            #    print('********minimum correlation is too high********')
+            #    main.error_code = 1
+
+        print('main.wl_autoflag.get() ', main.wl_autoflag.get())
 
         # write output to list
         output_table.append({
@@ -215,11 +242,17 @@ def process(main):
             "CBF_SD": main.powerspectrum.pwspecplot.cbfSD,
             "CBF_min": main.minscale.get(),
             "CBF_max": main.maxscale.get(),
+            "Active percentage": main.activity_map.active_percentage.get(),
+            "Frequency correlation": main.activity_map.freq_clength,
             "FPS": main.toolbar.fpscombo.get(),
             "Pixelsize": main.toolbar.pixsizecombo.get(),
             "Wavelength": main.dynseq.wavelength if main.wl_autoflag.get() else '',
             "Spatial correlation length": main.dynseq.sclength if main.wl_autoflag.get() else '',
+            "error code": main.error_code,
         })
+
+        print('main.dynseq.wavelength ', main.dynseq.wavelength)
+
 
         # write the determined values to excel file
         header = output_table[0].keys()

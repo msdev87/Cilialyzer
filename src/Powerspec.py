@@ -27,7 +27,7 @@ def fit_func(x, d1, d2, d3, g1a, g1b, g1c, g2a, g2b, g2c):
 
 class powerspec:
 
-    def __init__(self,parent,parentw,parenth):
+    def __init__(self, parent, parentw, parenth):
 
         self.spec = None
         self.freqs = None
@@ -57,7 +57,7 @@ class powerspec:
             # if not automated:
             # rebuild the frame (deletes its content)
             self.tkframe.destroy()
-            self.tkframe = Frame(parent,width=self.parentw,height=self.parenth)
+            self.tkframe = Frame(parent, width=self.parentw, height=self.parenth)
 
             self.tkframe.place(in_=parent, anchor='c', relx=0.5, rely=0.5)
             self.tkframe.update()
@@ -160,7 +160,6 @@ class powerspec:
             labelpad=10
             fontsize=15
 
-            # self.pwspecplot.plot(self.freqs, self.spec, xlabel, ylabel, labelpad, fontsize)
 
             # slightly smooth the powerspectrum
             self.spec = gaussian_filter(self.spec, sigma=1.0,truncate=2.0)

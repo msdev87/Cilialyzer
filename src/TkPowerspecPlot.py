@@ -130,6 +130,8 @@ class TkPowerspecPlot:
         #    os.mkdir(output_directory)
         #except FileExistsError:
         #    pass
+
+        # special characters are replaced by an underline:
         fname = re.sub(r'[^A-Za-z0-9 ]', "_", dirname)
         fname = os.path.join(output_directory, fname + '_POWERSPECTRUM.png')
         self.fig.savefig(fname,format='png',dpi=200)
