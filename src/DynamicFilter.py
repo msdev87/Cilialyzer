@@ -456,7 +456,7 @@ class DynFilter:
 
             # images are slightly smoothed
             img = gaussian_filter( numpy.array(self.dyn_roiseq[t]),
-                sigma=1.5, truncate=2.0)
+                sigma=1.0, truncate=2.0)
             # autocorrelate
             corr = autocorrelation_zeropadding.acorr2D_zp(img, mask=validity_mask)
 
@@ -479,7 +479,7 @@ class DynFilter:
         nrows = len(scorr[:,0]) # number of rows
         ncols = len(scorr[0,:]) # number of columns
 
-        fig = Figure(figsize=(5,5)) #, dpi=100)
+        fig = Figure(figsize=(5,5))
         ax = fig.add_subplot(111)
 
         can = FigureCanvasTkAgg(fig, colormapframe)
@@ -490,21 +490,6 @@ class DynFilter:
         corrplot = numpy.zeros((ny,nx))
         corrplot[:,:] = numpy.nan
 
-        """
-        dy = ny - len(scorr[:,0])
-        dx = nx - len(scorr[0,:])
-
-        # the plot is supposed to always span from -100 to +100 micrometers
-        # here we check from where to where we have to crop from scorr 
-        if ((dx > 0) and (dy > 0)):
-                corrplot[dy//2:len(scorr[:,0])+dy//2,dx//2:len(scorr[0,:])+dx//2] = scorr
-        if ((dx > 0) and (dy <= 0)):
-                corrplot[:,dx//2:len(scorr[0,:])+dx//2] = scorr[-dy//2:len(scorr[:,0])+dy//2,:]
-        if ((dx <= 0) and (dy > 0)):
-            corrplot[dy//2:len(scorr[:,0])+dy//2,:] = scorr[:,-dx//2:len(scorr[0,:])+dx//2]
-        if ((dx <= 0) and (dy <= 0)):
-            corrplot[:,:] = scorr[-dy//2:len(scorr[:,0])+dy//2,-dx//2:len(scorr[0,:])+dx//2]
-        """
         corrplot = scorr
 
         vmax = numpy.max(corrplot)
@@ -706,7 +691,7 @@ class DynFilter:
 
         l1 = len(distmat_profile)
         l2 = len(scorr_profile)
-        ax.plot(distmat_profile,scorr_profile,linewidth=3,color='darkorange')
+        ax.plot(distmat_profile, scorr_profile, linewidth=3, color='darkorange')
         ax.set_ylim([-0.6,1.05])
         ax.set_xlim([-100,100])
         ax.axvline(x=0.5*wavelength,ymin=-0.55,ymax=0.95,linestyle='dashed',color='0.5')
@@ -715,7 +700,7 @@ class DynFilter:
         # print the wavelength 'lambda'
 
         self.wavelength = wavelength
-        print('*********** self.wavelength ************ ', self.wavelength )
+        # print('*********** self.wavelength ************ ', self.wavelength )
 
         str1 = "$\lambda$ = "
         str2 = "$%.1f$" %wavelength

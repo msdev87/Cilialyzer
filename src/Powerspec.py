@@ -429,7 +429,16 @@ class powerspec:
             y = fit_func(x, pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6], pars[7], pars[8])
             # self.pwspecplot.axes.plot(x,y, color='orange', linestyle='--')
 
-            return average_relative_deviation
+
+            # determine the ratio of the noise-to-signal ratio
+            # fit of the decay func at peakheight compared to peakheight
+            # if larger than 0.5 raise error in automated analysis
+            noise_to_signal = 0.
+            noise_to_signal = 0.75*numpy.max(decay_func(self.freqs[minind:maxind+1],pars[0],pars[1],pars[2])) / numpy.max(self.spec[minind:maxind+1])
+
+            print('noise_to_signal ',noise_to_signal )
+
+            return max(average_relative_deviation, noise_to_signal)
 
     def peakselection(self,powerspecplot):
 

@@ -16,7 +16,6 @@ def process(main):
     #   activitymap
     #   write results to csv file
 
-
     # avoid troubles
     try:
         avoid_troubles.stop_animation(
@@ -72,8 +71,6 @@ def process(main):
     #for i in range(len(contents)):
     #    contents[i] = os.path.join(basepath, contents[i])
 
-
-
     # goal: dirlist holds the list of all directories within 'base path' directory
     #dirlist = []
     #for item in contents:
@@ -89,7 +86,6 @@ def process(main):
     #print('----- test : dirlist ----- ')
     #print(dirlist)
     #print('---------------------------')
-
 
     # ---------------- Before looping over all videos --------------------------
 
@@ -178,20 +174,20 @@ def process(main):
                 main.image_stabilization(automated=1)
             except:
                 main.error_code = 1
-                print('********** error code after stabilization ***********')
+                #print('********** error code after stabilization ***********')
         # ----------------------------------------------------------------------
 
         # ----------------------- Calculate powerspectrum ----------------------
         if (main.cbf_autoflag.get()):
             try:
-                avg_rel_dev=main.powerspectrum.calc_powerspec(main.PIL_ImgSeq.sequence,
+                error_code=main.powerspectrum.calc_powerspec(main.PIL_ImgSeq.sequence,
                     main.toolbar.fpscombo.get(),main.pwspec1frame, main.minscale,
                     main.maxscale, automated=1)
                 main.powerspectrum.pwspecplot.save_plot(main.PIL_ImgSeq.directory)
-                main.error_code = round(avg_rel_dev)
+                main.error_code = round(error_code)
             except:
                 main.error_code = 1
-                print('************ error_code after powerspec ************ ')
+                #print('************ error_code after powerspec ************ ')
 
 
 
