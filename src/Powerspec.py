@@ -436,7 +436,7 @@ class powerspec:
             noise_to_signal = 0.
             noise_to_signal = 0.75*numpy.max(decay_func(self.freqs[minind:maxind+1],pars[0],pars[1],pars[2])) / numpy.max(self.spec[minind:maxind+1])
 
-            print('noise_to_signal ',noise_to_signal )
+            #print('noise_to_signal ',noise_to_signal )
 
             return max(average_relative_deviation, noise_to_signal)
 

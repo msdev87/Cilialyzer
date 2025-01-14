@@ -148,6 +148,10 @@ def process(main):
 
         main.roiplayer.roiseq = main.toolbar.PIL_ImgSeq.sequence
 
+        # if the number of loaded images is less than 10 skip folder:
+        if len(main.roiplayer.roiseq) < 10:
+            continue # continue to next video
+
         """
         main.toolbar.nbook.select(main.nbook.index(main.roitab))
         refresh = 0
@@ -155,6 +159,7 @@ def process(main):
         main.roiplayer.__init__(main.roitab, main.PIL_ImgSeq.directory,refresh,
         main.PIL_ImgSeq.sequence, main.PIL_ImgSeq.seqlength, main.roi, selectroi)
         """
+
 
         """
         # make sure that the rotationangle is set to 0:
@@ -166,6 +171,7 @@ def process(main):
         # print('roiplayer id in Toolbar: ',id(self.roiplayer))
         # main.roiplayer.animate()
         """
+
         main.error_code = 0
         # ------------------------ Image stabilization -------------------------
         if (main.img_stab_autoflag.get()):
@@ -189,29 +195,22 @@ def process(main):
                 main.error_code = 1
                 #print('************ error_code after powerspec ************ ')
 
-
-
         # ----------------- calculate activity map -----------------------------
-        #try:
-        main.activity_map.calc_activitymap(main.mapframe,
-            main.roiplayer.roiseq, float(main.toolbar.fpscombo.get()), \
-            float(main.minscale.get()), float(main.maxscale.get()), \
-            main.powerspectrum, float(main.toolbar.pixsizecombo.get()), automated=1)
-        main.activity_map.save_plot(main.PIL_ImgSeq.directory)
-        #except:
-        #    main.error_code=1
-
+        try:
+            main.activity_map.calc_activitymap(main.mapframe,
+                main.roiplayer.roiseq, float(main.toolbar.fpscombo.get()), \
+                float(main.minscale.get()), float(main.maxscale.get()), \
+                main.powerspectrum, float(main.toolbar.pixsizecombo.get()), automated=1)
+            main.activity_map.save_plot(main.PIL_ImgSeq.directory)
+        except:
+            main.error_code=1
+        # ----------------------------------------------------------------------
 
         # ----------------- Frequency correlation --------------------------
-        main.activity_map.frequency_correlogram(main.fcorrframe, float(main.toolbar.pixsizecombo.get()))
-
-
-
-
-
-
-
-
+        try:
+            main.activity_map.frequency_correlogram(main.fcorrframe, float(main.toolbar.pixsizecombo.get()))
+        except:
+            main.error_code = 1
 
 
         if (main.wl_autoflag.get()):
@@ -229,7 +228,7 @@ def process(main):
             #    print('********minimum correlation is too high********')
             #    main.error_code = 1
 
-        print('main.wl_autoflag.get() ', main.wl_autoflag.get())
+        #print('main.wl_autoflag.get() ', main.wl_autoflag.get())
 
         # write output to list
         output_table.append({
@@ -247,12 +246,11 @@ def process(main):
             "error code": main.error_code,
         })
 
-        print('main.dynseq.wavelength ', main.dynseq.wavelength)
+        #print('main.dynseq.wavelength ', main.dynseq.wavelength)
 
 
         # write the determined values to excel file
         header = output_table[0].keys()
-
 
         with open(output_path, mode='w', newline='', encoding='utf-8') as csvfile:
         #with open('Cilialyzer_output' + '.csv', mode='w', newline='', encoding='utf-8') as csvfile:
@@ -261,7 +259,6 @@ def process(main):
             writer.writeheader()
             # write the data rows
             writer.writerows(output_table)
-
 
         # increase counter
         counter += 1

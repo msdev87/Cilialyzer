@@ -26,10 +26,8 @@ from scipy.ndimage.measurements import variance
 from scipy.ndimage.filters import gaussian_filter
 from scipy.ndimage.filters import uniform_filter
 
-
 from scipy.stats import trim_mean
 #from pyradar.filters.lee import lee_filter
-
 
 from pandastable import Table
 import pandas
@@ -39,11 +37,13 @@ import crosscorrelation_zp
 from scipy.ndimage import center_of_mass
 import matplotlib.pyplot as plt
 
+import smooth
+from scipy import interpolate
+
 VALID_TYPES = (
     "bmp", "dib", "dcx", "gif", "im", "jpg", "jpe", "jpeg", "pcd", "pcx",
     "png", "pbm", "pgm", "ppm", "psd", "tif", "tiff", "xbm", "xpm"
 )
-
 
 def sort_list(l):
     """
@@ -738,7 +738,7 @@ class ImgSeqPlayer(object):
 
                 # if (len(self.latesttrajectory) > 1):
                 #    self.trajectories.append(self.latesttrajectory) # collect trajectories! 
-                #print("len trajectories", len(self.trajectories))
+                # print("len trajectories", len(self.trajectories))
 
                 self.latesttrace = []
                 self.smoothtrace = []
@@ -1044,7 +1044,6 @@ class ImgSeqPlayer(object):
             window1 = img[int(y-winsize/2):int(y+winsize/2),
                          int(x-winsize/2):int(x+winsize/2)]
 
-
             img2 = numpy.array(self.PILimgs[self.index+1])
             window2 = img2[int(y-winsize/2):int(y+winsize/2),
                          int(x-winsize/2):int(x+winsize/2)]
@@ -1083,7 +1082,7 @@ class ImgSeqPlayer(object):
             between two subsequent time steps making tracking impossible!
             """
             ccorr = crosscorrelation_zp.ccorr2D_zp(window2, window1,
-                mask=None, normalize=True, centering=False)
+                mask=None, normalize=False, centering=False)
 
             print('max of ccorr:', numpy.max(ccorr))
             print('min of ccorr:', numpy.min(ccorr))
@@ -1162,9 +1161,6 @@ class ImgSeqPlayer(object):
                 ypos[i] = float(yx[1])
 
             # smooth the trajectory and fit a spline to the smoothed trajectory  
-            import smooth
-            from scipy import interpolate
-
 
             if self.recordingfps < 20:
                 smooth_winsize = 3
@@ -1187,7 +1183,6 @@ class ImgSeqPlayer(object):
             for i in range(len(bla)):
                 self.smoothtrace.append((xnew[i],ynew[i]))
 
-
             curvelength=0.
             for i in range(l-1):
                 dx=xnew[i+1]-xnew[i]
@@ -1198,13 +1193,10 @@ class ImgSeqPlayer(object):
             pspeed = curvelength * self.recordingfps *\
                     (self.pixsize/1000.0) / float(len(self.latesttrace))
 
-
-
             #self.can.create_line((xc,yc),(x1,y1),fill="green",width=5)
             #self.can.create_line((xc,yc),(xpos[30],ypos[30]),fill="blue",width=3)
             #self.master.update()
             #time.sleep(10)
-
 
             self.tracenumber = len(self.alltraces)
             # update results data frame
@@ -1216,7 +1208,6 @@ class ImgSeqPlayer(object):
 
             self.resultstable.updateModel(pandastable.data.TableModel(self.pandadf))
             self.resultstable.redraw()
-
 
             print(pspeed)
 
@@ -1261,7 +1252,6 @@ class ImgSeqPlayer(object):
             self.frame.update_idletasks() # update window
             #self.meanspeed.set("{:.1f}".format(numpy.mean(self.speedarray)))
 
-
     def delParticle(self):
 
         # delete results from panda table  
@@ -1285,8 +1275,6 @@ class ImgSeqPlayer(object):
         self.sdspeed.set(str(float(numpy.std(self.speedarray[0:-1]))))
         self.frame.update_idletasks() # update window
 
-
-
     def continuetracking(self):
         #print("continuetracking")
         self.stop=0
@@ -1296,6 +1284,11 @@ class ImgSeqPlayer(object):
         self.ptracking = True
         self.frame.after_idle(self.animate)
         self.trace_array = []
+
+    def del_ptracking_content(self):
+        pass
+
+
 
 def lee_filter(img, size):
 
