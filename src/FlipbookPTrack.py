@@ -555,8 +555,6 @@ class ImgSeqPlayer(object):
             anchor='e', font=("TkDefaultFont",10),width=22)
         self.sdlabel.grid(row=1,column=1,padx=3,sticky='W')
 
-
-
         # *********************************************************************
 
         # get image size 
@@ -752,8 +750,10 @@ class ImgSeqPlayer(object):
                 # prevent error of clicking particle being too close to the edges:
                 self.particle_coords =(self.can.canvasx(event.x),self.can.canvasx(event.y))
 
-                x = int(round(self.particle_coords[0]))
-                y = int(round(self.particle_coords[1]))
+                #x = int(round(self.particle_coords[0]))
+                #y = int(round(self.particle_coords[1]))
+                x = self.particle_coords[0]
+                y = self.particle_coords[1]
 
                 #print('x ',x)
                 #print('y ',y)
@@ -835,12 +835,21 @@ class ImgSeqPlayer(object):
                 if (self.bbox is not None):
 
                     winsize = self.sboxsize #int(self.sboxsize.get())
+                    """
                     self.anchor =\
                         (int(round(self.particle_coords[0]))-int(winsize/2),
                         int(round(self.particle_coords[1]))-int(winsize/2))
                     self.bbox = self.anchor +\
                         (int(round(self.particle_coords[0]))+int(winsize/2),
                         int(round(self.particle_coords[1]))+int(winsize/2))
+                    """
+                    self.anchor = \
+                        (self.particle_coords[0] - (winsize / 2),
+                        self.particle_coords[1] - (winsize / 2))
+                    self.bbox = self.anchor + \
+                                (self.particle_coords[0] + (winsize / 2),
+                                self.particle_coords[1] + (winsize / 2))
+
                     self.can.create_rectangle(self.bbox, outline="red",width=2)
 
 
@@ -1017,17 +1026,16 @@ class ImgSeqPlayer(object):
     def trackparticle(self):
 
         # current particle coordinates 
-        #x = int(round(self.particle_coords[0]))
-        #y = int(round(self.particle_coords[1]))
-
-        x = self.particle_coords[0]
-        y = self.particle_coords[1]
+        # we can round x,y here, as at this step particle_coords determine the
+        # location of the search window
+        x = round(self.particle_coords[0])
+        y = round(self.particle_coords[1])
 
         img = numpy.array(self.currentimg)
         imgh, imgw = img.shape
 
         winsize = self.sboxsize
-        print('winsize: ', winsize)
+        #print('winsize: ', winsize)
 
         # track particle until end of movie gets reached
         # OR: until the particle reaches the edge of the images  
@@ -1041,15 +1049,16 @@ class ImgSeqPlayer(object):
             # than T-10 and whether the particle did not yet reach the 
             # images' edges 
 
-            window1 = img[int(y-winsize/2):int(y+winsize/2),
-                         int(x-winsize/2):int(x+winsize/2)]
 
+            img1 = numpy.array(self.PILimgs[self.index])
+            window1 = img1[round(y-winsize/2):round(y+winsize/2),
+                         round(x-winsize/2):round(x+winsize/2)]
             img2 = numpy.array(self.PILimgs[self.index+1])
-            window2 = img2[int(y-winsize/2):int(y+winsize/2),
-                         int(x-winsize/2):int(x+winsize/2)]
+            window2 = img2[round(y-winsize/2):round(y+winsize/2),
+                         round(x-winsize/2):round(x+winsize/2)]
 
-            #print('window1.shape: ', window1.shape)
-            #print('window2.shape: ', window2.shape)
+            print('window1.shape: ', window1.shape)
+            print('window2.shape: ', window2.shape)
 
 
             """
@@ -1070,7 +1079,6 @@ class ImgSeqPlayer(object):
             # self.pcolor = 1 -> bright particles -> get max 
             # self.pcolor = 2 -> dark particles -> get min 
 
-
             # search the new position of the particle
             # 1st: crosscorrelate with same window in frame t+1
             # 2nd: get correlation maximum
@@ -1082,10 +1090,35 @@ class ImgSeqPlayer(object):
             between two subsequent time steps making tracking impossible!
             """
             ccorr = crosscorrelation_zp.ccorr2D_zp(window2, window1,
-                mask=None, normalize=False, centering=False)
+                mask=None, normalize=True, centering=False)
+            # 2nd input signal is slided over first input signal
+
+            fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+
+            axes[0].imshow(window1, cmap='gray', extent=(0,20,0,20))
+            axes[0].grid(color='white', linestyle='--', linewidth=0.5)
+
+            axes[1].imshow(window2, cmap='gray',extent=(0,20,0,20))
+            axes[1].grid(color='white', linestyle='--', linewidth=0.5)
+
+            axes[2].imshow(ccorr, cmap='gray',extent=(0,20,0,20))
+            axes[2].grid(color='white', linestyle='--', linewidth=0.5)
+
+            plt.show()
+
+            input()
+            #plt.imshow(ccorr, cmap='gray')
+            #plt.show()
+            #plt.show(block=False)
+            #time.sleep(7)
 
             print('max of ccorr:', numpy.max(ccorr))
             print('min of ccorr:', numpy.min(ccorr))
+
+            #print('---------------------------------------------------------')
+            #numpy.set_printoptions(threshold=numpy.inf)
+            #print(ccorr)
+            #print('---------------------------------------------------------')
 
             # search extremum (depending on color / bright or dark particles)
             #if (int(self.pcolor.get()) == 1):
@@ -1109,8 +1142,24 @@ class ImgSeqPlayer(object):
                 indx = xarr[0]
                 indy = yarr[0]
             """
-            ccorr[ccorr < numpy.percentile(ccorr, 75)] = 0.0
-            indy, indx = center_of_mass(ccorr)
+            #ccorr[ccorr < numpy.percentile(ccorr, 95)] = 0.0
+            #indy, indx = center_of_mass(ccorr)
+            max_inds = numpy.where(ccorr==numpy.max(ccorr))
+
+
+            # get location of max correlation (note that there can be more than
+            # one location)
+
+            #indy, indx = numpy.unravel_index(ind, ccorr.shape)
+            array = numpy.zeros_like(ccorr)
+            array[max_inds] = ccorr[max_inds]
+
+            #array[row-1:row+1,col-1:col+1] = (1+ccorr[row-1:row+1, col-1:col+1])**(5)
+            indy, indx = center_of_mass(array)
+
+
+
+            print('indx: ',indx, ' indy: ', indy)
 
             #indx = indx - winsize/2
             #indy = indy - winsize/2
@@ -1123,13 +1172,17 @@ class ImgSeqPlayer(object):
             #dx = numpy.mean(flow[:,:,0])
             #dy = numpy.mean(flow[:,:,1])
 
-            dx = indx - (winsize/2) + 0.5
-            dy = indy - (winsize / 2) + 0.5
+            dx = indx - (winsize/2) #+ 0.5
+            dy = indy - (winsize / 2) #+ 0.5
 
             #dy = (winsize/2) - indy - 0.5
 
-            newx = x + dx
-            newy = y + dy
+            newx = x - dx
+            newy = y - dy
+
+            print('newx :', newx)
+            print('newy :', newy)
+
 
             #newx = x - winsize/2 + indx #old version with extremum tracking
             #newy = y - winsize/2 + indy # old version; extremum tracking
@@ -1285,7 +1338,7 @@ class ImgSeqPlayer(object):
         self.frame.after_idle(self.animate)
         self.trace_array = []
 
-    def del_ptracking_content(self):
+    def delete_content(self):
         pass
 
 

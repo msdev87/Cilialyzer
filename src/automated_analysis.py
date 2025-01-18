@@ -108,6 +108,9 @@ def process(main):
     f.close()
     output_path = os.path.join(output_directory, 'Cilialyzer_output.csv')
 
+    bla = ' Processing data, please wait....'
+    main.videos_processed.set(bla)
+
     # --------------------------------------------------------------------------
     # ---------------------- Loop over all directories -------------------------
     # --------------------------------------------------------------------------
@@ -134,6 +137,10 @@ def process(main):
         main.PIL_ImgSeq.dirname.set(dirname)
         # update the displayed filename of the first image
         files = os.listdir(dirname)
+
+        if len(files) < 10:
+            continue # continue to next video
+
         #print(files)
         main.toolbar.PIL_ImgSeq.fname.set(files[0])
 
@@ -159,7 +166,6 @@ def process(main):
         main.roiplayer.__init__(main.roitab, main.PIL_ImgSeq.directory,refresh,
         main.PIL_ImgSeq.sequence, main.PIL_ImgSeq.seqlength, main.roi, selectroi)
         """
-
 
         """
         # make sure that the rotationangle is set to 0:
