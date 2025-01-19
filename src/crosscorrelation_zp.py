@@ -22,8 +22,8 @@ def ccorr2D_zp(signal1, signal2, mask=None, normalize=True, centering=True):
 
     # Make sure there are no NaN-values (just for the calculation of the means)
     # if mask[i,j] = False, then set signal[j,j] = 0
-    signal1[~mask] = 0.0
-    signal2[~mask] = 0.0
+    signal1[~numpy.array(mask,dtype=bool)] = 0.0
+    signal2[~numpy.array(mask,dtype=bool)] = 0.0
 
     ni, nj = signal1.shape
 
@@ -33,8 +33,8 @@ def ccorr2D_zp(signal1, signal2, mask=None, normalize=True, centering=True):
 
     # Missing numbers are now set to the signals' mean
     # This way, missing numbers will later be zero after centering signals
-    signal1[~mask] = mean1
-    signal2[~mask] = mean2
+    signal1[~numpy.array(mask, dtype=bool)] = mean1
+    signal2[~numpy.array(mask, dtype=bool)] = mean2
 
     # Get a centered version of the signals
     if (centering):

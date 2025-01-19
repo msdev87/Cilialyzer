@@ -1025,9 +1025,10 @@ class ImgSeqPlayer(object):
 
     def trackparticle(self):
 
-        # current particle coordinates 
-        # we can round x,y here, as at this step particle_coords determine the
-        # location of the search window
+        # current particle coordinates (y,x)
+        # we can round x,y here, as at this step particle_coords determine
+        # only the location of the search window, tracking is made relative
+        # to these coordinates
         x = round(self.particle_coords[0])
         y = round(self.particle_coords[1])
 
@@ -1035,7 +1036,7 @@ class ImgSeqPlayer(object):
         imgh, imgw = img.shape
 
         winsize = self.sboxsize
-        #print('winsize: ', winsize)
+
 
         # track particle until end of movie gets reached
         # OR: until the particle reaches the edge of the images  
@@ -1049,31 +1050,12 @@ class ImgSeqPlayer(object):
             # than T-10 and whether the particle did not yet reach the 
             # images' edges 
 
-
             img1 = numpy.array(self.PILimgs[self.index])
             window1 = img1[round(y-winsize/2):round(y+winsize/2),
                          round(x-winsize/2):round(x+winsize/2)]
             img2 = numpy.array(self.PILimgs[self.index+1])
             window2 = img2[round(y-winsize/2):round(y+winsize/2),
                          round(x-winsize/2):round(x+winsize/2)]
-
-            print('window1.shape: ', window1.shape)
-            print('window2.shape: ', window2.shape)
-
-
-            """
-            fig, axes = plt.subplots(1, 2, figsize=(10, 4))
-            im1=axes[0].imshow(window1, cmap='gray')
-            fig.colorbar(im1, ax=axes[0])
-            im2=axes[1].imshow(window2, cmap='gray')
-            fig.colorbar(im2, ax=axes[1])
-            plt.savefig('figure.png')
-            plt.show()
-            sys.exit()
-            """
-
-            #print('window1.size: ', window1.shape)
-            #print('window2.size: ', window2.shape)
 
             # self.pcolor designates the particle color (bright or dark):
             # self.pcolor = 1 -> bright particles -> get max 
@@ -1088,44 +1070,23 @@ class ImgSeqPlayer(object):
             -> Because particle moves and neighboring 'background' can change
             meaning that the mean in such small arrays might change
             between two subsequent time steps making tracking impossible!
-            """
+
             ccorr = crosscorrelation_zp.ccorr2D_zp(window2, window1,
                 mask=None, normalize=True, centering=False)
+            # Note here some complexities:
             # 2nd input signal is slided over first input signal
+            # Think about how to interpret the output: window size is even!
+            # Recall that for an even number there are always less
+            # negative frequencies than positive frequencies in the FFT
+            # the same applies here for the output of the cross correlation
+            """
 
-            fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-
-            axes[0].imshow(window1, cmap='gray', extent=(0,20,0,20))
-            axes[0].grid(color='white', linestyle='--', linewidth=0.5)
-
-            axes[1].imshow(window2, cmap='gray',extent=(0,20,0,20))
-            axes[1].grid(color='white', linestyle='--', linewidth=0.5)
-
-            axes[2].imshow(ccorr, cmap='gray',extent=(0,20,0,20))
-            axes[2].grid(color='white', linestyle='--', linewidth=0.5)
-
-            plt.show()
-
-            input()
-            #plt.imshow(ccorr, cmap='gray')
-            #plt.show()
-            #plt.show(block=False)
-            #time.sleep(7)
-
-            print('max of ccorr:', numpy.max(ccorr))
-            print('min of ccorr:', numpy.min(ccorr))
-
-            #print('---------------------------------------------------------')
-            #numpy.set_printoptions(threshold=numpy.inf)
-            #print(ccorr)
-            #print('---------------------------------------------------------')
 
             # search extremum (depending on color / bright or dark particles)
             #if (int(self.pcolor.get()) == 1):
             #    yarr, xarr = numpy.where(window1 == window1.max())
             #else:
             #    yarr, xarr = numpy.where(window1 == window1.min())
-
 
             #ccorr[ccorr < 0.2] = 0.
             #print(ccorr)
@@ -1142,54 +1103,51 @@ class ImgSeqPlayer(object):
                 indx = xarr[0]
                 indy = yarr[0]
             """
-            #ccorr[ccorr < numpy.percentile(ccorr, 95)] = 0.0
-            #indy, indx = center_of_mass(ccorr)
+
+            """"
+            # get indices of maximum correlation value in ccorr
             max_inds = numpy.where(ccorr==numpy.max(ccorr))
-
-
-            # get location of max correlation (note that there can be more than
-            # one location)
-
-            #indy, indx = numpy.unravel_index(ind, ccorr.shape)
+            row = max_inds[0][0]
+            col = max_inds[1][0]
             array = numpy.zeros_like(ccorr)
-            array[max_inds] = ccorr[max_inds]
-
-            #array[row-1:row+1,col-1:col+1] = (1+ccorr[row-1:row+1, col-1:col+1])**(5)
+            array[row-2:row+2,col-2:col+2] = ccorr[row-2:row+2, col-2:col+2]
             indy, indx = center_of_mass(array)
+            """
 
 
 
-            print('indx: ',indx, ' indy: ', indy)
 
-            #indx = indx - winsize/2
-            #indy = indy - winsize/2
 
-            #newx = int(-winsize/2 + indx + x)
-            #newy = int(-winsize/2 + indy + y)
+
+
 
             #flow = cv2.calcOpticalFlowFarneback(
             #    window1, window2, None, 0.75, 2, int(winsize/2), 7, 7, 1.5, 0)
             #dx = numpy.mean(flow[:,:,0])
             #dy = numpy.mean(flow[:,:,1])
 
-            dx = indx - (winsize/2) #+ 0.5
-            dy = indy - (winsize / 2) #+ 0.5
+            """
+            # Here we need to correctly interpret the 2D correlogram
+            # in the output of the cross_correlation, there are (along both axes)
+            # N/2-1 negative frequencies, followed by the zero-freq and
+            # N/2 positive frequencies - as the window size is even
+            # This needs to be considered in the following lines:
+            dx = indx - (winsize/2 - 1)
+            dy = indy - (winsize/2 - 1)
+            """
 
-            #dy = (winsize/2) - indy - 0.5
+            # new particle coordinates
+            newx = x + dx
+            newy = y + dy
 
-            newx = x - dx
-            newy = y - dy
+            #print('newx :', newx)
+            #print('newy :', newy)
 
-            print('newx :', newx)
-            print('newy :', newy)
-
-
-            #newx = x - winsize/2 + indx #old version with extremum tracking
-            #newy = y - winsize/2 + indy # old version; extremum tracking
 
             # update position
             self.track_cnt = self.track_cnt + 1
-            self.particle_coords = (newx,newy) # tuple particle coords
+            if (not numpy.isnan(newx) and not numpy.isnan(newy)):
+                self.particle_coords = (newx, newy) # tuple particle coords
 
             self.latesttrace.append(self.particle_coords)
 
@@ -1215,7 +1173,7 @@ class ImgSeqPlayer(object):
 
             # smooth the trajectory and fit a spline to the smoothed trajectory  
 
-            if self.recordingfps < 20:
+            if self.recordingfps < 30:
                 smooth_winsize = 3
             else:
                 smooth_winsize = round(self.recordingfps / 10)
@@ -1262,7 +1220,7 @@ class ImgSeqPlayer(object):
             self.resultstable.updateModel(pandastable.data.TableModel(self.pandadf))
             self.resultstable.redraw()
 
-            print(pspeed)
+            #print(pspeed)
 
             #print('---------------------- pandatable -------------------------')    
             #print(self.resultstable)
