@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import bytescl
 import sys
 
-def stcorr(array, maxtimeshift=14):
+def stcorr(array, maxtimeshift=15):
     """
     Returns the space-time correlation of an input image sequence
 

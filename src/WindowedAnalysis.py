@@ -33,7 +33,7 @@ class WinAnalysis:
         self.activitymap = []
 """
 
-def analyse_windows(array_list):
+def analyse_windows(array_list, fps):
     """
     Analyses the list of windows it receives
     """
@@ -52,7 +52,7 @@ def analyse_windows(array_list):
         #print('*************************************************************')
 
         # compute sptio-temporal cross-correlogram for 'array' 
-        stcorr = spacetimecorr_zp.stcorr(array,maxtimeshift=2)
+        stcorr = spacetimecorr_zp.stcorr(array,maxtimeshift=round(fps*0.035))
 
         # peak tracking
         n_timeshifts = len(stcorr)
@@ -138,7 +138,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     # let us define a validity mask, which is based on a windowed version
     # of the activity map and indicates whether the CBF varies to an acceptable
     # degree in each window 
-    mask = numpy.zeros((int(ni/winsize),int(nj/winsize)), dtype=bool)
+    mask = numpy.zeros((int(ni/winsize), int(nj/winsize)), dtype=bool)
 
     # get average cbf based on activity map:
     mcbf_total = numpy.nanmean(activitymap)
@@ -197,7 +197,13 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
             print('spread_win: ', spread_win)
 
-            if (spread_win < 2): #*spread_total):
+            # we should add here a condition considering the active percentage
+            # within each window, let us demand that the active percentage
+            # needs to be at least 80%
+
+            inactive_percentage = numpy.sum(numpy.isnan(activitymap[i1:i2,j1:j2])) / activitymap[i1:i2,j1:j2].size
+
+            if (spread_win < 3) and (inactive_percentage < 0.2) : #*spread_total):
                 mask[i,j] = True
 
                 # add windowed array to valid_wins:
@@ -211,20 +217,17 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
             else:
                 mask[i,j] = False
+                """
                 # !!!!!!!!!!!!!!!!!!!! TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
                 mask[i,j] = True
-
                 # add windowed array to valid_wins:
                 valid_wins.append(array[:,i1:i2,j1:j2])
-
                 # save center location of valid window
                 win_centers.append((0.5*(j1+j2),0.5*(i1+i2)))
-
                 # save mean cbf within valid window
                 win_meancbf.append(mcbf_win)
-
                 #!!!!!!!!!!!!!!!!!!!!! TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
-
+                """
     print(mask)
 
     # the analysis is only performed for windows_ij for which mask[i,j] is true
@@ -269,7 +272,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
         valid_wins_ncpus.append(sublist)
 
     result = pool.map(analyse_windows,
-        [valid_wins_ncpus[i] for i in range(ncpus)])
+        [valid_wins_ncpus[i] for i in range(ncpus)], fps)
 
     # result holds a list
     #print('---------------------------------------------------------------')
@@ -281,6 +284,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
     speeds = numpy.zeros(n_valid)
     cctimes = numpy.zeros(n_valid)
+    cclengths = numpy.zeros(n_valid)
     wave_directions = numpy.zeros(n_valid)
 
     counter = 0
@@ -356,6 +360,8 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             else:
                 cctimes[counter] = len(peak[:,0]) - 1
 
+            cclengths[counter] = speeds[counter] * cctimes[counter]
+
             counter += 1
 
     #print(' ------------------------------------------------------------')
@@ -390,10 +396,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     #print(wavelengths)
     #print('------------------------------------------------------------------')
 
-
-
     print('average wavelength: ', numpy.average(wavelengths))
-
 
     # -------------------------------------------------------------------------
     # print the most important observable values on the tkiner notebook tab
@@ -500,6 +503,25 @@ class results:
         self.cctime_display.place(in_=self.parent_tktab, anchor="c",
                 relx=0.65, rely=0.8)
 
+        # ---- preparing the frames to display the avg cross-corr length -------
+
+        # text label displaying the "average cross-corr length"
+        self.cclength_label = tk.Label(self.parent_tktab,
+            text="Average cross-correlation length [μm]: ", anchor='e',
+            font=("TkDefaultFont",12), width=30)
+        self.cclength_label.place(in_=self.parent_tktab,
+            anchor="c", relx=0.35, rely=0.85)
+
+        # label to display the numeric value of the average cclength
+        self.cclength = tk.StringVar()
+        self.cclength.set(0)
+        self.cclength_display = tk.Label(self.parent_tktab,
+            textvariable=self.cclength, anchor='w',
+            font=("TkDefaultFont",12), width=10)
+        self.cclength_display.place(in_=self.parent_tktab, anchor="c",
+                relx=0.65, rely=0.85)
+
+
         # ------ preparing the frames to display the "wave disorder" ---------
 
         # text label displaying the "wave disorder" 
@@ -507,7 +529,7 @@ class results:
             text="Wave disorder: ", anchor='e',
             font=("TkDefaultFont",12), width=30)
         self.wdisorder_label.place(in_=self.parent_tktab,
-            anchor="c", relx=0.35, rely=0.85)
+            anchor="c", relx=0.35, rely=0.9)
 
         # label to display the numeric value of the wave disorder 
         self.wdisorder = tk.StringVar()
@@ -516,7 +538,7 @@ class results:
             textvariable=self.wdisorder, anchor='w',
             font=("TkDefaultFont",12), width=10)
         self.wdisorder_display.place(in_=self.parent_tktab, anchor="c",
-                relx=0.65, rely=0.85)
+                relx=0.65, rely=0.9)
 
 
 
