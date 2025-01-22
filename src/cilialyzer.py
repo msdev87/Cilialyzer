@@ -455,14 +455,14 @@ class Cilialyzer():
         fps = float(self.toolbar.fpscombo.get())
 
         try:
-            if (len(self.dynseq.dyn_roiseq) > 0):
-
+            if (len(self.dynseq.dyn_roiseq) > 0 and sclength>0):
                 WindowedAnalysis.prepare_windows(
                     self.dynseq.dyn_roiseq, self.activity_map.freqmap, sclength,
                     pixelsize, fps, self.winresults)
         except:
-            tk.messagebox("Warning", "Dynamically filtered video needed")
+            tk.messagebox("Warning", "Dynamically filtered video and spatial autocorrelation needed")
 
+        """
         try:
             if (sclength > 0):
                 WindowedAnalysis.prepare_windows(
@@ -471,7 +471,7 @@ class Cilialyzer():
         except:
             tk.messagebox("Warning", "Spatial correlation length needs to be\
                 computed first")
-
+        """
     # -------------------------------------------------------------------------
 
     # --------------------- computation of the optical flow field -------------
@@ -1150,7 +1150,6 @@ class Cilialyzer():
 
             # add results frame
             self.winresults = WindowedAnalysis.results(self.winanalysistab)
-
         # *********************************************************************
 
         #*********************************************************************#

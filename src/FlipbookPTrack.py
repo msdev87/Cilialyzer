@@ -1037,7 +1037,6 @@ class ImgSeqPlayer(object):
 
         winsize = self.sboxsize
 
-
         # track particle until end of movie gets reached
         # OR: until the particle reaches the edge of the images  
         # this gets checked by the following conditions 
@@ -1053,9 +1052,9 @@ class ImgSeqPlayer(object):
             img1 = numpy.array(self.PILimgs[self.index])
             window1 = img1[round(y-winsize/2):round(y+winsize/2),
                          round(x-winsize/2):round(x+winsize/2)]
-            img2 = numpy.array(self.PILimgs[self.index+1])
-            window2 = img2[round(y-winsize/2):round(y+winsize/2),
-                         round(x-winsize/2):round(x+winsize/2)]
+            #img2 = numpy.array(self.PILimgs[self.index+1])
+            #window2 = img2[round(y-winsize/2):round(y+winsize/2),
+            #             round(x-winsize/2):round(x+winsize/2)]
 
             # self.pcolor designates the particle color (bright or dark):
             # self.pcolor = 1 -> bright particles -> get max 
@@ -1083,26 +1082,17 @@ class ImgSeqPlayer(object):
 
 
             # search extremum (depending on color / bright or dark particles)
-            #if (int(self.pcolor.get()) == 1):
-            #    yarr, xarr = numpy.where(window1 == window1.max())
-            #else:
-            #    yarr, xarr = numpy.where(window1 == window1.min())
-
-            #ccorr[ccorr < 0.2] = 0.
-            #print(ccorr)
-            #print('------------')
-            #yarr, xarr = numpy.where(ccorr == ccorr.max())
-            #plt.imshow(ccorr, cmap='gray')
-            #plt.show()
-
-            """
+            if (int(self.pcolor.get()) == 1):
+                yarr, xarr = numpy.where(window1 == window1.max())
+            else:
+                yarr, xarr = numpy.where(window1 == window1.min())
             if (len(xarr) > 1):
                 indx = int(round(numpy.mean(xarr)))
                 indy = int(round(numpy.mean(yarr)))
             else:
                 indx = xarr[0]
                 indy = yarr[0]
-            """
+
 
             """"
             # get indices of maximum correlation value in ccorr
@@ -1136,13 +1126,12 @@ class ImgSeqPlayer(object):
             dy = indy - (winsize/2 - 1)
             """
 
+            dx = -winsize/2 + indx
+            dy = -winsize/2 + indy
+
             # new particle coordinates
             newx = x + dx
             newy = y + dy
-
-            #print('newx :', newx)
-            #print('newy :', newy)
-
 
             # update position
             self.track_cnt = self.track_cnt + 1
@@ -1174,7 +1163,7 @@ class ImgSeqPlayer(object):
             # smooth the trajectory and fit a spline to the smoothed trajectory  
 
             if self.recordingfps < 30:
-                smooth_winsize = 3
+                smooth_winsize = 5
             else:
                 smooth_winsize = round(self.recordingfps / 10)
 

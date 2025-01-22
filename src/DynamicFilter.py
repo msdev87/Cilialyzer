@@ -568,8 +568,13 @@ class DynFilter:
                     y_cm = y_cm + abs(scorr[y,x]) * y
                     weight_total += abs(scorr[y,x])
 
-        x_cm = x_cm / weight_total
-        y_cm = y_cm / weight_total
+        try:
+            x_cm = x_cm / weight_total
+            y_cm = y_cm / weight_total
+        except:
+            x_cm = minx
+            y_cm = miny
+
 
         # print('--------- test --------')
         # print('minx: ', minx)
@@ -587,12 +592,25 @@ class DynFilter:
         dy = maxy-miny
         wavelength_pix = 2*math.sqrt(dx**2+dy**2)
 
-        # Plot the correlation profile along the line (x0,y0) -- (x1,y1) 
-        x0,y0 = maxx-(2*dx),maxy-(2*dy)
-        x1,y1 = maxx+(2*dx),maxy+(2*dy)
+        # Plot the correlation profile along the line (x0,y0) -- (x1,y1)
+
+
+        q=2.0
+        x0,y0 = maxx-(q*dx),maxy-(q*dy)
+        x1,y1 = maxx+(q*dx),maxy+(q*dy)
+        # make sure that the indices x0,y0,x1,y1 are valid:
+        c1 = bool(0 < x0 < ncols-1)
+        c2 = bool(0 < x1 < ncols - 1)
+        c3 = bool(0 < y0 < nrows - 1)
+        c4 = bool(0 < x0 < nrows - 1)
+
+        while not (c1 and c2 and c3 and c4 ):
+            q = q - 0.1
+            x0, y0 = maxx - (q * dx), maxy - (q * dy)
+            x1, y1 = maxx + (q * dx), maxy + (q * dy)
 
         # Note that:
-        # sqrt( (x1-x0)^2 + (y1-y0)^2 ) = 2 * wavelength
+        # sqrt( (x1-x0)^2 + (y1-y0)^2 ) = q * wavelength
 
         # generate a line of num points from (x0,y0) to (x1,y1)
         num = 1000  # number of interpolation points
@@ -600,9 +618,7 @@ class DynFilter:
 
         # the line needs to be restricted by the size of scorr (nrows, ncols)
         # (in the case of long wavelengths or small images)
-
-        # remove all elements in lx < 0, lx > nx-1, ly < 0, ly > ny-1
-        rm_indices = numpy.array([])
+        # Therefore, remove all elements in lx < 0, lx > nx-1, ly < 0, ly > ny-1
         indices1 = numpy.where(lx < 0)[0]
         indices2 = numpy.where(ly < 0)[0]
         indices3 = numpy.where(lx > nx-1)[0]

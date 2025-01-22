@@ -111,6 +111,9 @@ def process(main):
     bla = ' Processing data, please wait....'
     main.videos_processed.set(bla)
 
+    print('dirlist', dirlist)
+
+
     # --------------------------------------------------------------------------
     # ---------------------- Loop over all directories -------------------------
     # --------------------------------------------------------------------------

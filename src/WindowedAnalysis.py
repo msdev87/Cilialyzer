@@ -105,12 +105,8 @@ def analyse_windows(array_list):
 def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     """
     Analyzes each window separately
-
-
         Parameters:
-
         Returns:
-
     """
 
     firstimg = PILseq[0] # first image of roi sequence  
@@ -118,19 +114,17 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     nimgs = len(PILseq) # number of images   
 
     # initialize numpy float array, which will hold the image sequence  
-    array = numpy.zeros((int(nimgs),int(height),int(width)))
+    array = numpy.zeros((int(nimgs), int(height), int(width)))
 
     for i in range(nimgs):
         array[i,:,:] = numpy.array(PILseq[i])
 
     (nt,ni,nj) = numpy.shape(array)
 
-    #print('nt:',nt, '  ni:',ni,'  nj:',nj)
+    # We choose the size of the windows based on the spatial correlation length
+    # i.e. each window measures: ( 2 x spatialcorrlength )**2
 
-    # we choose the size of the windows based on the spatial correlation length
-    # i.e. each window measures: ( 3 x spatialcorrlength )**2
-
-    winsize = int(3*sclength / pixsize * 1000) # side length of a window (in pixels)
+    winsize = int(2*sclength / pixsize * 1000) # side length of a window (in pixels)
 
     print('winsize (in pixels): ', winsize)
 
@@ -148,6 +142,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
     # get average cbf based on activity map:
     mcbf_total = numpy.nanmean(activitymap)
+
     # get the standard deviation of the cbf based on the activity map:
     scbf_total = numpy.nanstd(activitymap)
 

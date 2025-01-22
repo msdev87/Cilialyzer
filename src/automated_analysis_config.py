@@ -108,7 +108,7 @@ def build_config(main):
     main.auto_outpathL.place(in_=main.autotab, anchor='c', relx=0.5, rely=0.7)
 
     main.videos_processed = tk.StringVar()
-    main.videos_processed.set('Processing has not been started yet')
+    main.videos_processed.set('Processing has not started yet')
     main.videos_processed_label =tk.Label(main.autotab, textvariable=main.videos_processed)
     main.videos_processed_label.place(in_=main.autotab, anchor='c', relx=0.5,rely=0.9)
 
