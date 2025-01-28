@@ -37,7 +37,7 @@ numpy.set_printoptions(threshold=sys.maxsize)
 from scipy.optimize import curve_fit
 
 import multiprocessing
-
+import cv2
 class DynFilter:
 
     def __init__(self):
@@ -520,6 +520,74 @@ class DynFilter:
 
         # slightly smooth scorr:
         scorr = gaussian_filter(scorr, sigma=1.0, truncate=2.0)
+
+        # ---------------------------------------------------------------------
+        # fit ellipse to all values > 1/e
+        ellipse_array = numpy.zeros_like(scorr)
+        inds = numpy.argwhere(scorr > 1/math.e)
+        rows = inds[:,0]
+        cols = inds[:,1]
+        ellipse_array[rows, cols] = 1
+        ellipse_indices = numpy.column_stack(numpy.where(ellipse_array > 0))
+        ellipse = cv2.fitEllipse(ellipse_indices)
+        (center_x, center_y), (semi_axis1, semi_axis2), rotation_angle = ellipse
+
+        major_axis = max(semi_axis1, semi_axis2)
+        minor_axis = min(semi_axis1, semi_axis2)
+
+        print('---------------------------------------------------------------')
+        print('major axis/mino axis: ', major_axis/minor_axis)
+        print('---------------------------------------------------------------')
+
+        #----------------------------------------------------------------------
+
+        """
+        # ----------------------------------------------------------------------
+        # to characterize the collective beat pattern:
+        # fit the elliptic peak around the maximum
+        # search all correlation values > 0 and fit an ellipse
+
+        relative_neighbors = numpy.array([[0,-1], [-1,0],[0,0], [1,0], [0,1]])
+        #neighbors = numpy.add(relative_neighbors, numpy.array([maxy, maxx]))
+        neighbors = numpy.array([[maxy, maxx]]).reshape((1,2))
+        ellipse_array = numpy.zeros_like(scorr)
+        corr_threshold = 0.1 #1 / math.e
+        neighbors_rows = neighbors[:, 0]
+        neighbors_cols = neighbors[:, 1]
+
+        while (numpy.sum(scorr[neighbors_rows, neighbors_cols] > corr_threshold) > 0):
+            cnt_max = neighbors.shape[0]
+            # loop over all elements in neighbors
+            for cnt in range(cnt_max):
+                # loop over local neighborhood for all elements in neighbors
+                for n in range(5):
+                    print('neighbors: ', neighbors)
+                    neighbor = neighbors[cnt,:] + relative_neighbors[n,:]
+                    if ((scorr[neighbor[0],neighbor[1]] > corr_threshold) and (not ellipse_array[neighbor[0],neighbor[1]])):
+                        ellipse_array[neighbor[0],neighbor[1]] = 1
+                        neighbors_rows = numpy.array(
+                            neighbors_rows.tolist().append(neighbor[0]))
+                        neighbors_cols = numpy.array(
+                            neighbors_cols.tolist().append(neighbor[1]))
+                        neighbors = numpy.array(neighbors.tolist().append(neighbor))
+                    else:
+                        neighbors_rows = numpy.array(
+                            neighbors_rows.tolist().remove(neighbor[0]))
+                        neighbors_cols = numpy.array(
+                            neighbors_cols.tolist().remove(neighbor[1]))
+                        neighbors = numpy.array(
+                            neighbors.tolist().remove(neighbor))
+
+        plt.figure()
+        plt.imshow(ellipse_array)
+        plt.show()
+
+        # lets fit the ellipse
+        #ellipse_indices = np.column_stack(np.where(ellipse_array > 0))
+        #ellipse = cv2.fitEllipse(ellipse_indices)
+        #(center_x, center_y), (major_axis, minor_axis), rotation_angle = ellipse
+        # ----------------------------------------------------------------------
+        """
 
         # get the profile along the line, which is given by the connection 
         # of the maximum and minimum coordinates

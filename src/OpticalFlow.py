@@ -89,33 +89,17 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, validity_mask, fps):
     nt, ni, nj = len(u_flow), len(u_flow[0][:,0]), len(u_flow[0][0,:])
     #speeds = numpy.zeros((nt,ni,nj))
 
-    print('start loop maxspeed')
-    max_speed = 0.0
-
     max_speed=numpy.max(numpy.sqrt(numpy.array(u_flow)**2 + numpy.array(v_flow)**2))
-    """
-    for t in range(nt):
-        for i in range(ni):
-            for j in range(nj):
-                speed = math.sqrt( u_flow[t][i,j]**2 + v_flow[t][i,j]**2 )
 
-                if (speed > max_speed):
-                    max_speed = speed
-                # speeds[t,i,j] = math.sqrt( u_flow[]**2 + v_flow[]**2 )
-    """
-    #print('finished')
-
-    # normalize: 
+    # Normalize:
     for t in range(nt):
         u_flow[t][:,:] = u_flow[t][:,:] / max_speed
         v_flow[t][:,:] = v_flow[t][:,:] / max_speed
 
-
-    # write optical flow speed to disk (directory ofspeed)
+    # Write optical flow speed to disk (directory ofspeed)
     speedmat = numpy.zeros_like(u_flow)
     for t in range(nimgs-1):
         speedmat[t][:,:] = numpy.sqrt(u_flow[t][:,:]**2 + v_flow[t][:,:]**2)
-
 
     mx = numpy.max(speedmat)
     mi = numpy.min(speedmat)
@@ -205,6 +189,10 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, validity_mask, fps):
     #if (numpy.min(corr) < 0):
     #    corr = corr - numpy.min(corr)
 
+
+    corr = gaussian_filter(corr, sigma=round(500/pixsize), truncate=2.0)
+
+
     print('max corr:')
     print(numpy.max(corr))
     print('min corr')
@@ -221,17 +209,18 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, validity_mask, fps):
     ax.axes.tick_params(labelsize=16)
     fig.tight_layout()
 
-    # x and y axis should span from -50 to 50 (=100 micrometers)
+    ny, nx = corr.shape
 
-    nx = int(100.0 / (pixsize*0.001))
-    ny = int(100.0 / (pixsize*0.001))
+    # nx = corr.shape #int(100.0 / (pixsize*0.001))
+    # ny = #int(100.0 / (pixsize*0.001))
 
     corrplot = numpy.zeros((ny,nx))
-    corrplot[:,:] = numpy.nan
+    corrplot[:,:] = corr #numpy.nan
 
-    dy = ny - len(corr[:,0])
-    dx = nx - len(corr[0,:])
+    #dy = ny - len(corr[:,0])
+    #dx = nx - len(corr[0,:])
 
+    """
     # the plot is supposed to always span from -50 to +50 micrometers 
     if ((dx > 0) and (dy > 0)):
             corrplot[dy//2:len(corr[:,0])+dy//2,dx//2:len(corr[0,:])+dx//2] = corr
@@ -242,84 +231,47 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, validity_mask, fps):
         corrplot[dy//2:len(corr[:,0])+dy//2,:] = corr[:,-dx//2:len(corr[0,:])+dx//2]
     if ((dx <= 0) and (dy <= 0)):
         corrplot[:,:] = corr[-dy//2:len(corr[:,0])+dy//2,-dx//2:len(corr[0,:])+dx//2]
+    """
 
     vmax = numpy.max(corr)
 
     # adapt orientation of corrplot so that the orientation matches 
     # the orientation of the images taken in reflection!
     #corrplot = numpy.flip(corrplot, 1)
+    xstart, xend = -0.5 * nx * pixsize * 0.001, 0.5 * nx * pixsize * 0.001
+    ystart, yend = -0.5 * nx * pixsize * 0.001, 0.5 * nx * pixsize * 0.001
 
-    ax.imshow(corrplot, extent=(-50,50,-50,50),cmap="bwr",vmin=-0.35*vmax,vmax=0.35*vmax)
+    ax.imshow(corrplot, extent=(xstart,xend,ystart,yend),cmap="bwr",vmin=-0.35*vmax,vmax=0.35*vmax)
+
+    maxy, maxx = numpy.unravel_index(numpy.argmax(corr, axis=None), corr.shape)
+    miny, minx = numpy.unravel_index(numpy.argmin(corr, axis=None), corr.shape)
+
+    ax.plot(0, 0, marker='o', linestyle='None', color='blue', markersize=3)
+    ax.plot(minx*pixsize/1000.0, -miny*pixsize/1000.0, marker='o',
+        linestyle='None', color='red', markersize=3)
+
     can = FigureCanvasTkAgg(fig, tkframe)
     can.draw()
     can.get_tk_widget().place(in_=tkframe, anchor="c", relx=0.75, rely=0.5)
     can._tkcanvas.place(in_=tkframe)
 
-    '''
-    # space-time correlation
-    tshifts = 30
-    # iterate over time shifts
 
-    stcorr = []
-    for dt in range(tshifts):
+    # determine the location of the maximum and the minimum in the correlogram
+    # to determine the wavelength
 
-        for t in range(nimgs-1-dt):
-            umat1 = u_flow[t][:,:]
-            vmat1 = v_flow[t][:,:]
 
-            umat2 = u_flow[t+dt][:,:]
-            vmat2 = v_flow[t+dt][:,:]
 
-            ucorr = crosscorrelation_zp.ccorr2D_zp(umat1, umat2, mask=None, normalize=False, centering=False)
-            vcorr = crosscorrelation_zp.ccorr2D_zp(vmat1, vmat2, mask=None, normalize=False, centering=False)
 
-            if (t == 0):
-                corr = ucorr + vcorr
-            else:
-                corr = corr + ucorr + vcorr
 
-        corr = 1.0 / float(nimgs-1-dt) * corr
-        # as we correlate simultaneously in space and time, we need to flip the correlogram:
-        corr = numpy.flip(corr, axis=(0,1))
 
-        # further adapt orientation of so that the orientation matches 
-        # the orientation of the images taken in reflection!
-        # corrplot = numpy.flip(corrplot, 1)
-        stcorr.append(corr)
-    # replay the space-time correlogram:
-    refresh = 0
-    # create new tkframe for replaying
-    #cframe = tk.Frame(tkframe, takefocus=0)
-    #cframe.place(in_=tkframe, anchor="c", relx=0.7, rely=0.5)
 
-    #player = FlipbookROI.ImgSeqPlayer(cframe,'', 0, stcorr, len(stcorr), None, 1)
-    #player.animate()
 
-    """
-    fig = plt.figure()
-    ax = plt.axes()
-    #ax.set_aspect('equal', 'box')
-    plt.rcParams["figure.figsize"] = (5,5)
 
-    ax.set_xlabel("$\Delta$x [$\mu$m]",fontsize=17)
-    ax.set_ylabel("$\Delta$y [$\mu$m]",fontsize=17)
-    ax.axes.tick_params(labelsize=16)
-    fig.tight_layout()
 
-    """
 
-    #stcorr.append(PIL.Image.fromarray(numpy.uint8((corr-numpy.min(corr)) /(numpy.max(corr)-numpy.min(corr))*254 )))
-    stcorr = numpy.array(stcorr)
 
-    mx = numpy.max(stcorr)
-    mi = numpy.min(stcorr)
-    for i in range(len(stcorr[:,0,0])):
-        img = stcorr[i,:,:]
-        #img = numpy.flip(stcorr[i,:,:],0) #???
-        img = PIL.Image.fromarray(numpy.uint8((img - mi) / (mx-mi) * 255))
-        img.save('stcorr'+str(i).zfill(3)+'.png')
 
-    '''
+
 
 
 

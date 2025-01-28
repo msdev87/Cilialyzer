@@ -92,9 +92,9 @@ def analyse_windows(array_list, fps):
                 #peak_locs[dt,:] = [posx, posy]
                 #peak_heights[dt] = peakheight
 
-                #print('dt :', dt)
-                #print(posx,posy,peakh)
-                #print('----------------------------------------------------')
+                print('dt :', dt)
+                print(posx,posy,peakh)
+                print('----------------------------------------------------')
 
         peaks_list.append(peaks)
 
@@ -364,33 +364,23 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
             counter += 1
 
-    #print(' ------------------------------------------------------------')
-    #print('speeds')
-    #print(speeds)
-
 
     # let us write all the interesting information on the disk
-
     # write center location (pixel units!) of each valid window out:
-    numpy.savetxt('./WindowedAnalysis_Results/win_centers_xy.dat', win_centers)
-
+    # numpy.savetxt('./WindowedAnalysis_Results/win_centers_xy.dat', win_centers)
     # write window-specific mean cbf to file:
-    numpy.savetxt('./WindowedAnalysis_Results/win_meancbf.dat', win_meancbf)
-
+    # numpy.savetxt('./WindowedAnalysis_Results/win_meancbf.dat', win_meancbf)
     # write wave speed to file
-    numpy.savetxt('./WindowedAnalysis_Results/win_wavespeed.dat', speeds)
-
+    #numpy.savetxt('./WindowedAnalysis_Results/win_wavespeed.dat', speeds)
     # write propagation angle to file
-    numpy.savetxt('./WindowedAnalysis_Results/win_waveangle.dat', wave_directions)
+    #numpy.savetxt('./WindowedAnalysis_Results/win_waveangle.dat', wave_directions)
 
     # get wavelengths within each valid window
     wavelengths = numpy.zeros(n_valid)
-
     for w in range(len(valid_wins)):
         window = valid_wins[w]
         wavelengths[w] = windowed_wavelength.get_wavelength(window,pixsize)
-
-    numpy.savetxt('./WindowedAnalysis_Results/win_wavelength.dat', wavelengths)
+    #numpy.savetxt('./WindowedAnalysis_Results/win_wavelength.dat', wavelengths)
 
     #print('---------------------- wavelengths -------------------------------')
     #print(wavelengths)
@@ -520,7 +510,6 @@ class results:
             font=("TkDefaultFont",12), width=10)
         self.cclength_display.place(in_=self.parent_tktab, anchor="c",
                 relx=0.65, rely=0.85)
-
 
         # ------ preparing the frames to display the "wave disorder" ---------
 
