@@ -73,9 +73,13 @@ function submitForm(event) {
         if (response.ok) {
             // Close the initial modal before showing the redirect modal
             closeDownloadModal();
-            
-            // Show the redirect modal after successful submission
+
+            // Optionally show the redirect modal
             document.getElementById('redirectModal').style.display = 'flex';
+
+            // Redirect immediately to the download page after form submission
+            setTimeout(redirectToDownload, 2000); // Redirect after a short delay (2 seconds)
+
         } else {
             alert("Failed to submit. Please check your input and try again.");
         }
@@ -85,7 +89,7 @@ function submitForm(event) {
     });
 }
 
-// Redirect to the download page after the user clicks the "Go to Download" button
+// Redirect to the download page after the user clicks the "Go to Download" button or after a delay
 function redirectToDownload() {
     window.location.href = "https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.5.0-f1dc712";
 }
