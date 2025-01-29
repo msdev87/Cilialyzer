@@ -82,12 +82,12 @@ function submitForm(event) {
 
         } else {
             // On failure, redirect to the download page directly
-            alert("Failed to submit. You will be redirected to the download page.");
+            alert("You will be redirected to the download page.");
             redirectToDownload();
         }
     }).catch(error => {
         console.error("Error:", error);
-        alert("An error occurred. You will be redirected to the download page.");
+        alert("You will be redirected to the download page.");
         redirectToDownload();
     });
 }
