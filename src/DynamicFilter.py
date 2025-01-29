@@ -262,7 +262,7 @@ class DynFilter:
             ypos = 0.9
             ax.text(xpos, ypos, str1 + str2 + str3, fontsize=14)
 
-            ax.set_xlabel("Time delay $\Delta$t [ms]", fontsize=16)
+            ax.set_xlabel(r"Time delay $\Delta$t [ms]", fontsize=16)
             ax.set_ylabel("Temporal autocorrelation", fontsize=16)
 
 
@@ -501,8 +501,8 @@ class DynFilter:
         la1 = ax.imshow(corrplot,alpha=1.0,cmap='bwr',interpolation='none',\
             extent=[-xend,xend,-yend,yend], vmin=-0.6*vmax, vmax=0.6*vmax)
 
-        ax.set_xlabel("$\Delta$x [$\mu$m]",fontsize=17)
-        ax.set_ylabel("$\Delta$y [$\mu$m]",fontsize=17)
+        ax.set_xlabel(r"$\Delta$x [$\mu$m]",fontsize=17)
+        ax.set_ylabel(r"$\Delta$y [$\mu$m]",fontsize=17)
 
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
@@ -731,8 +731,8 @@ class DynFilter:
         fac = 0.001*pixsize
         # ax.plot((lx-maxx)*fac,(ly-maxy)*fac, color="orange", linewidth=1)
 
-        ax.plot(0, 0, marker='o', linestyle='None', color='blue', markersize=3)
-        ax.plot(dx*fac, -dy*fac, marker='o', linestyle='None', color='red', markersize=3)
+        #ax.plot(0, 0, marker='o', linestyle='None', color='blue', markersize=3)
+        #ax.plot(dx*fac, -dy*fac, marker='o', linestyle='None', color='red', markersize=3)
 
         fig.tight_layout()
         can.draw()
@@ -789,14 +789,14 @@ class DynFilter:
         self.wavelength = wavelength
         # print('*********** self.wavelength ************ ', self.wavelength )
 
-        str1 = "$\lambda$ = "
+        str1 = r"$\lambda$ = "
         str2 = "$%.1f$" %wavelength
-        str3 = " $\mu$m"
+        str3 = r" $\mu$m"
         xpos = 0.5*wavelength
         ypos = 0.8
         ax.text(xpos,ypos,str1+str2+str3,fontsize=14)
 
-        ax.set_xlabel("Displacement [$\mu$m]",fontsize=16)
+        ax.set_xlabel(r"Displacement [$\mu$m]",fontsize=16)
         ax.set_ylabel("Correlation",fontsize=16)
 
         # for the automated analysis pipeline, the minimum value
@@ -866,7 +866,7 @@ class DynFilter:
         # print xi on plot:
         str1=r'$\xi$'
         str2=" = $%.1f$" %xi
-        str3=" $\mu$m"
+        str3=r" $\mu$m"
         ax.text(0.5*wavelength,0.65,str1+str2+str3,fontsize=14,color='darkorange')
 
         ax.margins(0.01)
