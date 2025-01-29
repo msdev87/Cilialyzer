@@ -68,7 +68,7 @@ function submitForm(event) {
             // Delay the redirect for a better user experience
             setTimeout(() => {
                 alert("Thank you! Redirecting to the download page.");
-                window.location.href = "https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.5.0-f1dc712";
+                window.location.replace("https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.5.0-f1dc712");
             }, 500);  // Add a slight delay (500ms) before the redirect
         } else {
             alert("Failed to submit. Please check your input and try again.");
@@ -79,8 +79,6 @@ function submitForm(event) {
     });
 }
 </script>
-
-
 
 
 
