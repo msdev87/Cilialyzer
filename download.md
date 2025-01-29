@@ -25,8 +25,16 @@
             <input type="text" id="name" name="name" required style="width:100%; padding:8px; margin-top:10px;">
             <label for="purpose">Use case:</label>
             <textarea id="purpose" name="purpose" required style="width:100%; padding:8px; margin-top:10px;"></textarea>
-            <button type="submit" style="margin-top:10px; padding:10px 20px;">Submit & Download</button>
+            <button type="submit" style="margin-top:10px; padding:10px 20px;">Submit & Proceed</button>
         </form>
+    </div>
+</div>
+
+<!-- Redirect Modal HTML -->
+<div id="redirectModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:20px; border-radius:5px; max-width:500px; width:90%;">
+        <h3>Thank you for your submission! You can now proceed to the download page.</h3>
+        <button onclick="redirectToDownload()" style="padding:10px 20px;">Go to Download</button>
     </div>
 </div>
 
@@ -63,13 +71,11 @@ function submitForm(event) {
         body: formData
     }).then(response => {
         if (response.ok) {
-            // Close the modal before redirect
+            // Close the initial modal before showing the redirect modal
             closeDownloadModal();
-            // Delay the redirect for a better user experience
-            setTimeout(() => {
-                alert("Thank you! Redirecting to the download page.");
-                window.location.replace("https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.5.0-f1dc712");
-            }, 500);  // Add a slight delay (500ms) before the redirect
+            
+            // Show the redirect modal after successful submission
+            document.getElementById('redirectModal').style.display = 'flex';
         } else {
             alert("Failed to submit. Please check your input and try again.");
         }
@@ -78,9 +84,12 @@ function submitForm(event) {
         alert("An error occurred. Please try again.");
     });
 }
+
+// Redirect to the download page after the user clicks the "Go to Download" button
+function redirectToDownload() {
+    window.location.href = "https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.5.0-f1dc712";
+}
 </script>
-
-
 
 
 
