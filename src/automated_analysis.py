@@ -95,7 +95,7 @@ def process(main):
     # Initialize the dict with only the header/keys:
     header_keys = ["Filename", "CBF", "CBF_SD", "CBF_min", "CBF_max",\
                    "Active percentage", "Frequency correlation", "FPS", "Pixelsize",\
-                   "Wavelength", "Spatial correlation length", "error code"]
+                   "Wavelength", "Spatial correlation length", "CBP elongation", "error code"]
     header = dict.fromkeys(header_keys,None)
 
     output_table.append(header)
@@ -112,7 +112,6 @@ def process(main):
     main.videos_processed.set(bla)
 
     print('dirlist', dirlist)
-
 
     # --------------------------------------------------------------------------
     # ---------------------- Loop over all directories -------------------------
@@ -162,24 +161,6 @@ def process(main):
         if len(main.roiplayer.roiseq) < 10:
             continue # continue to next video
 
-        """
-        main.toolbar.nbook.select(main.nbook.index(main.roitab))
-        refresh = 0
-        selectroi = 1
-        main.roiplayer.__init__(main.roitab, main.PIL_ImgSeq.directory,refresh,
-        main.PIL_ImgSeq.sequence, main.PIL_ImgSeq.seqlength, main.roi, selectroi)
-        """
-
-        """
-        # make sure that the rotationangle is set to 0:
-        main.roiplayer.rotationangle = 0.0
-
-        # update label in statusbar:
-        main.statusbar.update(main.PIL_ImgSeq)
-
-        # print('roiplayer id in Toolbar: ',id(self.roiplayer))
-        # main.roiplayer.animate()
-        """
 
         main.error_code = 0
         # ------------------------ Image stabilization -------------------------
@@ -202,24 +183,26 @@ def process(main):
                 main.error_code = round(error_code)
             except:
                 main.error_code = 1
-                #print('************ error_code after powerspec ************ ')
 
         # ----------------- calculate activity map -----------------------------
-        try:
-            main.activity_map.calc_activitymap(main.mapframe,
-                main.roiplayer.roiseq, float(main.toolbar.fpscombo.get()), \
-                float(main.minscale.get()), float(main.maxscale.get()), \
-                main.powerspectrum, float(main.toolbar.pixsizecombo.get()), automated=1)
-            main.activity_map.save_plot(main.PIL_ImgSeq.directory)
-        except:
-            main.error_code=1
+        if (main.activity_autoflag.get()):
+            try:
+                main.activity_map.calc_activitymap(main.mapframe,
+                    main.roiplayer.roiseq, float(main.toolbar.fpscombo.get()), \
+                    float(main.minscale.get()), float(main.maxscale.get()), \
+                    main.powerspectrum, float(main.toolbar.pixsizecombo.get()), automated=1)
+                main.activity_map.save_plot(main.PIL_ImgSeq.directory)
+            except:
+                main.error_code=1
         # ----------------------------------------------------------------------
 
         # ----------------- Frequency correlation --------------------------
-        try:
-            main.activity_map.frequency_correlogram(main.fcorrframe, float(main.toolbar.pixsizecombo.get()))
-        except:
-            main.error_code = 1
+        if (main.fcorr_autoflag.get()):
+            try:
+                main.activity_map.frequency_correlogram(main.fcorrframe,
+                    float(main.toolbar.pixsizecombo.get()))
+            except:
+                main.error_code = 1
 
 
         if (main.wl_autoflag.get()):
@@ -252,6 +235,7 @@ def process(main):
             "Pixelsize": main.toolbar.pixsizecombo.get(),
             "Wavelength": main.dynseq.wavelength if main.wl_autoflag.get() else '',
             "Spatial correlation length": main.dynseq.sclength if main.wl_autoflag.get() else '',
+            "CBP elongation": main.dynseq.cbp_elongation if main.wl_autoflag.get() else '',
             "error code": main.error_code,
         })
 

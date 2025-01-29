@@ -57,6 +57,7 @@ class DynFilter:
 
         self.wavelength = None
         self.sclength = None # spatial correlation length
+        self.cbp_elongation = None
 
         # multiprocessing 
         multiprocessing.freeze_support()
@@ -535,9 +536,11 @@ class DynFilter:
         major_axis = max(semi_axis1, semi_axis2)
         minor_axis = min(semi_axis1, semi_axis2)
 
-        print('---------------------------------------------------------------')
-        print('major axis/mino axis: ', major_axis/minor_axis)
-        print('---------------------------------------------------------------')
+        self.cbp_elongation = major_axis / minor_axis
+
+        #print('---------------------------------------------------------------')
+        #print('major axis/mino axis: ', major_axis/minor_axis)
+        #print('---------------------------------------------------------------')
 
         #----------------------------------------------------------------------
 

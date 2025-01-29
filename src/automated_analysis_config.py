@@ -18,7 +18,7 @@ def build_config(main):
     style.configure("TLabelframe.Label")
 
     main.autoLF = ttk.LabelFrame(main.autotab,
-        text="Configure analysis pipeline", heigh=300, width=500, relief='sunken', labelanchor='n')
+        text=" Configure analysis pipeline ", height=300, width=500, relief='ridge', labelanchor='n')
     main.autoLF.place(in_=main.autotab, anchor="c", relx=0.5, rely=0.5)
 
     def select_root_directory():
@@ -33,7 +33,7 @@ def build_config(main):
 
         # update the label indicating which root directory is set for the
         # automated analysis pipeline:
-        main.auto_path_str.set(path)
+        #main.auto_path_str.set(path)
 
         contents = os.listdir(path) # returns all directories and files in path
 
@@ -58,31 +58,54 @@ def build_config(main):
     # Add button 'Select directory'
     main.auto_dirB = tk.Button(main.autotab, text=' Select directory ',
         command=select_root_directory, height=1, width=25)
-    main.auto_dirB.place(in_=main.autotab, anchor="c", relx=.5, rely=.07)
+    main.auto_dirB.place(in_=main.autotab, anchor="c", relx=.5, rely=.05)
 
     # Print path of selected directory:
-    main.auto_path_str = tk.StringVar()
-    main.auto_path_str.set("Please select your parent directory with the button above")
-    main.auto_pathL = tk.Label(main.autotab, textvariable=main.auto_path_str,bg='gray100')
-    main.auto_pathL.place(in_=main.autotab,anchor='c',relx=0.5, rely=0.14)
+    #main.auto_path_str = tk.StringVar()
+    text_howto = """With the button above (Select directory), you can select a parent directory. The analysis pipeline assumes that this directory contains at least one subdirectory, and it will search for all subdirectories, which will then be analyzed sequentially. Currently, the automated pipeline can only handle image sequences."""
+    main.auto_pathL = tk.Text(main.autotab, wrap="word",
+        bg='gray90' ,width=65, height=5, font=("TkDefaultFont", 10) )
+    main.auto_pathL.insert(1.0, text_howto)
+    #main.auto_pathL.tag_configure("spacing", spacing1=5)
+    #main.auto_pathL.tag_add("spacing", "2.0", "end")
+    main.auto_pathL.place(in_=main.autotab,anchor='c',relx=0.5, rely=0.17)
 
     # add checkbutton for the image stabilization
     main.img_stab_autoflag = tk.IntVar()
     main.img_stab_autoflag.set(1)
-    main.img_stab_checkB = ttk.Checkbutton(main.autoLF, text=" Image stabilization ", variable=main.img_stab_autoflag)
+    main.img_stab_checkB = tk.Checkbutton(main.autoLF, text=" Image stabilization ",
+        variable=main.img_stab_autoflag, font=("TkDefaultFont", 10))
     main.img_stab_checkB.place(in_=main.autoLF, anchor='w', relx=0.05, rely=0.1)
 
     # add checkbutton for CBF analysis
     main.cbf_autoflag = tk.IntVar()
     main.cbf_autoflag.set(1)
-    main.cbf_checkB = ttk.Checkbutton(main.autoLF, text=" CBF analysis ", variable=main.cbf_autoflag)
-    main.cbf_checkB.place(in_=main.autoLF, anchor='w', relx=0.05, rely=0.25)
+    main.cbf_checkB = tk.Checkbutton(main.autoLF, text=" CBF analysis ",
+        variable=main.cbf_autoflag, font=("TkDefaultFont", 10))
+    main.cbf_checkB.place(in_=main.autoLF, anchor='w', relx=0.05, rely=0.25 )
 
-    # add checkbutton for wavelength and spatial correlation length
+
+    # add checkbutton for the active percentage and activity map  
+    main.activity_autoflag = tk.IntVar()
+    main.activity_autoflag.set(1)
+    main.activity_autoflagB = tk.Checkbutton(main.autoLF, text=" Activity analysis ",
+        variable=main.activity_autoflag, font=("TkDefaultFont", 10))
+    main.activity_autoflagB.place(in_=main.autoLF, anchor='w', relx=0.05, rely=0.4)
+
+    # ------------ add checkbutton for the frequency correlation --------------
+    main.fcorr_autoflag = tk.IntVar()
+    main.fcorr_autoflag.set(1)
+    main.fcorr_autoflagB = tk.Checkbutton(main.autoLF, text=" Frequency correlation ",
+        variable=main.fcorr_autoflag, font=("TkDefaultFont", 10))
+    main.fcorr_autoflagB.place(in_=main.autoLF, anchor='w', relx=0.05, rely=0.55)
+    # --------------------------------------------------------------------------
+
+    # ----- add checkbutton for wavelength and spatial correlation length ------
     main.wl_autoflag = tk.IntVar()
     main.wl_autoflag.set(1)
-    main.wl_checkB = ttk.Checkbutton(main.autoLF, text=" Wavelength & Correlation length", variable=main.wl_autoflag)
-    main.wl_checkB.place(in_=main.autoLF, anchor='w', relx=0.05, rely=0.4)
+    main.wl_checkB = tk.Checkbutton(main.autoLF, text=" Spatial analysis ",
+        variable=main.wl_autoflag, font=("TkDefaultFont", 10))
+    main.wl_checkB.place(in_=main.autoLF, anchor='w', relx=0.05, rely=0.7)
 
     # Label 'Results will be saved to: '
     # main.auto_outputL = tk.Label(main.autotab, text=' Results will be saved to: ')
@@ -104,12 +127,14 @@ def build_config(main):
 
     main.auto_outpath = tk.StringVar()
     main.auto_outpath.set(' Results will be saved to:  '+main.output_directory)
-    main.auto_outpathL = tk.Label(main.autotab, textvariable=main.auto_outpath)
+    main.auto_outpathL = tk.Label(main.autotab, textvariable=main.auto_outpath,
+        font=("TkDefaultFont", 10))
     main.auto_outpathL.place(in_=main.autotab, anchor='c', relx=0.5, rely=0.7)
 
     main.videos_processed = tk.StringVar()
     main.videos_processed.set('Processing has not started yet')
-    main.videos_processed_label =tk.Label(main.autotab, textvariable=main.videos_processed)
+    main.videos_processed_label =tk.Label(main.autotab,
+        textvariable=main.videos_processed, font=("TkDefaultFont", 10))
     main.videos_processed_label.place(in_=main.autotab, anchor='c', relx=0.5,rely=0.9)
 
     main.main_window.update_idletasks()
