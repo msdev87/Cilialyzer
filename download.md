@@ -81,11 +81,14 @@ function submitForm(event) {
             setTimeout(redirectToDownload, 2000); // Redirect after a short delay (2 seconds)
 
         } else {
-            alert("Failed to submit. Please check your input and try again.");
+            // On failure, redirect to the download page directly
+            alert("Failed to submit. You will be redirected to the download page.");
+            redirectToDownload();
         }
     }).catch(error => {
         console.error("Error:", error);
-        alert("An error occurred. Please try again.");
+        alert("An error occurred. You will be redirected to the download page.");
+        redirectToDownload();
     });
 }
 
@@ -94,8 +97,6 @@ function redirectToDownload() {
     window.location.href = "https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.5.0-f1dc712";
 }
 </script>
-
-
 
 
 
