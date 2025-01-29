@@ -10,16 +10,72 @@
 <br />
 <br />
 
-<!--
-<b>General comment on Cilialyzer releases:</b>  <br />
-Please note that the Cilialyzer is currently undergoing further development. 
-Unfortunately, the software still crashes occasionally. We will take care of these (in)stability problems in the next few weeks and release a considerably more stable version
-by the beginning of 2024. 
-Furthermore, it is important to note that we have the impression that running Cilialyzer by executing the compiled binary release for Windows is unfortunately the least stable variant of 
-using Cilialyzer. 
-We recommend to run the Cilialyzer from the Python environment. However, the clearly most stable variant of using Cilialyzer 
-is to run it within the Python environment installed on a machine running Ubuntu Linux.  
---> 
+
+
+<!-- The download link that triggers the modal -->
+<a href="#" onclick="showDownloadForm()">Download the latest Cilialyzer version</a>
+
+<!-- Modal Form HTML -->
+<div id="downloadModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:20px; border-radius:5px; max-width:500px; width:90%;">
+        <h3>Dear colleague, we are currently gathering information about the users of our software and their specific use cases.
+            Please provide us with the following details: </h3>
+        <form id="downloadForm" onsubmit="submitForm(event)">
+            <label for="email">Your email:</label>
+            <input type="email" id="email" name="email" required style="width:100%; padding:8px; margin-top:10px;">
+            <label for="name">Your name:</label>
+            <input type="text" id="name" name="name" required style="width:100%; padding:8px; margin-top:10px;">
+            <label for="purpose">Use case:</label>
+            <textarea id="purpose" name="purpose" required style="width:100%; padding:8px; margin-top:10px;"></textarea>
+            <button type="submit" style="margin-top:10px; padding:10px 20px;">Submit & Download</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Show the modal when the download link is clicked
+function showDownloadForm() {
+    const modal = document.getElementById('downloadModal');
+    modal.style.display = 'flex';
+
+    // Close modal on Escape key press
+    document.addEventListener('keydown', function handleEscape(event) {
+        if (event.key === 'Escape') {
+            closeDownloadModal();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    });
+}
+
+// Close the modal
+function closeDownloadModal() {
+    document.getElementById('downloadModal').style.display = 'none';
+}
+
+// Handle form submission
+function submitForm(event) {
+    event.preventDefault(); // Prevent the form from refreshing the page
+
+    // Gather form data
+    const formData = new FormData(document.getElementById('downloadForm'));
+
+    // Send the form data to Formspree
+    fetch("https://formspree.io/f/mgveyeql", {
+        method: "POST",
+        body: formData
+    }).then(response => {
+        if (response.ok) {
+            alert("Thank you! Redirecting to the download page.");
+            window.location.href = "https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.5.0-f1dc712";
+        } else {
+            alert("Failed to submit. Please check your input and try again.");
+        }
+    }).catch(error => {
+        console.error("Error:", error);
+        alert("An error occurred. Please try again.");
+    });
+}
+</script>
 
 
 
@@ -27,6 +83,22 @@ is to run it within the Python environment installed on a machine running Ubuntu
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
 
 <!-- The download link that triggers the modal -->
 <a href="#" onclick="showDownloadForm()">Download the latest Cilialyzer version</a>
