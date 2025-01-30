@@ -30,5 +30,4 @@ and contains a simple-to-use **particle tracking** module.
 
 Contact
 -------
-
-For questions of any kind, contact the developer: martin.schneiter@gmx.ch
+You are welcome to contact me with any questions you may have: martin.schneiter@gmx.ch
