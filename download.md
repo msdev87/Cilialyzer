@@ -94,7 +94,7 @@ function submitForm(event) {
 
 // Redirect to the download page after the user clicks the "Go to Download" button or after a delay
 function redirectToDownload() {
-    window.location.href = "https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer-v1.5.0-f1dc712";
+    window.location.href = "https://github.com/msdev87/Cilialyzer/releases/tag/Cilialyzer_v1.7.0_9f1aa61_January2025";
 }
 </script>
 
