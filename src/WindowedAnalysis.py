@@ -14,24 +14,6 @@ import tkinter as tk
 #import termplotlib as tpl
 import crosscorrelation_zp
 
-"""
-class WinAnalysis:
-
-    def __init__(self):
-
-        # The windowed analysis is exclusively performed on the
-        # dynamically filtered ROI sequence
-        self.dyn_roiseq = [] # filtered ROI-sequence
-
-        # The window size defines the size of the areas,
-        # which we will examine separately
-        self.total_windows = None # number of total windows
-        self.windowsize = None # window size
-
-        # we need the activity map to exclude areas (windows),
-        # which show too much variability (e.g. in CBF)
-        self.activitymap = []
-"""
 
 def analyse_windows(array_list, fps):
     """
@@ -52,11 +34,11 @@ def analyse_windows(array_list, fps):
         #print('*************************************************************')
 
         # compute sptio-temporal cross-correlogram for 'array' 
-        stcorr = spacetimecorr_zp.stcorr(array,maxtimeshift=round(fps*0.035))
+        stcorr = spacetimecorr_zp.stcorr(array, maxtimeshift=round(fps*0.04))
 
         # peak tracking
         n_timeshifts = len(stcorr)
-        peaks = numpy.zeros((n_timeshifts,3)) # holds position (x,y) & height of peak
+        peaks = numpy.zeros((n_timeshifts, 3)) # holds position (x,y) & height of peak
         peaks[:,:] = numpy.nan
 
         for dt in range(n_timeshifts):
@@ -65,8 +47,6 @@ def analyse_windows(array_list, fps):
             # i.e. the peak, which is characterized by the greatest values 
             # therefore, we select only those values, which are 
             # greater than 1/e from the cross-correlogram
-
-            # print('--------------------------------------------------------')
 
             if ( numpy.max(numpy.subtract(stcorr[dt], 1./math.e)) > 0):
 
@@ -92,9 +72,9 @@ def analyse_windows(array_list, fps):
                 #peak_locs[dt,:] = [posx, posy]
                 #peak_heights[dt] = peakheight
 
-                print('dt :', dt)
-                print(posx,posy,peakh)
-                print('----------------------------------------------------')
+                #print('dt :', dt)
+                #print(posx,posy,peakh)
+                #print('----------------------------------------------------')
 
         peaks_list.append(peaks)
 
@@ -119,14 +99,14 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     for i in range(nimgs):
         array[i,:,:] = numpy.array(PILseq[i])
 
-    (nt,ni,nj) = numpy.shape(array)
+    (nt, ni, nj) = numpy.shape(array)
 
     # We choose the size of the windows based on the spatial correlation length
     # i.e. each window measures: ( 2 x spatialcorrlength )**2
 
     winsize = int(2*sclength / pixsize * 1000) # side length of a window (in pixels)
 
-    print('winsize (in pixels): ', winsize)
+    # print('winsize (in pixels): ', winsize)
 
     # Split up the dynamically filtered ROI-sequence 'array'
     # (note that the size of the ROI can vary)
@@ -188,14 +168,14 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             # check if the CBF-spread within the window is smaller than 
             # 65% of the total CBF-spread: 
 
-            print('10th percentile in window: ', numpy.nanpercentile(activity_scaled[i1:i2,j1:j2],10))
+            # print('10th percentile in window: ', numpy.nanpercentile(activity_scaled[i1:i2,j1:j2],10))
 
             percentile1 = numpy.nanpercentile(activity_scaled[i1:i2,j1:j2], 10)
             percentile2 = numpy.nanpercentile(activity_scaled[i1:i2,j1:j2], 90)
 
             spread_win = percentile2 - percentile1
 
-            print('spread_win: ', spread_win)
+            # print('spread_win: ', spread_win)
 
             # we should add here a condition considering the active percentage
             # within each window, let us demand that the active percentage
@@ -217,24 +197,13 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
             else:
                 mask[i,j] = False
-                """
-                # !!!!!!!!!!!!!!!!!!!! TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
-                mask[i,j] = True
-                # add windowed array to valid_wins:
-                valid_wins.append(array[:,i1:i2,j1:j2])
-                # save center location of valid window
-                win_centers.append((0.5*(j1+j2),0.5*(i1+i2)))
-                # save mean cbf within valid window
-                win_meancbf.append(mcbf_win)
-                #!!!!!!!!!!!!!!!!!!!!! TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
-                """
-    print(mask)
+
 
     # the analysis is only performed for windows_ij for which mask[i,j] is true
 
     # get the number of windows for which we perform the analysis:
     n_valid = numpy.sum(mask)
-    print('n_valid: ', n_valid)
+    #print('n_valid: ', n_valid)
 
     # number of available cpus:
     multiprocessing.freeze_support()
@@ -266,17 +235,12 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             istart = 0
 
         sublist = valid_wins[istart:istart+int(nwins_per_cpu[i])]
-        print('len of sublist:', len(sublist))
-
+        #print('len of sublist:', len(sublist))
 
         valid_wins_ncpus.append(sublist)
 
     result = pool.map(analyse_windows,
         [valid_wins_ncpus[i] for i in range(ncpus)], fps)
-
-    # result holds a list
-    #print('---------------------------------------------------------------')
-    #print(result)
 
     # result holds a list of a list of arrays 
     # the arrays contain "peaks" with columns: (x, y, height) 
@@ -310,9 +274,9 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             # print(shifted_dists)
             # -----------------------------------------------------------------
 
-            print(' ------------------- peak start -------------------------')
-            print(peak)
-            print(' -------------------- peak end --------------------------')
+            #print(' ------------------- peak start -------------------------')
+            #print(peak)
+            #print(' -------------------- peak end --------------------------')
 
             # This is an important note, please read carefully!
             # The space-time correlation C(dx,dy,dt) reprsents the convolution 
@@ -363,7 +327,6 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             cclengths[counter] = speeds[counter] * cctimes[counter]
 
             counter += 1
-
 
     # let us write all the interesting information on the disk
     # write center location (pixel units!) of each valid window out:
