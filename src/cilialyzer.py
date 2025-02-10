@@ -1145,8 +1145,8 @@ class Cilialyzer():
             self.nbook.add(self.winanalysistab, text='  Windowed Analysis  ')
 
             self.winanalysisB = tk.Button(self.winanalysistab,
-                text='Analyze ROIs', command=self.winanalysis, height=bh, width=bw)
-            self.winanalysisB.place(in_=self.winanalysistab, anchor="c", relx=0.5, rely=0.5)
+                text='Run local analysis', command=self.winanalysis, height=bh, width=bw)
+            self.winanalysisB.place(in_=self.winanalysistab, anchor="c", relx=0.5, rely=0.15)
 
             # add results frame
             self.winresults = WindowedAnalysis.results(self.winanalysistab)

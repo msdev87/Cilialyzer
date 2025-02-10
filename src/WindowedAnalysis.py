@@ -29,12 +29,8 @@ def analyse_windows(array_list, fps):
         # 'array' holds a single 'window' with indices t,i,j
         array = array_list[i]
 
-        #print('*************************************************************')
-        #print(array)
-        #print('*************************************************************')
-
         # compute sptio-temporal cross-correlogram for 'array' 
-        stcorr = spacetimecorr_zp.stcorr(array, maxtimeshift=round(fps*0.04))
+        stcorr = spacetimecorr_zp.stcorr(array, maxtimeshift=2)
 
         # peak tracking
         n_timeshifts = len(stcorr)
@@ -48,7 +44,7 @@ def analyse_windows(array_list, fps):
             # therefore, we select only those values, which are 
             # greater than 1/e from the cross-correlogram
 
-            if ( numpy.max(numpy.subtract(stcorr[dt], 1./math.e)) > 0):
+            if numpy.max(numpy.subtract(stcorr[dt], 1./math.e) > 0):
 
                 # print('max1 in stcorr: ', numpy.max(stcorr[dt]))
                 stcorr[dt] = numpy.subtract(stcorr[dt], 1./math.e)
@@ -203,7 +199,8 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
     # get the number of windows for which we perform the analysis:
     n_valid = numpy.sum(mask)
-    #print('n_valid: ', n_valid)
+
+
 
     # number of available cpus:
     multiprocessing.freeze_support()
@@ -340,21 +337,17 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
     # get wavelengths within each valid window
     wavelengths = numpy.zeros(n_valid)
+    cbp_elongations = numpy.zeros(n_valid)
     for w in range(len(valid_wins)):
         window = valid_wins[w]
-        wavelengths[w] = windowed_wavelength.get_wavelength(window,pixsize)
-    #numpy.savetxt('./WindowedAnalysis_Results/win_wavelength.dat', wavelengths)
+        wavelengths[w], cbp_elongations[w] = \
+            windowed_wavelength.get_local_wavelength_elongation(window,pixsize)
 
-    #print('---------------------- wavelengths -------------------------------')
-    #print(wavelengths)
-    #print('------------------------------------------------------------------')
-
-    print('average wavelength: ', numpy.average(wavelengths))
+    #print('average wavelength: ', numpy.average(wavelengths))
 
     # -------------------------------------------------------------------------
     # print the most important observable values on the tkiner notebook tab
     # -------------------------------------------------------------------------
-
 
     # ----------------------- average wave speed ------------------------------
     n_speeds = numpy.count_nonzero(~numpy.isnan(speeds))
@@ -368,7 +361,6 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     winresults.mean_wspeed.set(round(avg_speed,2))
     # -------------------------------------------------------------------------
 
-
     # ------------------------- SD of wave speed ------------------------------
     sd_wave_speed = numpy.nanstd(speeds)
 
@@ -376,18 +368,16 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     winresults.sd_wspeed.set(round(sd_wave_speed,2))
     # -------------------------------------------------------------------------
 
-
     # --------------------- average cross-correlation time --------------------
-    winresults.cctime.set(round(1000*numpy.average(cctimes) / float(fps),0))
+    # winresults.cctime.set(round(1000*numpy.average(cctimes) / float(fps),0))
     # -------------------------------------------------------------------------
-
 
     # ---------------------------- wave disorder ------------------------------
     # consider each wave propagation direction as a vector of length 1 
     # get the length of the average vector R 
     # 1-R finally represents the wave disorder
-    print('------------------ wave directions -------------------- ')
-    print(wave_directions / math.pi * 180)
+    #print('------------------ wave directions -------------------- ')
+    #print(wave_directions / math.pi * 180)
 
     avg_sin = numpy.average(numpy.sin(wave_directions))
     avg_cos = numpy.average(numpy.cos(wave_directions))
@@ -402,13 +392,12 @@ class results:
         self.parent_tktab = parent
 
         # ------- preparing the frames to display the mean wave speed ---------
-
         # text label displaying "Mean wave speed" 
         self.mean_wspeed_label = tk.Label(self.parent_tktab,
             text="Mean wave speed [μm/s]: ", anchor='e',
             font=("TkDefaultFont",12),width=30)
         self.mean_wspeed_label.place(in_=self.parent_tktab,
-            anchor="c", relx=0.35, rely=0.7)
+            anchor="c", relx=0.35, rely=0.3)
 
         # label to display the numeric value of the mean wave speed: 
         self.mean_wspeed = tk.StringVar()
@@ -417,17 +406,15 @@ class results:
             textvariable=self.mean_wspeed, anchor='w',
             font=("TkDefaultFont",12), width=10)
         self.mean_wspeed_display.place(in_=self.parent_tktab, anchor="c",
-                relx=0.65, rely=0.7)
-
+                relx=0.65, rely=0.3)
 
         # ----- preparing the frames to display the SD of the wave speed ------
-
         # text label displaying "SD wave speed" 
         self.sd_wspeed_label = tk.Label(self.parent_tktab,
             text="SD wave speed [μm/s]: ", anchor='e',
             font=("TkDefaultFont",12), width=30)
         self.sd_wspeed_label.place(in_=self.parent_tktab,
-            anchor="c", relx=0.35, rely=0.75)
+            anchor="c", relx=0.35, rely=0.35)
 
         # label to display the numeric value of the mean wave speed:
         self.sd_wspeed = tk.StringVar()
@@ -436,17 +423,16 @@ class results:
             textvariable=self.sd_wspeed, anchor='w',
             font=("TkDefaultFont",12), width=10)
         self.sd_wspeed_display.place(in_=self.parent_tktab, anchor="c",
-                relx=0.65, rely=0.75)
+                relx=0.65, rely=0.35)
 
+        """
         # ---- preparing the frames to display the avg cross-corr time -------
-
         # text label displaying the "average cross-corr time" 
         self.cctime_label = tk.Label(self.parent_tktab,
             text="Average cross-correlation time [ms]: ", anchor='e',
             font=("TkDefaultFont",12), width=30)
         self.cctime_label.place(in_=self.parent_tktab,
-            anchor="c", relx=0.35, rely=0.8)
-
+            anchor="c", relx=0.35, rely=0.4)
         # label to display the numeric value of the average cctime 
         self.cctime = tk.StringVar()
         self.cctime.set(0)
@@ -454,17 +440,15 @@ class results:
             textvariable=self.cctime, anchor='w',
             font=("TkDefaultFont",12), width=10)
         self.cctime_display.place(in_=self.parent_tktab, anchor="c",
-                relx=0.65, rely=0.8)
+                relx=0.65, rely=0.4)
 
         # ---- preparing the frames to display the avg cross-corr length -------
-
         # text label displaying the "average cross-corr length"
         self.cclength_label = tk.Label(self.parent_tktab,
             text="Average cross-correlation length [μm]: ", anchor='e',
             font=("TkDefaultFont",12), width=30)
         self.cclength_label.place(in_=self.parent_tktab,
-            anchor="c", relx=0.35, rely=0.85)
-
+            anchor="c", relx=0.35, rely=0.45)
         # label to display the numeric value of the average cclength
         self.cclength = tk.StringVar()
         self.cclength.set(0)
@@ -472,16 +456,15 @@ class results:
             textvariable=self.cclength, anchor='w',
             font=("TkDefaultFont",12), width=10)
         self.cclength_display.place(in_=self.parent_tktab, anchor="c",
-                relx=0.65, rely=0.85)
-
-        # ------ preparing the frames to display the "wave disorder" ---------
-
+                relx=0.65, rely=0.45)
+        """
+        # ------- preparing the frames to display the "wave disorder" ---------
         # text label displaying the "wave disorder" 
         self.wdisorder_label = tk.Label(self.parent_tktab,
             text="Wave disorder: ", anchor='e',
             font=("TkDefaultFont",12), width=30)
         self.wdisorder_label.place(in_=self.parent_tktab,
-            anchor="c", relx=0.35, rely=0.9)
+            anchor="c", relx=0.35, rely=0.5)
 
         # label to display the numeric value of the wave disorder 
         self.wdisorder = tk.StringVar()
@@ -490,9 +473,71 @@ class results:
             textvariable=self.wdisorder, anchor='w',
             font=("TkDefaultFont",12), width=10)
         self.wdisorder_display.place(in_=self.parent_tktab, anchor="c",
-                relx=0.65, rely=0.9)
+                relx=0.65, rely=0.5)
 
+        # -- preparing the frames to display the number of analysed windows ----
+        # text label displaying the "# of analysed windows"
+        self.nwindows_label = tk.Label(self.parent_tktab,
+            text="# of analysed windows: ", anchor='e',
+            font=("TkDefaultFont",12), width=30)
+        self.nwindows_label.place(in_=self.parent_tktab,
+            anchor="c", relx=0.35, rely=0.55)
+        # label to display the numeric value of number of analysed windows
+        self.nwindows = tk.StringVar()
+        self.nwindows.set(0)
+        self.nwindows_display = tk.Label(self.parent_tktab,
+            textvariable=self.nwindows, anchor='w',
+            font=("TkDefaultFont",12), width=10)
+        self.nwindows_display.place(in_=self.parent_tktab, anchor="c",
+                relx=0.65, rely=0.55)
 
+        # -- preparing the frames to display the average wavelength ----
+        # text label displaying the average wavelength
+        self.avg_wlength_label = tk.Label(self.parent_tktab,
+            text="average wavelentgh: ", anchor='e',
+            font=("TkDefaultFont",12), width=30)
+        self.avg_wlength_label.place(in_=self.parent_tktab,
+            anchor="c", relx=0.35, rely=0.6)
+        # label to display the numeric value of number of analysed windows
+        self.avg_wlength = tk.StringVar()
+        self.avg_wlength.set(0)
+        self.avg_wlength_display = tk.Label(self.parent_tktab,
+            textvariable=self.avg_wlength, anchor='w',
+            font=("TkDefaultFont",12), width=10)
+        self.avg_wlength_display.place(in_=self.parent_tktab, anchor="c",
+                relx=0.65, rely=0.6)
+
+        # ------ preparing the frames to display the std wavelength -------
+        # text label displaying the standard deviation wavelength
+        self.sd_wlength_label = tk.Label(self.parent_tktab,
+            text="wavelength standard deviation: ", anchor='e',
+            font=("TkDefaultFont",12), width=30)
+        self.sd_wlength_label.place(in_=self.parent_tktab,
+            anchor="c", relx=0.35, rely=0.65)
+        # label to display the numeric value of number of analysed windows
+        self.sd_wlength = tk.StringVar()
+        self.sd_wlength.set(0)
+        self.sd_wlength_display = tk.Label(self.parent_tktab,
+            textvariable=self.sd_wlength, anchor='w',
+            font=("TkDefaultFont",12), width=10)
+        self.sd_wlength_display.place(in_=self.parent_tktab, anchor="c",
+                relx=0.65, rely=0.65)
+
+        # ------ preparing the frames to display the avg cbp elongation -------
+        # text label displaying the avg cbp elongation
+        self.avg_elongation_label = tk.Label(self.parent_tktab,
+            text="average cbp elongation: ", anchor='e',
+            font=("TkDefaultFont",12), width=30)
+        self.avg_elongation_label.place(in_=self.parent_tktab,
+            anchor="c", relx=0.35, rely=0.7)
+        # label to display the numeric value of number of analysed windows
+        self.avg_elongation = tk.StringVar()
+        self.avg_elongation.set(0)
+        self.elongation_display = tk.Label(self.parent_tktab,
+            textvariable=self.avg_elongation, anchor='w',
+            font=("TkDefaultFont",12), width=10)
+        self.elongation_display.place(in_=self.parent_tktab, anchor="c",
+                relx=0.65, rely=0.7)
 
 
 

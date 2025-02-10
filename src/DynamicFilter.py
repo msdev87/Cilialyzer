@@ -796,8 +796,8 @@ class DynFilter:
         ypos = 0.8
         ax.text(xpos,ypos,str1+str2+str3,fontsize=14)
 
-        ax.set_xlabel(r"Displacement [$\mu$m]",fontsize=16)
-        ax.set_ylabel("Correlation",fontsize=16)
+        ax.set_xlabel(r"Displacement [$\mu$m]", fontsize=16)
+        ax.set_ylabel("Correlation", fontsize=16)
 
         # for the automated analysis pipeline, the minimum value
         # of scorr_profile gets returned (to check if this value is > -0.03)
