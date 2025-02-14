@@ -2,6 +2,7 @@ import numpy
 import math
 import autocorrelation_zeropadding
 from scipy.ndimage import gaussian_filter
+import cv2
 
 def get_local_wavelength_elongation(array, pixsize):
     # input: dynamically filtered sequence of images (window)

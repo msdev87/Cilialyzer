@@ -28,7 +28,7 @@ import automated_analysis
 import automated_analysis_config
 
 from tkinter.filedialog import askdirectory
-
+from tkinter import messagebox
 
 class Cilialyzer():
 
@@ -454,13 +454,14 @@ class Cilialyzer():
         pixelsize = float(self.toolbar.pixsizecombo.get())
         fps = float(self.toolbar.fpscombo.get())
 
-        try:
-            if (len(self.dynseq.dyn_roiseq) > 0 and sclength>0):
-                WindowedAnalysis.prepare_windows(
-                    self.dynseq.dyn_roiseq, self.activity_map.freqmap, sclength,
-                    pixelsize, fps, self.winresults)
-        except:
-            tk.messagebox("Warning", "Dynamically filtered video and spatial autocorrelation needed")
+        #try:
+        if (len(self.dynseq.dyn_roiseq) > 0 and sclength>0):
+            WindowedAnalysis.prepare_windows(
+                self.dynseq.dyn_roiseq, self.activity_map.freqmap, sclength,
+                pixelsize, fps, self.winresults)
+        #except:
+        #    messagebox.showwarning("Warning", \
+        #        "Dynamically filtered video and spatial autocorrelation needed")
 
         """
         try:

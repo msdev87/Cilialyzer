@@ -21,8 +21,10 @@ def analyse_windows(array_list, fps):
     """
 
     nrwins = len(array_list)
-
     peaks_list = []
+
+    #print('---------------- array_list--------------')
+    #print(array_list)
 
     for i in range(nrwins):
 
@@ -58,7 +60,9 @@ def analyse_windows(array_list, fps):
 
                 # get position (x,y) and height of peak 
                 posx, posy, peakh = gaussian2Dfit.fit(stcorr[dt], sigma)
-                peaks[dt] = posx, posy, peakh
+                peaks[dt,0] = posx
+                peaks[dt,1] = posy
+                peaks[dt,2] = peakh
 
         peaks_list.append(peaks)
 
@@ -89,7 +93,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
     winsize = int(2*sclength / pixsize * 1000) # side length of a window (in pixels)
 
-    # print('winsize (in pixels): ', winsize)
+    print('winsize (in pixels): ', winsize)
 
     # Split up the dynamically filtered ROI-sequence 'array'
     # (note that the size of the ROI can vary)
@@ -163,7 +167,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
             inactive_percentage = numpy.sum(numpy.isnan(activitymap[i1:i2,j1:j2])) / activitymap[i1:i2,j1:j2].size
 
-            if (spread_win < 3) and (inactive_percentage < 0.2) : #*spread_total):
+            if (spread_win < 3.5) and (inactive_percentage < 0.2) : #*spread_total):
                 mask[i,j] = True
 
                 # add windowed array to valid_wins:
@@ -183,6 +187,8 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     # get the number of windows for which we perform the analysis:
     n_valid = numpy.sum(mask)
     winresults.nwindows.set(n_valid) # write number of valid windows on frontend
+
+    print('n_valid:', n_valid)
 
     # number of available cpus:
     multiprocessing.freeze_support()
@@ -218,8 +224,13 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
         valid_wins_ncpus.append(sublist)
 
+    result = []
+    for i in range(ncpus):
+        result.append(analyse_windows(valid_wins_ncpus[i], fps))
+    """    
     result = pool.map(analyse_windows,
         [valid_wins_ncpus[i] for i in range(ncpus)], fps)
+    """
 
     # result holds a list of a list of arrays 
     # the arrays contain "peaks" with columns: (x, y, height) 
@@ -238,6 +249,11 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
         for j in range(len(peak_list)):
             # loop over windows
             peak = peak_list[j]
+
+            print('------------------------------------------------')
+            print(peak)
+            print('------------------------------------------------')
+
 
             # -----------------------------------------------------------------
             # examine how peak shifts with increasing time delay

@@ -10,8 +10,6 @@ def ccorr2D_zp(signal1, signal2, mask=None, normalize=True, centering=True):
 
     The crosscovariance is computed by an FFT and with a zero padding
     made in order to double the size of the input signals.
-    The returned cross-correlation is not necessarily of the same size as the
-    input signals
     """
 
     ni, nj = signal1.shape
@@ -22,8 +20,8 @@ def ccorr2D_zp(signal1, signal2, mask=None, normalize=True, centering=True):
 
     # Make sure there are no NaN-values (just for the calculation of the means)
     # if mask[i,j] = False, then set signal[j,j] = 0
-    signal1[~numpy.array(mask,dtype=bool)] = 0.0
-    signal2[~numpy.array(mask,dtype=bool)] = 0.0
+    signal1[~numpy.array(mask, dtype=bool)] = 0.0
+    signal2[~numpy.array(mask, dtype=bool)] = 0.0
 
     ni, nj = signal1.shape
 
@@ -60,14 +58,13 @@ def ccorr2D_zp(signal1, signal2, mask=None, normalize=True, centering=True):
     # We get an erroneous autocovariance by taking the inverse transform
     # of the power spectral density 
     # (due to missing values substitued by zero and the zero-padding)
-
     pseudo_powerSpectralDensity = numpy.abs(numpy.multiply(fft_signal1,
         numpy.conjugate(fft_signal2)))
     pseudo_crosscovariance = numpy.real(numpy.fft.ifft2(
         pseudo_powerSpectralDensity))
 
     # We repeat the same process (except for centering) on a masked_signal
-    # in order to estimate the error made on the previous computation 
+    # in order to estimate the error made on the previous computation
     # the mask_signal has as entries ones (for signal) and zeros (for no signal)
     masked_signal = numpy.zeros((2*ni, 2*nj))
     masked_signal[0:ni,0:nj] = mask
@@ -76,19 +73,23 @@ def ccorr2D_zp(signal1, signal2, mask=None, normalize=True, centering=True):
     mask_correction_factors = numpy.abs(numpy.fft.ifft2( numpy.multiply(
         fft_masked_signal, numpy.conjugate(fft_masked_signal))))
 
+    # Avoid division by zero
+    mask_correction_factors = numpy.where(mask_correction_factors == 0, 1,
+                                       mask_correction_factors)
+
     # The "error" made can now be easily corrected by an element-wise division
     crosscovariance = pseudo_crosscovariance / mask_correction_factors
+
+    if normalize:
+        var1 = numpy.sum(numpy.multiply(centered_signal1 ,centered_signal1)) / numpy.sum(mask)
+        var2 = numpy.sum(numpy.multiply(centered_signal2, centered_signal2)) / numpy.sum(mask)
+    else:
+        var1 = 1.0
+        var2 = 1.0
 
     # fft-shift:
     crosscovariance = numpy.fft.fftshift(crosscovariance)
     crosscovariance = crosscovariance[int(ni/2):int(3*ni/2),int(nj/2):int(3*nj/2)]
-
-    if normalize:
-        var1 = numpy.var(signal1)
-        var2 = numpy.var(signal2)
-    else:
-        var1 = 1.0
-        var2 = 1.0
 
     crosscorrelation = crosscovariance / (sqrt(var1 * var2))
 

@@ -96,20 +96,14 @@ def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
 
     # Make sure there are no NaN-values in signal
     # (this is only for the calculation of the mean)
-    for i in range(ni):
-        for j in range(nj):
-            if (not mask[i,j]):
-                signal[i,j] = 0
+    signal[~numpy.array(mask, dtype=bool)] = 0.0
 
     # Get the signal's mean (excluding missing values)
     mean = numpy.sum(numpy.multiply(signal, mask)) / numpy.sum(mask)
 
     # Missing numbers are now set to the signal's mean
     # This way, missing numbers will then be zero after centering
-    for i in range(ni):
-        for j in range(nj):
-            if (not mask[i,j]):
-                signal[i,j] = mean
+    signal[~numpy.array(mask, dtype=bool)] = mean2
 
     # Get a centered version of the signal (if centering is True)
     if centering:
@@ -147,9 +141,12 @@ def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
     masked_signal[0:ni,0:nj] = mask
 
     fft_masked_signal = numpy.fft.fft2(masked_signal)
-
     mask_correction_factors = numpy.abs(numpy.fft.ifft2( numpy.multiply(
         fft_masked_signal, numpy.conjugate(fft_masked_signal))))
+
+    # Avoid division by zero
+    mask_correction_factors = numpy.where(mask_correction_factors == 0, 1,
+                                       mask_correction_factors)
 
     # The "error" made can now be easily corrected by an element-wise division
     autocovariance = pseudo_autocovariance / mask_correction_factors
