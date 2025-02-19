@@ -58,10 +58,14 @@ def ccorr2D_zp(signal1, signal2, mask=None, normalize=True, centering=True):
     # We get an erroneous autocovariance by taking the inverse transform
     # of the power spectral density 
     # (due to missing values substitued by zero and the zero-padding)
-    pseudo_powerSpectralDensity = numpy.abs(numpy.multiply(fft_signal1,
-        numpy.conjugate(fft_signal2)))
+
+    # Caution: in the crosscovariance we need the phase information, as
+    # we are interested in the direction of the correlation
+    # numpy.real() can not be replaced by numpy.abs()
+    pseudo_powerSpectralDensity = numpy.multiply(fft_signal1,
+        numpy.conjugate(fft_signal2))
     pseudo_crosscovariance = numpy.real(numpy.fft.ifft2(
-        pseudo_powerSpectralDensity))
+        pseudo_powerSpectralDensity)).astype(float)
 
     # We repeat the same process (except for centering) on a masked_signal
     # in order to estimate the error made on the previous computation
@@ -70,8 +74,8 @@ def ccorr2D_zp(signal1, signal2, mask=None, normalize=True, centering=True):
     masked_signal[0:ni,0:nj] = mask
 
     fft_masked_signal = numpy.fft.fft2(masked_signal)
-    mask_correction_factors = numpy.abs(numpy.fft.ifft2( numpy.multiply(
-        fft_masked_signal, numpy.conjugate(fft_masked_signal))))
+    mask_correction_factors = numpy.real(numpy.fft.ifft2( numpy.multiply(
+        fft_masked_signal, numpy.conjugate(fft_masked_signal)))).astype(float)
 
     # Avoid division by zero
     mask_correction_factors = numpy.where(mask_correction_factors == 0, 1,
@@ -79,6 +83,7 @@ def ccorr2D_zp(signal1, signal2, mask=None, normalize=True, centering=True):
 
     # The "error" made can now be easily corrected by an element-wise division
     crosscovariance = pseudo_crosscovariance / mask_correction_factors
+    crosscovariance[mask_correction_factors == 1] = 0.
 
     if normalize:
         var1 = numpy.sum(numpy.multiply(centered_signal1 ,centered_signal1)) / numpy.sum(mask)
@@ -89,7 +94,8 @@ def ccorr2D_zp(signal1, signal2, mask=None, normalize=True, centering=True):
 
     # fft-shift:
     crosscovariance = numpy.fft.fftshift(crosscovariance)
-    crosscovariance = crosscovariance[int(ni/2):int(3*ni/2),int(nj/2):int(3*nj/2)]
+    mid_i, mid_j = ni // 2, nj // 2
+    crosscovariance = crosscovariance[mid_i:mid_i + ni, mid_j:mid_j + nj]
 
     crosscorrelation = crosscovariance / (sqrt(var1 * var2))
 

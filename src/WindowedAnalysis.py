@@ -13,14 +13,15 @@ import windowed_wavelength
 import tkinter as tk
 #import termplotlib as tpl
 import crosscorrelation_zp
-
+from scipy.ndimage import center_of_mass
+from scipy.ndimage import map_coordinates
 
 def analyse_windows(array_list, fps):
     """
     Analyses the list of windows it receives
     """
 
-    nrwins = len(array_list)
+    nrwins = len(array_list) # number of windows to analyse
     peaks_list = []
 
     #print('---------------- array_list--------------')
@@ -28,14 +29,26 @@ def analyse_windows(array_list, fps):
 
     for i in range(nrwins):
 
-        # 'array' holds a single 'window' with indices t,i,j
+        # 'array' holds a single 'window' with indices t,i,j ('subvideo')
         array = array_list[i]
 
-        # compute sptio-temporal cross-correlogram for 'array' 
-        stcorr = spacetimecorr_zp.stcorr(array, maxtimeshift=2)
+        # center array before calculating space-time correlation
+        array = numpy.squeeze(array)
+        array = array - numpy.mean(array)
+        n_timeshifts = 3
+        # compute sptio-temporal cross-correlogram for 'array'
+        stcorr = spacetimecorr_zp.stcorr(array, maxtimeshift=n_timeshifts)
+        #breakpoint()
+
+        print('-------------------------------------------------')
+        print('max stcorr[0,:,:]: ', numpy.max(stcorr[0,:,:]))
+        print('min stcorr[0,:,:]: ', numpy.min(stcorr[0,:,:]))
+        print('max stcorr[1,:,:]: ', numpy.max(stcorr[1,:,:]))
+        print('min stcorr[1,:,:]: ', numpy.min(stcorr[1,:,:]))
+        print('-------------------------------------------------')
 
         # peak tracking
-        n_timeshifts = len(stcorr)
+
         peaks = numpy.zeros((n_timeshifts, 3)) # holds position (x,y) & height of peak
         peaks[:,:] = numpy.nan
 
@@ -46,25 +59,50 @@ def analyse_windows(array_list, fps):
             # therefore, we select only those values, which are 
             # greater than 1/e from the cross-correlogram
 
-            if numpy.max(numpy.subtract(stcorr[dt], 1./math.e) > 0):
+            crosscorr = numpy.squeeze(stcorr[dt,:,:])
+
+            #if (dt==7):
+            #    plt.imshow(crosscorr)
+            #    plt.show()
+
+            if numpy.max(numpy.subtract(crosscorr, 1./math.e) > 0):
 
                 # print('max1 in stcorr: ', numpy.max(stcorr[dt]))
-                stcorr[dt] = numpy.subtract(stcorr[dt], 1./math.e)
-                NaN_inds = numpy.where(stcorr[dt] < 0)
-                stcorr[dt][NaN_inds] = 0. #float("NaN")
+                crosscorr = numpy.subtract(crosscorr, 1./math.e)
+                NaN_inds = numpy.where(crosscorr < 0)
+                crosscorr[NaN_inds] = 0. #float("NaN")
 
-                sigma = numpy.zeros_like(stcorr[dt]) # weights for Gaussian fit 
-                inds = numpy.where(stcorr[dt] > 0)
-                sigma[NaN_inds] = 1e7
-                sigma[inds] = 1.
+                #sigma = numpy.zeros_like(stcorr[dt]) # weights for Gaussian fit
+                #inds = numpy.where(stcorr[dt] > 0)
+                #sigma[NaN_inds] = 1e7
+                #sigma[inds] = 1.
+
+                #plt.imshow(stcorr[dt])
+                #plt.show()
 
                 # get position (x,y) and height of peak 
-                posx, posy, peakh = gaussian2Dfit.fit(stcorr[dt], sigma)
+                # posx, posy, peakh = gaussian2Dfit.fit(stcorr[dt], sigma)
+
+                (posy, posx) = center_of_mass(crosscorr)
+                peakh = map_coordinates(crosscorr, [[posy], [posx]], order=1)
                 peaks[dt,0] = posx
                 peaks[dt,1] = posy
                 peaks[dt,2] = peakh
 
         peaks_list.append(peaks)
+
+    """
+    # Create figure and axis
+    fig, ax = plt.subplots()
+    img = ax.imshow(stcorr[0])  # Initialize with first frame
+    ax.axis("off")  # Hide axes
+    # Endless loop over images
+    while True:
+        for i in range(30):
+            img.set_data(stcorr[i])  # Update displayed image
+            plt.pause(0.05)  # Approximate 30 FPS
+            plt.draw()
+    """
 
     return peaks_list
 
@@ -91,7 +129,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     # We choose the size of the windows based on the spatial correlation length
     # i.e. each window measures: ( 2 x spatialcorrlength )**2
 
-    winsize = int(2*sclength / pixsize * 1000) # side length of a window (in pixels)
+    winsize = int(1.5*sclength / pixsize * 1000) # side length of a window (in pixels)
 
     print('winsize (in pixels): ', winsize)
 
@@ -188,7 +226,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     n_valid = numpy.sum(mask)
     winresults.nwindows.set(n_valid) # write number of valid windows on frontend
 
-    print('n_valid:', n_valid)
+    # print('n_valid:', n_valid)
 
     # number of available cpus:
     multiprocessing.freeze_support()
@@ -227,10 +265,9 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     result = []
     for i in range(ncpus):
         result.append(analyse_windows(valid_wins_ncpus[i], fps))
-    """    
-    result = pool.map(analyse_windows,
-        [valid_wins_ncpus[i] for i in range(ncpus)], fps)
-    """
+
+    #result = pool.map(analyse_windows,
+    #    [valid_wins_ncpus[i] for i in range(ncpus)], fps)
 
     # result holds a list of a list of arrays 
     # the arrays contain "peaks" with columns: (x, y, height) 
@@ -242,18 +279,19 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     wave_directions = numpy.zeros(n_valid)
 
     counter = 0
+    # Loop over the cpus
     for i in range(len(result)):
-        # loop over cpus
+
         peak_list = result[i]
 
+        # Loop over windows:
         for j in range(len(peak_list)):
-            # loop over windows
+
             peak = peak_list[j]
 
-            print('------------------------------------------------')
-            print(peak)
-            print('------------------------------------------------')
-
+            #print('------------------------------------------------')
+            #print(peak)
+            #print('------------------------------------------------')
 
             # -----------------------------------------------------------------
             # examine how peak shifts with increasing time delay
@@ -281,8 +319,14 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             # correlogram is given by (-deltax, -deltay) 
             # NOT (deltax, deltay) 
 
-            deltax = -(peak[1,0] - peak[0,0]) # see above comment
-            deltay = -(peak[1,1] - peak[0,1]) # see above comment 
+            deltax1 = -(peak[1,0] - peak[0,0]) # see above comment
+            deltay1 = -(peak[1,1] - peak[0,1]) # see above comment
+
+            deltax2 = -(peak[2,0] - peak[1,0]) #
+            deltay2 = -(peak[2,1] - peak[1,1]) #
+
+            deltax = 0.5 * (deltax1 + deltax2)
+            deltay = 0.5 * (deltay1 + deltay2)
 
             # Note: at this moment (deltax, deltay) corresponds to the movement 
             # of the correlation peak (within delta t) in 'image coordinates'. 

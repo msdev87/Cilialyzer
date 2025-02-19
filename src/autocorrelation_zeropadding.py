@@ -103,7 +103,7 @@ def acorr2D_zp(signal, centering=True, normalize=True, mask=None):
 
     # Missing numbers are now set to the signal's mean
     # This way, missing numbers will then be zero after centering
-    signal[~numpy.array(mask, dtype=bool)] = mean2
+    signal[~numpy.array(mask, dtype=bool)] = mean
 
     # Get a centered version of the signal (if centering is True)
     if centering:

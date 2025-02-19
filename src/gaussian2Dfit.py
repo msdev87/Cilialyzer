@@ -45,13 +45,11 @@ def fit(array, sigma):
     fitpars, pcovs = curve_fit(_gaussian, xdata, Z.ravel(), fitpars0, bounds = fitpars_range, sigma=sigma.ravel())
 
     # from the fit, we are only interested in the position and the height 
-    # of the peak:  
-
+    # of the peak:
     posx = fitpars[0]
     posy = fitpars[1]
     peakheightfit = gaussian(posx, posy, fitpars[0], fitpars[1], fitpars[2],
         fitpars[3], fitpars[4])
-
 
     # posx and posy are not integers 
     # lets us bilinearly interpolate Z to approximate Z(posx,posy)
