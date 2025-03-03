@@ -498,8 +498,8 @@ class DynFilter:
         yend = 0.5*ny*pixsize/1000.0
 
         # Plot the two-dim average spatial autocorrelation
-        la1 = ax.imshow(corrplot,alpha=1.0,cmap='bwr',interpolation='none',\
-            extent=[-xend,xend,-yend,yend], vmin=-0.6*vmax, vmax=0.6*vmax)
+        la1 = ax.imshow(corrplot,alpha=1.0, cmap='bwr', interpolation='none',\
+            extent=[-xend,xend,-yend,yend], vmin=-0.8*vmax, vmax=0.8*vmax)
 
         ax.set_xlabel(r"$\Delta$x [$\mu$m]",fontsize=17)
         ax.set_ylabel(r"$\Delta$y [$\mu$m]",fontsize=17)
@@ -892,3 +892,16 @@ class DynFilter:
             fig.savefig(fname, format='png', dpi=200)
 
         return return_value
+
+
+
+    """
+    def save_plot(self, dirname):
+        f = open('output_directory.dat', 'r')
+        output_directory = f.read()
+        f.close()
+        # special characters are replaced by an underline:
+        fname = re.sub(r'[^A-Za-z0-9 ]', "_", dirname)
+        fname = os.path.join(output_directory, fname + '_ACTIVITYMAP.png')
+        self.fig.savefig(fname,format='png',dpi=200)
+    """

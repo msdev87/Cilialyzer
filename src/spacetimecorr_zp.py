@@ -68,15 +68,15 @@ def stcorr(array, maxtimeshift=15):
 
 
     stcorrgram = numpy.array(stcorrgram)
-    print('shape of stcorrgram: ', stcorrgram.shape)
+    #print('shape of stcorrgram: ', stcorrgram.shape)
 
-    print('-------------------------------------------------')
-    print('within spacetimecorr_zp')
-    print('max stcorr[0,:,:]: ', numpy.max(stcorrgram[0, :, :]))
-    print('min stcorr[0,:,:]: ', numpy.min(stcorrgram[0, :, :]))
-    print('max stcorr[1,:,:]: ', numpy.max(stcorrgram[1, :, :]))
-    print('min stcorr[1,:,:]: ', numpy.min(stcorrgram[1, :, :]))
-    print('-------------------------------------------------')
+    #print('-------------------------------------------------')
+    #print('within spacetimecorr_zp')
+    #print('max stcorr[0,:,:]: ', numpy.max(stcorrgram[0, :, :]))
+    #print('min stcorr[0,:,:]: ', numpy.min(stcorrgram[0, :, :]))
+    #print('max stcorr[1,:,:]: ', numpy.max(stcorrgram[1, :, :]))
+    #print('min stcorr[1,:,:]: ', numpy.min(stcorrgram[1, :, :]))
+    #print('-------------------------------------------------')
 
     return stcorrgram
 

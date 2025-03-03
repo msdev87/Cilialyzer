@@ -53,13 +53,16 @@ def get_local_wavelength_elongation(array, pixsize):
     cols = inds[:, 1]
     ellipse_array[rows, cols] = 1
     ellipse_indices = numpy.column_stack(numpy.where(ellipse_array > 0))
-    ellipse = cv2.fitEllipse(ellipse_indices)
-    (center_x, center_y), (semi_axis1, semi_axis2), rotation_angle = ellipse
+    try:
+        ellipse = cv2.fitEllipse(ellipse_indices)
+        (center_x, center_y), (semi_axis1, semi_axis2), rotation_angle = ellipse
 
-    major_axis = max(semi_axis1, semi_axis2)
-    minor_axis = min(semi_axis1, semi_axis2)
+        major_axis = max(semi_axis1, semi_axis2)
+        minor_axis = min(semi_axis1, semi_axis2)
 
-    cbp_elongation = major_axis / minor_axis
+        cbp_elongation = major_axis / minor_axis
+    except:
+        cbp_elongation = -1.0
     # --------------------------------------------------------------------------
     # calculate the 2D distance matrix 'distmat' (in pixels)
     distmat = numpy.zeros(scorr.shape)
@@ -86,17 +89,22 @@ def get_local_wavelength_elongation(array, pixsize):
 
     # determine center of mass (cm) within square_arr
 
-    x_cm, y_cm = 0.0, 0.0
-    weight_total = 0.0  # sum of weights
-    for i in range(s):
-        for j in range(s):
-            x = int(xx[i, j])
-            y = int(yy[i, j])
-            # print('x: ',x,' y: ',y)
-            if scorr[y, x] < 0:
-                x_cm = x_cm + abs(scorr[y, x]) * x
-                y_cm = y_cm + abs(scorr[y, x]) * y
-                weight_total += abs(scorr[y, x])
+    try:
+        x_cm, y_cm = 0.0, 0.0
+        weight_total = 0.0  # sum of weights
+        for i in range(s):
+            for j in range(s):
+                x = int(xx[i, j])
+                y = int(yy[i, j])
+                # print('x: ',x,' y: ',y)
+                if scorr[y, x] < 0:
+                    x_cm = x_cm + abs(scorr[y, x]) * x
+                    y_cm = y_cm + abs(scorr[y, x]) * y
+                    weight_total += abs(scorr[y, x])
+    except:
+        x_cm = minx
+        y_cm = miny
+
 
     try:
         x_cm = x_cm / weight_total

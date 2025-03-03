@@ -17,9 +17,8 @@ import FlipbookPTrack
 import stabilize_proc
 from pystackreg import StackReg
 import multiprocessing
-import sys
 import spacetimecorr_zp
-import WindowedAnalysis
+from LocalWavefieldAnalysis import WindowedAnalysis
 import OpticalFlow
 import cv2
 import avoid_troubles
@@ -28,56 +27,13 @@ import automated_analysis
 import automated_analysis_config
 
 from tkinter.filedialog import askdirectory
-from tkinter import messagebox
+
 
 class Cilialyzer():
 
     """
     This class establishes the tkinter root window with all its content
     """
-
-    """
-    def resize(self, event):
-
-        print('window changed its size')
-
-        # as soon as the window size is getting changed,
-        # wait for some time before the mainframe gets destroyed and re-created
-
-        self.main_window.update()
-        self.mainframe.update()
-
-        winresize_delay = 1.0
-        self.winresize_cnt += 1
-
-        if ((self.winresize_init == True) and (self.winresize_cnt)):
-            self.winresize_init = time.time()
-
-        if ((time.time() - self.winresize_init) > winresize_delay):
-
-            print('-----------------------')
-            print('event.width: ', event.width)
-            print('event.height: ', event.height)
-            print('-----------------------')
-
-            print('-----------------------')
-            print('main_window width: ', self.main_window.winfo_width())
-            print('main_window height: ',self.main_window.winfo_height())
-            print('-----------------------')
-
-            self.winresize_init = True
-
-            # destroy mainframe
-            try:
-                self.mainframe.destroy()
-            except:
-                pass
-
-            self.__init__(True)
-
-        else:
-            pass
-        """
 
     def get_tab_id(self, tab_text):
         tabs = self.nbook.tabs()
@@ -233,11 +189,6 @@ class Cilialyzer():
             img = self.roiplayer.roiseq[i]
             fname = basename + '\\image_' + str(i).zfill(4) + '.png'
             img.save(fname)
-
-
-
-
-
 
 
     # ------------------------- peakselector -----------------------------------
@@ -549,7 +500,6 @@ class Cilialyzer():
             self.activity_map.freqmap)
 
 
-
     def __init__(self):
 
         """
@@ -621,7 +571,6 @@ class Cilialyzer():
             f.close()
         # ---------------------------------------------------------------------
 
-
         # Tab to view and preprocess the loaded image sequence
         self.ROISelection_flag = bool(int(fflags[0]))
 
@@ -651,7 +600,6 @@ class Cilialyzer():
         self.WindowedAnalysis_flag = bool(int(fflags[11]))
 
         self.opticalflow_flag = bool(int(fflags[12]))
-
 
         resize_flag = None  # indicates whether the user resized the main window
 
@@ -878,8 +826,6 @@ class Cilialyzer():
 
         # ----------- See below for remaining CBF notebook tab widgets --------
 
-
-
         self.activity_map = None
         # ---------------------- create the toolbar --------------------------#
         self.toolbar = toolbar.Toolbar(self.mainframe, self.player,
@@ -974,8 +920,6 @@ class Cilialyzer():
         self.activea_resL = tk.Label(self.activitytab, textvariable=self.active_area, height=2, width=9)
         self.activea_resL.place(in_=self.activitytab, anchor='c', relx=0.77, rely=0.1)
         # ---------------------------------------------------------------------
-
-
         # ----------------- Remaining CBF notebook tab widgets ----------------
         # minfreq and maxfreq represent the lower and the upper limit
         # of the selected frequency bandwidth when determining the CBF
@@ -1020,8 +964,6 @@ class Cilialyzer():
             command=lambda:self.powerspectrum.pwspecplot.save_plot(self.PIL_ImgSeq.directory), height=bh, width=bw)
         self.save_psdB.place(in_=self.cbftab, relx=0.85, rely=0.35,anchor='c')
 
-
-
         # ----------------------------------------------------------------------
         # add a combobox in which the user is supposed to specify the
         # number of harmonics, the default is 2
@@ -1037,8 +979,6 @@ class Cilialyzer():
         #    self.nrharmscombo.current(0)
         # ----------------------------------------------------------------------
         #**********************************************************************#
-
-
         # ******************* Frequency correlation tab ***********************
         # notebook tab to compute the correlation length in the activity map
         self.freqcorrtab = tk.Frame(self.nbook)
@@ -1067,8 +1007,6 @@ class Cilialyzer():
 
         self.mapframe.update()
         # **********************************************************************
-
-
         # ****************** Temporal autocorrelation tab **********************
         if (self.TempAcorr_flag):
             self.tacorrtab = tk.Frame(self.nbook)
@@ -1215,9 +1153,6 @@ class Cilialyzer():
                 text='Compute optical flow (FB)', command=self.compute_opticalflowFB, height=bh, width=bw)
             self.FarnebackB.place(in_=self.opticalflowtab, anchor="c", relx=0.5, rely=0.1)
 
-
-
-
         # each time the application's window size gets changed -> call 'resize'
         # self.main_window.bind( "<Configure>", self.resize)
 
@@ -1234,8 +1169,6 @@ class Cilialyzer():
 
         # Build the settings to configure the analysis pipeline
         automated_analysis_config.build_config(self)
-
-
 
 if __name__ == "__main__":
 

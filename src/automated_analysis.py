@@ -95,8 +95,11 @@ def process(main):
     # Initialize the dict with only the header/keys:
     header_keys = ["Filename", "CBF", "CBF_SD", "CBF_min", "CBF_max",\
                    "Active percentage", "Frequency correlation", "FPS", "Pixelsize",\
-                   "Wavelength", "Spatial correlation length", "CBP elongation", "error code"]
-    header = dict.fromkeys(header_keys,None)
+                   "Wavelength", "Spatial correlation length", \
+                   "Overall CBP elongation", "Mean wave speed", "SD wave speed",\
+                   "Wave disorder", "Analysed windows", "Mean wavelength",\
+                   "SD wavelength", "Mean CBP elongation", "Error code"]
+    header = dict.fromkeys(header_keys, None)
 
     output_table.append(header)
 
@@ -117,6 +120,8 @@ def process(main):
     # ---------------------- Loop over all directories -------------------------
     # --------------------------------------------------------------------------
     for dirname in dirlist:
+
+        print('processing: ', dirname)
 
         try:
             # delete displayed content in CBF tab: 
@@ -172,7 +177,7 @@ def process(main):
                 main.error_code = 1
                 #print('********** error code after stabilization ***********')
         # ----------------------------------------------------------------------
-
+        print('image stabilization done')
         # ----------------------- Calculate powerspectrum ----------------------
         if (main.cbf_autoflag.get()):
             try:
@@ -195,7 +200,7 @@ def process(main):
             except:
                 main.error_code=1
         # ----------------------------------------------------------------------
-
+        print('activity map done')
         # ----------------- Frequency correlation --------------------------
         if (main.fcorr_autoflag.get()):
             try:
@@ -222,6 +227,11 @@ def process(main):
 
         #print('main.wl_autoflag.get() ', main.wl_autoflag.get())
 
+
+        if main.local_analysis_autoflag.get():
+            main.winanalysis()
+            print('winanalysis done')
+
         # write output to list
         output_table.append({
             "Filename": dirname,
@@ -235,8 +245,15 @@ def process(main):
             "Pixelsize": main.toolbar.pixsizecombo.get(),
             "Wavelength": main.dynseq.wavelength if main.wl_autoflag.get() else '',
             "Spatial correlation length": main.dynseq.sclength if main.wl_autoflag.get() else '',
-            "CBP elongation": main.dynseq.cbp_elongation if main.wl_autoflag.get() else '',
-            "error code": main.error_code,
+            "Overall CBP elongation": main.dynseq.cbp_elongation if main.wl_autoflag.get() else '',
+            "Mean wave speed": main.winresults.mean_wspeed.get() if main.local_analysis_autoflag.get() else '',
+            "SD wave speed": main.winresults.sd_wspeed.get() if main.local_analysis_autoflag.get() else '',
+            "Wave disorder": main.winresults.wdisorder.get() if main.local_analysis_autoflag.get() else '',
+            "Analysed windows": main.winresults.nwindows.get() if main.local_analysis_autoflag.get() else '',
+            "Mean wavelength": main.winresults.avg_wlength.get() if main.local_analysis_autoflag.get() else '',
+            "SD wavelength": main.winresults.sd_wlength.get() if main.local_analysis_autoflag.get() else '',
+            "Mean CBP elongation": main.winresults.avg_elongation.get() if main.local_analysis_autoflag.get() else '',
+            "Error code": main.error_code
         })
 
         #print('main.dynseq.wavelength ', main.dynseq.wavelength)
@@ -260,3 +277,4 @@ def process(main):
         main.videos_processed.set(bla)
 
         main.main_window.update_idletasks()
+        print('-------------- end of loop -----------')

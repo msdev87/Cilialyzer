@@ -107,6 +107,16 @@ def build_config(main):
         variable=main.wl_autoflag, font=("TkDefaultFont", 10))
     main.wl_checkB.place(in_=main.autoLF, anchor='w', relx=0.05, rely=0.7)
 
+
+    # ------------- add checkbutton for local wavefield analysis --------------
+    main.local_analysis_autoflag = tk.IntVar()
+    main.local_analysis_autoflag.set(1)
+    main.local_analysis_checkB = tk.Checkbutton(main.autoLF, text=" Local analysis ",
+        variable=main.local_analysis_autoflag, font=("TkDefaultFont", 10))
+    main.local_analysis_checkB.place(in_=main.autoLF, anchor='w', relx=0.05, rely=0.85)
+
+
+
     # Label 'Results will be saved to: '
     # main.auto_outputL = tk.Label(main.autotab, text=' Results will be saved to: ')
     # main.auto_outputL.place(in_=main.autotab, anchor='c',relx=0.3,rely=0.7)
@@ -123,7 +133,6 @@ def build_config(main):
     main.output_directory = output_path
     # create the output directory, if it does not exist
     if not Path(main.output_directory).is_dir(): os.mkdir(main.output_directory)
-
 
     main.auto_outpath = tk.StringVar()
     main.auto_outpath.set(' Results will be saved to:  '+main.output_directory)

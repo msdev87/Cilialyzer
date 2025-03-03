@@ -60,11 +60,10 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, validity_mask, fps):
         u_flow.append(flow[...,0])
 
     # remove outliers in u_flow and v_flow
-    # i.e. topmost 0.25% and lowermost 0.5%
-    u1 = numpy.percentile(u_flow, 0)
-    u2 = numpy.percentile(u_flow, 100)
-    v1 = numpy.percentile(v_flow, 0)
-    v2 = numpy.percentile(v_flow, 100)
+    u1 = numpy.percentile(u_flow, 0.1)
+    u2 = numpy.percentile(u_flow, 99.9)
+    v1 = numpy.percentile(v_flow, 0.1)
+    v2 = numpy.percentile(v_flow, 99.9)
 
     for i in range(nimgs-1):
 

@@ -9,7 +9,7 @@ from scipy.optimize import curve_fit
 import multiprocessing
 import spacetimecorr_zp
 import gaussian2Dfit
-import windowed_wavelength
+from . import windowed_wavelength
 import tkinter as tk
 #import termplotlib as tpl
 import crosscorrelation_zp
@@ -40,12 +40,12 @@ def analyse_windows(array_list, fps):
         stcorr = spacetimecorr_zp.stcorr(array, maxtimeshift=n_timeshifts)
         #breakpoint()
 
-        print('-------------------------------------------------')
-        print('max stcorr[0,:,:]: ', numpy.max(stcorr[0,:,:]))
-        print('min stcorr[0,:,:]: ', numpy.min(stcorr[0,:,:]))
-        print('max stcorr[1,:,:]: ', numpy.max(stcorr[1,:,:]))
-        print('min stcorr[1,:,:]: ', numpy.min(stcorr[1,:,:]))
-        print('-------------------------------------------------')
+        #print('-------------------------------------------------')
+        #print('max stcorr[0,:,:]: ', numpy.max(stcorr[0,:,:]))
+        #print('min stcorr[0,:,:]: ', numpy.min(stcorr[0,:,:]))
+        #print('max stcorr[1,:,:]: ', numpy.max(stcorr[1,:,:]))
+        #print('min stcorr[1,:,:]: ', numpy.min(stcorr[1,:,:]))
+        #print('-------------------------------------------------')
 
         # peak tracking
 
@@ -131,7 +131,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
     winsize = int(1.5*sclength / pixsize * 1000) # side length of a window (in pixels)
 
-    print('winsize (in pixels): ', winsize)
+    #print('winsize (in pixels): ', winsize)
 
     # Split up the dynamically filtered ROI-sequence 'array'
     # (note that the size of the ROI can vary)
