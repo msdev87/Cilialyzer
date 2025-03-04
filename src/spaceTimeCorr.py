@@ -290,7 +290,7 @@ def calc_spaceTime_correlogram_of_ROIs_manually(I, ROI_x, ROI_y, dt_max):#I := I
 def where_is_my_Gaussian_maximum(corr1, snip):
     #snip = 35; # that much we snip at each side so we can do a better fit
     corr = corr1[snip:(corr1.shape[0] - snip), snip:(corr1.shape[1] - snip)]
-    corr = np.where(corr > 1/math.e, corr, 1/math.e); # irgendwie muesmäh > 1/math.e, wiume aui ussert diäh nan setzt bi dem befäääu!!
+    corr = np.where(corr > 1/math.e, corr, 1/math.e); # irgendwie muesmäh > 1/math_utils.e, wiume aui ussert diäh nan setzt bi dem befäääu!!
     corr = corr - 1/math.e;
     
     xmin, xmax, nx = 0, corr.shape[0], corr.shape[0]

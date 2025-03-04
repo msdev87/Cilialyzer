@@ -27,7 +27,7 @@ def build_config(main):
         # choose_directory writes the chosen directory to file previous_directory.dat
         # goal: find all subdirectories
         # get first the path of the chosen directory:
-        f = open('previous_directory.dat', 'r')
+        f = open('config/previous_directory.dat', 'r')
         path = f.read()
         f.close()
 
@@ -126,7 +126,7 @@ def build_config(main):
     dirname = 'Cilialyzer_output_' + datetime_string
     output_path = os.path.join(os.getcwd(), dirname)
     # write output_path to file:
-    f = open('output_directory.dat', 'w')
+    f = open('config/output_directory.dat', 'w')
     f.write(output_path)
     f.close()
     # Output will be written to current working directory

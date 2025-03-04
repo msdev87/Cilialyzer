@@ -55,7 +55,7 @@ def process(main):
                 all_dirs.append(os.path.join(root, dir))
         return all_dirs
 
-    f=open('previous_directory.dat','r')
+    f=open('config/previous_directory.dat', 'r')
     path=f.read()
     f.close()
 
@@ -106,7 +106,7 @@ def process(main):
     counter = 0
 
     # read output_path from file
-    f = open('output_directory.dat','r')
+    f = open('config/output_directory.dat', 'r')
     output_directory = f.read()
     f.close()
     output_path = os.path.join(output_directory, 'Cilialyzer_output.csv')
@@ -152,7 +152,7 @@ def process(main):
         main.toolbar.PIL_ImgSeq.fname.set(files[0])
 
         # write selected directory to file
-        f = open('previous_directory.dat','w')
+        f = open('config/previous_directory.dat', 'w')
         f.write(dirname)
         f.close()
 

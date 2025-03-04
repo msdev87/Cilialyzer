@@ -1,7 +1,7 @@
 from PIL import Image
 import PIL
 import numpy
-#import math
+#import math_utils
 import matplotlib.pyplot as plt
 import os
 #import multiprocessing
@@ -19,10 +19,10 @@ import cv2
 from scipy import ndimage
 
 matplotlib.use("TkAgg")
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 #from matplotlib.figure import Figure
 import time
-import autocorrelation_zeropadding
+from math_utils import autocorrelation_zeropadding
 
 from scipy.signal import medfilt2d
 

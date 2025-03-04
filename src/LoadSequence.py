@@ -1,8 +1,6 @@
 import os,io
 import numpy
-import sys
 import cv2
-from PIL import ImageFilter
 
 if os.sys.version_info.major > 2:
     from tkinter import *
@@ -11,33 +9,24 @@ if os.sys.version_info.major > 2:
 else:
     from tkinter import *
     from tkinter.filedialog import askdirectory
-    from tkinter.filedialog   import asksaveasfilename
 
 import tkinter.messagebox
 
 import tkinter.ttk
-import scipy
-import scipy.misc
 from scipy.ndimage import gaussian_filter
-from scipy.ndimage import median_filter
 
-
-from PIL import Image, ImageTk, ImageEnhance
+from PIL import Image
 #from Tkinter import ttk
-from PIL import ImageFilter
+#from math_utils import bytescl
 
-from bytescl import bytescl
+from math_utils.bytescl import bytescl
 
 # for video files: 
 # from contextlib import closing
 # from videosequence import VideoSequence
 
-# for video files (as 'videosequence' doesnt work on windows) 
 import subprocess
 import shutil
-
-import time
-
 import threading
 
 VALID_TYPES = (
@@ -104,9 +93,6 @@ def sort_list(l):
     for i in range(len(numbering)):
         l.insert(0, "%s%s.%s" % (basename[i],numbering[i],file_ending))
 
-	# TODO comment out next line as soon as safe 
-    # print(l)
-
 
 class ImageSequence:
 
@@ -147,14 +133,14 @@ class ImageSequence:
 
         try:
             # try to read file holding previously chosen directory
-            f = open('previous_directory.dat','r')
+            f = open('config/previous_directory.dat', 'r')
             initdir=f.read()
         except:
             initdir=os.getcwd()
 
         self.directory = askdirectory(title="Select Directory", initialdir=initdir)
 
-        f = open('previous_directory.dat','w')
+        f = open('config/previous_directory.dat', 'w')
         f.write(self.directory) # write chosen directory into file 'f'
         f.close()
 
@@ -319,7 +305,7 @@ class ImageSequence:
 
         try:
             # read file
-            f=open('previous_directory.dat','r')
+            f=open('config/previous_directory.dat', 'r')
             initdir=f.read()
         except:
             initdir=os.getcwd()
@@ -327,7 +313,7 @@ class ImageSequence:
         self.videofile = askopenfilename(title="Select Video",\
             initialdir=initdir)
 
-        f = open('previous_directory.dat','w')
+        f = open('config/previous_directory.dat', 'w')
         f.write(os.path.split(self.videofile)[0])
 	    # writes choosen directory (value of 'directory') into file 'f'
         f.close()
@@ -396,7 +382,7 @@ class ImageSequence:
 
         # try to set 'initdir' to the most recently selected directory
         try:
-            f=open('previous_directory.dat','r')
+            f=open('config/previous_directory.dat', 'r')
             initdir=f.read()
         except:
             initdir=os.getcwd()
@@ -405,7 +391,7 @@ class ImageSequence:
         self.videofile = askopenfilename(title="Select Video",\
             initialdir=initdir)
 
-        f = open('previous_directory.dat','w')
+        f = open('config/previous_directory.dat', 'w')
         f.write(os.path.split(self.videofile)[0])
 	    # writes choosen directory (value of 'directory') into file 'f'
         f.close()
@@ -491,12 +477,11 @@ class ImageSequence:
         for i in range(nimgs):
             array[i,:,:] = numpy.subtract(array[i,:,:], numpy.subtract(meanimg, gaussian_filter(array[i,:,:], sigma=1)))
 
-        array = numpy.uint8(bytescl(array))
+        array = numpy.uint8(bytescl.bytescl(array))
         for i in range(nimgs):
             self.sequence[i] = Image.fromarray(array[i,:,:])
 
     def imagereg(self):
-        import imreg_dft
 
         from pystackreg import StackReg
         sr = StackReg(StackReg.RIGID_BODY)
@@ -567,7 +552,7 @@ class ImageSequence:
 
         array = numpy.subtract(array, numpy.amin(array))
 
-        array = numpy.uint8(bytescl(array))
+        array = numpy.uint8(bytescl.bytescl(array))
 
         # print('max', numpy.amax(array))
         # print('min', numpy.amin(array))
@@ -657,7 +642,7 @@ class ImageSequence:
             for h in range(height):
                 array[:,h,w] = gaussian_filter(array[:,h,w],sigma=0.5)
 
-        array = numpy.uint8(bytescl(array))
+        array = numpy.uint8(bytescl.bytescl(array))
 
         for i in range(nimgs):
             img = Image.fromarray(array[i,:,:])
@@ -679,8 +664,6 @@ class ImageSequence:
         refimg = numpy.array(seq[0]) 
  
         cutborder = 30
-        import matplotlib      
-        import scipy
         from PIL import Image
         ref = numpy.fft.fft2(numpy.array(seq[0]))
         for t in range(tmax):
@@ -694,7 +677,7 @@ class ImageSequence:
             #print shift 
             shifted = numpy.roll(img,shift,axis=(0,1))
             # cut shifted img  
-            self.sequence[t] = Image.fromarray(numpy.uint8(bytescl(shifted[cutborder:wmax-cutborder,cutborder:hmax-cutborder])))
+            self.sequence[t] = Image.fromarray(numpy.uint8(bytescl.bytescl(shifted[cutborder:wmax-cutborder,cutborder:hmax-cutborder])))
 
         # reassign object atributes 
 

@@ -1,8 +1,6 @@
 # imports 
-import crosscorrelation_zp
 from numpy import savetxt
-from numpy import zeros_like
-import gaussian2Dfit
+from math_utils import gaussian2Dfit, crosscorrelation_zp
 from math import sqrt
 from numpy import shape
 from numpy import zeros

@@ -77,8 +77,8 @@ class Menubar:
 
     def write_flags(self):
         print('this is a test, Cilialyzer writes flags now')
-        os.remove('feature_flags.txt')
-        f = open('feature_flags.txt','a')
+        os.remove('config/feature_flags.txt')
+        f = open('config/feature_flags.txt', 'a')
         f.write(str(int(self.ROISelection_flag))+"\n")
         f.write(str(int(self.CBF_flag))+"\n")
         f.write(str(int(self.ActivityMap_flag))+"\n")
@@ -179,9 +179,9 @@ class Menubar:
         self.fps_list[3] = int(self.entry_fps3.get())
         self.fps_list[4] = int(self.entry_fps4.get())
 
-        if (os.path.exists('fps_defaults.txt')):
-            os.remove('fps_defaults.txt')
-        f = open('fps_defaults.txt','a')
+        if (os.path.exists('config/fps_defaults.txt')):
+            os.remove('config/fps_defaults.txt')
+        f = open('config/fps_defaults.txt', 'a')
         f.write(str(self.fps_list[0])+"\n")
         f.write(str(self.fps_list[1])+"\n")
         f.write(str(self.fps_list[2])+"\n")
@@ -196,9 +196,9 @@ class Menubar:
         self.pixelsize_list[3] = int(self.entry_pixelsize3.get())
         self.pixelsize_list[4] = int(self.entry_pixelsize4.get())
 
-        if (os.path.exists('pixelsize_defaults.txt')):
-            os.remove('pixelsize_defaults.txt')
-        f = open('pixelsize_defaults.txt','a')
+        if (os.path.exists('config/pixelsize_defaults.txt')):
+            os.remove('config/pixelsize_defaults.txt')
+        f = open('config/pixelsize_defaults.txt', 'a')
         f.write(str(self.pixelsize_list[0])+"\n")
         f.write(str(self.pixelsize_list[1])+"\n")
         f.write(str(self.pixelsize_list[2])+"\n")
@@ -207,16 +207,16 @@ class Menubar:
         f.close()
 
         # save default of number of cores to be used:
-        if (os.path.exists('cores_default.txt')):
-            os.remove('cores_default.txt')
-        f = open('cores_default.txt','a')
+        if (os.path.exists('config/cores_default.txt')):
+            os.remove('config/cores_default.txt')
+        f = open('config/cores_default.txt', 'a')
         f.write(str(self.entry_nc.get()))
         f.close()
 
         # save self.skipframe 
-        if (os.path.exists('skipframe_default.txt')):
-            os.remove('skipframe_default.txt')
-        f = open('skipframe_default.txt','a')
+        if (os.path.exists('config/skipframe_default.txt')):
+            os.remove('config/skipframe_default.txt')
+        f = open('config/skipframe_default.txt', 'a')
         f.write(str(self.skipframecombo.get()))
         f.close()
 
@@ -272,8 +272,8 @@ class Menubar:
 
         # -------- read defaults FPS list from file
         # read file fps_defaults.txt (if it exists)
-        if (os.path.exists('fps_defaults.txt')):
-            with open('fps_defaults.txt') as f:
+        if (os.path.exists('config/fps_defaults.txt')):
+            with open('config/fps_defaults.txt') as f:
                 fps_defaults = f.readlines()
                 fps_defaults = [line.rstrip() for line in fps_defaults]
                 self.fps_list = fps_defaults
@@ -283,9 +283,9 @@ class Menubar:
         # if FPS-list is not complete --> create default FPS-list
         if (len(self.fps_list) < 5):
             self.fps_list = [300, 200, 120, 100, 30]
-            if (os.path.exists('fps_defaults.txt')):
-                os.remove('fps_defaults.txt')
-            f = open('fps_defaults.txt','a')
+            if (os.path.exists('config/fps_defaults.txt')):
+                os.remove('config/fps_defaults.txt')
+            f = open('config/fps_defaults.txt', 'a')
             f.write(str(self.fps_list[0])+"\n")
             f.write(str(self.fps_list[1])+"\n")
             f.write(str(self.fps_list[2])+"\n")
@@ -385,8 +385,8 @@ class Menubar:
         pixelsize4_label.grid(row=4,column=0,padx=10,pady=5)
 
         # read pixelsize_defaults.txt (if it exists)
-        if (os.path.exists('pixelsize_defaults.txt')):
-            with open('pixelsize_defaults.txt') as f:
+        if (os.path.exists('config/pixelsize_defaults.txt')):
+            with open('config/pixelsize_defaults.txt') as f:
                 pixelsize_defaults = f.readlines()
                 pixelsize_defaults = [line.rstrip() for line in pixelsize_defaults]
                 self.pixelsize_list = pixelsize_defaults
@@ -396,9 +396,9 @@ class Menubar:
         if (len(self.pixelsize_list) < 5):
             self.pixelsize_list = [1779, 345, 173, 86, 1000]
 
-            if (os.path.exists('pixelsize_defaults.txt')):
-                os.remove('pixelsize_defaults.txt')
-            f = open('pixelsize_defaults.txt','a')
+            if (os.path.exists('config/pixelsize_defaults.txt')):
+                os.remove('config/pixelsize_defaults.txt')
+            f = open('config/pixelsize_defaults.txt', 'a')
             f.write(str(self.pixelsize_list[0])+"\n")
             f.write(str(self.pixelsize_list[1])+"\n")
             f.write(str(self.pixelsize_list[2])+"\n")
@@ -442,21 +442,21 @@ class Menubar:
         ncores_init = ncores-1
 
         # check whether 'cores_default.txt' exists: 
-        if (os.path.exists('cores_default.txt')):
+        if (os.path.exists('config/cores_default.txt')):
             # if it exists, read value and check whether the value makes sense
-            f = open('cores_default.txt', 'r')
+            f = open('config/cores_default.txt', 'r')
             nc = int(f.read())
             if ((nc > 0) and (nc <= ncores-1)):
                 # value makes sense
                 ncores_init = nc
             else:
                 # strange value, rewrite default 
-                os.remove('cores_default.txt')
-                f = open('cores_default.txt','a')
+                os.remove('config/cores_default.txt')
+                f = open('config/cores_default.txt', 'a')
                 f.write(str(ncores_init))
             f.close()
         else:
-            f = open('cores_default.txt','a')
+            f = open('config/cores_default.txt', 'a')
             f.write(str(ncores_init))
 
         self.miscframe1 = tk.LabelFrame(self.misc_tab, text=' Image stabilization settings ',\
@@ -484,9 +484,9 @@ class Menubar:
         # get the default from file for self.skipframe 
 
         # check whether 'skipframe_default.txt' exists: 
-        if (os.path.exists('skipframe_default.txt')):
+        if (os.path.exists('config/skipframe_default.txt')):
             # if it exists, read value 
-            f = open('skipframe_default.txt', 'r')
+            f = open('config/skipframe_default.txt', 'r')
             try:
                 self.skipframe = int(f.read())
                 f.close()
@@ -495,7 +495,7 @@ class Menubar:
                 f.close()
         else:
             self.skipframe = 1
-            f = open('skipframe_default.txt','a')
+            f = open('config/skipframe_default.txt', 'a')
             f.write(str(self.skipframe))
 
         self.skipframe_label=tk.Label(self.miscframe1,text=\
@@ -518,7 +518,7 @@ class Menubar:
         self.cfg_nbook.add(self.availfeat_tab, text=' Select features ')
 
         # read feature flags
-        with open('feature_flags.txt') as f:
+        with open('config/feature_flags.txt') as f:
             fflags = f.readlines()
             fflags = [line.rstrip() for line in fflags]
 

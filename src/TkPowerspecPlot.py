@@ -120,7 +120,7 @@ class TkPowerspecPlot:
 
     def save_plot(self, dirname):
 
-        f = open('output_directory.dat', 'r')
+        f = open('config/output_directory.dat', 'r')
         output_directory = f.read()
         f.close()
         #datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

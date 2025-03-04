@@ -1,5 +1,6 @@
 import numpy
-import autocorrelation_zeropadding
+from math_utils import autocorrelation_zeropadding
+
 
 def avg_tacorr(args):
     """
@@ -23,7 +24,7 @@ def avg_tacorr(args):
     print(nt, ni, nj)
 
     # initialize meanacorr
-    meanacorr = autocorrelation_zeropadding.acorr_zp(array[:,0,0])
+    meanacorr = autocorrelation_zeropadding.acorr_zp(array[:, 0, 0])
     meanacorr[:] = 0.0
 
     counter = 0

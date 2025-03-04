@@ -2,11 +2,10 @@ import numpy
 from tkinter import *
 import matplotlib
 matplotlib.use("TkAgg")
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import time
-import autocorrelation_zeropadding
+from math_utils import autocorrelation_zeropadding
 import math
 import os
 import re
@@ -19,7 +18,7 @@ import cv2
 
 #from scipy.signal import medfilt2d
 from PIL import Image
-from bytescl import bytescl
+from math_utils.bytescl import bytescl
 
 
 class activitymap:
@@ -470,7 +469,7 @@ class activitymap:
 
         if (self.freqmap is not None):
              self.freq_acorr = autocorrelation_zeropadding.acorr2D_zp(self.freqmap,
-                centering=True, normalize=True, mask=self.validity_mask)
+                                                                      centering=True, normalize=True, mask=self.validity_mask)
 
         # Slightly smooth autocorrelogram: 
         self.freq_acorr = gaussian_filter(self.freq_acorr, 1.0, truncate=1.0)
@@ -565,7 +564,7 @@ class activitymap:
 
 
     def save_plot(self, dirname):
-        f = open('output_directory.dat', 'r')
+        f = open('config/output_directory.dat', 'r')
         output_directory = f.read()
         f.close()
         # special characters are replaced by an underline:

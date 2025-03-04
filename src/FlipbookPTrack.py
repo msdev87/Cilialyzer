@@ -1,4 +1,3 @@
-import sys
 import io, os
 from PIL import Image, ImageTk, ImageEnhance
 #import psutil 
@@ -6,36 +5,26 @@ import time
 import numpy
 import tkinter.ttk
 import math
-import bytescl
-import cv2
+from math_utils import bytescl
+
 if os.sys.version_info.major > 2:
-    from tkinter.filedialog import askdirectory
     import tkinter as tk
     from tkinter import Button
 else:
-    from tkinter.filedialog import askdirectory
     from tkinter.filedialog import asksaveasfilename
     import tkinter as tk
     from tkinter import Button
 
-import scipy
-
-from scipy.ndimage.filters import uniform_filter
 from scipy.ndimage.measurements import variance
 
 from scipy.ndimage.filters import gaussian_filter
 from scipy.ndimage.filters import uniform_filter
 
-from scipy.stats import trim_mean
 #from pyradar.filters.lee import lee_filter
 
 from pandastable import Table
 import pandas
 import pandastable
-
-import crosscorrelation_zp
-from scipy.ndimage import center_of_mass
-import matplotlib.pyplot as plt
 
 import smooth
 from scipy import interpolate

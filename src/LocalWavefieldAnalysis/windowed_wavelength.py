@@ -1,6 +1,6 @@
 import numpy
 import math
-import autocorrelation_zeropadding
+from math_utils import autocorrelation_zeropadding
 from scipy.ndimage import gaussian_filter
 import cv2
 

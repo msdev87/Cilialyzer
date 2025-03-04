@@ -8,11 +8,11 @@ import os
 from scipy.optimize import curve_fit
 import multiprocessing
 import spacetimecorr_zp
-import gaussian2Dfit
+
 from . import windowed_wavelength
 import tkinter as tk
 #import termplotlib as tpl
-import crosscorrelation_zp
+#import crosscorrelation_zp
 from scipy.ndimage import center_of_mass
 from scipy.ndimage import map_coordinates
 
@@ -301,7 +301,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             # while (~numpy.isnan(peak[c+1,0])):
             #    dx = peak[c+1,0] - peak[c,0]
             #    dy = peak[c+1,1] - peak[c,1]
-            #    ds = math.sqrt(dx**2 + dy**2)
+            #    ds = math_utils.sqrt(dx**2 + dy**2)
             #    shifted_dists.append(ds)
             #    c = c+1
             # print(shifted_dists)
@@ -417,7 +417,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     # get the length of the average vector R 
     # 1-R finally represents the wave disorder
     #print('------------------ wave directions -------------------- ')
-    #print(wave_directions / math.pi * 180)
+    #print(wave_directions / math_utils.pi * 180)
     avg_sin = numpy.average(numpy.sin(wave_directions))
     avg_cos = numpy.average(numpy.cos(wave_directions))
     winresults.wdisorder.set( round((1 - math.sqrt(avg_sin**2 + avg_cos**2)),2))

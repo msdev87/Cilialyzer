@@ -544,7 +544,7 @@ class powerspec:
 #                mean = mean + weights[c-bot] * freqs[c-bot]
 #                mean_square = mean_square + (weights[c-bot] * (freqs[c-bot] * freqs[c-bot]))
 #
-#        stddev = math.sqrt(mean_square - (mean*mean))
+#        stddev = math_utils.sqrt(mean_square - (mean*mean))
 #
 #        plt.ioff()
 #

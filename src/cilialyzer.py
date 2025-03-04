@@ -35,6 +35,7 @@ class Cilialyzer():
     This class establishes the tkinter root window with all its content
     """
 
+
     def get_tab_id(self, tab_text):
         tabs = self.nbook.tabs()
         for index, tab_id in enumerate(tabs):
@@ -263,7 +264,7 @@ class Cilialyzer():
         # compute the mean image:
         meanimg = numpy.mean(array[0:int(nimgs / 10), :, :], axis=0)
 
-        f = open('cores_default.txt', 'r')
+        f = open('config/cores_default.txt', 'r')
         ncores = int(f.read())
         f.close()
 
@@ -272,7 +273,7 @@ class Cilialyzer():
         arrayslice = round(nimgs / num_procs)
 
         # read n of frames to be skipped in stabilization from file:
-        f = open('skipframe_default.txt', 'r')
+        f = open('config/skipframe_default.txt', 'r')
         skipframe = int(f.read())
         f.close()
 
@@ -534,7 +535,7 @@ class Cilialyzer():
         fflags=[]
 
         try:
-            with open('feature_flags.txt') as f:
+            with open('config/feature_flags.txt') as f:
                 fflags = f.readlines()
                 fflags = [line.rstrip() for line in fflags]
             f.close()
@@ -546,10 +547,10 @@ class Cilialyzer():
         # -> create a default feature_flags file 
         if (len(fflags) < 13):
             try:
-                os.remove('feature_flags.txt')
+                os.remove('config/feature_flags.txt')
             except:
                 pass
-            f = open('feature_flags.txt','a')
+            f = open('config/feature_flags.txt', 'a')
             f.write(str(int(True))+"\n")
             f.write(str(int(True))+"\n")
             f.write(str(int(True))+"\n")
@@ -565,7 +566,7 @@ class Cilialyzer():
             f.write(str(int(False))+"\n")
             f.close()
 
-            with open('feature_flags.txt') as f:
+            with open('config/feature_flags.txt') as f:
                 fflags = f.readlines()
                 fflags = [line.rstrip() for line in fflags]
             f.close()
@@ -850,25 +851,8 @@ class Cilialyzer():
 
         self.fcorrframe = None
 
-        """
-        # read validity threshold (to generate activity map) from file:
-        try:
-            with open('validity_threshold.txt') as f:
-                th = f.readline()
-            f.close()
-        except:
-            # no file found -> write file
-            th = 0.2
-            try:
-                os.remove('validity_threshold.txt')
-            except:
-                pass
-            f = open('validity_threshold.txt','a')
-            f.write(str(th)+"\n")
-            f.close()
-        """
 
-        #self.threshold = th
+
 
         self.active_percentage = tk.StringVar()
         self.active_area = tk.StringVar()

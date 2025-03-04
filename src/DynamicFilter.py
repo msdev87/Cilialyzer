@@ -1,14 +1,12 @@
 import numpy
 import PIL
-import scipy
-#from scipy.misc import bytescale 
-from bytescl import bytescl
+#from scipy.misc import bytescale
+from math_utils.bytescl import bytescl
 import sys
 import math
 import os
-import autocorrelation_zeropadding
+from math_utils import autocorrelation_zeropadding
 import temporal_autocorrelation2D
-import datetime
 from scipy.ndimage import gaussian_filter
 import re
 
@@ -19,7 +17,7 @@ else:
 
 import matplotlib
 matplotlib.use("TkAgg")
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 
 #from matplotlib.backends.backend_tk import FigureCanvasTk, NavigationToolbar2Tk
 from matplotlib.figure import Figure
@@ -27,8 +25,6 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
-import smooth
 
 numpy.set_printoptions(threshold=sys.maxsize)
 
@@ -554,7 +550,7 @@ class DynFilter:
         #neighbors = numpy.add(relative_neighbors, numpy.array([maxy, maxx]))
         neighbors = numpy.array([[maxy, maxx]]).reshape((1,2))
         ellipse_array = numpy.zeros_like(scorr)
-        corr_threshold = 0.1 #1 / math.e
+        corr_threshold = 0.1 #1 / math_utils.e
         neighbors_rows = neighbors[:, 0]
         neighbors_cols = neighbors[:, 1]
 
@@ -880,7 +876,7 @@ class DynFilter:
             #    "%Y-%m-%d_%H-%M-%S")
             #output_directory = os.path.join(os.getcwd(),
             #    'Cilialyzer_output_' + datetime_string)
-            f = open('output_directory.dat','r')
+            f = open('config/output_directory.dat', 'r')
             output_directory = f.read()
             f.close()
             # try:

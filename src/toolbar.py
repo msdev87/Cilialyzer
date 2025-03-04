@@ -167,7 +167,7 @@ class Toolbar:
         sort_list(files)
         self.PIL_ImgSeq.fname.set(files[0])
 
-        f = open('previous_directory.dat','w')
+        f = open('config/previous_directory.dat', 'w')
         f.write(next_directory) # write choosen directory into file 'f'   
         f.close()
 
@@ -300,8 +300,8 @@ class Toolbar:
         #grid(row=0,column=3,padx=5,sticky='W')
 
         # read fps_defaults.txt (if it exists)
-        if (os.path.exists('fps_defaults.txt')):
-            with open('fps_defaults.txt') as f:
+        if (os.path.exists('config/fps_defaults.txt')):
+            with open('config/fps_defaults.txt') as f:
                 fps_defaults = f.readlines()
                 fps_defaults = [line.rstrip() for line in fps_defaults]
                 fps_list = fps_defaults
@@ -310,9 +310,9 @@ class Toolbar:
 
         if (len(fps_list) < 5):
             fps_list = [300, 200, 120, 100, 30]
-            if (os.path.exists('fps_defaults.txt')):
-                os.remove('fps_defaults.txt')
-            f = open('fps_defaults.txt','a')
+            if (os.path.exists('config/fps_defaults.txt')):
+                os.remove('config/fps_defaults.txt')
+            f = open('config/fps_defaults.txt', 'a')
             f.write(str(fps_list[0])+"\n")
             f.write(str(fps_list[1])+"\n")
             f.write(str(fps_list[2])+"\n")
@@ -341,8 +341,8 @@ class Toolbar:
         pixsize_label.place(in_=self.toolbarframe, anchor='c', x=550, rely=0.5)
 
         # read pixelsize_defaults.txt (if it exists)
-        if (os.path.exists('pixelsize_defaults.txt')):
-            with open('pixelsize_defaults.txt') as f:
+        if (os.path.exists('config/pixelsize_defaults.txt')):
+            with open('config/pixelsize_defaults.txt') as f:
                 pixelsize_defaults = f.readlines()
                 pixelsize_defaults = [line.rstrip() for line in pixelsize_defaults]
                 pixelsize_list = pixelsize_defaults
@@ -352,9 +352,9 @@ class Toolbar:
         if (len(pixelsize_list) < 5):
             pixelsize_list = [1779, 345, 173, 86, 1000]
 
-            if (os.path.exists('pixelsize_defaults.txt')):
-                os.remove('pixelsize_defaults.txt')
-            f = open('pixelsize_defaults.txt','a')
+            if (os.path.exists('config/pixelsize_defaults.txt')):
+                os.remove('config/pixelsize_defaults.txt')
+            f = open('config/pixelsize_defaults.txt', 'a')
             f.write(str(pixelsize_list[0])+"\n")
             f.write(str(pixelsize_list[1])+"\n")
             f.write(str(pixelsize_list[2])+"\n")
@@ -374,8 +374,8 @@ class Toolbar:
         nimgs_label.place(in_=self.toolbarframe, anchor='c', x=800, rely=0.5)
 
         # read nimgs_defaults.txt (if it exists)
-        if (os.path.exists('nimgs_defaults.txt')):
-            with open('nimgs_defaults.txt') as f:
+        if (os.path.exists('config/nimgs_defaults.txt')):
+            with open('config/nimgs_defaults.txt') as f:
                 nimgs_defaults = f.readlines()
                 nimgs_defaults = [line.rstrip() for line in nimgs_defaults]
                 nimgs_list = nimgs_defaults
@@ -385,9 +385,9 @@ class Toolbar:
         if (len(nimgs_list) < 3):
             nimgs_list = ['all', 300, 600]
 
-            if (os.path.exists('nimgs_defaults.txt')):
-                os.remove('nimgs_defaults.txt')
-            f = open('nimgs_defaults.txt','a')
+            if (os.path.exists('config/nimgs_defaults.txt')):
+                os.remove('config/nimgs_defaults.txt')
+            f = open('config/nimgs_defaults.txt', 'a')
             f.write(str(nimgs_list[0])+"\n")
             f.write(str(nimgs_list[1])+"\n")
             f.write(str(nimgs_list[2])+"\n")

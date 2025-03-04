@@ -1,9 +1,6 @@
 from numpy import copy
 from pystackreg import StackReg
 from numpy import zeros
-from PIL import Image
-import bytescl
-from numpy import uint8
 import numpy
 
 def subproc(args):

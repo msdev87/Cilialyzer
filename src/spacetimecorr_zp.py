@@ -1,9 +1,6 @@
 import numpy
-import crosscorrelation_zp
-import PIL
-import matplotlib.pyplot as plt
-import bytescl
-import sys
+from math_utils import crosscorrelation_zp
+
 
 def stcorr(array, maxtimeshift=15):
     """

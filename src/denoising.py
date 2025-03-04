@@ -1,7 +1,7 @@
 import numpy
 from scipy.ndimage import gaussian_filter
-from PIL import Image, ImageTk, ImageEnhance
-from bytescl import bytescl
+from PIL import Image
+from src.math_utils.bytescl import bytescl
 """
 Input: 3D array (stack of images)
 Output: denoised image sequence
