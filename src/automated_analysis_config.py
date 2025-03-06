@@ -2,7 +2,6 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import os
 import datetime
-
 from pathlib import Path
 
 def build_config(main):

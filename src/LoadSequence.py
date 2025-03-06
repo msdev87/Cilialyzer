@@ -427,7 +427,7 @@ class ImageSequence:
         self.width = fwidth
         self.height = fheight
 
-        nparray = numpy.zeros((int(nframes), int(fheight), int(fwidth), 3), dtype=float)
+        nparray = numpy.zeros((int(nframes), int(fheight), int(fwidth), 3), dtype=numpy.float32)
 
         fc = 0
         ret = True
@@ -458,9 +458,9 @@ class ImageSequence:
         nimgs = len(self.sequence) # number of images   
 
         # initialize numpy float array, which will hold the image sequence  
-        array = numpy.zeros((int(nimgs),int(height),int(width)),dtype=float)
+        array = numpy.zeros((int(nimgs),int(height),int(width)),dtype=numpy.float32)
 
-        sumimg = numpy.zeros((int(height),int(width)),dtype=float)
+        sumimg = numpy.zeros((int(height),int(width)),dtype=numpy.float32)
 
         # PIL images -> numpy array 
         for i in range(nimgs):
@@ -471,11 +471,10 @@ class ImageSequence:
             sumimg = numpy.add(sumimg,array[i,:,:])
         meanimg = numpy.multiply(1.0/float(nimgs), sumimg)  
 
-        #print(meanimg) 
-
         # remove sensor pattern         
         for i in range(nimgs):
-            array[i,:,:] = numpy.subtract(array[i,:,:], numpy.subtract(meanimg, gaussian_filter(array[i,:,:], sigma=1)))
+            array[i,:,:] = numpy.subtract(array[i,:,:],
+                numpy.subtract(meanimg, gaussian_filter(array[i,:,:], sigma=1)))
 
         array = numpy.uint8(bytescl.bytescl(array))
         for i in range(nimgs):
@@ -491,23 +490,14 @@ class ImageSequence:
         nimgs = len(self.sequence) # number of images   
 
         # initialize numpy float array, which will hold the image sequence  
-        array = numpy.zeros((int(nimgs),int(height),int(width)))
-
-        # gaussian blurring 
-        #for i in range(nimgs):
-        #    self.sequence[i] = self.sequence[i].filter(ImageFilter.GaussianBlur(radius=10))
+        array = numpy.zeros((int(nimgs),int(height),int(width)), dtype=numpy.float32)
 
         # PIL images -> numpy array 
         for i in range(nimgs):
             array[i,:,:] = numpy.array(self.sequence[i])
 
-        # print(len(array.shape))
         # set reference to 'first', 'previous', or 'mean'
-        aligned = sr.register_transform_stack(array, reference='mean',verbose=True)
-        #for i in range(nimgs):
-        #    #if (i > 0):
-        #    mydict = imreg_dft.imreg.similarity(array[0,:,:],array[i,:,:])
-        #    array[i,:,:] = mydict["timg"]
+        aligned = sr.register_transform_stack(array, reference='mean', verbose=True)
 
         for i in range(nimgs):
             self.sequence[i] = Image.fromarray(numpy.uint8(aligned[i,:,:]))
@@ -529,9 +519,9 @@ class ImageSequence:
         nimgs = len(sequence) # number of images
 
         # initialize numpy float array, which will hold the image sequence  
-        array = numpy.zeros((int(nimgs), int(height), int(width)), dtype=float)
+        array = numpy.zeros((int(nimgs), int(height), int(width)), dtype=numpy.float32)
         # sumimg: sum of images
-        sumimg = numpy.zeros((int(height), int(width)), dtype=float)
+        sumimg = numpy.zeros((int(height), int(width)), dtype=numpy.float32)
 
         # convert stack of PIL images to numpy array
         for i in range(nimgs):
@@ -557,8 +547,8 @@ class ImageSequence:
         # print('max', numpy.amax(array))
         # print('min', numpy.amin(array))
 
-        #array = numpy.uint8(array) 
-        #print(array[0,:,:])
+
+
         for i in range(nimgs):
             img = Image.fromarray(array[i,:,:])
             #self.sequence[i] = img
@@ -650,9 +640,6 @@ class ImageSequence:
 
 
 
-
-
-
     def wackeldackel(self):
         # PIL image sequence -> to numpy array
 
@@ -684,6 +671,4 @@ class ImageSequence:
         # determine width and height of images: 
         firstimg = self.sequence[0] 
         self.width, self.height = firstimg.size
-        #print self.width
-
 

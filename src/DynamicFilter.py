@@ -1,6 +1,5 @@
 import numpy
 import PIL
-#from scipy.misc import bytescale
 from math_utils.bytescl import bytescl
 import sys
 import math
@@ -9,30 +8,18 @@ from math_utils import autocorrelation_zeropadding
 import temporal_autocorrelation2D
 from scipy.ndimage import gaussian_filter
 import re
-
 if os.sys.version_info.major > 2:
     from tkinter import *
 else:
     from tkinter import *
-
 import matplotlib
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
-
-#from matplotlib.backends.backend_tk import FigureCanvasTk, NavigationToolbar2Tk
 from matplotlib.figure import Figure
-
 import matplotlib.pyplot as plt
-
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
 numpy.set_printoptions(threshold=sys.maxsize)
-
-#from scipy import signal
-
 from scipy.optimize import curve_fit
-
-import multiprocessing
 import cv2
 class DynFilter:
 
@@ -50,11 +37,12 @@ class DynFilter:
         self.splitline = None
         self.pixelffts = []
         self.fps = None
-
         self.wavelength = None
         self.sclength = None # spatial correlation length
         self.cbp_elongation = None
 
+
+        """
         # multiprocessing 
         multiprocessing.freeze_support()
         self.ncpus = multiprocessing.cpu_count()
@@ -62,12 +50,12 @@ class DynFilter:
             self.pool = multiprocessing.Pool(self.ncpus-1)
         else:
             self.pool = multiprocessing.Pool(self.ncpus)
+        """
 
     def bandpass(self, PILseq, fps, minf, maxf):
 
         # input: roiseq 
-        # output: dynamically filtered roiseq 
-
+        # output: dynamically filtered roiseq
         # dynamic filtering: bandpass -> keep frequencies f : minf <= f <= maxf 
 
         self.fps = fps
@@ -77,7 +65,8 @@ class DynFilter:
         nimgs = len(PILseq) # number of images  
 
         # create numpy array 'array' 
-        array = numpy.zeros((int(nimgs),int(height),int(width)))
+        array = numpy.zeros((int(nimgs), int(height), int(width)),
+                            dtype=numpy.float32)
         for i in range(nimgs):
             array[i,:,:] = numpy.array(PILseq[i])
         (nt,ni,nj) = numpy.shape(array)
@@ -159,11 +148,11 @@ class DynFilter:
         for i in range(nimgs):
             self.dyn_roiseq.append(PIL.Image.fromarray(numpy.uint8(array[i,:,:])))
 
+    """
     def temporal_autocorrelation(self, tkplotframe, frequencymap):
-            """
-            computes the mean temporal autocorrelation function
-            from which we determine the autocorrelation time
-            """
+
+            #computes the mean temporal autocorrelation function
+            #from which we determine the autocorrelation time
 
             firstimg = self.dyn_roiseq[0]  # first image of dyn roi sequence
             width, height = firstimg.size  # dimension of images
@@ -242,7 +231,6 @@ class DynFilter:
 
             tau = nt/2 - tau
 
-
             #print('***********************')
             # print('tau: ', tau)
 
@@ -261,6 +249,7 @@ class DynFilter:
             ax.set_xlabel(r"Time delay $\Delta$t [ms]", fontsize=16)
             ax.set_ylabel("Temporal autocorrelation", fontsize=16)
 
+    """
 
     def spatiotempcorr(self, fps, minf, maxf):
 
@@ -452,7 +441,7 @@ class DynFilter:
         for t in range(nimgs): # loop over time
 
             # images are slightly smoothed
-            img = gaussian_filter( numpy.array(self.dyn_roiseq[t]),
+            img = gaussian_filter( numpy.array(self.dyn_roiseq[t], dtype=numpy.float32),
                 sigma=1.0, truncate=2.0)
             # autocorrelate
             corr = autocorrelation_zeropadding.acorr2D_zp(img, mask=validity_mask)
@@ -888,6 +877,9 @@ class DynFilter:
             fig.savefig(fname, format='png', dpi=200)
 
         return return_value
+
+#if __name__ == '__main__':
+#    pass
 
 
 

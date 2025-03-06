@@ -9,27 +9,23 @@ from math_utils import autocorrelation_zeropadding
 import math
 import os
 import re
-#import denoising
-
 from skimage import filters
 from scipy import ndimage
 from scipy.ndimage import gaussian_filter
 import cv2
-
-#from scipy.signal import medfilt2d
 from PIL import Image
 from math_utils.bytescl import bytescl
 
-
 class activitymap:
 
-    def __init__(self, parent, parentw, parenth, pixsize, active_percentage, active_area, fcparentframe):
+    def __init__(self, parent, parentw, parenth, pixsize, active_percentage,
+                 active_area, fcparentframe):
 
         self.map = None
         self.parentw = parentw
         self.parenth = parenth
         self.tkframe = Frame(parent, width=self.parentw, height=self.parenth)
-        self.tkframe.place(in_=parent, anchor='c', relx=0.5, rely=0.5)
+        self.tkframe.place(in_=parent, anchor='center', relx=0.5, rely=0.5)
         self.parent=parent
 
         self.fcparentframe = fcparentframe
@@ -69,7 +65,8 @@ class activitymap:
         self.active_percentage = active_percentage
         self.active_area = active_area
 
-    def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum, pixsize, automated=0):
+    def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum,
+                         pixsize, automated=0):
         """
         Calculation of the activity map (spatially resolved CBF map)
         """
@@ -101,7 +98,7 @@ class activitymap:
         # subtract the mean (Note: it is necessary to subtract the mean
         # before the optical flow calculation!)
 
-        array = numpy.zeros((int(self.nimgs), int(self.height), int(self.width)), dtype=float)
+        array = numpy.zeros((int(self.nimgs), int(self.height), int(self.width)), dtype=numpy.float32)
         # convert stack of PIL images to numpy array
         for i in range(nimgs):
             array[i, :, :] = numpy.array(PILseq[i])
@@ -122,11 +119,7 @@ class activitymap:
 
         del array
 
-
-        for t in range(int(nimgs)-1):
-
-            #img1 = gaussian_filter(numpy.subtract(numpy.array(PILseq[t]), mean_image), sigma=(1,1), truncate=1.0)
-            #img2 = gaussian_filter(numpy.subtract(numpy.array(PILseq[t+1]), mean_image), sigma=(1,1), truncate=1.0)
+        for t in range( int(nimgs)-1 ):
 
             img1 = gaussian_filter(PILseq[t], sigma=(1, 1), truncate=1.0)
             img2 = gaussian_filter(PILseq[t+1], sigma=(1, 1), truncate=1.0)
@@ -134,6 +127,7 @@ class activitymap:
             # get optical flow between image1 and image2
             flow = cv2.calcOpticalFlowFarneback(
                     img1, img2, None, 0.99, 1, ws, 7, 7, 1.5, 0)
+            flow = flow.astype(numpy.float32)
 
             v_flow.append(flow[...,1])
             u_flow.append(flow[...,0])
@@ -156,6 +150,7 @@ class activitymap:
         # Delete u_flow and v_flow
         del u_flow
         del v_flow
+        del flow
 
         (nt,ni,nj) = numpy.shape(speedmat)
 
@@ -166,7 +161,7 @@ class activitymap:
         self.validity_mask = numpy.ones((int(self.height), int(self.width)))
 
         # ------------ Temporal variance condition intensity -------------------
-        array = numpy.zeros((nimgs, self.height, self.width))
+        array = numpy.zeros((nimgs, self.height, self.width), dtype=numpy.float32)
         for t in range(nimgs):
             array[t,:,:] = numpy.array(PILseq[t])
 
@@ -181,8 +176,8 @@ class activitymap:
                     self.validity_mask[i,j] = 0
         del array
 
-        print('valid percentage after temporal variance: ',
-              numpy.sum(self.validity_mask)/self.validity_mask.size)
+        # print('valid percentage after temporal variance: ',
+        #      numpy.sum(self.validity_mask)/self.validity_mask.size)
 
         # ----------------------------------------------------------------------
 
@@ -196,8 +191,8 @@ class activitymap:
                 if (var_ij < variance_threshold):
                     self.validity_mask[i,j] = 0
 
-        print('valid percentage after optical flow: ',
-              numpy.sum(self.validity_mask) / self.validity_mask.size)
+        # print('valid percentage after optical flow: ',
+        #      numpy.sum(self.validity_mask) / self.validity_mask.size)
 
         # ----------------------------------------------------------------------
 

@@ -1,9 +1,7 @@
 import os
 import avoid_troubles
-import tkinter as tk
-from tkinter import ttk
 import csv
-import datetime
+
 
 def process(main):
 
@@ -15,23 +13,12 @@ def process(main):
     #   powerspec
     #   activitymap
     #   write results to csv file
-
     # avoid troubles
     try:
         avoid_troubles.stop_animation(
             main.toolbar.player, main.toolbar.roiplayer, main.toolbar.ptrackplayer)
     except:
         pass
-
-    """ 
-    this has been moved to 'config_automated_analysis.py
-    
-    # let the user choose a directory:
-    main.toolbar.PIL_ImgSeq.choose_directory(automated=1)
-    # choose_directory writes the chosen directory to file previous_directory.dat
-    # goal: find all subdirectories
-    # get first the path of the chosen directory:
-    """
 
     def contains_directory(directory):
         # this function checks whether the provided directory contains
@@ -63,34 +50,17 @@ def process(main):
     for i in range(len(dir_list)):
         dir_list[i] = os.path.join(get_parent_directory(dir_list[i]), dir_list[i])
 
-
-    #contents = os.listdir(path) # listdir returns all directories and files in path
-
-    # contents holds relative paths, we need to add the base path to content[i]:
-    #basepath = path
-    #for i in range(len(contents)):
-    #    contents[i] = os.path.join(basepath, contents[i])
-
-    # goal: dirlist holds the list of all directories within 'base path' directory
-    #dirlist = []
-    #for item in contents:
-    #    if os.path.isdir(item):
-    #        dirlist.append(item)
-
     dirlist = []
     # remove all directories which contain subdirectories:
     for directory in dir_list:
        if not contains_directory(directory): dirlist.append(directory)
     number_videos = len(dirlist)
 
-    #print('----- test : dirlist ----- ')
-    #print(dirlist)
-    #print('---------------------------')
 
     # ---------------- Before looping over all videos --------------------------
 
     # Output table will be written to csv file
-    # ouptut_table is a dictionary and will contain the data
+    # ouptut_table is a dictionary and will contain the output data
     output_table = []
     # Initialize the dict with only the header/keys:
     header_keys = ["Filename", "CBF", "CBF_SD", "CBF_min", "CBF_max",\
@@ -114,7 +84,7 @@ def process(main):
     bla = ' Processing data, please wait....'
     main.videos_processed.set(bla)
 
-    print('dirlist', dirlist)
+    # print('dirlist', dirlist)
 
     # --------------------------------------------------------------------------
     # ---------------------- Loop over all directories -------------------------
@@ -143,12 +113,15 @@ def process(main):
         # next line updates the label (displayed path to the new directory) 
         main.PIL_ImgSeq.dirname.set(dirname)
         # update the displayed filename of the first image
-        files = os.listdir(dirname)
+        try:
+            files = os.listdir(dirname)
+        except:
+            files = ''
+
 
         if len(files) < 10:
-            continue # continue to next video
+            continue # continue to next video (rest of loop gets skipped)
 
-        #print(files)
         main.toolbar.PIL_ImgSeq.fname.set(files[0])
 
         # write selected directory to file
@@ -166,18 +139,15 @@ def process(main):
         if len(main.roiplayer.roiseq) < 10:
             continue # continue to next video
 
-
         main.error_code = 0
         # ------------------------ Image stabilization -------------------------
         if (main.img_stab_autoflag.get()):
             try:
-                # 1. Image stabilization
                 main.image_stabilization(automated=1)
             except:
                 main.error_code = 1
-                #print('********** error code after stabilization ***********')
         # ----------------------------------------------------------------------
-        print('image stabilization done')
+        # print('image stabilization done')
         # ----------------------- Calculate powerspectrum ----------------------
         if (main.cbf_autoflag.get()):
             try:
@@ -188,7 +158,6 @@ def process(main):
                 main.error_code = round(error_code)
             except:
                 main.error_code = 1
-
         # ----------------- calculate activity map -----------------------------
         if (main.activity_autoflag.get()):
             try:
@@ -200,16 +169,15 @@ def process(main):
             except:
                 main.error_code=1
         # ----------------------------------------------------------------------
-        print('activity map done')
-        # ----------------- Frequency correlation --------------------------
+        # print('activity map done')
+        # --------------------- Frequency correlation --------------------------
         if (main.fcorr_autoflag.get()):
             try:
                 main.activity_map.frequency_correlogram(main.fcorrframe,
                     float(main.toolbar.pixsizecombo.get()))
             except:
                 main.error_code = 1
-
-
+        # ----------------------------------------------------------------------
         if (main.wl_autoflag.get()):
             #try:
             # Dynamic filtering:
@@ -219,20 +187,13 @@ def process(main):
                 float(main.minscale.get()), float(main.maxscale.get()),
                 main.mscorrplotframe, main.mscorrprofileframe, float(main.toolbar.pixsizecombo.get()),
                 main.activity_map.validity_mask ,automated=1, output_fname=main.PIL_ImgSeq.directory)
-
             if min_correlation > -0.03: main.error_code = 1
-            #except:
-            #    print('********minimum correlation is too high********')
-            #    main.error_code = 1
-
-        #print('main.wl_autoflag.get() ', main.wl_autoflag.get())
-
 
         if main.local_analysis_autoflag.get():
             main.winanalysis()
             print('winanalysis done')
 
-        # write output to list
+        # append output to dictionary
         output_table.append({
             "Filename": dirname,
             "CBF": main.powerspectrum.pwspecplot.meancbf,

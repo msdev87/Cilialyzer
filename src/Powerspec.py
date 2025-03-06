@@ -69,11 +69,11 @@ class powerspec:
             nimgs = len(roiseq) # number of images   
 
             # initialize numpy float array, which will hold the image sequence  
-            array = numpy.zeros((int(nimgs),int(height),int(width)))
+            array = numpy.zeros((int(nimgs),int(height),int(width)), dtype=numpy.float32)
 
             # Get mean_image
             for t in range(nimgs):
-                array[t,:,:] = numpy.array(roiseq[t])
+                array[t,:,:] = numpy.array(roiseq[t], dtype=numpy.float32)
             mean_image = numpy.mean(array, axis=0)
 
             # Center the 'array' (i.e. subtract mean image)
@@ -123,7 +123,7 @@ class powerspec:
             self.pixelspectra = numpy.zeros((nt, ni, nj))
 
             # powerspectrum.pixelffts: 3D array holding the pixel-wise temp.fft
-            self.pixelffts = numpy.zeros((nt, ni, nj), dtype=numpy.complex_)
+            self.pixelffts = numpy.zeros((nt, ni, nj), dtype=numpy.complex64)
 
             self.spec = numpy.zeros(nt)
 
@@ -499,87 +499,3 @@ class powerspec:
         self.tkframe = Frame(self.parent,width=self.parentw,height=self.parenth)
         self.tkframe.place(in_=self.parent, width=self.parentw,height=self.parenth)
         self.tkframe.update()
-
-#    def get_cbf(self,nimgs,FPS): 
-#        
-#        peakheight = max(self.spec) 
-#        low = self.cbf_low 
-#        high = self.cbf_high
-#
-#        #print "low"
-#        #print low 
-#        #print "high" 
-#        #print high 
-#
-#
-#        bot=int(round((float(low)*nimgs/float(FPS))-1)) # transform [Hz] into index
-#        top=int(round((float(high)*nimgs/float(FPS))-1))
-#
-#        self.cbflowind = bot 
-#        self.cbfhighind = top 
-#
-#        # note the ugly "*1.0", which comes from how python deals with references:    
-#        weights = self.spec[bot:top] *  1.0 
-#
-#        peakheight = max(self.spec) 
-#        print "peakheight2"
-#        print peakheight 
-#
-#
-#
-#        normfac = numpy.sum(weights)
-#        for i in range(bot,top):
-#                weights[i-bot] = weights[i-bot] / normfac
-#
-#        peakheight = max(self.spec) 
-#        print "peakheight3"
-#        print peakheight 
-#
-#
-#        freqs = self.freqs[bot:top]
-#        mean = 0
-#        mean_square = 0
-#
-#        for c in range(bot,top):
-#                mean = mean + weights[c-bot] * freqs[c-bot]
-#                mean_square = mean_square + (weights[c-bot] * (freqs[c-bot] * freqs[c-bot]))
-#
-#        stddev = math_utils.sqrt(mean_square - (mean*mean))
-#
-#        plt.ioff()
-#
-#        fig = plt.figure(figsize=(6,4), dpi=80)
-#        ax = fig.add_subplot(111)
-# 
-#        #print "self.spec2"
-#        #print self.spec 
-#
-#        peakheight = max(self.spec) 
-#        print "peakheight4"
-#        print peakheight 
-#
-#
-#        plt.plot(self.freqs,self.spec, color='0.2',lw=2)
-#        plt.ylabel('Relative Power Spectral Density',labelpad=15,fontsize=14)
-#        plt.xlabel('Frequency [Hz]',labelpad=8,fontsize=14)
-#        plt.xlim(0,35)
-#        plt.xticks(fontsize=14)
-#        plt.yticks(fontsize=14)
-#        
-#        #xpos = 0.55*float(35)
-#        #ypos = float(peakheight)*0.75
-#        
-#        xpos = 0.55
-#        ypos = 0.9 
-#        str1 = "$CBF = $"
-#        str2 = "$%.1f$" %mean
-#        str3 = "$\pm$"
-#        str4 = "$%.1f$" %stddev
-#        str5 = " [Hz]"
-#        plt.text(xpos,ypos,str1+str2+str3+str4+str5,transform=ax.transAxes,fontsize=14)
-#        plt.grid()
-#        plt.tight_layout()
-#        #plt.show()
-#        plt.savefig('powerspec.png', bbox_inches = 'tight') 
-#        plt.close(fig) 
-

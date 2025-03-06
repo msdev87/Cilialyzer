@@ -35,17 +35,14 @@ class Cilialyzer():
     This class establishes the tkinter root window with all its content
     """
 
-
     def get_tab_id(self, tab_text):
         tabs = self.nbook.tabs()
         for index, tab_id in enumerate(tabs):
             if self.nbook.tab(tab_id, "text") == tab_text:
                 return index
 
-
     def switchtab(self, event):
         # if tab is pressed (and pressed tab != active tab) then take precautions...
-
         clicked_tab = self.nbook.tk.call(self.nbook._w, "identify", "tab", event.x, event.y)
         active_tab = self.nbook.index(self.nbook.select())
 
@@ -55,12 +52,16 @@ class Cilialyzer():
             except NameError:
                 pass
 
-        if ((active_tab == self.nbook.index(self.ptracktab)) and (clicked_tab != active_tab)):
-            # stop the player to prevent a crash
-            try:
-                self.ptrackplayer.stop = 2
-            except NameError:
-                pass
+        try:
+            if ((active_tab == self.nbook.index(self.ptracktab)) and (clicked_tab != active_tab)):
+                # stop the player to prevent a crash
+                try:
+                    self.ptrackplayer.stop = 2
+                except NameError:
+                    pass
+        except:
+            pass
+
 
         if (clicked_tab == self.nbook.index(self.roitab)):
 
@@ -87,29 +88,33 @@ class Cilialyzer():
                     self.roiplayer.animate()
                 except:
                     pass
+        try:
+            if (clicked_tab == self.nbook.index(self.ptracktab)):
+                # particle tracking tab got selected
+                self.nbook.select(self.nbook.index(self.ptracktab))
+                # create player object
+                refresh = 0
+                selectroi = 1
+                self.ptrackplayer = FlipbookPTrack.ImgSeqPlayer(self.ptracktab,
+                    self.PIL_ImgSeq.directory, refresh, self.roiplayer.roiseq,
+                    self.PIL_ImgSeq.seqlength, self.roi, selectroi,
+                    float(self.toolbar.fpscombo.get()), float(self.toolbar.pixsizecombo.get()))
+                try:
+                    self.toolbar.ptrackplayer = self.ptrackplayer
+                except NameError:
+                    pass
+                self.ptrackplayer.animate()
+        except:
+            pass
+        # --------
+        try:
+            if (self.DynamicFiltering_flag):
+                if (clicked_tab == self.nbook.index(self.dynfiltertab)):
+                    # dynamic filtering tab got selected
+                    pass
+        except:
+            pass
 
-        if (clicked_tab == self.nbook.index(self.ptracktab)):
-            # particle tracking tab got selected
-            self.nbook.select(self.nbook.index(self.ptracktab))
-            # create player object
-            refresh = 0
-            selectroi = 1
-            self.ptrackplayer = FlipbookPTrack.ImgSeqPlayer(self.ptracktab,
-                self.PIL_ImgSeq.directory, refresh, self.roiplayer.roiseq,
-                self.PIL_ImgSeq.seqlength, self.roi, selectroi,
-                float(self.toolbar.fpscombo.get()), float(self.toolbar.pixsizecombo.get()))
-
-            try:
-                self.toolbar.ptrackplayer = self.ptrackplayer
-            except NameError:
-                pass
-
-            self.ptrackplayer.animate()
-
-        if (self.DynamicFiltering_flag):
-            if (clicked_tab == self.nbook.index(self.dynfiltertab)):
-                # dynamic filtering tab got selected
-                pass
 
     def dynfiltering(self, automated=0):
         # Apply band-pass filter
@@ -851,13 +856,10 @@ class Cilialyzer():
 
         self.fcorrframe = None
 
-
-
-
         self.active_percentage = tk.StringVar()
         self.active_area = tk.StringVar()
 
-        self.activity_map = activitymap.activitymap(self.mapframe, \
+        self.activity_map = activitymap.activitymap(self.mapframe,
             int(round(0.8*self.nbookh)), int(round(1.2*self.nbookh)),
             float(self.toolbar.pixsizecombo.get()), self.active_percentage, self.active_area, self.fcorrframe) # activity map object
 
@@ -922,10 +924,6 @@ class Cilialyzer():
                              resolution=0.2, variable=self.maxfreq, command=self.peakselector)
         self.maxscale.place(in_=self.cbftab, anchor='c', relx=0.5, rely=0.85)
 
-        #print('ID of minscale and maxscale in cilialyzer.py: ')
-        #print(id(self.minscale))
-        #print(id(self.maxscale))
-
         # Make the 'Powerspectrum' button
         self.powerspecB=tk.Button(self.cbftab, text='Powerspectrum',\
             command=lambda: self.powerspectrum.calc_powerspec(self.roiplayer.roiseq,\
@@ -949,20 +947,7 @@ class Cilialyzer():
         self.save_psdB.place(in_=self.cbftab, relx=0.85, rely=0.35,anchor='c')
 
         # ----------------------------------------------------------------------
-        # add a combobox in which the user is supposed to specify the
-        # number of harmonics, the default is 2
-        # Label and Entry Widget for specifying the number of visible harmonics
-        #if (self.DynamicFiltering_flag):
-        #    self.nrharms_label=tk.Label(self.cbftab, text="Number of Harmonics :",width=22,anchor='e',\
-        #    font=("Helvetica",11))
-        #    self.nrharms_label.place(in_=self.cbftab, anchor='c', relx=0.75, rely=0.15)
-
-        #    self.nrharms_list = [1,2,3]
-        #    self.nrharmscombo = tkinter.ttk.Combobox(self.cbftab,values=self.nrharms_list,width=5)
-        #    self.nrharmscombo.place(in_=self.cbftab, anchor='c', relx=0.85, rely=0.15)
-        #    self.nrharmscombo.current(0)
-        # ----------------------------------------------------------------------
-        #**********************************************************************#
+        # ******************************************************************** #
         # ******************* Frequency correlation tab ***********************
         # notebook tab to compute the correlation length in the activity map
         self.freqcorrtab = tk.Frame(self.nbook)
@@ -1043,14 +1028,14 @@ class Cilialyzer():
         # ********************** Dynamic Filtering tab ************************** #
         if self.DynamicFiltering_flag:
             self.dynseq = DynamicFilter.DynFilter()
-            # here we add the notebook tab for the dynamic filtering
+            # Here we add the notebook tab for the dynamic filtering
             self.dynfiltertab = tk.Frame(self.nbook, width=int(round(0.75*self.nbookw)),
                 height=int(round(0.8*self.nbookh)))
             self.nbook.add(self.dynfiltertab, text='  Dynamic filtering  ')
             # add 'Time-domain filtering' Button
-            self.DynFiltB = tk.Button(self.dynfiltertab, text='Time-domain filtering', command=self.dynfiltering, height=bh, width=bw)
+            self.DynFiltB = tk.Button(self.dynfiltertab, text='Time-domain filtering',
+                                      command=self.dynfiltering, height=bh, width=bw)
             self.DynFiltB.place(in_=self.dynfiltertab, anchor="c", relx=.5, rely=.05)
-
         # ******************************************************************** #
 
         # ****************** Spatio-Temporal Correlation ******************** #

@@ -1,14 +1,9 @@
 import tkinter as tk
 import avoid_troubles
 from PIL import ImageTk
-import FlipbookROI
 import os
 import pathlib
-import sys
 import os.path
-import numpy
-import cv2
-
 
 def sort_list(l):
     """
