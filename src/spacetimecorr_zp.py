@@ -1,8 +1,7 @@
 import numpy
 from math_utils import crosscorrelation_zp
 
-
-def stcorr(array, maxtimeshift=15):
+def stcorr(array, maxtimeshift=3):
     """
     Returns the space-time correlation of an input image sequence
 
@@ -18,6 +17,8 @@ def stcorr(array, maxtimeshift=15):
         Returns:
             stcorr: list holding the space-time cross-correlograms
     """
+
+    array = numpy.array(array, dtype=numpy.float32)
 
     nimgs = array.shape[0]
     width, height = array.shape[2], array.shape[1]
@@ -63,17 +64,7 @@ def stcorr(array, maxtimeshift=15):
         # the returned scc (spatial cross-corr) ranges from -1 to +1 
         stcorrgram.append(numpy.copy(scc))
 
-
     stcorrgram = numpy.array(stcorrgram)
-    #print('shape of stcorrgram: ', stcorrgram.shape)
-
-    #print('-------------------------------------------------')
-    #print('within spacetimecorr_zp')
-    #print('max stcorr[0,:,:]: ', numpy.max(stcorrgram[0, :, :]))
-    #print('min stcorr[0,:,:]: ', numpy.min(stcorrgram[0, :, :]))
-    #print('max stcorr[1,:,:]: ', numpy.max(stcorrgram[1, :, :]))
-    #print('min stcorr[1,:,:]: ', numpy.min(stcorrgram[1, :, :]))
-    #print('-------------------------------------------------')
 
     return stcorrgram
 

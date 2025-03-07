@@ -39,21 +39,6 @@ def build_config(main):
         # contents holds relative paths. Add the base path to content[i]:
         basepath = path
 
-        """
-        for i in range(len(contents)):
-            contents[i] = os.path.join(basepath, contents[i])
-
-        # goal: dirlist holds the list of all directories within 'base path' directory
-        dirlist = []
-        for item in contents:
-            if os.path.isdir(item):
-                dirlist.append(item)
-
-        print('----- test : dirlist ----- ')
-        print(dirlist)
-        print('---------------------------')
-        """
-
     # Add button 'Select directory'
     main.auto_dirB = tk.Button(main.autotab, text=' Select directory ',
         command=select_root_directory, height=1, width=25)
@@ -82,7 +67,6 @@ def build_config(main):
     main.cbf_checkB = tk.Checkbutton(main.autoLF, text=" CBF analysis ",
         variable=main.cbf_autoflag, font=("TkDefaultFont", 10))
     main.cbf_checkB.place(in_=main.autoLF, anchor='w', relx=0.05, rely=0.25 )
-
 
     # add checkbutton for the active percentage and activity map  
     main.activity_autoflag = tk.IntVar()

@@ -1,18 +1,15 @@
-from PIL import Image
+# from PIL import Image
 import numpy
-from numpy.fft import fftn
-from numpy.fft import ifftn
+# from numpy.fft import fftn
+# from numpy.fft import ifftn
 import math
-import matplotlib.pyplot as plt
-import os
-from scipy.optimize import curve_fit
-import multiprocessing
+# import matplotlib.pyplot as plt
+# import os
+# from scipy.optimize import curve_fit
+#import multiprocessing
 import spacetimecorr_zp
-
 from . import windowed_wavelength
 import tkinter as tk
-#import termplotlib as tpl
-#import crosscorrelation_zp
 from scipy.ndimage import center_of_mass
 from scipy.ndimage import map_coordinates
 
@@ -38,14 +35,6 @@ def analyse_windows(array_list, fps):
         n_timeshifts = 3
         # compute sptio-temporal cross-correlogram for 'array'
         stcorr = spacetimecorr_zp.stcorr(array, maxtimeshift=n_timeshifts)
-        #breakpoint()
-
-        #print('-------------------------------------------------')
-        #print('max stcorr[0,:,:]: ', numpy.max(stcorr[0,:,:]))
-        #print('min stcorr[0,:,:]: ', numpy.min(stcorr[0,:,:]))
-        #print('max stcorr[1,:,:]: ', numpy.max(stcorr[1,:,:]))
-        #print('min stcorr[1,:,:]: ', numpy.min(stcorr[1,:,:]))
-        #print('-------------------------------------------------')
 
         # peak tracking
 
@@ -60,10 +49,6 @@ def analyse_windows(array_list, fps):
             # greater than 1/e from the cross-correlogram
 
             crosscorr = numpy.squeeze(stcorr[dt,:,:])
-
-            #if (dt==7):
-            #    plt.imshow(crosscorr)
-            #    plt.show()
 
             if numpy.max(numpy.subtract(crosscorr, 1./math.e) > 0):
 
@@ -91,19 +76,6 @@ def analyse_windows(array_list, fps):
 
         peaks_list.append(peaks)
 
-    """
-    # Create figure and axis
-    fig, ax = plt.subplots()
-    img = ax.imshow(stcorr[0])  # Initialize with first frame
-    ax.axis("off")  # Hide axes
-    # Endless loop over images
-    while True:
-        for i in range(30):
-            img.set_data(stcorr[i])  # Update displayed image
-            plt.pause(0.05)  # Approximate 30 FPS
-            plt.draw()
-    """
-
     return peaks_list
 
 
@@ -119,7 +91,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     nimgs = len(PILseq) # number of images   
 
     # initialize numpy float array, which will hold the image sequence  
-    array = numpy.zeros((int(nimgs), int(height), int(width)))
+    array = numpy.zeros((int(nimgs), int(height), int(width)), dtype=numpy.float32)
 
     for i in range(nimgs):
         array[i,:,:] = numpy.array(PILseq[i])
@@ -129,7 +101,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     # We choose the size of the windows based on the spatial correlation length
     # i.e. each window measures: ( 2 x spatialcorrlength )**2
 
-    winsize = int(1.5*sclength / pixsize * 1000) # side length of a window (in pixels)
+    winsize = int(1.75*sclength / pixsize * 1000) # side length of a window (in pixels)
 
     #print('winsize (in pixels): ', winsize)
 
@@ -205,7 +177,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
 
             inactive_percentage = numpy.sum(numpy.isnan(activitymap[i1:i2,j1:j2])) / activitymap[i1:i2,j1:j2].size
 
-            if (spread_win < 3.5) and (inactive_percentage < 0.2) : #*spread_total):
+            if (spread_win < 3.5) and (inactive_percentage < 0.25) : #*spread_total):
                 mask[i,j] = True
 
                 # add windowed array to valid_wins:
@@ -227,13 +199,19 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     winresults.nwindows.set(n_valid) # write number of valid windows on frontend
 
     # print('n_valid:', n_valid)
-
+    """
     # number of available cpus:
     multiprocessing.freeze_support()
     ncpus = multiprocessing.cpu_count()
     if (ncpus > 1):
         ncpus = ncpus-1
     pool = multiprocessing.Pool(ncpus)
+    """
+
+    ncpus = 8
+    # Note that this is just a temporary solution
+    # Multiprocessing should be used, but needs to be shielded by
+    # if __name__ == main in Windows
 
     # ncpus: number of processes we will start
     # nwins_per_cpu (list): number of windows, which we analyze per cpu

@@ -27,41 +27,27 @@ class activitymap:
         self.tkframe = Frame(parent, width=self.parentw, height=self.parenth)
         self.tkframe.place(in_=parent, anchor='center', relx=0.5, rely=0.5)
         self.parent=parent
-
         self.fcparentframe = fcparentframe
         self.fc_tkframe = None
-
         self.firstimg = None
         self.width = None
         self.height = None
         self.nimgs = None
-
         self.array = None
-
         self.spec = None
         self.freqs = None
-
         self.freqmap = None
-
         self.fcfig = None # figure belonging to frequency corr plot
-
         self.fig = None
         self.ax1 = None
         self.ax2 = None
-
         self.canvas = None
         self.fps = None
-
         self.meantacorr = None # mean temporal autocorrelation
-
         self.validity_mask = None # mask containing the valid pixels
-
-        self.freq_acorr = None # autocorrelation of the activity map 
-
+        self.freq_acorr = None # autocorrelation of the activity map
         self.freq_clength = None
-
         self.pixsize = pixsize
-
         self.active_percentage = active_percentage
         self.active_area = active_area
 
@@ -167,7 +153,7 @@ class activitymap:
 
         # Average temporal variance (averaged over all pixels)
         variance_threshold = filters.threshold_otsu(numpy.sqrt(numpy.var(array, axis=0)))
-        variance_threshold /= 2.0 #10.0 # conservative Otsu-threshold
+        variance_threshold /= 2.0 # conservative Otsu-threshold
 
         for i in range(ni):
             for j in range(nj):
@@ -193,7 +179,6 @@ class activitymap:
 
         # print('valid percentage after optical flow: ',
         #      numpy.sum(self.validity_mask) / self.validity_mask.size)
-
         # ----------------------------------------------------------------------
 
         # Delete the priorly drawn activity map
@@ -275,8 +260,6 @@ class activitymap:
 
                 # variance of optical flow
 
-
-
                 # --------------------------------------------------------------
                 """
                 # 3RD CONDITION considering the optical flow speed
@@ -356,15 +339,12 @@ class activitymap:
         figw = round(self.parentw / dpis)
         figh = round(self.parenth / dpis)
 
-        #self.fig, (self.ax1, self.ax2) = plt.subplots(ncols=2, figsize=(figw-0.5, figh-0.5), dpi=dpis)
+
         self.fig, self.ax1 = plt.subplots(nrows=1, figsize=(figw-1, figh-1), dpi=dpis)
 
         # plot first image & overlay activity map  
 
         self.canvas = FigureCanvasTkAgg(self.fig, self.tkframe)
-
-        #cmap = matplotlib.cm.jet
-        #cmap.set_bad('white',1.)
 
         # plot the activity map 
 
@@ -395,7 +375,6 @@ class activitymap:
         # print('shape of activitymap: ', self.freqmap.shape)
         # numpy.savetxt('activitymap.dat', self.freqmap)
 
-
         #divider = make_axes_locatable(self.ax2)
         #cax = divider.append_axes("right", size="7%", pad=0.08)
         arr = self.freqmap.flatten()
@@ -416,15 +395,6 @@ class activitymap:
 
         ssd = numpy.nanstd(arr)
 
-        """
-        str1 = "CBF_SSD = "
-        str2 = "$%.2f$" %ssd
-        str3 = " Hz"
-        xpos = 0.8
-        ypos = 0.8
-        self.ax1.text(xpos,ypos,str1+str2+str3,fontsize=10)
-        """
-
         # Display the size of the 'active area'
         activearea = numpy.sum(self.validity_mask) * (self.pixsize / 1000.0)**2
         activearea = activearea / 1000.0 / 1000.0 # convert to square millim.
@@ -436,15 +406,6 @@ class activitymap:
         percentage = numpy.sum(self.validity_mask) / self.freqmap.size * 100
         bla = '%.2f' %percentage
         self.active_percentage.set(bla)
-
-        """
-        str1 = "Active area = "
-        str2 = "$%.2f$" %activearea
-        str3 = " mm$^2$"
-        xpos = 0
-        ypos = 0.8 * ymax
-        self.ax1.text(xpos,ypos,str1+str2+str3,fontsize=10)
-        """
 
         # plots should not overlap
         self.fig.tight_layout()
@@ -464,7 +425,7 @@ class activitymap:
 
         if (self.freqmap is not None):
              self.freq_acorr = autocorrelation_zeropadding.acorr2D_zp(self.freqmap,
-                                                                      centering=True, normalize=True, mask=self.validity_mask)
+                centering=True, normalize=True, mask=self.validity_mask)
 
         # Slightly smooth autocorrelogram: 
         self.freq_acorr = gaussian_filter(self.freq_acorr, 1.0, truncate=1.0)
@@ -511,9 +472,9 @@ class activitymap:
         area = numpy.sum(self.freq_acorr >= threshold)
         xi = math.sqrt(area) * self.pixsize / 1000.0
 
-        print('**************************************************************')
-        print('Frequency correlation length:  ',xi)
-        print('**************************************************************')
+        # print('**************************************************************')
+        # print('Frequency correlation length:  ',xi)
+        # print('**************************************************************')
 
         self.freq_clength = xi
 
@@ -529,13 +490,6 @@ class activitymap:
         self.canvas.draw()
         self.canvas.get_tk_widget().place(anchor='c', relx=0.5, rely=0.5)
         self.canvas._tkcanvas.place(anchor='c', relx=0.5, rely=0.5)
-
-
-
-
-
-
-
 
 
     def delete_content(self):

@@ -5,10 +5,11 @@ from scipy.ndimage import gaussian_filter
 import cv2
 
 def get_local_wavelength_elongation(array, pixsize):
-    # input: dynamically filtered sequence of images (window)
-    # return: wavelength
-
-    # input array indices: array[time, row, column]
+    """
+    input: dynamically filtered sequence of images (a window)
+    return: wavelength
+    the input-array is structured as follows: array[time, row, column]
+    """
 
     nimgs = len(array[:,0,0])
     firstimg = array[0,:,:]
@@ -29,13 +30,12 @@ def get_local_wavelength_elongation(array, pixsize):
     nimgs = int(0.1*nimgs)
 
     for t in range(nimgs): # loop over time
-
-        # autocorrelate
+        # autocorrelate each frame and sum over all frames
         frame[:,:] = numpy.array(array[t,:,:])
         corr = autocorrelation_zeropadding.acorr2D_zp(frame)
         scorr = numpy.add(scorr, corr)
 
-    scorr = scorr / float(nimgs)
+    scorr = scorr / float(nimgs) # scorr: average autocorrelation
     # get rid of extra dimensions
     scorr = numpy.squeeze(scorr)
 

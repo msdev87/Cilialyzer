@@ -1,10 +1,9 @@
 import os
 import avoid_troubles
 import csv
-
+import matplotlib.pyplot as plt
 
 def process(main):
-
     # select a directory
     # find all subdirectories
     # loop over all subdirectories (and their content)
@@ -56,9 +55,7 @@ def process(main):
        if not contains_directory(directory): dirlist.append(directory)
     number_videos = len(dirlist)
 
-
     # ---------------- Before looping over all videos --------------------------
-
     # Output table will be written to csv file
     # ouptut_table is a dictionary and will contain the output data
     output_table = []
@@ -84,7 +81,9 @@ def process(main):
     bla = ' Processing data, please wait....'
     main.videos_processed.set(bla)
 
-    # print('dirlist', dirlist)
+    print('-------------------------------------------------------------------')
+    print('dirlist', dirlist)
+    print('-------------------------------------------------------------------')
 
     # --------------------------------------------------------------------------
     # ---------------------- Loop over all directories -------------------------
@@ -103,7 +102,6 @@ def process(main):
             self.activitymap.delete_content()
         except:
             pass
-
         try:
             avoid_troubles.clear_main(main.player,main.roiplayer,main.ptrackplayer)
         except:
@@ -117,7 +115,6 @@ def process(main):
             files = os.listdir(dirname)
         except:
             files = ''
-
 
         if len(files) < 10:
             continue # continue to next video (rest of loop gets skipped)
@@ -159,7 +156,7 @@ def process(main):
             except:
                 main.error_code = 1
         # ----------------- calculate activity map -----------------------------
-        if (main.activity_autoflag.get()):
+        if main.activity_autoflag.get() and not main.error_code:
             try:
                 main.activity_map.calc_activitymap(main.mapframe,
                     main.roiplayer.roiseq, float(main.toolbar.fpscombo.get()), \
@@ -171,14 +168,14 @@ def process(main):
         # ----------------------------------------------------------------------
         # print('activity map done')
         # --------------------- Frequency correlation --------------------------
-        if (main.fcorr_autoflag.get()):
+        if main.fcorr_autoflag.get() and not main.error_code:
             try:
                 main.activity_map.frequency_correlogram(main.fcorrframe,
                     float(main.toolbar.pixsizecombo.get()))
             except:
                 main.error_code = 1
         # ----------------------------------------------------------------------
-        if (main.wl_autoflag.get()):
+        if main.wl_autoflag.get() and not main.error_code:
             #try:
             # Dynamic filtering:
             main.dynfiltering(automated=1)
@@ -189,7 +186,8 @@ def process(main):
                 main.activity_map.validity_mask ,automated=1, output_fname=main.PIL_ImgSeq.directory)
             if min_correlation > -0.03: main.error_code = 1
 
-        if main.local_analysis_autoflag.get():
+        # ---------------------- windowed analysis -----------------------------
+        if main.local_analysis_autoflag.get() and not main.error_code:
             main.winanalysis()
             print('winanalysis done')
 
@@ -217,14 +215,10 @@ def process(main):
             "Error code": main.error_code
         })
 
-        #print('main.dynseq.wavelength ', main.dynseq.wavelength)
-
-
         # write the determined values to excel file
         header = output_table[0].keys()
 
         with open(output_path, mode='w', newline='', encoding='utf-8') as csvfile:
-        #with open('Cilialyzer_output' + '.csv', mode='w', newline='', encoding='utf-8') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=header)
             # write the header
             writer.writeheader()
@@ -238,4 +232,7 @@ def process(main):
         main.videos_processed.set(bla)
 
         main.main_window.update_idletasks()
+
+        plt.close('all')
+
         print('-------------- end of loop -----------')

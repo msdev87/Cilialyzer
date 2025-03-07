@@ -6,7 +6,7 @@ import numpy
 import tkinter.ttk
 import math
 
-import multiprocessing
+#import multiprocessing
 #from multiprocessing import Pool
 
 if os.sys.version_info.major > 2:

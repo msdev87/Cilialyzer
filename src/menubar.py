@@ -3,7 +3,7 @@ from tkinter import ttk
 import os
 import sys
 import webbrowser
-import multiprocessing
+# import multiprocessing
 
 class Menubar:
 
@@ -437,8 +437,8 @@ class Menubar:
         self.misc_tab=tk.Frame(self.cfg_win, width=win_width-10, height=win_height-70)
         self.cfg_nbook.add(self.misc_tab, text=' Miscellaneous ')
 
-        # available cores 
-        ncores = multiprocessing.cpu_count()
+        # available cores
+        ncores = os.cpu_count() # multiprocessing.cpu_count()
         ncores_init = ncores-1
 
         # check whether 'cores_default.txt' exists: 
