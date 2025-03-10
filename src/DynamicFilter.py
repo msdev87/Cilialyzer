@@ -18,7 +18,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-numpy.set_printoptions(threshold=sys.maxsize)
+#numpy.set_printoptions(threshold=sys.maxsize)
 from scipy.optimize import curve_fit
 import cv2
 class DynFilter:
@@ -128,7 +128,7 @@ class DynFilter:
             filt[-maxf3:-minf3+1] = 1.0
         # ----------------------------------------------------------------------
         """
-        numpy.set_printoptions(threshold=sys.maxsize)
+        #numpy.set_printoptions(threshold=sys.maxsize)
         #print(filt)
 
         # dynamic filtering for each pixel separately! (in time domain)   
@@ -422,6 +422,7 @@ class DynFilter:
         This function calculates the wavelength based on the average spatial
         autocorrelation
         """
+        print(' ----- starting mscorr ----- ')
 
         def exponential(x,a,b):
             return a*numpy.exp(-abs(x/b))
@@ -438,20 +439,21 @@ class DynFilter:
         # -> the average over 300 images is a good approximation
         if (nimgs > 300): nimgs = 300
 
-        for t in range(nimgs): # loop over time
+        print('next: loop over frames to calculate autocorrelation of each frame')
 
+        for t in range(nimgs): # loop over time
             # images are slightly smoothed
             img = gaussian_filter( numpy.array(self.dyn_roiseq[t], dtype=numpy.float32),
                 sigma=1.0, truncate=2.0)
             # autocorrelate
             corr = autocorrelation_zeropadding.acorr2D_zp(img, mask=validity_mask)
-
             scorr = numpy.add(scorr,corr)
 
         scorr = scorr / float(nimgs)
         # get rid of extra dimensions
         scorr = numpy.squeeze(scorr)
 
+        print('mean spatial autocorrelation done')
         # 'scorr' holds now the two-dimensional mean spatial autocorrelation   
         # based on which we determine the metachronal wavelength 
         # according to Ryser et al. 2007 
@@ -507,21 +509,28 @@ class DynFilter:
         # slightly smooth scorr:
         scorr = gaussian_filter(scorr, sigma=1.0, truncate=2.0)
 
+
+        print(' ellipse gets fitted next')
         # ---------------------------------------------------------------------
         # fit ellipse to all values > 1/e
         ellipse_array = numpy.zeros_like(scorr)
         inds = numpy.argwhere(scorr > 1/math.e)
-        rows = inds[:,0]
-        cols = inds[:,1]
-        ellipse_array[rows, cols] = 1
-        ellipse_indices = numpy.column_stack(numpy.where(ellipse_array > 0))
-        ellipse = cv2.fitEllipse(ellipse_indices)
-        (center_x, center_y), (semi_axis1, semi_axis2), rotation_angle = ellipse
+        if len(inds) > 7:
+            rows = inds[:,0]
+            cols = inds[:,1]
+            ellipse_array[rows, cols] = 1
+            ellipse_indices = numpy.column_stack(numpy.where(ellipse_array > 0))
+            ellipse = cv2.fitEllipse(ellipse_indices)
+            (center_x, center_y), (semi_axis1, semi_axis2), rotation_angle = ellipse
 
-        major_axis = max(semi_axis1, semi_axis2)
-        minor_axis = min(semi_axis1, semi_axis2)
+            major_axis = max(semi_axis1, semi_axis2)
+            minor_axis = min(semi_axis1, semi_axis2)
 
-        self.cbp_elongation = major_axis / minor_axis
+            self.cbp_elongation = major_axis / minor_axis
+        else:
+            self.cbp_elongation = numpy.nan
+
+        print('fitting done')
 
         #print('---------------------------------------------------------------')
         #print('major axis/mino axis: ', major_axis/minor_axis)

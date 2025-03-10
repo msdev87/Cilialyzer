@@ -7,7 +7,7 @@ import cv2
 def get_local_wavelength_elongation(array, pixsize):
     """
     input: dynamically filtered sequence of images (a window)
-    return: wavelength
+    return: wavelength, cbp_elongation
     the input-array is structured as follows: array[time, row, column]
     """
 
@@ -62,7 +62,7 @@ def get_local_wavelength_elongation(array, pixsize):
 
         cbp_elongation = major_axis / minor_axis
     except:
-        cbp_elongation = -1.0
+        cbp_elongation = numpy.nan
     # --------------------------------------------------------------------------
     # calculate the 2D distance matrix 'distmat' (in pixels)
     distmat = numpy.zeros(scorr.shape)

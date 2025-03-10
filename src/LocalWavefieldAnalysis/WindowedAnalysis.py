@@ -363,11 +363,11 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
             windowed_wavelength.get_local_wavelength_elongation(window, pixsize)
 
     # display the mean wavelength on the frontend
-    winresults.avg_wlength.set(round(numpy.mean(wavelengths),2))
+    winresults.avg_wlength.set(round(numpy.nanmean(wavelengths),2))
     # display the SD of the wavelength on the frontend
-    winresults.sd_wlength.set(round(numpy.std(wavelengths),2))
+    winresults.sd_wlength.set(round(numpy.nanstd(wavelengths),2))
     # display the mean elongation of the autocorrelogram (CBP)
-    winresults.avg_elongation.set(round(numpy.mean(cbp_elongations),2))
+    winresults.avg_elongation.set(round(numpy.nanmean(cbp_elongations),2))
 
     # ----------------------- average wave speed ------------------------------
     #n_speeds = numpy.count_nonzero(~numpy.isnan(speeds))
@@ -396,8 +396,8 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     # 1-R finally represents the wave disorder
     #print('------------------ wave directions -------------------- ')
     #print(wave_directions / math_utils.pi * 180)
-    avg_sin = numpy.average(numpy.sin(wave_directions))
-    avg_cos = numpy.average(numpy.cos(wave_directions))
+    avg_sin = numpy.nanmean(numpy.sin(wave_directions))
+    avg_cos = numpy.nanmean(numpy.cos(wave_directions))
     winresults.wdisorder.set( round((1 - math.sqrt(avg_sin**2 + avg_cos**2)),2))
     # -------------------------------------------------------------------------
 

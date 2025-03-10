@@ -476,7 +476,7 @@ class ImageSequence:
             array[i,:,:] = numpy.subtract(array[i,:,:],
                 numpy.subtract(meanimg, gaussian_filter(array[i,:,:], sigma=1)))
 
-        array = numpy.uint8(bytescl.bytescl(array))
+        array = numpy.uint8(bytescl(array))
         for i in range(nimgs):
             self.sequence[i] = Image.fromarray(array[i,:,:])
 
@@ -542,7 +542,7 @@ class ImageSequence:
 
         array = numpy.subtract(array, numpy.amin(array))
 
-        array = numpy.uint8(bytescl.bytescl(array))
+        array = numpy.uint8(bytescl(array))
 
         # print('max', numpy.amax(array))
         # print('min', numpy.amin(array))
@@ -632,7 +632,7 @@ class ImageSequence:
             for h in range(height):
                 array[:,h,w] = gaussian_filter(array[:,h,w],sigma=0.5)
 
-        array = numpy.uint8(bytescl.bytescl(array))
+        array = numpy.uint8(bytescl(array))
 
         for i in range(nimgs):
             img = Image.fromarray(array[i,:,:])
@@ -664,7 +664,7 @@ class ImageSequence:
             #print shift 
             shifted = numpy.roll(img,shift,axis=(0,1))
             # cut shifted img  
-            self.sequence[t] = Image.fromarray(numpy.uint8(bytescl.bytescl(shifted[cutborder:wmax-cutborder,cutborder:hmax-cutborder])))
+            self.sequence[t] = Image.fromarray(numpy.uint8(bytescl(shifted[cutborder:wmax-cutborder,cutborder:hmax-cutborder])))
 
         # reassign object atributes 
 

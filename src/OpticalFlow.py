@@ -28,6 +28,9 @@ from scipy.signal import medfilt2d
 
 #import FlipbookROI
 
+
+
+
 def get_opticalflowFB(tkframe, PILseq, pixsize, validity_mask, fps):
     """ compute optical flow based on Farneback's algorithm """
 
@@ -254,13 +257,73 @@ def get_opticalflowFB(tkframe, PILseq, pixsize, validity_mask, fps):
     can.get_tk_widget().place(in_=tkframe, anchor="c", relx=0.75, rely=0.5)
     can._tkcanvas.place(in_=tkframe)
 
-
     # determine the location of the maximum and the minimum in the correlogram
     # to determine the wavelength
 
+    scorr = corr
+    maxy, maxx = numpy.unravel_index(numpy.argmax(scorr, axis=None), scorr.shape)
+    miny, minx = numpy.unravel_index(numpy.argmin(scorr, axis=None), scorr.shape)
+
+    # --------------------------------------------------------------------------
+    # calculate the 2D distance matrix 'distmat' (in pixels)
+    distmat = numpy.zeros(scorr.shape)
+
+    for y in range(scorr.shape[0]):
+        for x in range(scorr.shape[1]):
+            dx = x - maxx
+            dy = y - maxy
+            distmat[y, x] = math.sqrt(dx ** 2 + dy ** 2)
+
+    square_arr = scorr[miny, minx]  # square array around minimum position
+    minimum_value = scorr[miny, minx]
+    threshold = 1.0 / math.e * minimum_value
+    s = 1
+    while (numpy.all(square_arr < threshold)):
+        # repeat while all elements in square around min are > minimum val
+        s = s + 2  # increase size of square array (1x1, 3x3, 5x5, ...)
+        square_arr = scorr[miny - s:miny + s + 1, minx - s:minx + s + 1]
+
+    # positions within scorr
+    x = numpy.linspace(-int(s / 2), int(s / 2), s) + minx
+    y = numpy.linspace(-int(s / 2), int(s / 2), s) + miny
+    xx, yy = numpy.meshgrid(x, y)
+
+    # determine center of mass (cm) within square_arr
+
+    try:
+        x_cm, y_cm = 0.0, 0.0
+        weight_total = 0.0  # sum of weights
+        for i in range(s):
+            for j in range(s):
+                x = int(xx[i, j])
+                y = int(yy[i, j])
+                # print('x: ',x,' y: ',y)
+                if scorr[y, x] < 0:
+                    x_cm = x_cm + abs(scorr[y, x]) * x
+                    y_cm = y_cm + abs(scorr[y, x]) * y
+                    weight_total += abs(scorr[y, x])
+    except:
+        x_cm = minx
+        y_cm = miny
 
 
+    try:
+        x_cm = x_cm / weight_total
+        y_cm = y_cm / weight_total
+    except:
+        x_cm = minx
+        y_cm = miny
 
+    # x_cm and y_cm can now be defined as a more exact measure for the
+    # position of the minimum
+    minx = x_cm
+    miny = y_cm
+
+    # Determine wavelength
+    dx = maxx - minx
+    dy = maxy - miny
+    wavelength_pix = 2 * math.sqrt(dx ** 2 + dy ** 2)
+    wavelength = wavelength_pix * pixsize * 0.001
 
 
 

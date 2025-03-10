@@ -163,6 +163,8 @@ def process(main):
                     float(main.minscale.get()), float(main.maxscale.get()), \
                     main.powerspectrum, float(main.toolbar.pixsizecombo.get()), automated=1)
                 main.activity_map.save_plot(main.PIL_ImgSeq.directory)
+                if main.activity_map.active_percentage.get() < 20:
+                    main.error_code = 1
             except:
                 main.error_code=1
         # ----------------------------------------------------------------------
@@ -176,20 +178,26 @@ def process(main):
                 main.error_code = 1
         # ----------------------------------------------------------------------
         if main.wl_autoflag.get() and not main.error_code:
-            #try:
-            # Dynamic filtering:
-            main.dynfiltering(automated=1)
-            # Determine the wavelength and the spatial correlation length
-            min_correlation = main.dynseq.mscorr(float(main.toolbar.fpscombo.get()),
-                float(main.minscale.get()), float(main.maxscale.get()),
-                main.mscorrplotframe, main.mscorrprofileframe, float(main.toolbar.pixsizecombo.get()),
-                main.activity_map.validity_mask ,automated=1, output_fname=main.PIL_ImgSeq.directory)
-            if min_correlation > -0.03: main.error_code = 1
+            try:
+                # Dynamic filtering:
+                main.dynfiltering(automated=1)
+                # Determine the wavelength and the spatial correlation length
+                min_correlation = main.dynseq.mscorr(float(main.toolbar.fpscombo.get()),
+                    float(main.minscale.get()), float(main.maxscale.get()),
+                    main.mscorrplotframe, main.mscorrprofileframe, float(main.toolbar.pixsizecombo.get()),
+                    main.activity_map.validity_mask ,automated=1, output_fname=main.PIL_ImgSeq.directory)
+                if min_correlation > -0.03: main.error_code = 1
+            except:
+                main.error_code = 1
+
 
         # ---------------------- windowed analysis -----------------------------
         if main.local_analysis_autoflag.get() and not main.error_code:
-            main.winanalysis()
-            print('winanalysis done')
+            try:
+                main.winanalysis()
+            except:
+                main.error_code = 1
+
 
         # append output to dictionary
         output_table.append({

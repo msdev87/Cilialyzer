@@ -1108,10 +1108,9 @@ class Cilialyzer():
         # ----------------------------------------------------------------------
 
         # *********************************************************************
-        # optical flow tab
+        # Optical flow tab
         # *********************************************************************
         if (self.opticalflow_flag):
-
             self.opticalflowtab = tk.Frame(self.nbook, width=int(round(0.9*self.nbookw)),
                 height=int(round(0.95*self.nbookh)))
             self.nbook.add(self.opticalflowtab, text=' Optical flow ')
