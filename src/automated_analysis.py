@@ -155,6 +155,7 @@ def process(main):
                 main.error_code = round(error_code)
             except:
                 main.error_code = 1
+                print('error1')
         # ----------------- calculate activity map -----------------------------
         if main.activity_autoflag.get() and not main.error_code:
             try:
@@ -163,10 +164,12 @@ def process(main):
                     float(main.minscale.get()), float(main.maxscale.get()), \
                     main.powerspectrum, float(main.toolbar.pixsizecombo.get()), automated=1)
                 main.activity_map.save_plot(main.PIL_ImgSeq.directory)
-                if main.activity_map.active_percentage.get() < 20:
+                if float(main.activity_map.active_percentage.get()) < 20:
                     main.error_code = 1
+                    print('error2')
             except:
                 main.error_code=1
+                print('error3')
         # ----------------------------------------------------------------------
         # print('activity map done')
         # --------------------- Frequency correlation --------------------------
