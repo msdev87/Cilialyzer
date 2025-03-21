@@ -469,7 +469,34 @@ class activitymap:
         # Determine the frequency correlation length 
         # as the square root of all pixels > 1/e
         threshold = math.exp(-1)
-        area = numpy.sum(self.freq_acorr >= threshold)
+        # search all pixels in the center which have a larger value than 1/e
+
+        # the center indices are given by the maximum correlation value
+        max_row, max_col = numpy.unravel_index(numpy.argmax(self.freq_acorr, axis=None), self.freq_acorr.shape)
+        center_indices = [[max_row, max_col]]
+        new_neighbors = [[max_row, max_col]]
+        relative_neighbors = [[-1,0], [0,-1], [1,0], [0,1]]
+
+        visited = set()
+
+        while new_neighbors:
+            current_neighbors = new_neighbors.copy()
+            new_neighbors = []  # Reset for next iteration
+
+            for r, c in current_neighbors:
+                for dr, dc in relative_neighbors:
+                    row_ind, col_ind = r + dr, c + dc
+
+                    # Check bounds and if already visited
+                    if (0 <= row_ind < self.freq_acorr.shape[0] and 0 <= col_ind < self.freq_acorr.shape[1] and
+                        (row_ind, col_ind) not in visited and self.freq_acorr[row_ind, col_ind] > threshold):
+                        # Add new neighbor to lists
+                        # print(self.freqmap[row_ind, col_ind])
+                        center_indices.append([row_ind, col_ind])
+                        new_neighbors.append([row_ind, col_ind])
+                        visited.add((row_ind, col_ind))  # Mark as visited
+
+        area = len(center_indices)
         xi = math.sqrt(area) * self.pixsize / 1000.0
 
         # print('**************************************************************')
@@ -490,7 +517,6 @@ class activitymap:
         self.canvas.draw()
         self.canvas.get_tk_widget().place(anchor='c', relx=0.5, rely=0.5)
         self.canvas._tkcanvas.place(anchor='c', relx=0.5, rely=0.5)
-
 
     def delete_content(self):
         """

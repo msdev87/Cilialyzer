@@ -101,7 +101,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     # We choose the size of the windows based on the spatial correlation length
     # i.e. each window measures: ( 2 x spatialcorrlength )**2
 
-    winsize = int(1.75*sclength / pixsize * 1000) # side length of a window (in pixels)
+    winsize = int(4.0*sclength / pixsize * 1000) # side length of a window (in pixels)
 
     #print('winsize (in pixels): ', winsize)
 
