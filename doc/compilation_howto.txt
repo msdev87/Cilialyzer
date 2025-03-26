@@ -1,6 +1,0 @@
-compilation with pyinstaller: 
-pyinstaller --noconsole --onefile --noupx cilialyzer.py
-
-turn off win defender
-
-C:\Users\mschneiter\AppData\Local\Pa)ckages\PythonSoftwareFoundation.Python.3.8_qbz5n2kfra8p0\LocalCache\local-packages\Python38\Scripts

@@ -40,6 +40,8 @@ class DynFilter:
         self.wavelength = None
         self.sclength = None # spatial correlation length
         self.cbp_elongation = None
+        self.bidirectional_corrlength = None
+
 
 
         """
@@ -509,8 +511,35 @@ class DynFilter:
         # slightly smooth scorr:
         scorr = gaussian_filter(scorr, sigma=1.0, truncate=2.0)
 
+        # calculate the 'bidirectional spatial correlation length'
+        # this will provide a measure which is similar to the frequency correlation length
 
-        print(' ellipse gets fitted next')
+        threshold = 1.0 / math.e
+        # the center indices are given by the maximum correlation value
+        max_row, max_col = numpy.unravel_index(numpy.argmax(scorr, axis=None), scorr.shape)
+        center_indices = [[max_row, max_col]]
+        new_neighbors = [[max_row, max_col]]
+        relative_neighbors = [[-1,0], [0,-1], [1,0], [0,1]]
+        visited = set()
+        while new_neighbors:
+            current_neighbors = new_neighbors.copy()
+            new_neighbors = []  # Reset for next iteration
+            for r, c in current_neighbors:
+                for dr, dc in relative_neighbors:
+                    row_ind, col_ind = r + dr, c + dc
+                    # Check bounds and if already visited
+                    if (0 <= row_ind < scorr.shape[0] and 0 <= col_ind < scorr.shape[1] and
+                        (row_ind, col_ind) not in visited and scorr[row_ind, col_ind] > threshold):
+                        # Add new neighbor to lists
+                        center_indices.append([row_ind, col_ind])
+                        new_neighbors.append([row_ind, col_ind])
+                        visited.add((row_ind, col_ind))  # Mark as visited
+        area = len(center_indices)
+        self.bidirectional_corrlength = math.sqrt(area) * pixsize / 1000.0
+
+        print('self.bicorr', self.bidirectional_corrlength)
+
+        #print(' ellipse gets fitted next')
         # ---------------------------------------------------------------------
         # fit ellipse to all values > 1/e
         ellipse_array = numpy.zeros_like(scorr)
@@ -530,7 +559,7 @@ class DynFilter:
         else:
             self.cbp_elongation = numpy.nan
 
-        print('fitting done')
+        # print('fitting done')
 
         #print('---------------------------------------------------------------')
         #print('major axis/mino axis: ', major_axis/minor_axis)

@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+# do not forget to turn off win defender
+
 # PyInstaller path
 #pyinstaller_path = r"C:\Users\mschneiter\AppData\Roaming\Python\Python312\Scripts\pyinstaller.exe"
 pyinstaller_path = r"C:\Users\mschneiter\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.8_qbz5n2kfra8p0\LocalCache\local-packages\Python38\Scripts\

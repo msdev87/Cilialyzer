@@ -15,6 +15,7 @@ from scipy.ndimage import gaussian_filter
 import cv2
 from PIL import Image
 from math_utils.bytescl import bytescl
+import gc
 
 class activitymap:
 
@@ -51,8 +52,7 @@ class activitymap:
         self.active_percentage = active_percentage
         self.active_area = active_area
 
-    def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum,
-                         pixsize, automated=0):
+    def calc_activitymap(self, parent, PILseq, FPS, minf, maxf, powerspectrum, pixsize, automated=0):
         """
         Calculation of the activity map (spatially resolved CBF map)
         """
@@ -75,7 +75,9 @@ class activitymap:
         u_flow = []
         v_flow = []
 
-        nimgs = self.nimgs
+        if self.nimgs / self.fps > 2.0: nimgs = int(2.0 * self.fps)
+        #nimgs = self.nimgs
+        print('nimgs: ', nimgs)
 
         # ws: window size in Farneback's optical flow 
         ws = round(1750.0/pixsize) # we set the window size to about 2 microns
@@ -86,24 +88,25 @@ class activitymap:
 
         array = numpy.zeros((int(self.nimgs), int(self.height), int(self.width)), dtype=numpy.float32)
         # convert stack of PIL images to numpy array
-        for i in range(nimgs):
+        for i in range(self.nimgs):
             array[i, :, :] = numpy.array(PILseq[i])
 
         # determine average image (static background)
         mean_image = numpy.mean(array, axis=0)
 
         # subtract average image
-        for i in range(nimgs):
+        for i in range(self.nimgs):
             array[i, :, :] = numpy.subtract(array[i,:,:], mean_image)
 
         array = numpy.subtract(array, numpy.amin(array))
         array = numpy.uint8(bytescl(array))
 
-        for i in range(nimgs):
+        for i in range(self.nimgs):
             img = Image.fromarray(array[i, :, :])
             PILseq[i] = img
 
         del array
+        gc.collect()
 
         for t in range( int(nimgs)-1 ):
 
@@ -112,7 +115,7 @@ class activitymap:
 
             # get optical flow between image1 and image2
             flow = cv2.calcOpticalFlowFarneback(
-                    img1, img2, None, 0.99, 1, ws, 7, 7, 1.5, 0)
+                    img1, img2, None, 0.99, 1, ws, 5, 7, 1.5, 0)
             flow = flow.astype(numpy.float32)
 
             v_flow.append(flow[...,1])
@@ -137,6 +140,7 @@ class activitymap:
         del u_flow
         del v_flow
         del flow
+        gc.collect()
 
         (nt,ni,nj) = numpy.shape(speedmat)
 
@@ -147,38 +151,28 @@ class activitymap:
         self.validity_mask = numpy.ones((int(self.height), int(self.width)))
 
         # ------------ Temporal variance condition intensity -------------------
-        array = numpy.zeros((nimgs, self.height, self.width), dtype=numpy.float32)
-        for t in range(nimgs):
+        array = numpy.zeros((self.nimgs, self.height, self.width), dtype=numpy.float32)
+        for t in range(self.nimgs):
             array[t,:,:] = numpy.array(PILseq[t])
 
         # Average temporal variance (averaged over all pixels)
         variance_threshold = filters.threshold_otsu(numpy.sqrt(numpy.var(array, axis=0)))
         variance_threshold /= 2.0 # conservative Otsu-threshold
 
-        for i in range(ni):
-            for j in range(nj):
-                var_ij = numpy.sqrt(numpy.var(array[:,i,j]))
-                if (var_ij < variance_threshold):
-                    self.validity_mask[i,j] = 0
+        var_map = numpy.sqrt(numpy.var(array, axis=0))  # Compute variance for all pixels
+        self.validity_mask[var_map < variance_threshold] = 0  # Apply threshold
+
         del array
-
-        # print('valid percentage after temporal variance: ',
-        #      numpy.sum(self.validity_mask)/self.validity_mask.size)
-
+        gc.collect()
         # ----------------------------------------------------------------------
 
         # ----------- Temporal variance condition optical flow  ----------------
-        # Average temporal variance (averaged over all pixels)
-        variance_threshold = filters.threshold_otsu(numpy.sqrt(numpy.var(speedmat,axis=0)))
-        variance_threshold /= 2.0 #25.0
-        for i in range(ni):
-            for j in range(nj):
-                var_ij = numpy.sqrt(numpy.var(speedmat[:,i,j]))
-                if (var_ij < variance_threshold):
-                    self.validity_mask[i,j] = 0
-
-        # print('valid percentage after optical flow: ',
-        #      numpy.sum(self.validity_mask) / self.validity_mask.size)
+        # Compute variance across the first axis and take the square root
+        variance_map = numpy.sqrt(numpy.var(speedmat, axis=0))
+        # Compute threshold and scale it
+        variance_threshold = filters.threshold_otsu(variance_map) / 2.0
+        # Apply thresholding in a vectorized manner
+        self.validity_mask = (variance_map >= variance_threshold).astype(int)
         # ----------------------------------------------------------------------
 
         # Delete the priorly drawn activity map
@@ -211,9 +205,38 @@ class activitymap:
         else:
             os.mkdir(dirname)
 
+        # ----------------------------------------------------------------------
+        # Crop the power spectrum (vectorized over all pixels)
+        spec = powerspectrum.pixelspectra[:, :, :]
+        spec = spec[2:round(nt / 2) - 2, :, :]
+        spec /= numpy.sum(spec, axis=0, keepdims=True)
+
+        # Compute A_xy in a vectorized manner
+        A_xy = numpy.sum(spec[bot2nd:top2nd + 1, :, :], axis=0)
+
+        # Apply validity condition (Condition 1)
+        valid_pixels = A_xy > (threshold * A_bar)
+
+        # Compute weighted mean frequency for valid pixels
+        numerator = numpy.sum(self.freqs[bot:top + 1, None, None] * spec[bot:top + 1, :, :], axis=0)
+        denominator = numpy.sum(spec[bot:top + 1, :, :], axis=0)
+        self.freqmap = numpy.where(valid_pixels, numerator / denominator, self.freqmap)
+
+        # Mark invalid pixels in validity mask (Condition 1)
+        self.validity_mask[~valid_pixels] = 0
+
+        # Get peak frequency indices for each pixel
+        maxind = numpy.argmax(spec, axis=0)
+
+        # Apply second condition for validity (Condition 2)
+        invalid_peak_condition = maxind > (top2nd + 1)
+        self.validity_mask[invalid_peak_condition] = 0
+
+        # ----------------------------------------------------------------------
+
+        """
         for i in range(ni):
             for j in range(nj):
-
                 # Note here that 'pixelspectra' are not cropped, meaning that
                 # they contain the zero-frequency contribution and the lowest
                 # frequency contribution
@@ -221,8 +244,8 @@ class activitymap:
                 self.spec = self.spec[2:round(nt/2)-2] # here we cut them away
                 self.spec = self.spec / numpy.sum(self.spec)
 
-                # Check the validity of each pixel: 
-                # according to the procedure of the 'integral spectral density' 
+                # Check the validity of each pixel:
+                # according to the procedure of the 'integral spectral density'
                 # presented in Ryser et al. 2007, However, note that here we
                 # use a larger frequency bandwidth (including the 2nd harmonics)
                 # (condition for invalidity: A_xy / A_bar < 0.15)
@@ -241,7 +264,7 @@ class activitymap:
 
                 # --------------------------------------------------------------
                 # 2ND CONDITION TO MARK A PIXEL AS VALID/INVALID
-                # For a valid pixel, we FURTHERMORE demand that the peak 
+                # For a valid pixel, we FURTHERMORE demand that the peak
                 # frequency originates from the fundamental CBF peak or its
                 # second harmonic
 
@@ -261,7 +284,8 @@ class activitymap:
                 # variance of optical flow
 
                 # --------------------------------------------------------------
-                """
+        """
+        """
                 # 3RD CONDITION considering the optical flow speed
                 if (self.validity_mask[i,j]):
                     # For a pixel to be valid, it is required that its spectral
@@ -304,7 +328,7 @@ class activitymap:
                     #path = os.path.join(dirname, fname)
                     #plt.savefig(path, dpi=100)  # Save a
                     #plt.close()
-                    """
+            """
         # --------------------------------------------------------------------
 
         # smooth validity mask using a 2D-average 
@@ -328,10 +352,8 @@ class activitymap:
         #print(numpy.max(self.validity_mask))
 
         # set frequency of invalid pixels to nan:
-        for i in range(ni):
-            for j in range(nj):
-                if (not self.validity_mask[i,j]):
-                    self.freqmap[i,j] = numpy.nan
+        self.freqmap[~self.validity_mask.astype(bool)] = numpy.nan
+
 
         # plot the activity map (self.freqmap)
         dpis = 120
@@ -476,9 +498,7 @@ class activitymap:
         center_indices = [[max_row, max_col]]
         new_neighbors = [[max_row, max_col]]
         relative_neighbors = [[-1,0], [0,-1], [1,0], [0,1]]
-
         visited = set()
-
         while new_neighbors:
             current_neighbors = new_neighbors.copy()
             new_neighbors = []  # Reset for next iteration

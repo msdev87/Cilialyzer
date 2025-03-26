@@ -57,3 +57,6 @@ def subproc(args):
     array_stabilized[array_stabilized > cut2] = cut2
 
     return (array_stabilized, croppix)
+
+if __name__ == "__main__":
+    pass

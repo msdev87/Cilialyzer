@@ -2,7 +2,7 @@ import os
 import avoid_troubles
 import csv
 import matplotlib.pyplot as plt
-
+import time
 def process(main):
     # select a directory
     # find all subdirectories
@@ -62,7 +62,7 @@ def process(main):
     # Initialize the dict with only the header/keys:
     header_keys = ["Filename", "CBF", "CBF_SD", "CBF_min", "CBF_max",\
                    "Active percentage", "Frequency correlation", "FPS", "Pixelsize",\
-                   "Wavelength", "Spatial correlation length", \
+                   "Wavelength", "1D Spatial correlation length", "2D Spatial correlation length", \
                    "Overall CBP elongation", "Mean wave speed", "SD wave speed",\
                    "Wave disorder", "Analysed windows", "Mean wavelength",\
                    "SD wavelength", "Mean CBP elongation", "Error code"]
@@ -126,9 +126,12 @@ def process(main):
         f.write(dirname)
         f.close()
 
+        start = time.time()
         # Load the image sequence!
         main.toolbar.PIL_ImgSeq.load_imgs(main.toolbar.nimgscombo, automated=1)
         # PIL_ImgSeq.sequence[i] holds the i-th frame (img format: 8 Bits, PIL)
+
+        print('time to load images: ', time.time()-start)
 
         main.roiplayer.roiseq = main.toolbar.PIL_ImgSeq.sequence
 
@@ -137,6 +140,8 @@ def process(main):
             continue # continue to next video
 
         main.error_code = 0
+
+        start = time.time()
         # ------------------------ Image stabilization -------------------------
         if (main.img_stab_autoflag.get()):
             try:
@@ -144,7 +149,8 @@ def process(main):
             except:
                 main.error_code = 1
         # ----------------------------------------------------------------------
-        # print('image stabilization done')
+        print('image stabilization done after: ', time.time()-start)
+        start = time.time()
         # ----------------------- Calculate powerspectrum ----------------------
         if (main.cbf_autoflag.get()):
             try:
@@ -157,6 +163,9 @@ def process(main):
                 main.error_code = 1
                 print('error1')
         # ----------------- calculate activity map -----------------------------
+        print('powerspec: ', time.time()-start)
+
+        start = time.time()
         if main.activity_autoflag.get() and not main.error_code:
             try:
                 main.activity_map.calc_activitymap(main.mapframe,
@@ -171,7 +180,8 @@ def process(main):
                 main.error_code=1
                 print('error3')
         # ----------------------------------------------------------------------
-        # print('activity map done')
+        print('activity map done: ', time.time() - start)
+        start = time.time()
         # --------------------- Frequency correlation --------------------------
         if main.fcorr_autoflag.get() and not main.error_code:
             try:
@@ -180,6 +190,8 @@ def process(main):
             except:
                 main.error_code = 1
         # ----------------------------------------------------------------------
+        print('freq corr done: ', time.time()-start)
+        start = time.time()
         if main.wl_autoflag.get() and not main.error_code:
             try:
                 # Dynamic filtering:
@@ -192,15 +204,15 @@ def process(main):
                 if min_correlation > -0.03: main.error_code = 1
             except:
                 main.error_code = 1
-
-
+        print('Dynamic filtering done: ', time.time()-start)
+        start = time.time()
         # ---------------------- windowed analysis -----------------------------
         if main.local_analysis_autoflag.get() and not main.error_code:
             try:
                 main.winanalysis()
             except:
                 main.error_code = 1
-
+        print('windowed analysis done: ', time.time()-start)
 
         # append output to dictionary
         output_table.append({
@@ -214,7 +226,8 @@ def process(main):
             "FPS": main.toolbar.fpscombo.get(),
             "Pixelsize": main.toolbar.pixsizecombo.get(),
             "Wavelength": main.dynseq.wavelength if main.wl_autoflag.get() else '',
-            "Spatial correlation length": main.dynseq.sclength if main.wl_autoflag.get() else '',
+            "1D Spatial correlation length": main.dynseq.sclength if main.wl_autoflag.get() else '',
+            "2D Spatial correlation length": main.dynseq.bidirectional_corrlength if main.wl_autoflag.get() else '',
             "Overall CBP elongation": main.dynseq.cbp_elongation if main.wl_autoflag.get() else '',
             "Mean wave speed": main.winresults.mean_wspeed.get() if main.local_analysis_autoflag.get() else '',
             "SD wave speed": main.winresults.sd_wspeed.get() if main.local_analysis_autoflag.get() else '',

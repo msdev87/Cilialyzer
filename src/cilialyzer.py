@@ -222,7 +222,6 @@ class Cilialyzer():
         self.powerspectrum.pwspecplot.canvas.draw()
 
 
-
     def image_stabilization(self, automated=0):
 
         if not automated:
