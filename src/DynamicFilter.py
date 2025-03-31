@@ -559,7 +559,7 @@ class DynFilter:
         else:
             self.cbp_elongation = numpy.nan
 
-        # print('fitting done')
+        print('ellipse-fitting done')
 
         #print('---------------------------------------------------------------')
         #print('major axis/mino axis: ', major_axis/minor_axis)
@@ -638,10 +638,12 @@ class DynFilter:
         minimum_value = scorr[miny,minx]
         threshold = 1.0 / math.exp(1) * minimum_value
         s=1
+        print('before while')
         while (numpy.all(square_arr < threshold)):
             # repeat while all elements in square around min are > minimum val
             s = s+2 # increase size of square array (1x1, 3x3, 5x5, ...) 
             square_arr = scorr[miny-s:miny+s+1, minx-s:minx+s+1]
+        print('after while')
 
         # positions within scorr
         x = numpy.linspace(-int(s/2),int(s/2),s) + minx
@@ -696,13 +698,20 @@ class DynFilter:
         c1 = bool(0 < x0 < ncols-1)
         c2 = bool(0 < x1 < ncols - 1)
         c3 = bool(0 < y0 < nrows - 1)
-        c4 = bool(0 < x0 < nrows - 1)
+        c4 = bool(0 < y1 < nrows - 1)
 
+        print('before 2nd while')
         while not (c1 and c2 and c3 and c4 ):
             q = q - 0.1
             x0, y0 = maxx - (q * dx), maxy - (q * dy)
             x1, y1 = maxx + (q * dx), maxy + (q * dy)
 
+            c1 = bool(0 < x0 < ncols - 1)
+            c2 = bool(0 < x1 < ncols - 1)
+            c3 = bool(0 < y0 < nrows - 1)
+            c4 = bool(0 < y1 < nrows - 1)
+
+        print('after 2nd while')
         # Note that:
         # sqrt( (x1-x0)^2 + (y1-y0)^2 ) = q * wavelength
 

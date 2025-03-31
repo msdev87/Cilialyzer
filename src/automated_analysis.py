@@ -131,7 +131,7 @@ def process(main):
         main.toolbar.PIL_ImgSeq.load_imgs(main.toolbar.nimgscombo, automated=1)
         # PIL_ImgSeq.sequence[i] holds the i-th frame (img format: 8 Bits, PIL)
 
-        print('time to load images: ', time.time()-start)
+        #print('time to load images: ', time.time()-start)
 
         main.roiplayer.roiseq = main.toolbar.PIL_ImgSeq.sequence
 
@@ -149,7 +149,7 @@ def process(main):
             except:
                 main.error_code = 1
         # ----------------------------------------------------------------------
-        print('image stabilization done after: ', time.time()-start)
+        #print('image stabilization done after: ', time.time()-start)
         start = time.time()
         # ----------------------- Calculate powerspectrum ----------------------
         if (main.cbf_autoflag.get()):
@@ -163,7 +163,7 @@ def process(main):
                 main.error_code = 1
                 print('error1')
         # ----------------- calculate activity map -----------------------------
-        print('powerspec: ', time.time()-start)
+        #print('powerspec: ', time.time()-start)
 
         start = time.time()
         if main.activity_autoflag.get() and not main.error_code:
@@ -180,7 +180,7 @@ def process(main):
                 main.error_code=1
                 print('error3')
         # ----------------------------------------------------------------------
-        print('activity map done: ', time.time() - start)
+        #print('activity map done: ', time.time() - start)
         start = time.time()
         # --------------------- Frequency correlation --------------------------
         if main.fcorr_autoflag.get() and not main.error_code:
@@ -190,7 +190,7 @@ def process(main):
             except:
                 main.error_code = 1
         # ----------------------------------------------------------------------
-        print('freq corr done: ', time.time()-start)
+        #print('freq corr done: ', time.time()-start)
         start = time.time()
         if main.wl_autoflag.get() and not main.error_code:
             try:
@@ -204,7 +204,7 @@ def process(main):
                 if min_correlation > -0.03: main.error_code = 1
             except:
                 main.error_code = 1
-        print('Dynamic filtering done: ', time.time()-start)
+        #print('Dynamic filtering done: ', time.time()-start)
         start = time.time()
         # ---------------------- windowed analysis -----------------------------
         if main.local_analysis_autoflag.get() and not main.error_code:
@@ -212,7 +212,7 @@ def process(main):
                 main.winanalysis()
             except:
                 main.error_code = 1
-        print('windowed analysis done: ', time.time()-start)
+        # print('windowed analysis done: ', time.time()-start)
 
         # append output to dictionary
         output_table.append({
@@ -259,4 +259,4 @@ def process(main):
 
         plt.close('all')
 
-        print('-------------- end of loop -----------')
+        # print('-------------- end of loop -----------')

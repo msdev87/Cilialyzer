@@ -90,6 +90,8 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     width, height = firstimg.size # dimension of images 
     nimgs = len(PILseq) # number of images   
 
+    if nimgs > 1.5 * fps: nimgs = int(1.5*fps)
+
     # initialize numpy float array, which will hold the image sequence  
     array = numpy.zeros((int(nimgs), int(height), int(width)), dtype=numpy.float32)
 
@@ -101,7 +103,7 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     # We choose the size of the windows based on the spatial correlation length
     # i.e. each window measures: ( 2 x spatialcorrlength )**2
 
-    winsize = int(4.0*sclength / pixsize * 1000) # side length of a window (in pixels)
+    winsize = int(3.5*sclength / pixsize * 1000) # side length of a window (in pixels)
 
     #print('winsize (in pixels): ', winsize)
 
@@ -198,17 +200,19 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     n_valid = numpy.sum(mask)
     winresults.nwindows.set(n_valid) # write number of valid windows on frontend
 
-    # print('n_valid:', n_valid)
-    """
+    #print('n_valid:', n_valid)
+
     # number of available cpus:
-    multiprocessing.freeze_support()
-    ncpus = multiprocessing.cpu_count()
+    #multiprocessing.freeze_support()
+    #ncpus = int(multiprocessing.cpu_count() / 2)
+    ncpus = 5
+    if ncpus > n_valid: ncpus = n_valid
     if (ncpus > 1):
         ncpus = ncpus-1
-    pool = multiprocessing.Pool(ncpus)
-    """
+    #pool = multiprocessing.Pool(ncpus)
 
-    ncpus = 8
+
+    # ncpus = 8
     # Note that this is just a temporary solution
     # Multiprocessing should be used, but needs to be shielded by
     # if __name__ == main in Windows
@@ -244,8 +248,9 @@ def prepare_windows(PILseq, activitymap, sclength, pixsize, fps, winresults):
     for i in range(ncpus):
         result.append(analyse_windows(valid_wins_ncpus[i], fps))
 
-    #result = pool.map(analyse_windows,
-    #    [valid_wins_ncpus[i] for i in range(ncpus)], fps)
+    #result = pool.starmap(analyse_windows,
+    #                      [(valid_wins_ncpus[i], fps) for i in range(ncpus)])
+
 
     # result holds a list of a list of arrays 
     # the arrays contain "peaks" with columns: (x, y, height) 

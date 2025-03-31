@@ -613,7 +613,7 @@ class Cilialyzer():
         multiprocessing.freeze_support()
         ncpus = multiprocessing.cpu_count() # number of available cpu cores
 
-        ncpus = round(ncpus / 2) # to use not too much memory
+        ncpus = round(3*ncpus / 4) # to use not too much memory
 
         if (ncpus > 1):
             self.pool = multiprocessing.Pool(ncpus-1)

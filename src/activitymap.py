@@ -16,6 +16,8 @@ import cv2
 from PIL import Image
 from math_utils.bytescl import bytescl
 import gc
+import time
+from scipy.ndimage import uniform_filter
 
 class activitymap:
 
@@ -75,9 +77,11 @@ class activitymap:
         u_flow = []
         v_flow = []
 
-        if self.nimgs / self.fps > 2.0: nimgs = int(2.0 * self.fps)
+
+        nimgs = int(2.0 * self.fps) if self.nimgs / self.fps > 2.0 else self.nimgs
+
         #nimgs = self.nimgs
-        print('nimgs: ', nimgs)
+        #print('nimgs: ', nimgs)
 
         # ws: window size in Farneback's optical flow 
         ws = round(1750.0/pixsize) # we set the window size to about 2 microns
@@ -108,6 +112,8 @@ class activitymap:
         del array
         gc.collect()
 
+        start = time.time()
+
         for t in range( int(nimgs)-1 ):
 
             img1 = gaussian_filter(PILseq[t], sigma=(1, 1), truncate=1.0)
@@ -120,6 +126,9 @@ class activitymap:
 
             v_flow.append(flow[...,1])
             u_flow.append(flow[...,0])
+
+        #print('time to calc optical flow: ', time.time()-start)
+
 
         # Outlier removal in optical flow by median filtering (kernel size = 3):
         u_flow = ndimage.median_filter(u_flow, size=3)
@@ -231,6 +240,15 @@ class activitymap:
         # Apply second condition for validity (Condition 2)
         invalid_peak_condition = maxind > (top2nd + 1)
         self.validity_mask[invalid_peak_condition] = 0
+
+        # Apply another condition on the peak (signal to noise ratio)
+        # for each pixel the peak within [bot:top] needs to be at least
+        # 1.5 * min(spec[bot:top])
+        smoothed_spec = uniform_filter(spec, size=(1, int(10000/pixsize), int(10000/pixsize)), mode='reflect')
+        # Get the max along freq axis within [bot:top]
+        max_values = numpy.max(smoothed_spec[bot:top], axis=0)
+        min_values = numpy.min(smoothed_spec[bot:top], axis=0)
+        self.validity_mask[max_values < 1.5 * min_values] = 0
 
         # ----------------------------------------------------------------------
 
