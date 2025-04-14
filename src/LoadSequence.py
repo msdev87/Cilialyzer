@@ -117,7 +117,8 @@ class ImageSequence:
         self.width     = None
         self.height    = None
         self.seqlength = 1
-        self.videofile = '' # path to video   
+        self.videofile = '' # path to video
+        self.nd2file = ''
         self.pbstyle = None
 
         self.dirname = StringVar() # new feb 2021
@@ -128,6 +129,20 @@ class ImageSequence:
         self.busy_indicator = None
         self.thread1 = None
         self.busywin = None
+
+    def choose_nd2(self, automated=0):
+        try:
+            # try to read file holding previously chosen directory
+            f = open('config/previous_directory.dat', 'r')
+            initdir = f.read()
+        except:
+            initdir = os.getcwd()
+        self.nd2file = askopenfilename(title="Select ND2", initialdir=initdir)
+
+
+
+
+
 
     def choose_directory(self, automated=0):
 
@@ -237,8 +252,6 @@ class ImageSequence:
             progresswin.minsize(width=500,height=10)
             progresswin.title("Loading Image Sequence, Please Wait...")
 
-
-
             # get the monitor dimensions:
             screenw = progresswin.winfo_screenwidth()
             screenh = progresswin.winfo_screenheight()
@@ -247,8 +260,6 @@ class ImageSequence:
             placement = "+%d+%d" % (screenw/2-300,screenh/2-15)
             progresswin.geometry(placement)
             progresswin.update()
-
-
 
         # count the number of images in selected sequence (ni) 
         ni = 0

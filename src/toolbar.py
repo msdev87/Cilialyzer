@@ -4,6 +4,10 @@ from PIL import ImageTk
 import os
 import pathlib
 import os.path
+from nd2reader import ND2Reader
+import numpy as np
+from PIL import Image
+
 
 def sort_list(l):
     """
@@ -107,12 +111,66 @@ class Toolbar:
         # make sure that the rotationangle is set to 0: 
         self.roiplayer.rotationangle = 0.0
 
-        #print('****************************************')
-        #print(self.PIL_ImgSeq.seqlength)
-        #print('****************************************')
+        # print('roiplayer id in Toolbar: ',id(self.roiplayer))
+        self.roiplayer.animate()
+
+
+    def load_nd2(self):
+        avoid_troubles.stop_animation(self.player, self.roiplayer, self.ptrackplayer)
+        # delete displayed content in CBF tab:
+        try:
+            self.powerspec.delete_content()
+        except:
+            pass
+        # delete displayed content in activity tab:
+        try:
+            self.activitymap.delete_content()
+        except:
+            pass
+
+        self.PIL_ImgSeq.choose_nd2()
+        # load nd file 'PIL_ImgSeq.nd2file' :
+
+        with ND2Reader(self.PIL_ImgSeq.nd2file) as nd2:
+            nd2.bundle_axes = 'yx'
+            frames = [frame for frame in nd2]  # list of 2D images
+            array = np.stack(frames, axis=0)  # Shape: (frames, y, x)
+
+        # convert to 8bit array
+        array = (array - array.min()) / (array.max() - array.min()) * 255
+        array = np.array(array, dtype=np.uint8)
+        for i in range(array.shape[0]):
+            self.PIL_ImgSeq.sequence.append(Image.fromarray(np.uint8(array[i,:,:])))
+
+        self.PIL_ImgSeq.seqlength = array.shape[0]
+
+        avoid_troubles.clear_main(self.player, self.roiplayer,
+                                  self.ptrackplayer)
+
+        self.nbook.select(self.nbook.index(self.roitab))
+        refresh = 0
+        selectroi = 1
+
+        try:
+            # avoid crash
+            self.roiplayer.stop = 2
+            # as roiplayer was not None -> destroy frame before it gets rebuilt:
+            self.roiplayer.frame.destroy()
+        except NameError:
+            pass
+
+        self.roiplayer.__init__(self.roitab, self.PIL_ImgSeq.directory, refresh,
+                                self.PIL_ImgSeq.sequence,
+                                self.PIL_ImgSeq.seqlength, self.roi, selectroi)
+
+        # make sure that the rotationangle is set to 0:
+        self.roiplayer.rotationangle = 0.0
 
         # print('roiplayer id in Toolbar: ',id(self.roiplayer))
         self.roiplayer.animate()
+
+
+
 
     def nextdirectory(self):
 
@@ -329,6 +387,17 @@ class Toolbar:
             borderwidth=0,command=self.read_video,image=self.loadvideo_icon)
         self.loadvideoB.place(in_=self.toolbarframe, anchor='c', x=130, rely=0.5)
         # ---------------------------------------------------------------------
+        # Add Button to load ND2 files:
+        self.load_nd2B = tk.Button(self.toolbarframe, text='ND2',
+            command=self.load_nd2, height=1, width=5)
+        self.load_nd2B.place(in_=self.toolbarframe, anchor='c', x=180, rely=0.55)
+        # ----------------------------------------------------------------------
+
+
+
+
+
+
         # Add Label and Entry Widget for setting the pixel size in [nm]  
 
         pixsize_label=tk.Label(self.toolbarframe,text="Pixelsize [nm] :",\
@@ -395,15 +464,8 @@ class Toolbar:
         # ---------------------------------------------------------------------
         """ 
         # Add combobox to indicate whether Reflection or Transmission was used
-
         mod = ['Transmission', 'Reflection']
         self.modcombo = tk.ttk.Combobox(self.toolbarframe, values=mod, width=11)
         self.modcombo.place(in_=self.toolbarframe, anchor='c', x=1100, rely=0.5)
         self.modcombo.current(0)
         """
-
-
-
-
-
-
