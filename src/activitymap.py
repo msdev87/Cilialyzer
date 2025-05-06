@@ -80,12 +80,10 @@ class activitymap:
 
         nimgs = int(2.0 * self.fps) if self.nimgs / self.fps > 2.0 else self.nimgs
 
-        #nimgs = self.nimgs
-        #print('nimgs: ', nimgs)
 
         # ws: window size in Farneback's optical flow 
-        ws = round(1750.0/pixsize) # we set the window size to about 2 microns
-        if (ws < 5): ws = 5
+        ws = round(2000.0/pixsize) # we set the window size to about 2 microns
+        if (ws < 7): ws = 7
 
         # subtract the mean (Note: it is necessary to subtract the mean
         # before the optical flow calculation!)
@@ -121,14 +119,13 @@ class activitymap:
 
             # get optical flow between image1 and image2
             flow = cv2.calcOpticalFlowFarneback(
-                    img1, img2, None, 0.99, 1, ws, 5, 7, 1.5, 0)
+                    img1, img2, None, 0.85, 3, ws, 5, 5, 1.2, 0)
             flow = flow.astype(numpy.float32)
 
             v_flow.append(flow[...,1])
             u_flow.append(flow[...,0])
 
         #print('time to calc optical flow: ', time.time()-start)
-
 
         # Outlier removal in optical flow by median filtering (kernel size = 3):
         u_flow = ndimage.median_filter(u_flow, size=3)
@@ -208,11 +205,11 @@ class activitymap:
         top2nd = round((0.5*bot) + (1.5 * top)) # upper freq limit for 1st and 2nd harms
         A_bar = numpy.sum(pwspecplot.yax[bot2nd:top2nd+1])
 
-        dirname = 'test_pixelautocorr'
-        if (os.path.exists(dirname)):
-            pass
-        else:
-            os.mkdir(dirname)
+        #dirname = 'test_pixelautocorr'
+        #if (os.path.exists(dirname)):
+        #    pass
+        #else:
+        #    os.mkdir(dirname)
 
         # ----------------------------------------------------------------------
         # Crop the power spectrum (vectorized over all pixels)
@@ -372,13 +369,11 @@ class activitymap:
         # set frequency of invalid pixels to nan:
         self.freqmap[~self.validity_mask.astype(bool)] = numpy.nan
 
-
         # plot the activity map (self.freqmap)
         dpis = 120
 
         figw = round(self.parentw / dpis)
         figh = round(self.parenth / dpis)
-
 
         self.fig, self.ax1 = plt.subplots(nrows=1, figsize=(figw-1, figh-1), dpi=dpis)
 

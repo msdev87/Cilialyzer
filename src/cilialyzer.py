@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import tkinter as tk
 import menubar
 from PIL import ImageTk,Image
