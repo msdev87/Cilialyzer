@@ -19,7 +19,7 @@ From 2026 onward, Cilialyzer will be developed and distributed by Ciliametrics G
 
 In order to continue supporting scientific research as effectively as possible, the implemented functions and algorithms will remain openly documented.
 
-By purchasing the affordably priced Cilialyzer license (350 CHF per year), the user community enables the continued maintenance, support, and further development of the software.
+By purchasing the affordably priced Cilialyzer license (350 CHF per year), you allow me to continue with the maintenance, support, and further development of the software.
 
 If you have any questions, feedback regarding the software, or inquiries about licensing, please feel free to contact me at the following email address:
 **[martin.schneiter@gmx.ch](mailto:martin.schneiter@gmx.ch)**
