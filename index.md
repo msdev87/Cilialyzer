@@ -10,7 +10,7 @@
 
 <br />
 
-**Dear Colleague**,
+**Dear Colleagues**,
 
 Thank you for your interest in the Cilialyzer software.
 From 2026 onward, Cilialyzer will be developed and distributed by Ciliametrics GmbH. 
