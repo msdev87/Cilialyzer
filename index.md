@@ -10,24 +10,22 @@
 
 <br />
 
-**Dear visitor**,
+**Dear Colleague**,
 
+Thank you very much for your interest in the Cilialyzer software.
+From 2026 onward, Cilialyzer will be developed and distributed by Ciliametrics GmbH. 
 
-we are currently in the process of finalizing a **greatly improved version of Cilialyzer**.  
-**If you would like to receive a link to download the newest Cilialyzer version, please notify us via email:  
-[martin.schneiter@unibe.ch](mailto:martin.schneiter@unibe.ch)**.  
-The greatly improved upcoming version will still be **free, open source and the compiled/binary version runs out of the box**.
+**A free pre-release version will be available throughout January.**
 
-By your notification via mail, you help us to get to know our user base. All of our users will be registered and getting notified 
-as soon as a new stable Cilialyzer version will be available (approximately 2--3 times per year). 
-In your mail, we would very much appreciate, if you could provide brief information for what purpose you plan to use Cilialyzer.
+In order to continue supporting scientific research as effectively as possible, the implemented functions and algorithms will remain openly documented.
 
+By purchasing the affordably priced Cilialyzer license (350 CHF per year), the user community enables the continued maintenance, support, and further development of the software.
 
-Thank you for your support and we are looking forward to hearing from you. 
-
+If you have any questions, feedback regarding the software, or inquiries about licensing, please feel free to contact me at the following email address:
+**[martin.schneiter@gmx.ch](mailto:martin.schneiter@gmx.ch)**
 
 Best wishes,  
-Martin Schneiter, PhD 
+Martin Schneiter
    
    
    
