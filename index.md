@@ -12,12 +12,12 @@
 
 **Dear Colleague**,
 
-Thank you very much for your interest in the Cilialyzer software.
+Thank you for your interest in the Cilialyzer software.
 From 2026 onward, Cilialyzer will be developed and distributed by Ciliametrics GmbH. 
 
 **A free pre-release version will be available throughout January.**
 
-In order to continue supporting scientific research as effectively as possible, the implemented functions and algorithms will remain openly documented.
+In order to continue supporting scientific research as effectively as possible, the implemented functions and algorithms will remain openly documented, although the source code is no longer publicly available.
 
 By purchasing the affordably priced Cilialyzer license (350 CHF per year), you allow me to continue with the maintenance, support, and further development of the software.
 
