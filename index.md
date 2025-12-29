@@ -17,7 +17,7 @@ From 2026 onward, Cilialyzer will be developed and distributed by Ciliametrics G
 
 **A free pre-release version will be available throughout January 2026.**
 
-In order to continue supporting scientific research as effectively as possible, the implemented functions and algorithms will remain openly documented, although the source code is no longer publicly available.
+In order to continue supporting scientific research as effectively as possible, the implemented functions and algorithms will remain openly documented, although the source code is no longer publicly available - if strictly required for scientific reasons, however, code snippets can be provided upon request.
 
 By purchasing the affordably priced Cilialyzer license (350 CHF per year), you allow us to continue with the support and further development of the software.
 
