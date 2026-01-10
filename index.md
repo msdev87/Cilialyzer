@@ -4,7 +4,7 @@
    <a href="./index.html" style="font-size:25px;font-weight:600;"       >Home</a>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
    <a href="./download.html" style="font-size:25px;font-weight:400;"     >Download</a>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
    <a href="./tutorials.html" style="font-size:25px;font-weight:400;"    >Video Tutorials</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-   <a href="./pinboard.html" style="font-size:25px;font-weight:400;"     >Technical Documentation</a>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   <a href="./documentation.html" style="font-size:25px;font-weight:400;"     >Documentation</a>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
    <a href="./publications.html" style="font-size:25px;font-weight:400;" >Publications</a> 
 </div> 
 
